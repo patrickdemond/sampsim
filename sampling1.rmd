@@ -1,0 +1,242 @@
+Sampling project, take 1
+========================================================
+
+(Funded grant with Harry Shannon and Roman Viveiros-Aguilera)
+
+```{r echo=FALSE,message=FALSE}
+require("knitr")
+opts_chunk$set(fig.width=5,fig.height=5,echo=FALSE)
+knit_hooks$set(basefig=function(before, options, envir) {
+                   if (before) {
+                       par(bty="l",las=1)
+                   } else { }
+               })
+knit_hooks$set(emptyfig=function(before, options, envir) {
+                   if (before) {
+                       par(bty="l",las=1,ann=FALSE,
+                           mar=rep(1,4))
+                   } else { }
+               })
+```
+
+
+
+First thoughts on simulation. The goal is to generate simulated populations (e.g. $N=10^6$, although it might not hurt to start with smaller populations to work out some of the issues before moving to bigger and more computationally burdensome cases) that represent some kind of representative spatial distributions of households; we will then hand over the simulated population(s) to the code for sampling, to evaluate the bias and variance of different sampling protocols.
+
+It seems that the basic approach will be to simulate households distributed in space and individuals within households.
+
+To a large extent the baseline level of sampling will be based on multivariate normal distributions, because this is the easiest way to model various types of correlation (spatial, among-covariate, etc.). If we want responses that are not consistent with a normal distribution (e.g. always positive, or discrete) we can either transform the results (Normal $\to$ log-Normal) or feed them as parameters into another random generator (e.g. Poisson(exp($\mu$))).
+
+```{r eval=FALSE,echo=FALSE}
+install.packages(c("RandomFields","plyr","spatial","ggplot2"))
+```
+
+Load packages:
+
+```{r message=FALSE}
+library("MASS")  ## ppregion, Strauss, mvrnorm
+library("RandomFields")
+library("plyr")
+library("spatial")
+library("ggplot2")
+library("grid")
+theme_set(theme_bw())
+zmargin <- theme(panel.margin=unit(0,"lines"))
+theme_fullframe <- function (base_size = 12) {
+  structure(list(
+    plot.title = element_blank(),
+    ## axis.line = element_blank(), 
+    axis.text.x = element_blank(), 
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(), 
+    axis.title.x = element_blank(), 
+    axis.title.y = element_blank(), 
+    axis.ticks.length = unit(0, "lines"), 
+    axis.ticks.margin = unit(0, "lines"), 
+    legend.position = "none", 
+    panel.background = element_blank(), 
+    ## panel.border = element_blank(), 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    panel.margin = unit(0, "lines"), 
+    plot.background = element_blank(), 
+    plot.margin = unit(0*c(-1.5, -1.5, -1.5, -1.5), "lines")
+  ), class = "options")
+}
+set.seed(101)  ## set random number seed, for reproducibility
+```
+
+## Spatial patterns
+
+### Household locations
+
+Generating random spatial patterns is easy:
+
+```{r randpts,emptyfig=TRUE}
+dr1 <- data.frame(x=runif(100),y=runif(100))
+plot(y~x,data=dr1,axes=FALSE)
+box()
+```
+
+It's not much more effort to generate clustered or regular patterns -- in this case points are placed randomly but can't fall within a specified radius of each other (a *hard core process* or a limit of a *Strauss process*).
+
+```{r strauss,emptyfig=TRUE}
+ppregion() ## (0,1)x(0,1) domain
+## complete inhibition (c=0) to a radius of 0.05
+ss <- Strauss(100,c=0,r=0.05)
+plot(ss$x,ss$y,axes=FALSE)
+box()
+```
+
+### Spatial structure in covariates
+
+Now suppose we want to have household-level covariates such as income or ethnicity, or incidence of disease, vary in a spatially structured way.
+
+#### Smooth
+One obvious (and easy) way to do this is to generate a linear or quadratic trend surface:
+
+```{r quadsurf,emptyfig=TRUE}
+svec <- seq(0,1,by=0.01)
+ss2 <- expand.grid(svec,svec)
+cc <- colorRampPalette(c("lightblue","darkblue"),
+                      space="Lab")
+image(svec,svec,outer(svec,svec,
+      function(x,y) x^2+3*x*y+0.5*y^2),
+      col=cc(20),axes=FALSE)
+points(ss$x,ss$y)
+box()
+```
+
+#### Patchy
+
+Or we can simulate a patchy distribution:
+
+```{r gaussRF,emptyfig=TRUE}
+gg <- GaussRF(svec,svec,grid=TRUE,model="gauss",
+              param=c(0,1,0.1,0.1))
+image(svec,svec,gg,col=cc(20),axes=FALSE)
+points(ss$x,ss$y)
+box()
+```
+
+More efficiently, we can simulate correlated values with the same characteristics just at the locations of the households rather than at all values of a grid (which is more efficient; here we will be simulating 100 spatially correlated values rather than 10,000 ...)
+
+```{r gaussRF2,warning=FALSE,message=FALSE}
+gg2 <- GaussRF(ss$x,ss$y,model="gauss",
+              param=c(0,1,0.1,0.1))
+dd <- data.frame(x=ss$x,y=ss$y,z=gg2)
+theme_set(theme_fullframe())
+ggplot(dd,aes(x,y,colour=z))+geom_point(size=5)
+theme_set(theme_bw())
+```
+
+#### Alternatives
+
+* there are fairly simple rules for generating *fractal* spatial patterns (useful for [mimicking natural landscapes](https://aigamedev.com/wp-content/blogs.dir/5/files/2012/04/DF_LandscapeSimulation.huge_.png), but probably not really necessary in this case)
+* one idea I'm less familar with is to use [*tensor product splines*](http://doi.ieeecomputersociety.org/cms/Computer.org/dl/trans/tg/2008/05/figures/ttg200805112617.gif) to describe landscapes/spatial variation
+* there are probably more realistic [ways to generate road networks](http://www.youtube.com/watch?v=nTR5uw1Dsm0), but maybe not worth the effort at this stage.
+* whatever we need to do will need to scale reasonably efficiently to hundreds of thousands of households if we really want to simulate populations of a million ... might be able to do this via some sort of tiling/hierarchical approach.
+* Need to think about the easiest way to generate spatially correlated *multivariate normal* variables ... ?  Just generate "latent variables" and use sensible rules to compose them into appropriately correlated covariates? (e.g. if I have a variable $a$ with variance $\sigma^2_a$ and I want to generate a new variable $b$ which is correlated at level $\rho$, I just need to make $b=a+\epsilon$ with variance $\sigma^2_0$; then $\sigma^2_b=\sigma^2_a+\sigma^2_0$ and we can work out the covariance and correlation and adjust ...)
+
+## Households
+
+At each point we assign one or more households.  Household sizes could be arranged according to some distribution (e.g. Poisson) or according to some pre-defined distribution we decided on. (1+Poisson(2) might not be too bad ...
+
+```{r poisHH,basefig=TRUE}
+xvec <- 1:7
+plot(xvec,dpois(xvec-1,lambda=2),type="h",ylab="Frequency",xlab="Household size")
+```
+
+Let's suppose that household size is spatially correlated according to the spatial variable we generated above
+
+Then we have to assign ages and characteristics to the individuals in the household, and finally disease status.  The easiest thing is probably to make disease status binary, and make it a logistic probability of the various covariates we have simulated, plus household-level random effects to induce correlation within households ...
+
+Want to transform the (standard Normal) spatially correlated variable to a reasonable range of Poisson values -- say we want mean $\lambda=2$
+```{r}
+dd$hsize <- 1+rpois(nrow(dd),exp(log(2)+dd$z/2))
+ggplot(dd,aes(x,y,size=hsize))+geom_point(col="darkgray")
+```
+(this is actually showing nearly the same information as the previous coloured-point plot ...)
+
+## Household composition
+
+The most obvious things to try to characterize at the household level are the distribution of age and sex/gender.  (Most other characteristics like income, ethnicity, religion, etc etc will be household-level rather than individual-level characteristics.)
+We could get quite detailed/complicated here, if we wanted.  It probably makes the most sense to assume that (1) single-individual households follow some sensible overall age distribution; (2) second individuals in a household are partners, follow some sensible "marriage function" for distribution of age differences between partners; (3) remaining individuals are children with a reasonable distribution of baseline age and distance between successive children (again, this could be made arbitrarily complicated ...)
+
+Other obvious complications: extended/multi-generational families; polygamy; making sure that the distribution of ages i s sensible and consistent with mother's age; etc etc etc etc ...
+
+```{r}
+## household characteristics
+hchars <- function(hsize) {
+  sexes <- c("M","F")
+  sex1 <- sample(sexes,size=1,prob=c(0.8,0.2))
+  age1 <- round(rnorm(1,mean=30,sd=5)) 
+  r <- data.frame(sex=factor(sex1,levels=sexes),age=age1)
+  if (hsize==1) return(r)
+  sex2 <- setdiff(sexes,sex1)  ## opposite sex
+  agediff <- round(rnorm(1,mean=0,sd=5))
+  ## FIXME:  could end up with a too-young partner
+  ## should be calibrated to M/F differences, better
+  ## marriage function
+  age2 <- age1+agediff
+  r <- rbind(r,
+             data.frame(sex=sex2,age=age2))
+  if (hsize==2) return(r)
+  agediffs <- sample(1:4,prob=c(0.25,0.5,0.15,0.1),
+                     size=hsize-2,replace=TRUE)
+  r <- rbind(r,
+             data.frame(sex=sample(sexes,size=hsize-2,
+                                   replace=TRUE),
+                        age=cumsum(agediffs)))
+  r
+}
+dd$hID <- seq(nrow(dd))
+all_indiv <- ddply(subset(dd,select=c(hID,hsize)),"hID",
+             function(x) hchars(x$hsize))
+summary(all_indiv)
+```
+
+```{r agedist}
+ggplot(all_indiv,aes(x=age)) + geom_histogram(binwidth=2) + 
+    facet_grid(.~sex)+zmargin
+```
+
+This is of course silly (adult and child distribution doesn't overlap ...)
+
+More realistic household distributions could be generated by a dynamical model following the actual history of households (household formation, partnership formation and dissolution, birth, children leaving the household, etc. ...), but that's probably way too complicated.
+
+## More
+
+### Tiling
+
+A convenient/cheap way to generate spatial variation without having to simulate Gaussian processes or gradients at every step of the procedure is to build up a community from square, independent "tiles".  This is of course mildly unrealistic ((a) geographic regions are rarely exactly square; (b) they rarely have sharp boundaries with complete independence/discontinuity across the border), but is probably fine for our purposes and as a start.  The computational convenience of this approach is that it means that any computational burden scales at worst as the square of the number of individuals *within* a tile, and is guaranteed to be linear with the number of tiles.  Furthermore, we can do distributed computing on tiles if we like.
+
+To generate a tile we specify its geographic location (e.g., the geographic location of the southwest corner and the tile size) and all of the characteristics of the people in it. The data structure that we return is the locations of all the households etc., *relative to the southwest corner of the tile*.  We can easily correct for this offset when we need to get absolute positions.
+
+We can decide on the most convenient data structure: individuals (data frame) within households (list) within tiles (list)?
+
+### Multi-household buildings
+
+It's easy enough to generate a distribution of "number of households per structure" and give all of these households an identical spatial location.  To the extent that household characteristics are spatially determined, the households within a building will have identical characteristics (which is what we want).
+
+## Disease generation
+
+#### Notes, 5 June 2013
+
+* Prevalence
+* Distribution of density (gradient, etc.)
+* Household types: 
+
+Need lots of nearest-neighbor stuff: K-D trees???
+
+* HH size = Poisson(5)
+* gradient in density across tiles (linear)
+* range in density: 50% variation in density
+* individual households: 1 person or couple or couple + children
+* disease model: overall prevalence 10%
+* correlation within households: correlation of 0.5 (OR 2)
+* adults vs children
+* spatial variation: Gaussian process
+* disease risk correlation with density (quadratic)
+
+* next
