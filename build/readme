@@ -20,7 +20,7 @@ managers.  I recommend trying this option first since it's the quickest and easi
 JSON CPP (jsoncpp.sourceforge.net)
 ----------------------------------
 You will need the jsoncpp development libraries.  You can download these from the sourceforge
-website or install them using your distro's package manager.
+website or install them using your distro's package manager (try package libjsoncpp-dev)
 
 
 Building sampsim
@@ -33,7 +33,7 @@ Building sampsim
 
 3. Inside your build directory, run cmake:
 
-   For linux: cmake -g "Unix Makefiles" /path/to/sampsim/build
+   For linux: cmake -G "Unix Makefiles" /path/to/sampsim/build
 
 4. Open the CMakeCache.txt file and change the following:
 
