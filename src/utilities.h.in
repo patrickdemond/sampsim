@@ -1,0 +1,151 @@
+/*=========================================================================
+
+  Program:  sampsim
+  Module:   utilities.h
+  Language: C++
+
+  Author: Patrick Emond <emondpd@mcmaster.ca>
+
+=========================================================================*/
+//
+// .SECTION Description
+// A utilities header to include typedefs, macros, global functions, etc.
+//
+
+#ifndef __utilities_h
+#define __utilities_h
+
+#define SAMPSIM_VERSION_MAJOR @SAMPSIM_VERSION_MAJOR@
+#define SAMPSIM_VERSION_MINOR @SAMPSIM_VERSION_MINOR@
+#define SAMPSIM_VERSION_PATCH @SAMPSIM_VERSION_PATCH@
+
+#define SAMPSIM_ROOT_DIR "@SAMPSIM_ROOT_DIR@"
+#define SAMPSIM_AUX_DIR "@SAMPSIM_AUX_DIR@"
+#define SAMPSIM_SRC_DIR "@SAMPSIM_SRC_DIR@"
+
+#include <algorithm>
+#include <cctype>
+#include <iostream>
+#include <random>
+#include <sstream>
+#include <stdio.h>
+#include <time.h>
+#include <unistd.h>
+#include <vector>
+
+/**
+ * @addtogroup sampsim
+ * @{
+ */
+
+namespace sampsim
+{
+  class utilities
+  {
+  public:
+    inline static std::string exec( const char* command )
+    {
+      FILE* pipe = popen( command, "r" );
+      if( !pipe ) return "ERROR";
+      char buffer[128];
+      std::string result = "";
+      while( !feof( pipe ) ) if( fgets( buffer, 128, pipe ) != NULL ) result += buffer;
+      pclose( pipe );
+      return result;
+    }
+
+    inline static std::string get_time( std::string format )
+    {
+      char buffer[256];
+      time_t rawtime;
+      time( &rawtime );
+      strftime( buffer, 256, format.c_str(), localtime( &rawtime ) );
+      return std::string( buffer );
+    }
+
+    inline static bool file_exists( std::string filename )
+    {
+      if( filename.empty() ) return false;
+      return access( filename.c_str(), R_OK )  == 0;
+    }
+
+    inline static std::string get_file_extension( std::string filename )
+    {
+      std::string::size_type dot_pos = filename.rfind( "." );
+      std::string extension = ( dot_pos == std::string::npos ) ? "" : filename.substr( dot_pos );
+      return extension;
+    }
+
+    inline static std::string get_filename_path( std::string filename )
+    {
+      std::string::size_type slash_pos = filename.rfind("/");
+      if( slash_pos != std::string::npos )
+      {
+        std::string path = filename.substr( 0, slash_pos );
+        if( path.size() == 2 && path[1] == ':' )
+        {
+          return path + '/';
+        }
+        if( path.size() == 0 )
+        {
+          return "/";
+        }
+        return path;
+      }
+      else
+      {
+        return "";
+      }
+    }
+
+    inline static std::string get_filename_name( std::string filename )
+    {
+      std::string::size_type slash_pos = filename.find_last_of("/");
+      if( slash_pos != std::string::npos )
+      {
+        return filename.substr( slash_pos + 1 );
+      }
+      else
+      {
+        return filename;
+      }
+    }
+
+    inline static std::vector< std::string > explode( std::string str, std::string separator )
+    {
+      std::vector< std::string > results;
+      int found = str.find_first_of( separator );
+      while( found != std::string::npos )
+      {
+        if( found > 0 ) results.push_back( str.substr( 0, found ) );
+        str = str.substr( found + 1 );
+        found = str.find_first_of( separator );
+      }
+      if( str.length() > 0 ) results.push_back( str );
+      return results;
+    }
+
+    inline static unsigned int random( unsigned int min, unsigned int max )
+    {
+      return random_engine() % ( max - min + 1 ) + min;
+    }
+
+    inline static double random()
+    {
+      return static_cast< double >( random_engine() - random_engine.min() ) /
+             static_cast< double >( random_engine.max() - random_engine.min() );
+    }
+
+    struct safe_delete_type
+    {
+      template <typename T>
+      void operator()( T *&p ) { if( p ) { delete p; p = 0; } };
+    };
+
+    static std::default_random_engine random_engine;
+    static safe_delete_type safe_delete;
+    static bool verbose;
+  };
+}
+
+#endif // __utilities_h
