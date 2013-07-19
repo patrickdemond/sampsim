@@ -24,7 +24,7 @@
 using namespace sampsim;
 
 // instantiate static variables in utilities class
-std::default_random_engine sampsim::utilities::random_engine;
+std::mt19937 sampsim::utilities::random_engine;
 sampsim::utilities::safe_delete_type sampsim::utilities::safe_delete;
 bool sampsim::utilities::verbose = false;
 
@@ -55,7 +55,7 @@ int main( int argc, char** argv )
     opt->addUsage( " -h  --help             Prints this help" );
     opt->addUsage( " -v  --verbose          Be verbose when generating simulation" );
     opt->addUsage( "" );
-    opt->addUsage( "Simulation parameters:" );
+    opt->addUsage( "Simulation parameters (overrides config files):" );
     opt->addUsage( "" );
     opt->addUsage( " --seed                 The seed used by the random generator" );
     opt->addUsage( " --mean_household_pop   The mean number of individuals per household" );
@@ -124,7 +124,7 @@ int main( int argc, char** argv )
 
     // command line simulation parameters (overrides config files)
     if( opt->getValue( "seed" ) )
-      sampsim::utilities::random_engine.seed( atoi( opt->getValue( "mean_household_pop" ) ) );
+      sampsim::utilities::random_engine.seed( atoi( opt->getValue( "seed" ) ) );
 
     if( opt->getValue( "mean_household_pop" ) )
       mean_household_pop = atof( opt->getValue( "mean_household_pop" ) );

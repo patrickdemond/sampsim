@@ -142,7 +142,7 @@ namespace sampsim
       void operator()( T *&p ) { if( p ) { delete p; p = 0; } };
     };
 
-    static std::default_random_engine random_engine;
+    static std::mt19937 random_engine;
     static safe_delete_type safe_delete;
     static bool verbose;
   };
