@@ -1,22 +1,22 @@
 /*=========================================================================
 
   Program:  sampsim
-  Module:   simulation.h
+  Module:   population.h
   Language: C++
 
 =========================================================================*/
 
 /**
- * @class simulation
+ * @class population
  * @namespace sampsim
  * 
  * @author Patrick Emond <emondpd@mcmaster.ca>
  * 
- * @brief A simulation which contains X by Y tiles
+ * @brief A population which contains X by Y tiles
  */
 
-#ifndef __simulation_h
-#define __simulation_h
+#ifndef __population_h
+#define __population_h
 
 #include "base_object.h"
 
@@ -35,14 +35,14 @@ namespace sampsim
   class tile;
   class trend;
 
-  class simulation : public base_object
+  class population : public base_object
   {
   public:
-    simulation();
-    ~simulation();
+    population();
+    ~population();
 
     /**
-     * Generate the sample by generating all tiles in the simulation
+     * Generate the sample by generating all tiles in the population
      */
     void generate();
     void write( std::string filename, bool flat_file = false );
@@ -57,12 +57,12 @@ namespace sampsim
     void set_population_density( const trend *population_density );
 
     /**
-     * Counts the total population of the simulation
+     * Counts the total population of the population
      */
     int get_population() const;
 
     /**
-     * Determines the surface area of the simulation
+     * Determines the surface area of the population
      */
     double get_area() const;
 

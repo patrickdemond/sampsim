@@ -47,8 +47,8 @@ SET( SAMPSIM_SOURCE
   ${SAMPSIM_SRC_DIR}/coordinate.cxx
   ${SAMPSIM_SRC_DIR}/household.cxx
   ${SAMPSIM_SRC_DIR}/individual.cxx
+  ${SAMPSIM_SRC_DIR}/population.cxx
   ${SAMPSIM_SRC_DIR}/sampsim.cxx
-  ${SAMPSIM_SRC_DIR}/simulation.cxx
   ${SAMPSIM_SRC_DIR}/tile.cxx
   ${SAMPSIM_SRC_DIR}/trend.cxx
 )

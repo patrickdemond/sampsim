@@ -1,6 +1,6 @@
 #########################################################################################
 #
-# This is a sample configuration file used to set up simulation parameters for sampsim
+# This is a sample configuration file used to set up population parameters for sampsim
 #
 # No more than one parameter may be included per line.  Options with no values (flags)
 # are set to true if found on a line alone.  For example:
@@ -60,6 +60,6 @@ sd_income_b00: 5000
 #   P(x,y) = b00 + b01*x + b10*y + b02*x^2 + b20*y^2 + b11*x*y
 # The default values for b00 is 1 and 0 for all other coefficients
 #
-population_b00: 400
-population_b01: 0.8
-population_b10: 0.8
+popdens_b00: 400
+popdens_b01: 0.8
+popdens_b10: 0.8

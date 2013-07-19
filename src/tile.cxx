@@ -9,7 +9,7 @@
 #include "tile.h"
 
 #include "building.h"
-#include "simulation.h"
+#include "population.h"
 #include "utilities.h"
 
 #include <algorithm>
@@ -20,7 +20,7 @@
 namespace sampsim
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  tile::tile( simulation *parent, std::pair< int, int > index )
+  tile::tile( population *parent, std::pair< int, int > index )
   {
     this->parent = parent;
     this->set_index( index );

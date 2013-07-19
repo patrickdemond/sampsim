@@ -11,7 +11,7 @@
 #include "building.h"
 #include "household.h"
 #include "individual.h"
-#include "simulation.h"
+#include "population.h"
 #include "tile.h"
 #include "utilities.h"
 

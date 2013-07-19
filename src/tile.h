@@ -12,7 +12,7 @@
  * 
  * @author Patrick Emond <emondpd@mcmaster.ca>
  * 
- * @brief A tile which belongs to a simulation and contains buildings
+ * @brief A tile which belongs to a population and contains buildings
  */
 
 #ifndef __tile_h
@@ -34,14 +34,14 @@ namespace Json { class Value; }
 namespace sampsim
 {
   class building;
-  class simulation;
+  class population;
 
   class tile : public base_object
   {
   public:
-    tile( simulation *parent, std::pair< int, int > index );
+    tile( population *parent, std::pair< int, int > index );
     ~tile();
-    simulation* get_parent() { return this->parent; }
+    population* get_parent() { return this->parent; }
 
     /**
      * Generate the tile by generating all buildings in the tile
@@ -78,13 +78,13 @@ namespace sampsim
 
   protected:
     /**
-     * Sets the tile's 2D index within the simulation.
+     * Sets the tile's 2D index within the population.
      * This method will also set the tile's extent and centroid.
      */
     void set_index( const std::pair< int, int > index );
 
   private:
-    simulation *parent;
+    population *parent;
     std::pair< int, int > index;
     std::pair< double, double > income;
     double population_density;
