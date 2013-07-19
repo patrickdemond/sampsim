@@ -52,9 +52,8 @@ namespace sampsim
   void population::generate()
   {
     std::pair< int, int > index;
-    clock_t time = clock();
 
-    std::cout << "generating population" << std::endl;
+    utilities::output( "generating population" );
 
     // create tiles
     for( int y = 0; y < this->number_tiles_y; y++ )
@@ -75,20 +74,13 @@ namespace sampsim
       }
     }
 
-    time = clock() - time;
-    int population = this->get_population();
-    double elapsed = (float)time / CLOCKS_PER_SEC;
-
-    std::cout << "finished generating population: population " << population
-              << " in " << this->get_area() << " km^2 area" << std::endl;
-    std::cout << "processing time of " << elapsed << " seconds, generating "
-         << population / elapsed << " individuals per second" << std::endl;
+    utilities::output( "finished generating population" );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::write( std::string filename, bool flat_file )
   {
-    std::cout << "writting population to " << filename << std::endl;
+    utilities::output( "writting population to %s", filename.c_str() );
 
     if( flat_file )
     {
@@ -107,6 +99,8 @@ namespace sampsim
       stream << writer.write( root );
       stream.close();
     }
+
+    utilities::output( "finished writting population" );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -143,21 +137,21 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::set_number_tiles_x( const int number_tiles_x )
   {
-    if( utilities::verbose ) std::cout << "setting number_tiles_x to " << number_tiles_x << std::endl;
+    if( utilities::verbose ) utilities::output( "setting number_tiles_x to %d", number_tiles_x );
     this->number_tiles_x = number_tiles_x;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::set_number_tiles_y( const int number_tiles_y )
   {
-    if( utilities::verbose ) std::cout << "setting number_tiles_y to " << number_tiles_y << std::endl;
+    if( utilities::verbose ) utilities::output( "setting number_tiles_y to %d", number_tiles_y );
     this->number_tiles_y = number_tiles_y;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::set_tile_width( const double tile_width )
   {
-    if( utilities::verbose ) std::cout << "setting tile_width to " << tile_width << " meters" << std::endl;
+    if( utilities::verbose ) utilities::output( "setting tile_width to %f meters", tile_width );
     this->tile_width = tile_width;
   }
 
@@ -165,8 +159,7 @@ namespace sampsim
   void population::set_mean_household_population( const double mean_household_population )
   {
     if( utilities::verbose )
-      std::cout << "setting mean_household_population to " << mean_household_population
-                << " meters" << std::endl;
+      utilities::output( "setting mean_household_population to %f", mean_household_population );
     this->mean_household_population = mean_household_population;
   }
 
@@ -174,8 +167,12 @@ namespace sampsim
   void population::set_income( const trend *mean, const trend *sd )
   {
     if( utilities::verbose )
-      std::cout << "setting income trend mean to " << mean->to_string() << std::endl
-                << "setting income trend sd to " << sd->to_string() << std::endl;
+    {
+      utilities::output( "setting income trend mean to %s", mean->to_string().c_str() );
+      utilities::output( "setting income trend sd to %s", sd->to_string().c_str() );
+      utilities::output( "setting income trend mean to %s", mean->to_string().c_str() );
+      utilities::output( "setting income trend sd to %s", sd->to_string().c_str() );
+    }
     this->mean_income->copy( mean );
     this->sd_income->copy( sd );
   }
@@ -184,7 +181,7 @@ namespace sampsim
   void population::set_population_density( const trend *population_density )
   {
     if( utilities::verbose )
-      std::cout << "setting population density trend to " << population_density->to_string() << std::endl;
+      utilities::output( "setting population density trend to %s", population_density->to_string().c_str() );
     this->population_density->copy( population_density );
   }
 

@@ -16,6 +16,7 @@
 #include "utilities.h"
 
 #include <cstdlib>
+#include <ctime>
 #include <map>
 #include <random>
 #include <stdexcept>
@@ -28,6 +29,7 @@ std::mt19937 sampsim::utilities::random_engine;
 sampsim::utilities::safe_delete_type sampsim::utilities::safe_delete;
 bool sampsim::utilities::verbose = false;
 int sampsim::utilities::household_index = 0;
+clock_t sampsim::utilities::start_time = clock();
 
 // main function
 int main( int argc, char** argv )
@@ -84,10 +86,10 @@ int main( int argc, char** argv )
     opt->addUsage( " --tile_width           The width of a tile in kilometers" );
 
     // runtime arguments
+    opt->setCommandFlag( "help", 'h' );
+    opt->setCommandFlag( "verbose", 'v' );
+    opt->setCommandFlag( "flat_file", 'f' );
     opt->setOption( "config", 'c' );
-    opt->setFlag( "help", 'h' );
-    opt->setFlag( "verbose", 'v' );
-    opt->setFlag( "flat_file", 'f' );
 
     // population parameters
     opt->setOption( "seed" );
@@ -114,7 +116,8 @@ int main( int argc, char** argv )
     opt->setOption( "tile_y" );
     opt->setOption( "tile_width" );
 
-    opt->processCommandArgs( argc, argv );
+    opt->useCommandArgs( argc, argv );
+    opt->processCommandArgs();
 
     bool show_help = false;
     bool flat_file = false;
@@ -130,10 +133,11 @@ int main( int argc, char** argv )
 
     // load config file population parameters
     if( opt->getValue( "config" ) || opt->getValue( 'c' ) )
-      opt->processFile( opt->getValue( "config" ) );
+      opt->useFileName( opt->getValue( "config" ) );
 
-    // to override the config file parameters we need to re-process the command line arguments
-    opt->processCommandArgs( argc, argv );
+    // process the file, then command arguments
+    opt->processFile();
+    opt->processCommandArgs();
 
     // process population parameters
     if( opt->getValue( "seed" ) )

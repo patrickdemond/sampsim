@@ -41,7 +41,7 @@ namespace sampsim
   void tile::generate()
   {
     if( utilities::verbose )
-      std::cout << "generating tile at " << this->index.first << ", " << this->index.second << std::endl;
+      utilities::output( "generating tile at %d, %d", this->index.first , this->index.second );
 
     // need to keep creating buildings until the population density is met
     int count = 0;
@@ -56,8 +56,9 @@ namespace sampsim
     }
 
     if( utilities::verbose )
-      std::cout << "finished generating tile: population " << this->get_population()
-                << " in " << this->building_list.size() << " buildings" << std::endl;
+      utilities::output( "finished generating tile: population %d in %d buildins",
+                         this->get_population(),
+                         this->building_list.size() );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

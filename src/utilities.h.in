@@ -24,10 +24,12 @@
 #define SAMPSIM_SRC_DIR "@SAMPSIM_SRC_DIR@"
 
 #include <algorithm>
+#include <ctime>
 #include <cctype>
 #include <iostream>
 #include <random>
 #include <sstream>
+#include <stdarg.h>
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
@@ -43,6 +45,24 @@ namespace sampsim
   class utilities
   {
   public:
+    inline static void output( std::string message, ... )
+    {
+      va_list args;  // Pointer to optional arguments
+      va_start( args, message );
+      
+      char buffer[256];
+      vsprintf( buffer, message.c_str(), args );
+
+      double elapsed = (float)( clock() - utilities::start_time ) / CLOCKS_PER_SEC;
+      int hours = floor( elapsed / 3600 );
+      int minutes = floor( ( elapsed - hours * 3600 ) / 60 );
+      double seconds = elapsed - hours * 3600 - minutes * 60;
+      char time[32];
+      sprintf( time, "[%d:%02d:%05.2f]", hours, minutes, seconds );
+
+      std::cout << time << " " << buffer << std::endl;
+    }
+
     inline static std::string exec( const char* command )
     {
       FILE* pipe = popen( command, "r" );
@@ -52,15 +72,6 @@ namespace sampsim
       while( !feof( pipe ) ) if( fgets( buffer, 128, pipe ) != NULL ) result += buffer;
       pclose( pipe );
       return result;
-    }
-
-    inline static std::string get_time( std::string format )
-    {
-      char buffer[256];
-      time_t rawtime;
-      time( &rawtime );
-      strftime( buffer, 256, format.c_str(), localtime( &rawtime ) );
-      return std::string( buffer );
     }
 
     inline static bool file_exists( std::string filename )
@@ -146,6 +157,7 @@ namespace sampsim
     static safe_delete_type safe_delete;
     static bool verbose;
     static int household_index;
+    static clock_t start_time;
   };
 }
 
