@@ -28,6 +28,10 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  tile* household::get_tile() const { return this->parent->get_tile(); }
+  population* household::get_population() const { return this->parent->get_population(); }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   household::~household()
   {
     // we're holding a light reference to the parent, don't delete it
@@ -37,11 +41,23 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void household::generate()
   {
+    std::normal_distribution<double> normal;
+    std::poisson_distribution<int> poisson;
+
+    tile *tile = this->get_tile();
+    population *pop = this->get_population();
+
+    // income and disease are Normal deviates from the tile average
+    normal = std::normal_distribution<double>( tile->get_mean_income(), tile->get_sd_income() );
+    this->income = normal( utilities::random_engine );
+    normal = std::normal_distribution<double>( tile->get_mean_income(), tile->get_sd_income() );
+    this->disease_risk = normal( utilities::random_engine );
+
     // Randomly determine the number of individuals in the household using a poisson distribution
     // We'll use 1 + Poisson( mean - 1 ) so that there are no empty households
-    double mean_population = this->parent->get_parent()->get_parent()->get_mean_household_population();
-    std::poisson_distribution<int> distribution( mean_population - 1 );
-    int population = distribution( utilities::random_engine ) + 1;
+    double mean_population = pop->get_mean_household_population();
+    poisson = std::poisson_distribution<int>( mean_population - 1 );
+    int population = poisson( utilities::random_engine ) + 1;
     
     // make the first individual an adult of random sex
     bool male = 0 == utilities::random( 0, 1 );
@@ -74,6 +90,8 @@ namespace sampsim
   void household::to_json( Json::Value &json )
   {
     json = Json::Value( Json::objectValue );
+    json["income"] = this->income;
+    json["disease_risk"] = this->disease_risk;
     json["individual_list"] = Json::Value( Json::arrayValue );
     json["individual_list"].resize( this->individual_list.size() );
 
@@ -88,8 +106,8 @@ namespace sampsim
   {
     // write the household index and position to the household stream
     household_stream << utilities::household_index << ",";
-    this->parent->get_position().to_csv( household_stream );
-    household_stream << std::endl;
+    this->get_building()->get_position().to_csv( household_stream );
+    household_stream << "," << this->income << "," << this->disease_risk << std::endl;
 
     // write all individuals in this household to the individual stream
     std::vector< individual* >::const_iterator it;
@@ -104,7 +122,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  int household::get_population() const
+  int household::count_population() const
   {
     return this->individual_list.size();
   }

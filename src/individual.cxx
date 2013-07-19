@@ -21,6 +21,7 @@ namespace sampsim
     this->parent = parent;
     this->male = true;
     this->adult = true;
+    this->disease = false;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -31,16 +32,24 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  building* individual::get_building() const { return this->parent->get_building(); }
+  tile* individual::get_tile() const { return this->parent->get_tile(); }
+  population* individual::get_population() const { return this->parent->get_population(); }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void individual::to_json( Json::Value &json )
   {
     json = Json::Value( Json::objectValue );
     json["sex"] = Json::Value( this->male ? "m" : "f" );
     json["age"] = Json::Value( this->adult ? "a" : "c" );
+    json["disease"] = this->disease ? 1 : 0;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void individual::to_csv( std::ofstream &stream )
   {
-    stream << ( this->male ? "m" : "f" ) << "," << ( this->adult ? "a" : "c" );
+    stream << ( this->male ? "m" : "f" ) << ","
+           << ( this->adult ? "a" : "c" ) << ","
+           << ( this->disease ? 1 : 0 );
   }
 }

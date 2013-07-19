@@ -29,14 +29,24 @@ namespace Json { class Value; }
 
 namespace sampsim
 {
+  class building;
   class household;
+  class population;
+  class tile;
 
   class individual : public base_object
   {
   public:
     individual( household *parent );
     ~individual();
-    household* get_parent() { return this->parent; }
+
+    /**
+     * Lineage methods
+     */
+    household* get_household() const { return this->parent; }
+    building* get_building() const;
+    tile* get_tile() const;
+    population* get_population() const;
 
     virtual void to_json( Json::Value& );
     virtual void to_csv( std::ofstream& );
@@ -52,6 +62,7 @@ namespace sampsim
     household *parent;
     bool male;
     bool adult;
+    bool disease;
   };
 }
 

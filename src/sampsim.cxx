@@ -41,6 +41,8 @@ int main( int argc, char** argv )
   double mean_household_pop = 4;
   sampsim::trend *mean_income = new trend;
   sampsim::trend *sd_income = new trend;
+  sampsim::trend *mean_disease = new trend;
+  sampsim::trend *sd_disease = new trend;
   sampsim::trend *popdens = new trend;
   int tile_x = 10, tile_y = 10;
   double tile_width = 3.5;
@@ -75,6 +77,18 @@ int main( int argc, char** argv )
     opt->addUsage( " --sd_income_b02        The SD income trend's X^2 coefficient" );
     opt->addUsage( " --sd_income_b20        The SD income trend's Y^2 coefficient" );
     opt->addUsage( " --sd_income_b11        The SD income trend's XY coefficient" );
+    opt->addUsage( " --mean_disease_b00     The mean disease trend's independent coefficient" );
+    opt->addUsage( " --mean_disease_b01     The mean disease trend's X coefficient" );
+    opt->addUsage( " --mean_disease_b10     The mean disease trend's Y coefficient" );
+    opt->addUsage( " --mean_disease_b02     The mean disease trend's X^2 coefficient" );
+    opt->addUsage( " --mean_disease_b20     The mean disease trend's Y^2 coefficient" );
+    opt->addUsage( " --mean_disease_b11     The mean disease trend's XY coefficient" );
+    opt->addUsage( " --sd_disease_b00       The SD disease trend's independent coefficient" );
+    opt->addUsage( " --sd_disease_b01       The SD disease trend's X coefficient" );
+    opt->addUsage( " --sd_disease_b10       The SD disease trend's Y coefficient" );
+    opt->addUsage( " --sd_disease_b02       The SD disease trend's X^2 coefficient" );
+    opt->addUsage( " --sd_disease_b20       The SD disease trend's Y^2 coefficient" );
+    opt->addUsage( " --sd_disease_b11       The SD disease trend's XY coefficient" );
     opt->addUsage( " --popdens_b00          The population density trend's independent coefficient" );
     opt->addUsage( " --popdens_b01          The population density trend's X coefficient" );
     opt->addUsage( " --popdens_b10          The population density trend's Y coefficient" );
@@ -106,6 +120,18 @@ int main( int argc, char** argv )
     opt->setOption( "sd_income_b02" );
     opt->setOption( "sd_income_b20" );
     opt->setOption( "sd_income_b11" );
+    opt->setOption( "mean_disease_b00" );
+    opt->setOption( "mean_disease_b01" );
+    opt->setOption( "mean_disease_b10" );
+    opt->setOption( "mean_disease_b02" );
+    opt->setOption( "mean_disease_b20" );
+    opt->setOption( "mean_disease_b11" );
+    opt->setOption( "sd_disease_b00" );
+    opt->setOption( "sd_disease_b01" );
+    opt->setOption( "sd_disease_b10" );
+    opt->setOption( "sd_disease_b02" );
+    opt->setOption( "sd_disease_b20" );
+    opt->setOption( "sd_disease_b11" );
     opt->setOption( "popdens_b00" );
     opt->setOption( "popdens_b01" );
     opt->setOption( "popdens_b10" );
@@ -121,6 +147,7 @@ int main( int argc, char** argv )
 
     bool show_help = false;
     bool flat_file = false;
+    std::string seed = "";
 
     // make sure there is a file argument
     if( 1 != opt->getArgc() ) show_help = true;
@@ -140,8 +167,7 @@ int main( int argc, char** argv )
     opt->processCommandArgs();
 
     // process population parameters
-    if( opt->getValue( "seed" ) )
-      sampsim::utilities::random_engine.seed( atoi( opt->getValue( "seed" ) ) );
+    if( opt->getValue( "seed" ) ) seed = opt->getValue( "seed" );
 
     if( opt->getValue( "mean_household_pop" ) )
       mean_household_pop = atof( opt->getValue( "mean_household_pop" ) );
@@ -170,6 +196,31 @@ int main( int argc, char** argv )
       sd_income->set_b20( atof( opt->getValue( "sd_income_b20" ) ) );
     if( opt->getValue( "sd_income_b11" ) )
       sd_income->set_b11( atof( opt->getValue( "sd_income_b11" ) ) );
+
+    if( opt->getValue( "mean_disease_b00" ) )
+      mean_disease->set_b00( atof( opt->getValue( "mean_disease_b00" ) ) );
+    if( opt->getValue( "mean_disease_b01" ) )
+      mean_disease->set_b01( atof( opt->getValue( "mean_disease_b01" ) ) );
+    if( opt->getValue( "mean_disease_b10" ) )
+      mean_disease->set_b10( atof( opt->getValue( "mean_disease_b10" ) ) );
+    if( opt->getValue( "mean_disease_b02" ) )
+      mean_disease->set_b02( atof( opt->getValue( "mean_disease_b02" ) ) );
+    if( opt->getValue( "mean_disease_b20" ) )
+      mean_disease->set_b20( atof( opt->getValue( "mean_disease_b20" ) ) );
+    if( opt->getValue( "mean_disease_b11" ) )
+      mean_disease->set_b11( atof( opt->getValue( "mean_disease_b11" ) ) );
+    if( opt->getValue( "sd_disease_b00" ) )
+      sd_disease->set_b00( atof( opt->getValue( "sd_disease_b00" ) ) );
+    if( opt->getValue( "sd_disease_b01" ) )
+      sd_disease->set_b01( atof( opt->getValue( "sd_disease_b01" ) ) );
+    if( opt->getValue( "sd_disease_b10" ) )
+      sd_disease->set_b10( atof( opt->getValue( "sd_disease_b10" ) ) );
+    if( opt->getValue( "sd_disease_b02" ) )
+      sd_disease->set_b02( atof( opt->getValue( "sd_disease_b02" ) ) );
+    if( opt->getValue( "sd_disease_b20" ) )
+      sd_disease->set_b20( atof( opt->getValue( "sd_disease_b20" ) ) );
+    if( opt->getValue( "sd_disease_b11" ) )
+      sd_disease->set_b11( atof( opt->getValue( "sd_disease_b11" ) ) );
 
     if( opt->getValue( "popdens_b00" ) )
       popdens->set_b00( atof( opt->getValue( "popdens_b00" ) ) );
@@ -200,8 +251,10 @@ int main( int argc, char** argv )
     {
       // launch application
       sampsim::population *pop = new population;
+      pop->set_seed( seed );
       pop->set_mean_household_population( mean_household_pop );
       pop->set_income( mean_income, sd_income );
+      pop->set_disease( mean_disease, sd_disease );
       pop->set_population_density( popdens );
       pop->set_number_tiles_x( tile_x );
       pop->set_number_tiles_y( tile_y );
@@ -220,6 +273,8 @@ int main( int argc, char** argv )
 
   sampsim::utilities::safe_delete( mean_income );
   sampsim::utilities::safe_delete( sd_income );
+  sampsim::utilities::safe_delete( mean_disease );
+  sampsim::utilities::safe_delete( sd_disease );
   sampsim::utilities::safe_delete( popdens );
   sampsim::utilities::safe_delete( opt );
   return status;

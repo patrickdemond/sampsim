@@ -24,12 +24,15 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   population::population()
   {
+    this->seed = "";
     this->number_tiles_x = 0;
     this->number_tiles_y = 0;
     this->tile_width = 0;
     this->mean_household_population = 0;
     this->mean_income = new trend;
     this->sd_income = new trend;
+    this->mean_disease = new trend;
+    this->sd_disease = new trend;
     this->population_density = new trend;
   }
 
@@ -45,6 +48,8 @@ namespace sampsim
     // delete all trends
     delete this->mean_income;
     delete this->sd_income;
+    delete this->mean_disease;
+    delete this->sd_disease;
     delete this->population_density;
   }
 
@@ -63,9 +68,10 @@ namespace sampsim
         // create the tile
         index = std::pair< int, int >( x, y );
         tile *t = new tile( this, index );
-        t->set_income(
-          this->mean_income->get_value( t->get_centroid() ),
-          this->sd_income->get_value( t->get_centroid() ) );
+        t->set_mean_income( this->mean_income->get_value( t->get_centroid() ) );
+        t->set_sd_income( this->sd_income->get_value( t->get_centroid() ) );
+        t->set_mean_disease( this->mean_disease->get_value( t->get_centroid() ) );
+        t->set_sd_disease( this->sd_disease->get_value( t->get_centroid() ) );
         t->set_population_density( this->population_density->get_value( t->get_centroid() ) );
         t->generate();
 
@@ -73,6 +79,13 @@ namespace sampsim
         this->tile_list[index] = t;
       }
     }
+
+    // now that the population has been generated we can determine disease status
+    // we are going to do this in a standard generalized-linear-model way, by constructing a linear
+    // function of the various contributing factors
+    utilities::output( "determining disease status" );
+
+    // TODO: implement
 
     utilities::output( "finished generating population" );
   }
@@ -107,12 +120,15 @@ namespace sampsim
   void population::to_json( Json::Value &json )
   {
     json = Json::Value( Json::objectValue );
+    json["seed"] = this->seed;
     json["number_tiles_x"] = this->number_tiles_x;
     json["number_tiles_y"] = this->number_tiles_y;
     json["tile_width"] = this->tile_width;
     json["mean_household_population"] = this->mean_household_population;
     this->mean_income->to_json( json["mean_income"] );
     this->sd_income->to_json( json["sd_income"] );
+    this->mean_disease->to_json( json["mean_disease"] );
+    this->sd_disease->to_json( json["sd_disease"] );
     this->population_density->to_json( json["population_density"] );
     json["tile_list"] = Json::Value( Json::arrayValue );
     json["tile_list"].resize( this->tile_list.size() );
@@ -132,6 +148,13 @@ namespace sampsim
     std::map< std::pair< int, int >, tile* >::const_iterator it;
     for( it = this->tile_list.begin(); it != this->tile_list.end(); ++it )
       it->second->to_csv( household_stream, individual_stream );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::set_seed( std::string seed )
+  {
+    this->seed = seed;
+    utilities::random_engine.seed( atoi( this->seed.c_str() ) );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -178,6 +201,20 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::set_disease( const trend *mean, const trend *sd )
+  {
+    if( utilities::verbose )
+    {
+      utilities::output( "setting disease trend mean to %s", mean->to_string().c_str() );
+      utilities::output( "setting disease trend sd to %s", sd->to_string().c_str() );
+      utilities::output( "setting disease trend mean to %s", mean->to_string().c_str() );
+      utilities::output( "setting disease trend sd to %s", sd->to_string().c_str() );
+    }
+    this->mean_disease->copy( mean );
+    this->sd_disease->copy( sd );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::set_population_density( const trend *population_density )
   {
     if( utilities::verbose )
@@ -186,12 +223,12 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  int population::get_population() const
+  int population::count_population() const
   {
     int count = 0;
     std::map< std::pair< int, int >, tile* >::const_iterator it;
     for( it = this->tile_list.begin(); it != this->tile_list.end(); ++it )
-      count += it->second->get_population();
+      count += it->second->count_population();
 
     return count;
   }

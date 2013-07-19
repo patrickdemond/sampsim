@@ -41,7 +41,11 @@ namespace sampsim
   public:
     tile( population *parent, std::pair< int, int > index );
     ~tile();
-    population* get_parent() { return this->parent; }
+
+    /**
+     * Lineage methods
+     */
+    population* get_population() const { return this->parent; }
 
     /**
      * Generate the tile by generating all buildings in the tile
@@ -50,9 +54,16 @@ namespace sampsim
     virtual void to_json( Json::Value& );
     virtual void to_csv( std::ofstream&, std::ofstream& );
 
-    void set_income( std::pair< double, double > income ) { this->income = income; }
-    void set_income( double mean, double sd )
-    { this->set_income( std::pair< double, double >( mean, sd ) ); }
+    double get_mean_income() { return this->mean_income; }
+    void set_mean_income( double mean ) { this->mean_income = mean; }
+    double get_sd_income() { return this->sd_income; }
+    void set_sd_income( double sd ) { this->sd_income = sd; }
+
+    double get_mean_disease() { return this->mean_disease; }
+    void set_mean_disease( double mean ) { this->mean_disease = mean; }
+    double get_sd_disease() { return this->sd_disease; }
+    void set_sd_disease( double sd ) { this->sd_disease = sd; }
+
     void set_population_density( double population_density )
     { this->population_density = population_density; }
 
@@ -69,7 +80,7 @@ namespace sampsim
     /**
      * Counts the total population of the tile
      */
-    int get_population() const;
+    int count_population() const;
 
     /**
      * Determines the surface area of the tile
@@ -86,7 +97,10 @@ namespace sampsim
   private:
     population *parent;
     std::pair< int, int > index;
-    std::pair< double, double > income;
+    double mean_income;
+    double sd_income;
+    double mean_disease;
+    double sd_disease;
     double population_density;
     std::pair< coordinate, coordinate > extent;
     coordinate centroid;

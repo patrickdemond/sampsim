@@ -9,6 +9,7 @@
 #include "building.h"
 
 #include "household.h"
+#include "population.h"
 #include "tile.h"
 #include "utilities.h"
 
@@ -26,6 +27,9 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  population* building::get_population() const { return this->parent->get_population(); }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   building::~building()
   {
     // we're holding a light reference to the parent, don't delete it
@@ -36,7 +40,7 @@ namespace sampsim
   void building::generate()
   {
     // determine the building's position
-    std::pair< coordinate, coordinate > extent = this->parent->get_extent();
+    std::pair< coordinate, coordinate > extent = this->get_tile()->get_extent();
     this->position.x = utilities::random() * ( extent.second.x - extent.first.x );
     this->position.y = utilities::random() * ( extent.second.y - extent.first.y );
 
@@ -69,12 +73,12 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  int building::get_population() const
+  int building::count_population() const
   {
     int count = 0;
     std::vector< household* >::const_iterator it;
     for( it = this->household_list.begin(); it != this->household_list.end(); ++it )
-      count += (*it)->get_population();
+      count += (*it)->count_population();
 
     return count;
   }

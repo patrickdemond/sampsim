@@ -34,6 +34,7 @@ namespace Json { class Value; }
 namespace sampsim
 {
   class household;
+  class population;
   class tile;
 
   class building : public base_object
@@ -41,7 +42,12 @@ namespace sampsim
   public:
     building( tile *parent );
     ~building();
-    tile* get_parent() { return this->parent; }
+
+    /**
+     * Lineage methods
+     */
+    tile* get_tile() const { return this->parent; }
+    population* get_population() const;
 
     /**
      * Generate the building by generating all households in the building
@@ -53,7 +59,7 @@ namespace sampsim
     /**
      * Counts the total population of the building
      */
-    int get_population() const;
+    int count_population() const;
 
     coordinate get_position() const { return this->position; }
 

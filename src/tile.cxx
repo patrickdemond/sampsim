@@ -45,7 +45,7 @@ namespace sampsim
 
     // need to keep creating buildings until the population density is met
     int count = 0;
-    while( static_cast< double >( this->get_population() ) / this->get_area() < this->population_density )
+    while( static_cast< double >( this->count_population() ) / this->get_area() < this->population_density )
     {
       // create the building
       building *b = new building( this );
@@ -57,7 +57,7 @@ namespace sampsim
 
     if( utilities::verbose )
       utilities::output( "finished generating tile: population %d in %d buildins",
-                         this->get_population(),
+                         this->count_population(),
                          this->building_list.size() );
   }
 
@@ -67,8 +67,10 @@ namespace sampsim
     json = Json::Value( Json::objectValue );
     json["x_index"] = this->index.first;
     json["y_index"] = this->index.second;
-    json["income_mean"] = this->income.first;
-    json["income_sd"] = this->income.second;
+    json["mean_income"] = this->mean_income;
+    json["sd_income"] = this->sd_income;
+    json["mean_disease"] = this->mean_disease;
+    json["sd_disease"] = this->sd_disease;
     json["population_density"] = this->population_density;
     json["building_list"] = Json::Value( Json::arrayValue );
     json["building_list"].resize( this->building_list.size() );
@@ -93,7 +95,7 @@ namespace sampsim
     this->index = index;
 
     // determine the extent
-    double width = this->parent->get_tile_width();
+    double width = this->get_population()->get_tile_width();
     coordinate lower( this->index.first, this->index.second );
     lower *= width;
     coordinate upper( this->index.first + 1, this->index.second + 1 );
@@ -104,12 +106,12 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  int tile::get_population() const
+  int tile::count_population() const
   {
     int count = 0;
     std::vector< building* >::const_iterator it;
     for( it = this->building_list.begin(); it != this->building_list.end(); ++it )
-      count += (*it)->get_population();
+      count += (*it)->count_population();
 
     return count;
   }
@@ -117,7 +119,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   double tile::get_area() const
   {
-    double width = this->parent->get_tile_width();
+    double width = this->get_population()->get_tile_width();
     return width * width;
   }
 }
