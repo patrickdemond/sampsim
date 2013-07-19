@@ -10,6 +10,7 @@
 
 #include "household.h"
 
+#include <fstream>
 #include <json/value.h>
 
 namespace sampsim
@@ -35,5 +36,11 @@ namespace sampsim
     json = Json::Value( Json::objectValue );
     json["sex"] = Json::Value( this->male ? "m" : "f" );
     json["age"] = Json::Value( this->adult ? "a" : "c" );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void individual::to_csv( std::ofstream &stream )
+  {
+    stream << ( this->male ? "m" : "f" ) << "," << ( this->adult ? "a" : "c" );
   }
 }

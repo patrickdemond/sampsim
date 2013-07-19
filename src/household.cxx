@@ -15,6 +15,7 @@
 #include "tile.h"
 #include "utilities.h"
 
+#include <fstream>
 #include <json/value.h>
 #include <random>
 
@@ -80,6 +81,26 @@ namespace sampsim
     std::vector< individual* >::const_iterator it; 
     for( it = this->individual_list.begin(); it != this->individual_list.end(); ++it, ++index )
       ( *it )->to_json( json["individual_list"][index] );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void household::to_csv( std::ofstream &household_stream, std::ofstream &individual_stream )
+  {
+    // write the household index and position to the household stream
+    household_stream << utilities::household_index << ",";
+    this->parent->get_position().to_csv( household_stream );
+    household_stream << std::endl;
+
+    // write all individuals in this household to the individual stream
+    std::vector< individual* >::const_iterator it;
+    for( it = this->individual_list.begin(); it != this->individual_list.end(); ++it )
+    {
+      individual_stream << utilities::household_index << ",";
+      ( *it )->to_csv( individual_stream );
+      individual_stream << std::endl;
+    }
+
+    utilities::household_index++;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

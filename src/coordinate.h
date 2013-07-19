@@ -51,6 +51,7 @@ namespace sampsim
     double distance( const coordinate c ) const { return ( *this - c ).length(); }
 
     virtual void to_json( Json::Value& );
+    virtual void to_csv( std::ofstream& );
 
     double x;
     double y;

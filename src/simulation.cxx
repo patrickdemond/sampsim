@@ -86,16 +86,27 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void simulation::write( std::string filename )
+  void simulation::write( std::string filename, bool flat_file )
   {
     std::cout << "writting simulation to " << filename << std::endl;
 
-    Json::Value root;
-    this->to_json( root );
-    std::ofstream stream( filename, std::ofstream::out );
-    Json::StyledWriter writer;
-    stream << writer.write( root );
-    stream.close();
+    if( flat_file )
+    {
+      std::ofstream household_stream( filename + ".household.csv", std::ofstream::out );
+      std::ofstream individual_stream( filename + ".individual.csv", std::ofstream::out );
+      this->to_csv( household_stream, individual_stream );
+      household_stream.close();
+      individual_stream.close();
+    }
+    else
+    {
+      std::ofstream stream( filename, std::ofstream::out );
+      Json::Value root;
+      this->to_json( root );
+      Json::StyledWriter writer;
+      stream << writer.write( root );
+      stream.close();
+    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -116,6 +127,17 @@ namespace sampsim
     std::map< std::pair< int, int >, tile* >::const_iterator it;
     for( it = this->tile_list.begin(); it != this->tile_list.end(); ++it, ++index )
       it->second->to_json( json["tile_list"][index] );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void simulation::to_csv( std::ofstream &household_stream, std::ofstream &individual_stream )
+  {
+    // need to reset the static household indexing variable
+    utilities::household_index = 0;
+
+    std::map< std::pair< int, int >, tile* >::const_iterator it;
+    for( it = this->tile_list.begin(); it != this->tile_list.end(); ++it )
+      it->second->to_csv( household_stream, individual_stream );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

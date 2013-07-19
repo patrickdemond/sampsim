@@ -39,6 +39,7 @@ namespace sampsim
     household* get_parent() { return this->parent; }
 
     virtual void to_json( Json::Value& );
+    virtual void to_csv( std::ofstream& );
 
     bool is_male() const { return this->male; }
     void set_male( const bool male ) { this->male = male; }

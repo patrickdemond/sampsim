@@ -27,6 +27,7 @@ using namespace sampsim;
 std::mt19937 sampsim::utilities::random_engine;
 sampsim::utilities::safe_delete_type sampsim::utilities::safe_delete;
 bool sampsim::utilities::verbose = false;
+int sampsim::utilities::household_index = 0;
 
 // main function
 int main( int argc, char** argv )
@@ -54,6 +55,7 @@ int main( int argc, char** argv )
     opt->addUsage( " -c  --config           A configuration file containing simulation parameters" );
     opt->addUsage( " -h  --help             Prints this help" );
     opt->addUsage( " -v  --verbose          Be verbose when generating simulation" );
+    opt->addUsage( " -f  --flat_file        Whether to output data in two CSV files instead of JSON data" );
     opt->addUsage( "" );
     opt->addUsage( "Simulation parameters (overrides config files):" );
     opt->addUsage( "" );
@@ -85,8 +87,10 @@ int main( int argc, char** argv )
     opt->setOption( "config", 'c' );
     opt->setFlag( "help", 'h' );
     opt->setFlag( "verbose", 'v' );
+    opt->setFlag( "flat_file", 'f' );
 
     // simulation parameters
+    opt->setOption( "seed" );
     opt->setOption( "mean_household_pop" );
     opt->setOption( "mean_income_b00" );
     opt->setOption( "mean_income_b01" );
@@ -113,16 +117,25 @@ int main( int argc, char** argv )
     opt->processCommandArgs( argc, argv );
 
     bool show_help = false;
+    bool flat_file = false;
+
+    // make sure there is a file argument
+    if( 1 != opt->getArgc() ) show_help = true;
+    else filename = opt->getArgv( 0 );
 
     // runtime arguments
     if( opt->getFlag( "help" ) || opt->getFlag( 'h' ) ) show_help = true;
     if( opt->getFlag( "verbose" ) || opt->getFlag( 'v' ) ) sampsim::utilities::verbose = true;
+    if( opt->getFlag( "flat_file" ) || opt->getFlag( 'c' ) ) flat_file = true;
 
-    // config file simulation parameters
+    // load config file simulation parameters
     if( opt->getValue( "config" ) || opt->getValue( 'c' ) )
       opt->processFile( opt->getValue( "config" ) );
 
-    // command line simulation parameters (overrides config files)
+    // to override the config file parameters we need to re-process the command line arguments
+    opt->processCommandArgs( argc, argv );
+
+    // process simulation parameters
     if( opt->getValue( "seed" ) )
       sampsim::utilities::random_engine.seed( atoi( opt->getValue( "seed" ) ) );
 
@@ -174,10 +187,6 @@ int main( int argc, char** argv )
     if( opt->getValue( "tile_width" ) )
       tile_width = atof( opt->getValue( "tile_width" ) );
 
-    // make sure there is a file argument
-    if( 1 != opt->getArgc() ) show_help = true;
-    else filename = opt->getArgv( 0 );
-
     // now either show the help or run the application
     if( show_help )
     {
@@ -194,7 +203,7 @@ int main( int argc, char** argv )
       sim->set_number_tiles_y( tile_y );
       sim->set_tile_width( tile_width );
       sim->generate();
-      sim->write( filename );
+      sim->write( filename, flat_file );
       sampsim::utilities::safe_delete( sim );
     }
 

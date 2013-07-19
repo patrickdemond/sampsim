@@ -145,6 +145,7 @@ namespace sampsim
     static std::mt19937 random_engine;
     static safe_delete_type safe_delete;
     static bool verbose;
+    static int household_index;
   };
 }
 

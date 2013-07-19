@@ -12,6 +12,7 @@
 #include "tile.h"
 #include "utilities.h"
 
+#include <fstream>
 #include <json/value.h>
 #include <random>
 #include <vector>
@@ -57,6 +58,14 @@ namespace sampsim
     std::vector< household* >::const_iterator it;
     for( it = this->household_list.begin(); it != this->household_list.end(); ++it, ++index )
       ( *it )->to_json( json["household_list"][index] );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void building::to_csv( std::ofstream &household_stream, std::ofstream &individual_stream )
+  {
+    std::vector< household* >::const_iterator it;
+    for( it = this->household_list.begin(); it != this->household_list.end(); ++it )
+      ( *it )->to_csv( household_stream, individual_stream );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

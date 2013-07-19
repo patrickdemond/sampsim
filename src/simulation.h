@@ -45,7 +45,7 @@ namespace sampsim
      * Generate the sample by generating all tiles in the simulation
      */
     void generate();
-    void write( std::string filename );
+    void write( std::string filename, bool flat_file = false );
 
     void set_number_tiles_x( const int );
     void set_number_tiles_y( const int );
@@ -67,6 +67,7 @@ namespace sampsim
     double get_area() const;
 
     virtual void to_json( Json::Value& );
+    virtual void to_csv( std::ofstream&, std::ofstream& );
 
   protected:
 

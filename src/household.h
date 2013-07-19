@@ -46,6 +46,7 @@ namespace sampsim
      */
     void generate();
     virtual void to_json( Json::Value& );
+    virtual void to_csv( std::ofstream&, std::ofstream& );
 
     /**
      * Counts the total population of the household

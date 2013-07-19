@@ -48,6 +48,7 @@ namespace sampsim
      */
     void generate();
     virtual void to_json( Json::Value& );
+    virtual void to_csv( std::ofstream&, std::ofstream& );
 
     void set_income( std::pair< double, double > income ) { this->income = income; }
     void set_income( double mean, double sd )
