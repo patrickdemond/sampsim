@@ -70,7 +70,7 @@ INCLUDE_DIRECTORIES(
 )
 
 # We're using <random>, so we need c++11
-SET( CMAKE_CXX_FLAGS "-std=c++11 " )
+SET( CMAKE_CXX_FLAGS "-std=c++0x " )
 
 # Targets
 ADD_EXECUTABLE( sampsim ${SAMPSIM_SOURCE} )
