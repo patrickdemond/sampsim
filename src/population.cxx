@@ -17,7 +17,6 @@
 
 #include <ctime>
 #include <fstream>
-#include <Eigen/Dense>
 #include <json/value.h>
 #include <json/writer.h>
 #include <utility>
@@ -31,6 +30,7 @@ namespace sampsim
     this->number_tiles_x = 0;
     this->number_tiles_y = 0;
     this->tile_width = 0;
+    for( unsigned int c = 0; c < population::number_of_weights; c++ ) this->disease_weights[c] = 1.0;
     this->mean_household_population = 0;
     this->mean_income = new trend;
     this->sd_income = new trend;
@@ -88,13 +88,17 @@ namespace sampsim
     utilities::output( "determining disease status" );
 
     // create a matrix of all participants (rows) and their various disease predictor factors
-    const unsigned int cols = 6;
-    int population_size = this->count_population();
+    const int population_size = this->count_population();
     individual *ind;
     household *house;
-    double values[cols];
+    double value[population::number_of_weights], total[population::number_of_weights];
+    for( unsigned int c = 0; c < population::number_of_weights; c++ ) total[c] = 0;
     
-    Eigen::MatrixXd matrix( population_size, cols );
+    std::vector< double > matrix[population::number_of_weights];
+    for( unsigned int c = 0; c < population::number_of_weights; c++ )
+      matrix[c].resize( population_size );
+    std::vector< individual* > individual_list;
+    individual_list.resize( population_size );
     
     int individual_index = 0;
 
@@ -116,31 +120,57 @@ namespace sampsim
              ++household_it )
         {
           house = ( *household_it );
-          values[0] = 1;
-          values[1] = house->count_population();
-          values[2] = house->get_income();
-          values[3] = house->get_disease_risk();
+          value[0] = house->count_population();
+          value[1] = house->get_income();
+          value[2] = house->get_disease_risk();
 
           for( individual_it = ( *household_it )->get_individual_list_cbegin();
                individual_it != ( *household_it )->get_individual_list_cend();
                ++individual_it )
           {
             ind = ( *individual_it );
-            values[4] = ind->is_adult() ? 1 : 0;
-            values[5] = ind->is_male() ? 1 : 0;
+            value[3] = ind->is_adult() ? 1 : 0;
+            value[4] = ind->is_male() ? 1 : 0;
 
-            for( unsigned int c = 0; c < cols; c++ ) matrix( individual_index, c ) = values[c];
+            for( unsigned int c = 0; c < population::number_of_weights; c++ )
+            {
+              total[c] += value[c];
+              matrix[c][individual_index] = value[c];
+            }
+
+            // keep a reference to the individual for writing to later
+            individual_list[individual_index] = ind;
+            
             individual_index++;
           }
         }
       }
     }
 
-    // subtract the mean of a column from each of it's values and divide by the column's sd
-    /*
-    std::cout << matrix << std::endl << std::endl;
-    std::cout << matrix.colwise().mean() << std::endl << std::endl;
-    */
+    // subtract the mean of a column from each of its values and divide by the column's sd
+    double mean[population::number_of_weights], sd[population::number_of_weights];
+
+    for( unsigned int c = 0; c < population::number_of_weights; c++ )
+    {
+      mean[c] = total[c] / population_size;
+      sd[c] = 0;
+      for( unsigned int i = 0; i < population_size; i++ )
+        sd[c] += ( matrix[c][i] - mean[c] ) * ( matrix[c][i] - mean[c] );
+      sd[c] = sqrt( sd[c] / ( population_size - 1 ) );
+
+      for( unsigned int i = 0; i < population_size; i++ )
+        matrix[c][i] = ( matrix[c][i] - mean[c] ) / sd[c];
+    }
+
+    // factor in weights, compute disease probability then set disease status for all individuals
+    for( unsigned int i = 0; i < population_size; i++ )
+    {
+      double eta = 0, probability;
+      for( unsigned int c = 0; c < population::number_of_weights; c++ )
+        eta += matrix[c][i] * this->disease_weights[c];
+      probability = 1 / ( 1 + exp( -eta ) );
+      individual_list[i]->set_disease( utilities::random() < probability );
+    }
 
     utilities::output( "finished generating population" );
   }
@@ -179,6 +209,10 @@ namespace sampsim
     json["number_tiles_x"] = this->number_tiles_x;
     json["number_tiles_y"] = this->number_tiles_y;
     json["tile_width"] = this->tile_width;
+    json["disease_weights"] = Json::Value( Json::arrayValue );
+    json["disease_weights"].resize( population::number_of_weights );
+    for( unsigned int c = 0; c < population::number_of_weights; c++ )
+      json["disease_weights"][c] = this->disease_weights[c];
     json["mean_household_population"] = this->mean_household_population;
     this->mean_income->to_json( json["mean_income"] );
     this->sd_income->to_json( json["sd_income"] );

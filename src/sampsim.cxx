@@ -45,6 +45,11 @@ int main( int argc, char** argv )
   sampsim::trend *sd_disease = new trend;
   sampsim::trend *popdens = new trend;
   int tile_x = 10, tile_y = 10;
+  double dweight_population = 1.0,
+         dweight_income = 1.0,
+         dweight_risk = 1.0,
+         dweight_age = 1.0,
+         dweight_sex = 1.0;
   double tile_width = 3.5;
 
   try
@@ -63,41 +68,49 @@ int main( int argc, char** argv )
     opt->addUsage( "" );
     opt->addUsage( "Population parameters (overrides config files):" );
     opt->addUsage( "" );
-    opt->addUsage( " --seed                 The seed used by the random generator" );
-    opt->addUsage( " --mean_household_pop   The mean number of individuals per household" );
-    opt->addUsage( " --mean_income_b00      The mean income trend's independent coefficient" );
-    opt->addUsage( " --mean_income_b01      The mean income trend's X coefficient" );
-    opt->addUsage( " --mean_income_b10      The mean income trend's Y coefficient" );
-    opt->addUsage( " --mean_income_b02      The mean income trend's X^2 coefficient" );
-    opt->addUsage( " --mean_income_b20      The mean income trend's Y^2 coefficient" );
-    opt->addUsage( " --mean_income_b11      The mean income trend's XY coefficient" );
-    opt->addUsage( " --sd_income_b00        The SD income trend's independent coefficient" );
-    opt->addUsage( " --sd_income_b01        The SD income trend's X coefficient" );
-    opt->addUsage( " --sd_income_b10        The SD income trend's Y coefficient" );
-    opt->addUsage( " --sd_income_b02        The SD income trend's X^2 coefficient" );
-    opt->addUsage( " --sd_income_b20        The SD income trend's Y^2 coefficient" );
-    opt->addUsage( " --sd_income_b11        The SD income trend's XY coefficient" );
-    opt->addUsage( " --mean_disease_b00     The mean disease trend's independent coefficient" );
-    opt->addUsage( " --mean_disease_b01     The mean disease trend's X coefficient" );
-    opt->addUsage( " --mean_disease_b10     The mean disease trend's Y coefficient" );
-    opt->addUsage( " --mean_disease_b02     The mean disease trend's X^2 coefficient" );
-    opt->addUsage( " --mean_disease_b20     The mean disease trend's Y^2 coefficient" );
-    opt->addUsage( " --mean_disease_b11     The mean disease trend's XY coefficient" );
-    opt->addUsage( " --sd_disease_b00       The SD disease trend's independent coefficient" );
-    opt->addUsage( " --sd_disease_b01       The SD disease trend's X coefficient" );
-    opt->addUsage( " --sd_disease_b10       The SD disease trend's Y coefficient" );
-    opt->addUsage( " --sd_disease_b02       The SD disease trend's X^2 coefficient" );
-    opt->addUsage( " --sd_disease_b20       The SD disease trend's Y^2 coefficient" );
-    opt->addUsage( " --sd_disease_b11       The SD disease trend's XY coefficient" );
-    opt->addUsage( " --popdens_b00          The population density trend's independent coefficient" );
-    opt->addUsage( " --popdens_b01          The population density trend's X coefficient" );
-    opt->addUsage( " --popdens_b10          The population density trend's Y coefficient" );
-    opt->addUsage( " --popdens_b02          The population density trend's X^2 coefficient" );
-    opt->addUsage( " --popdens_b20          The population density trend's Y^2 coefficient" );
-    opt->addUsage( " --popdens_b11          The population density trend's XY coefficient" );
-    opt->addUsage( " --tile_x               The number of tiles in the horizontal direction" );
-    opt->addUsage( " --tile_y               The number of tiles in the vertical direction" );
-    opt->addUsage( " --tile_width           The width of a tile in kilometers" );
+    opt->addUsage( " --seed                 Seed used by the random generator" );
+    opt->addUsage( " --mean_household_pop   Mean number of individuals per household" );
+    opt->addUsage( " --mean_income_b00      Mean income trend's independent coefficient" );
+    opt->addUsage( " --mean_income_b01      Mean income trend's X coefficient" );
+    opt->addUsage( " --mean_income_b10      Mean income trend's Y coefficient" );
+    opt->addUsage( " --mean_income_b02      Mean income trend's X^2 coefficient" );
+    opt->addUsage( " --mean_income_b20      Mean income trend's Y^2 coefficient" );
+    opt->addUsage( " --mean_income_b11      Mean income trend's XY coefficient" );
+    opt->addUsage( " --sd_income_b00        SD income trend's independent coefficient" );
+    opt->addUsage( " --sd_income_b01        SD income trend's X coefficient" );
+    opt->addUsage( " --sd_income_b10        SD income trend's Y coefficient" );
+    opt->addUsage( " --sd_income_b02        SD income trend's X^2 coefficient" );
+    opt->addUsage( " --sd_income_b20        SD income trend's Y^2 coefficient" );
+    opt->addUsage( " --sd_income_b11        SD income trend's XY coefficient" );
+    opt->addUsage( " --mean_disease_b00     Mean disease trend's independent coefficient" );
+    opt->addUsage( " --mean_disease_b01     Mean disease trend's X coefficient" );
+    opt->addUsage( " --mean_disease_b10     Mean disease trend's Y coefficient" );
+    opt->addUsage( " --mean_disease_b02     Mean disease trend's X^2 coefficient" );
+    opt->addUsage( " --mean_disease_b20     Mean disease trend's Y^2 coefficient" );
+    opt->addUsage( " --mean_disease_b11     Mean disease trend's XY coefficient" );
+    opt->addUsage( " --sd_disease_b00       SD disease trend's independent coefficient" );
+    opt->addUsage( " --sd_disease_b01       SD disease trend's X coefficient" );
+    opt->addUsage( " --sd_disease_b10       SD disease trend's Y coefficient" );
+    opt->addUsage( " --sd_disease_b02       SD disease trend's X^2 coefficient" );
+    opt->addUsage( " --sd_disease_b20       SD disease trend's Y^2 coefficient" );
+    opt->addUsage( " --sd_disease_b11       SD disease trend's XY coefficient" );
+    opt->addUsage( " --popdens_b00          Population density trend's independent coefficient" );
+    opt->addUsage( " --popdens_b01          Population density trend's X coefficient" );
+    opt->addUsage( " --popdens_b10          Population density trend's Y coefficient" );
+    opt->addUsage( " --popdens_b02          Population density trend's X^2 coefficient" );
+    opt->addUsage( " --popdens_b20          Population density trend's Y^2 coefficient" );
+    opt->addUsage( " --popdens_b11          Population density trend's XY coefficient" );
+    opt->addUsage( " --tile_x               Number of tiles in the horizontal direction" );
+    opt->addUsage( " --tile_y               Number of tiles in the vertical direction" );
+    opt->addUsage( " --tile_width           Width of a tile in kilometers" );
+    opt->addUsage( "" );
+    opt->addUsage( "Disease status weighting parameters (overrides config files):" );
+    opt->addUsage( "" );
+    opt->addUsage( " --dweight_population   Disease weight for household population" );
+    opt->addUsage( " --dweight_income       Disease weight for household income" );
+    opt->addUsage( " --dweight_risk         Disease weight for household risk" );
+    opt->addUsage( " --dweight_age          Disease weight for household age" );
+    opt->addUsage( " --dweight_sex          Disease weight for household sex" );
 
     // runtime arguments
     opt->setCommandFlag( "help", 'h' );
@@ -141,6 +154,11 @@ int main( int argc, char** argv )
     opt->setOption( "tile_x" );
     opt->setOption( "tile_y" );
     opt->setOption( "tile_width" );
+    opt->setOption( "dweight_population" );
+    opt->setOption( "dweight_income" );
+    opt->setOption( "dweight_risk" );
+    opt->setOption( "dweight_age" );
+    opt->setOption( "dweight_sex" );
 
     opt->useCommandArgs( argc, argv );
     opt->processCommandArgs();
@@ -242,6 +260,17 @@ int main( int argc, char** argv )
     if( opt->getValue( "tile_width" ) )
       tile_width = atof( opt->getValue( "tile_width" ) );
 
+    if( opt->getValue( "dweight_population" ) )
+      dweight_population = atof( opt->getValue( "dweight_population" ) );
+    if( opt->getValue( "dweight_income" ) )
+      dweight_income = atof( opt->getValue( "dweight_income" ) );
+    if( opt->getValue( "dweight_risk" ) )
+      dweight_risk = atof( opt->getValue( "dweight_risk" ) );
+    if( opt->getValue( "dweight_age" ) )
+      dweight_age = atof( opt->getValue( "dweight_age" ) );
+    if( opt->getValue( "dweight_sex" ) )
+      dweight_sex = atof( opt->getValue( "dweight_sex" ) );
+
     // now either show the help or run the application
     if( show_help )
     {
@@ -259,6 +288,12 @@ int main( int argc, char** argv )
       pop->set_number_tiles_x( tile_x );
       pop->set_number_tiles_y( tile_y );
       pop->set_tile_width( tile_width );
+      pop->set_disease_weights(
+        dweight_population,
+        dweight_income,
+        dweight_risk,
+        dweight_age,
+        dweight_sex );
       pop->generate();
       pop->write( filename, flat_file );
       sampsim::utilities::safe_delete( pop );

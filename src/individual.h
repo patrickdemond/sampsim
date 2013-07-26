@@ -55,6 +55,8 @@ namespace sampsim
     void set_male( const bool male ) { this->male = male; }
     bool is_adult() const { return this->adult; }
     void set_adult( const bool adult ) { this->adult = adult; }
+    bool is_disease() const { return this->disease; }
+    void set_disease( const bool disease ) { this->disease = disease; }
 
   protected:
 
