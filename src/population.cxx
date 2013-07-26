@@ -8,13 +8,16 @@
 
 #include "population.h"
 
+#include "building.h"
+#include "household.h"
+#include "individual.h"
 #include "tile.h"
 #include "trend.h"
 #include "utilities.h"
 
-#include <armadillo>
 #include <ctime>
 #include <fstream>
+#include <Eigen/Dense>
 #include <json/value.h>
 #include <json/writer.h>
 #include <utility>
@@ -40,8 +43,7 @@ namespace sampsim
   population::~population()
   {
     // delete all tiles
-    tile_list_type::iterator it;
-    for( it = this->tile_list.begin(); it != this->tile_list.end(); ++it )
+    for( tile_list_type::iterator it = this->tile_list.begin(); it != this->tile_list.end(); ++it )
       utilities::safe_delete( it->second );
     this->tile_list.clear();
 
@@ -86,24 +88,60 @@ namespace sampsim
     utilities::output( "determining disease status" );
 
     // create a matrix of all participants (rows) and their various disease predictor factors
+    const unsigned int cols = 6;
     int population_size = this->count_population();
-    arma::mat matrix( population_size, 7 );
+    individual *ind;
+    household *house;
+    double values[cols];
+    
+    Eigen::MatrixXd matrix( population_size, cols );
     
     int individual_index = 0;
-/*
-    tile_list_type::const_iterator tileIt;
-    for( tileIt = this->tile_list.begin(); tileIt != this->tile_list.end(); ++tileIt )
+
+    tile_list_type::const_iterator tile_it;
+    building_list_type::const_iterator building_it;
+    household_list_type::const_iterator household_it;
+    individual_list_type::const_iterator individual_it;
+
+    for( tile_it = this->tile_list.begin();
+         tile_it != this->tile_list.end();
+         ++tile_it )
     {
-      matrix( individual_index, 0 ) = 1;
-      matrix( individual_index, 1 ) = ;
-      matrix( individual_index, 2 ) = 1;
-      matrix( individual_index, 3 ) = 1;
-      matrix( individual_index, 4 ) = 1;
-      matrix( individual_index, 5 ) = 1;
-      matrix( individual_index, 6 ) = 1;
-      individual_index++;
+      for( building_it = tile_it->second->get_building_list_cbegin();
+           building_it != tile_it->second->get_building_list_cend();
+           ++building_it )
+      {
+        for( household_it = ( *building_it )->get_household_list_cbegin();
+             household_it != ( *building_it )->get_household_list_cend();
+             ++household_it )
+        {
+          house = ( *household_it );
+          values[0] = 1;
+          values[1] = house->count_population();
+          values[2] = house->get_income();
+          values[3] = house->get_disease_risk();
+
+          for( individual_it = ( *household_it )->get_individual_list_cbegin();
+               individual_it != ( *household_it )->get_individual_list_cend();
+               ++individual_it )
+          {
+            ind = ( *individual_it );
+            values[4] = ind->is_adult() ? 1 : 0;
+            values[5] = ind->is_male() ? 1 : 0;
+
+            for( unsigned int c = 0; c < cols; c++ ) matrix( individual_index, c ) = values[c];
+            individual_index++;
+          }
+        }
+      }
     }
-*/
+
+    // subtract the mean of a column from each of it's values and divide by the column's sd
+    /*
+    std::cout << matrix << std::endl << std::endl;
+    std::cout << matrix.colwise().mean() << std::endl << std::endl;
+    */
+
     utilities::output( "finished generating population" );
   }
 
@@ -151,8 +189,9 @@ namespace sampsim
     json["tile_list"].resize( this->tile_list.size() );
 
     int index = 0;
-    tile_list_type::const_iterator it;
-    for( it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it, ++index )
+    for( tile_list_type::const_iterator it = this->tile_list.cbegin();
+         it != this->tile_list.cend();
+         ++it, ++index )
       it->second->to_json( json["tile_list"][index] );
   }
 
@@ -162,8 +201,7 @@ namespace sampsim
     // need to reset the static household indexing variable
     utilities::household_index = 0;
 
-    tile_list_type::const_iterator it;
-    for( it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it )
+    for( tile_list_type::const_iterator it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it )
       it->second->to_csv( household_stream, individual_stream );
   }
 
@@ -243,8 +281,7 @@ namespace sampsim
   int population::count_population() const
   {
     int count = 0;
-    tile_list_type::const_iterator it;
-    for( it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it )
+    for( tile_list_type::const_iterator it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it )
       count += it->second->count_population();
 
     return count;
