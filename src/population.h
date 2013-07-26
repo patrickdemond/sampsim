@@ -45,6 +45,18 @@ namespace sampsim
     ~population();
 
     /**
+     * Iterator access
+     */
+    tile_list_type::iterator get_tile_list_begin()
+    { return this->tile_list.begin(); }
+    tile_list_type::iterator get_tile_list_end()
+    { return this->tile_list.end(); }
+    tile_list_type::const_iterator get_tile_list_cbegin() const
+    { return this->tile_list.cbegin(); }
+    tile_list_type::const_iterator get_tile_list_cend() const
+    { return this->tile_list.cend(); }
+
+    /**
      * Generate the sample by generating all tiles in the population
      */
     void generate();

@@ -46,6 +46,18 @@ namespace sampsim
     ~tile();
 
     /**
+     * Iterator access
+     */
+    building_list_type::iterator get_building_list_begin()
+    { return this->building_list.begin(); }
+    building_list_type::iterator get_building_list_end()
+    { return this->building_list.end(); }
+    building_list_type::const_iterator get_building_list_cbegin() const
+    { return this->building_list.cbegin(); }
+    building_list_type::const_iterator get_building_list_cend() const
+    { return this->building_list.cend(); }
+
+    /**
      * Lineage methods
      */
     population* get_population() const { return this->parent; }

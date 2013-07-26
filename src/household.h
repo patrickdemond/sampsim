@@ -46,6 +46,18 @@ namespace sampsim
     ~household();
 
     /**
+     * Iterator access
+     */
+    individual_list_type::iterator get_individual_list_begin()
+    { return this->individual_list.begin(); }
+    individual_list_type::iterator get_individual_list_end()
+    { return this->individual_list.end(); }
+    individual_list_type::const_iterator get_individual_list_cbegin() const
+    { return this->individual_list.cbegin(); }
+    individual_list_type::const_iterator get_individual_list_cend() const
+    { return this->individual_list.cend(); }
+
+    /**
      * Lineage methods
      */
     building* get_building() const { return this->parent; }
