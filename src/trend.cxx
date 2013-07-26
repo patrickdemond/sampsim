@@ -14,7 +14,13 @@
 namespace sampsim
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  trend::trend( double b00, double b01, double b10, double b02, double b20, double b11 )
+  trend::trend(
+    const double b00,
+    const double b01,
+    const double b10,
+    const double b02,
+    const double b20,
+    const double b11 )
   {
     this->b00 = b00;
     this->b01 = b01;
@@ -98,7 +104,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void trend::to_json( Json::Value &json )
+  void trend::to_json( Json::Value &json ) const
   {
     json = Json::Value( Json::objectValue );
     json["b00"] = this->b00;

@@ -38,7 +38,13 @@ namespace sampsim
   class trend : public base_object
   {
   public:
-    trend( double b00 = 1, double b01 = 0, double b10 = 0, double b02 = 0, double b20 = 0, double b11 = 0 );
+    trend(
+      const double b00 = 1,
+      const double b01 = 0,
+      const double b10 = 0,
+      const double b02 = 0,
+      const double b20 = 0,
+      const double b11 = 0 );
     ~trend() {}
 
     void copy( const trend* );
@@ -56,7 +62,7 @@ namespace sampsim
     double get_value( const coordinate );
 
     std::string to_string() const;
-    virtual void to_json( Json::Value& );
+    virtual void to_json( Json::Value& ) const;
 
   protected:
 

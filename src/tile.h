@@ -36,10 +36,13 @@ namespace sampsim
   class building;
   class population;
 
+  // building list type
+  typedef std::vector< building* > building_list_type;
+
   class tile : public base_object
   {
   public:
-    tile( population *parent, std::pair< int, int > index );
+    tile( population *parent, const std::pair< int, int > index );
     ~tile();
 
     /**
@@ -51,20 +54,20 @@ namespace sampsim
      * Generate the tile by generating all buildings in the tile
      */
     void generate();
-    virtual void to_json( Json::Value& );
-    virtual void to_csv( std::ofstream&, std::ofstream& );
+    virtual void to_json( Json::Value& ) const;
+    virtual void to_csv( std::ofstream&, std::ofstream& ) const;
 
-    double get_mean_income() { return this->mean_income; }
-    void set_mean_income( double mean ) { this->mean_income = mean; }
-    double get_sd_income() { return this->sd_income; }
-    void set_sd_income( double sd ) { this->sd_income = sd; }
+    double get_mean_income() const { return this->mean_income; }
+    void set_mean_income( const double mean ) { this->mean_income = mean; }
+    double get_sd_income() const { return this->sd_income; }
+    void set_sd_income( const double sd ) { this->sd_income = sd; }
 
-    double get_mean_disease() { return this->mean_disease; }
-    void set_mean_disease( double mean ) { this->mean_disease = mean; }
-    double get_sd_disease() { return this->sd_disease; }
-    void set_sd_disease( double sd ) { this->sd_disease = sd; }
+    double get_mean_disease() const { return this->mean_disease; }
+    void set_mean_disease( const double mean ) { this->mean_disease = mean; }
+    double get_sd_disease() const { return this->sd_disease; }
+    void set_sd_disease( const double sd ) { this->sd_disease = sd; }
 
-    void set_population_density( double population_density )
+    void set_population_density( const double population_density )
     { this->population_density = population_density; }
 
     /**
@@ -105,7 +108,7 @@ namespace sampsim
     std::pair< coordinate, coordinate > extent;
     coordinate centroid;
 
-    std::vector< building* > building_list;
+    building_list_type building_list;
   };
 }
 

@@ -48,8 +48,8 @@ namespace sampsim
     tile* get_tile() const;
     population* get_population() const;
 
-    virtual void to_json( Json::Value& );
-    virtual void to_csv( std::ofstream& );
+    virtual void to_json( Json::Value& ) const;
+    virtual void to_csv( std::ofstream& ) const;
 
     bool is_male() const { return this->male; }
     void set_male( const bool male ) { this->male = male; }

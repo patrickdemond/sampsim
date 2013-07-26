@@ -35,6 +35,9 @@ namespace sampsim
   class tile;
   class trend;
 
+  // tile list type
+  typedef std::map< std::pair< int, int >, tile* > tile_list_type;
+
   class population : public base_object
   {
   public:
@@ -45,9 +48,9 @@ namespace sampsim
      * Generate the sample by generating all tiles in the population
      */
     void generate();
-    void write( std::string filename, bool flat_file = false );
+    void write( const std::string filename, const bool flat_file = false ) const;
 
-    void set_seed( std::string seed );
+    void set_seed( const std::string seed );
     void set_number_tiles_x( const int );
     void set_number_tiles_y( const int );
     double get_tile_width() const { return this->tile_width; }
@@ -68,8 +71,8 @@ namespace sampsim
      */
     double get_area() const;
 
-    virtual void to_json( Json::Value& );
-    virtual void to_csv( std::ofstream&, std::ofstream& );
+    virtual void to_json( Json::Value& ) const;
+    virtual void to_csv( std::ofstream&, std::ofstream& ) const;
 
   protected:
 
@@ -84,7 +87,7 @@ namespace sampsim
     trend *mean_disease;
     trend *sd_disease;
     trend *population_density;
-    std::map< std::pair< int, int >, tile* > tile_list;
+    tile_list_type tile_list;
   };
 }
 

@@ -16,7 +16,6 @@
 #include <fstream>
 #include <json/value.h>
 #include <random>
-#include <vector>
 
 namespace sampsim
 {
@@ -51,7 +50,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void building::to_json( Json::Value &json )
+  void building::to_json( Json::Value &json ) const
   {
     json = Json::Value( Json::objectValue );
     this->position.to_json( json["position"] );
@@ -59,15 +58,15 @@ namespace sampsim
     json["household_list"].resize( this->household_list.size() );
 
     int index = 0;
-    std::vector< household* >::const_iterator it;
-    for( it = this->household_list.begin(); it != this->household_list.end(); ++it, ++index )
+    household_list_type::const_iterator it;
+    for( it = this->household_list.cbegin(); it != this->household_list.cend(); ++it, ++index )
       ( *it )->to_json( json["household_list"][index] );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void building::to_csv( std::ofstream &household_stream, std::ofstream &individual_stream )
+  void building::to_csv( std::ofstream &household_stream, std::ofstream &individual_stream ) const
   {
-    std::vector< household* >::const_iterator it;
+    household_list_type::const_iterator it;
     for( it = this->household_list.begin(); it != this->household_list.end(); ++it )
       ( *it )->to_csv( household_stream, individual_stream );
   }
@@ -76,7 +75,7 @@ namespace sampsim
   int building::count_population() const
   {
     int count = 0;
-    std::vector< household* >::const_iterator it;
+    household_list_type::const_iterator it;
     for( it = this->household_list.begin(); it != this->household_list.end(); ++it )
       count += (*it)->count_population();
 

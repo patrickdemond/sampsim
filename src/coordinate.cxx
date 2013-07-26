@@ -14,7 +14,7 @@
 namespace sampsim
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void coordinate::to_json( Json::Value &json )
+  void coordinate::to_json( Json::Value &json ) const
   {
     json = Json::Value( Json::objectValue );
     json["x"] = this->x;
@@ -22,7 +22,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void coordinate::to_csv( std::ofstream &stream )
+  void coordinate::to_csv( std::ofstream &stream ) const
   {
     stream.precision( 3 );
     stream << std::fixed << this->x << "," << this->y;

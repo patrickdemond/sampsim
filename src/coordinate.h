@@ -34,7 +34,7 @@ namespace sampsim
   class coordinate : public base_object
   {
   public:
-    coordinate( double x = 0, double y = 0 ) : x(x), y(y) {}
+    coordinate( const double x = 0, const double y = 0 ) : x(x), y(y) {}
     ~coordinate() {}
 
     bool operator == ( const coordinate c ) const { return this->x == c.x && this->y == c.y; }
@@ -50,8 +50,8 @@ namespace sampsim
     double length() const { return sqrt( this->x*this->x + this->y+this->y ); }
     double distance( const coordinate c ) const { return ( *this - c ).length(); }
 
-    virtual void to_json( Json::Value& );
-    virtual void to_csv( std::ofstream& );
+    virtual void to_json( Json::Value& ) const;
+    virtual void to_csv( std::ofstream& ) const;
 
     double x;
     double y;

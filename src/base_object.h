@@ -36,7 +36,7 @@ namespace sampsim
     /**
      * Writes the object's details to the provided json object.
      */
-    virtual void to_json( Json::Value &json ) = 0;
+    virtual void to_json( Json::Value &json ) const = 0;
 
   protected:
 

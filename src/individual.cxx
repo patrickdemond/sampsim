@@ -37,7 +37,7 @@ namespace sampsim
   population* individual::get_population() const { return this->parent->get_population(); }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void individual::to_json( Json::Value &json )
+  void individual::to_json( Json::Value &json ) const
   {
     json = Json::Value( Json::objectValue );
     json["sex"] = Json::Value( this->male ? "m" : "f" );
@@ -46,7 +46,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void individual::to_csv( std::ofstream &stream )
+  void individual::to_csv( std::ofstream &stream ) const
   {
     stream << ( this->male ? "m" : "f" ) << ","
            << ( this->adult ? "a" : "c" ) << ","

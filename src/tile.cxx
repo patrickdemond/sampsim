@@ -15,12 +15,11 @@
 #include <algorithm>
 #include <fstream>
 #include <json/value.h>
-#include <vector>
 
 namespace sampsim
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  tile::tile( population *parent, std::pair< int, int > index )
+  tile::tile( population *parent, const std::pair< int, int > index )
   {
     this->parent = parent;
     this->set_index( index );
@@ -62,7 +61,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void tile::to_json( Json::Value &json )
+  void tile::to_json( Json::Value &json ) const
   {
     json = Json::Value( Json::objectValue );
     json["x_index"] = this->index.first;
@@ -76,15 +75,15 @@ namespace sampsim
     json["building_list"].resize( this->building_list.size() );
 
     int index = 0;
-    std::vector< building* >::const_iterator it;
-    for( it = this->building_list.begin(); it != this->building_list.end(); ++it, ++index )
+    building_list_type::const_iterator it;
+    for( it = this->building_list.cbegin(); it != this->building_list.cend(); ++it, ++index )
       ( *it )->to_json( json["building_list"][index] );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void tile::to_csv( std::ofstream &household_stream, std::ofstream &individual_stream )
+  void tile::to_csv( std::ofstream &household_stream, std::ofstream &individual_stream ) const
   {
-    std::vector< building* >::const_iterator it;
+    building_list_type::const_iterator it;
     for( it = this->building_list.begin(); it != this->building_list.end(); ++it )
       ( *it )->to_csv( household_stream, individual_stream );
   }
@@ -109,7 +108,7 @@ namespace sampsim
   int tile::count_population() const
   {
     int count = 0;
-    std::vector< building* >::const_iterator it;
+    building_list_type::const_iterator it;
     for( it = this->building_list.begin(); it != this->building_list.end(); ++it )
       count += (*it)->count_population();
 

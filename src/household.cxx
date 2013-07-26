@@ -50,7 +50,7 @@ namespace sampsim
     // income and disease are Normal deviates from the tile average
     normal = std::normal_distribution<double>( tile->get_mean_income(), tile->get_sd_income() );
     this->income = normal( utilities::random_engine );
-    normal = std::normal_distribution<double>( tile->get_mean_income(), tile->get_sd_income() );
+    normal = std::normal_distribution<double>( tile->get_mean_disease(), tile->get_sd_disease() );
     this->disease_risk = normal( utilities::random_engine );
 
     // Randomly determine the number of individuals in the household using a poisson distribution
@@ -87,7 +87,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void household::to_json( Json::Value &json )
+  void household::to_json( Json::Value &json ) const
   {
     json = Json::Value( Json::objectValue );
     json["income"] = this->income;
@@ -96,13 +96,13 @@ namespace sampsim
     json["individual_list"].resize( this->individual_list.size() );
 
     int index = 0;
-    std::vector< individual* >::const_iterator it; 
-    for( it = this->individual_list.begin(); it != this->individual_list.end(); ++it, ++index )
+    individual_list_type::const_iterator it; 
+    for( it = this->individual_list.cbegin(); it != this->individual_list.cend(); ++it, ++index )
       ( *it )->to_json( json["individual_list"][index] );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void household::to_csv( std::ofstream &household_stream, std::ofstream &individual_stream )
+  void household::to_csv( std::ofstream &household_stream, std::ofstream &individual_stream ) const
   {
     // write the household index and position to the household stream
     household_stream << utilities::household_index << ",";
@@ -110,7 +110,7 @@ namespace sampsim
     household_stream << "," << this->income << "," << this->disease_risk << std::endl;
 
     // write all individuals in this household to the individual stream
-    std::vector< individual* >::const_iterator it;
+    individual_list_type::const_iterator it;
     for( it = this->individual_list.begin(); it != this->individual_list.end(); ++it )
     {
       individual_stream << utilities::household_index << ",";

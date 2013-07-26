@@ -36,6 +36,9 @@ namespace sampsim
   class population;
   class tile;
 
+  // individual list type
+  typedef std::vector< individual* > individual_list_type;
+
   class household : public base_object
   {
   public:
@@ -53,8 +56,8 @@ namespace sampsim
      * Generates the household by generating all individuals in the household
      */
     void generate();
-    virtual void to_json( Json::Value& );
-    virtual void to_csv( std::ofstream&, std::ofstream& );
+    virtual void to_json( Json::Value& ) const;
+    virtual void to_csv( std::ofstream&, std::ofstream& ) const;
 
     /**
      * Counts the total population of the household
@@ -68,7 +71,7 @@ namespace sampsim
     double income;
     double disease_risk;
 
-    std::vector< individual* > individual_list;
+    individual_list_type individual_list;
   };
 }
 
