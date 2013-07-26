@@ -23,11 +23,10 @@ You will need the jsoncpp development libraries.  You can download these from th
 website or install them using your distro's package manager (try package libjsoncpp-dev)
 
 
-Amadillo (arma.sourceforge.net)
+Eigen3 (eigen.tuxfamily.org)
 ----------------------------------
-You will need the Armadillo development libraries.  You can download these from the sourceforge
-website or install them using your distro's package manager (try package libarmadillo-dev).
-This package makes use of boost, so make sure to install libboost-dev as well.
+You will need the Eigen3 development libraries.  You can download these from their website
+or install them using your distro's package manager (try package libeigen3-dev).
 
 
 Building sampsim
