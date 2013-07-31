@@ -67,6 +67,19 @@ namespace sampsim
     void set_number_tiles_y( const int );
     double get_tile_width() const { return this->tile_width; }
     void set_tile_width( const double );
+    void set_disease_weights(
+      const double population,
+      const double income,
+      const double risk,
+      const double age,
+      const double sex )
+    {
+      this->disease_weights[0] = population;
+      this->disease_weights[1] = income;
+      this->disease_weights[2] = risk;
+      this->disease_weights[3] = age;
+      this->disease_weights[4] = sex;
+    }
     double get_mean_household_population() const { return this->mean_household_population; }
     void set_mean_household_population( const double );
     void set_income( const trend *mean, const trend *sd );
@@ -89,10 +102,12 @@ namespace sampsim
   protected:
 
   private:
+    static const unsigned int number_of_weights = 5;
     std::string seed;
     int number_tiles_x;
     int number_tiles_y;
     double tile_width;
+    double disease_weights[number_of_weights];
     double mean_household_population;
     trend *mean_income;
     trend *sd_income;
