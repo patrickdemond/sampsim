@@ -1,0 +1,79 @@
+Example visualization
+====================
+
+
+```{r pkgs}
+library(data.table)  ## for fast fread()
+library(ggplot2)  ## nice plots
+theme_set(theme_bw())  ## cosmetic
+library(KernSmooth)
+```
+
+
+Read data, organize, merge:
+
+```{r getdat}
+hdat <- fread("ex1.household.csv")
+idat <- fread("ex1.individual.csv")
+## should be unnecessary once flat files have column headings
+setnames(idat, names(idat), c("hID", "sex", "age", "disStatus"))
+setnames(hdat, names(hdat), c("hID", "x", "y", "income", "disRisk"))
+setkey(hdat, hID)
+setkey(idat, hID)
+idat2 <- merge(hdat, idat)
+```
+
+
+R's plotting capabilities are not actually so great for dealing with
+very large data sets (these count as "somewhat large") -- we really
+need to summarize in some efficient way first, then plot ...
+
+
+```{r plot1}
+## plot(y~x,data=hdat,pch='.') ## not very informative!!
+## with(hdat,plot(hexbin(x,y))) ## efficient but ugly nice except for edge
+## effects ...
+ggplot(hdat, aes(x, y)) + geom_hex() + scale_x_continuous(expand = c(0, 0)) + 
+    scale_y_continuous(expand = c(0, 0))
+```
+
+What we really want is to do hexagonal binning or kernel density estimation to get a reasonable smoothed version of the variable of interest (income, disease risk, etc.) so we can map it.  I think in this case everything's going to be pretty boring since we haven't built in very much interesting spatial variation yet ...
+
+Hexagonal binning is nice; I need to work out 
+[this solution](http://stackoverflow.com/questions/17688012/hexbin-apply-function-for-every-bin) and
+then see if I can feed it `ggplot2::geom_hex` for prettier output ...
+
+
+```{r hexbin1}
+hex1 <- hexbin(idat2$x, idat2$y, IDs = TRUE)
+```
+
+
+Kernel smoothing:
+```{r ksmooth1}
+kk <- bkde2D(hdat[, list(x, y)], bandwidth = c(0.1, 0.1))
+```
+
+Base contour plot (nothing going on here!)
+
+```{r contour1}
+with(kk, contour(x1, x2, fhat))
+```
+
+
+## To do
+
+### Pix
+
+* hexbin plots of income, disease risk, ...
+* associations of covariates -- disease vs gender, age, income, etc.
+* check out `bigvis` package?
+* maybe use [data.table for 2D binning](http://procomun.wordpress.com/2013/04/22/using-data-table-for-binning/) ?
+
+### Data manipulation
+
+* compute household averages of disease, for faster plotting (should be easy with `data.table`)
+                                                              
+### Cosmetics
+
+* get rid of `fread` progress bars
