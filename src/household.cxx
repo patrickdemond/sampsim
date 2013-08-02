@@ -15,7 +15,7 @@
 #include "tile.h"
 #include "utilities.h"
 
-#include <fstream>
+#include <ostream>
 #include <json/value.h>
 
 namespace sampsim
@@ -96,11 +96,13 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void household::to_csv( std::ofstream &household_stream, std::ofstream &individual_stream ) const
+  void household::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
   {
+    population *pop = this->get_population();
+
     // write the household index and position to the household stream
     household_stream << utilities::household_index << ",";
-    this->get_building()->get_position().to_csv( household_stream );
+    this->get_building()->get_position().to_csv( household_stream, pop->get_centroid() );
     household_stream << "," << this->income << "," << this->disease_risk << std::endl;
 
     // write all individuals in this household to the individual stream

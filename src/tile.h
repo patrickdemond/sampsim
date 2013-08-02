@@ -68,7 +68,7 @@ namespace sampsim
      */
     void generate();
     virtual void to_json( Json::Value& ) const;
-    virtual void to_csv( std::ofstream&, std::ofstream& ) const;
+    virtual void to_csv( std::ostream&, std::ostream& ) const;
 
     double get_mean_income() const { return this->mean_income; }
     void set_mean_income( const double mean ) { this->mean_income = mean; }

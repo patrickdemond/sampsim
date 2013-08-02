@@ -49,7 +49,7 @@ namespace sampsim
     population* get_population() const;
 
     virtual void to_json( Json::Value& ) const;
-    virtual void to_csv( std::ofstream& ) const;
+    virtual void to_csv( std::ostream& ) const;
 
     bool is_male() const { return this->male; }
     void set_male( const bool male ) { this->male = male; }

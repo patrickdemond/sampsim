@@ -13,7 +13,7 @@
 #include "tile.h"
 #include "utilities.h"
 
-#include <fstream>
+#include <ostream>
 #include <json/value.h>
 #include <random>
 
@@ -40,8 +40,8 @@ namespace sampsim
   {
     // determine the building's position
     std::pair< coordinate, coordinate > extent = this->get_tile()->get_extent();
-    this->position.x = utilities::random() * ( extent.second.x - extent.first.x );
-    this->position.y = utilities::random() * ( extent.second.y - extent.first.y );
+    this->position.x = utilities::random() * ( extent.second.x - extent.first.x ) + extent.first.x;
+    this->position.y = utilities::random() * ( extent.second.y - extent.first.y ) + extent.first.y;
 
     // for now we're only allowing one household per building
     household *h = new household( this );
@@ -64,7 +64,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void building::to_csv( std::ofstream &household_stream, std::ofstream &individual_stream ) const
+  void building::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
   {
     household_list_type::const_iterator it;
     for( it = this->household_list.begin(); it != this->household_list.end(); ++it )

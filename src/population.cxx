@@ -65,6 +65,9 @@ namespace sampsim
     // create the needed distributions
     this->population_distribution.set_poisson( this->mean_household_population - 1 );
 
+    this->centroid = coordinate( this->number_tiles_x, this->number_tiles_y );
+    this->centroid *= this->tile_width / 2;
+
     // create tiles
     for( int y = 0; y < this->number_tiles_y; y++ )
     {
@@ -233,7 +236,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void population::to_csv( std::ofstream &household_stream, std::ofstream &individual_stream ) const
+  void population::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
   {
     // need to reset the static household indexing variable
     utilities::household_index = 0;
@@ -265,7 +268,7 @@ namespace sampsim
     individual_stream << stream.str();
 
     // put in the csv headers
-    household_stream << "index,x,y,income,disease_risk" << std::endl;
+    household_stream << "index,x,y,r,a,income,disease_risk" << std::endl;
     individual_stream << "household_index,sex,age,disease" << std::endl;
 
     for( tile_list_type::const_iterator it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it )

@@ -20,6 +20,7 @@
 
 #include "base_object.h"
 
+#include "coordinate.h"
 #include "distribution.h"
 
 #include <map>
@@ -94,12 +95,13 @@ namespace sampsim
     int count_population() const;
 
     /**
-     * Determines the surface area of the population
+     * Determines the centroid and surface area of the population
      */
+    coordinate get_centroid() const { return this->centroid; }
     double get_area() const;
 
     virtual void to_json( Json::Value& ) const;
-    virtual void to_csv( std::ofstream&, std::ofstream& ) const;
+    virtual void to_csv( std::ostream&, std::ostream& ) const;
 
     distribution* get_population_distribution() { return &( this->population_distribution ); }
 
@@ -111,6 +113,7 @@ namespace sampsim
     int number_tiles_x;
     int number_tiles_y;
     double tile_width;
+    coordinate centroid;
     double disease_weights[number_of_weights];
     double mean_household_population;
     trend *mean_income;

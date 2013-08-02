@@ -13,7 +13,7 @@
 #include "utilities.h"
 
 #include <algorithm>
-#include <fstream>
+#include <ostream>
 #include <json/value.h>
 
 namespace sampsim
@@ -85,7 +85,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void tile::to_csv( std::ofstream &household_stream, std::ofstream &individual_stream ) const
+  void tile::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
   {
     building_list_type::const_iterator it;
     for( it = this->building_list.begin(); it != this->building_list.end(); ++it )
