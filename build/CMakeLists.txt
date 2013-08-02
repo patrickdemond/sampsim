@@ -50,9 +50,19 @@ SET( SAMPSIM_SOURCE
   ${SAMPSIM_SRC_DIR}/household.cxx
   ${SAMPSIM_SRC_DIR}/individual.cxx
   ${SAMPSIM_SRC_DIR}/population.cxx
-  ${SAMPSIM_SRC_DIR}/sampsim.cxx
   ${SAMPSIM_SRC_DIR}/tile.cxx
   ${SAMPSIM_SRC_DIR}/trend.cxx
+  ${SAMPSIM_SRC_DIR}/utilities.cxx
+)
+
+SET( GENERATE_SOURCE
+  ${SAMPSIM_SRC_DIR}/generate.cxx
+  ${SAMPSIM_SOURCE}
+)
+
+SET( SAMPLE_SOURCE
+  ${SAMPSIM_SRC_DIR}/sample.cxx
+  ${SAMPSIM_SOURCE}
 )
 
 # Define abstract classes in the following block
@@ -67,20 +77,27 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${JSONCPP_INCLUDE_DIR}
-  ${EIGEN3_INCLUDE_DIR}
 )
 
 # We're using <random>, so we need c++11
 SET( CMAKE_CXX_FLAGS "-std=c++0x " )
 
 # Targets
-ADD_EXECUTABLE( sampsim ${SAMPSIM_SOURCE} )
+ADD_EXECUTABLE( generate ${GENERATE_SOURCE} )
 
-TARGET_LINK_LIBRARIES( sampsim
+TARGET_LINK_LIBRARIES( generate
   anyoption
   ${JSONCPP_LIBRARIES}
 )
-INSTALL( TARGETS sampsim RUNTIME DESTINATION bin )
+
+ADD_EXECUTABLE( sample ${SAMPLE_SOURCE} )
+
+TARGET_LINK_LIBRARIES( sample
+  anyoption
+  ${JSONCPP_LIBRARIES}
+)
+
+INSTALL( TARGETS generate sample RUNTIME DESTINATION bin )
 
 ADD_CUSTOM_TARGET( dist
   COMMAND git archive --prefix=${SAMPSIM_ARCHIVE_NAME}/ HEAD
