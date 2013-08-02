@@ -62,6 +62,12 @@ namespace sampsim
 
     utilities::output( "generating population" );
 
+    // create the needed distributions
+    this->population_distribution.set_poisson( this->mean_household_population - 1 );
+
+    this->centroid = coordinate( this->number_tiles_x, this->number_tiles_y );
+    this->centroid *= this->tile_width / 2;
+
     // create tiles
     for( int y = 0; y < this->number_tiles_y; y++ )
     {
@@ -178,7 +184,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::write( const std::string filename, const bool flat_file ) const
   {
-    utilities::output( "writting population to %s", filename.c_str() );
+    utilities::output( "writting population to %s.%s", filename.c_str(), flat_file ? "*.csv" : "json" );
 
     if( flat_file )
     {
@@ -190,7 +196,7 @@ namespace sampsim
     }
     else
     {
-      std::ofstream stream( filename, std::ofstream::out );
+      std::ofstream stream( filename + ".json", std::ofstream::out );
       Json::Value root;
       this->to_json( root );
       Json::StyledWriter writer;
@@ -230,10 +236,40 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void population::to_csv( std::ofstream &household_stream, std::ofstream &individual_stream ) const
+  void population::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
   {
     // need to reset the static household indexing variable
     utilities::household_index = 0;
+
+    // put in the parameters
+    std::stringstream stream;
+    stream << "# version: " << SAMPSIM_VERSION_MAJOR << "." << SAMPSIM_VERSION_MINOR
+                     << "." << SAMPSIM_VERSION_PATCH << std::endl;
+    stream << "# seed: " << this->seed << std::endl;
+    stream << "# number_tiles_x: " << this->number_tiles_x << std::endl;
+    stream << "# number_tiles_y: " << this->number_tiles_y << std::endl;
+    stream << "# tile_width: " << this->tile_width << std::endl;
+    stream << "#" << std::endl;
+    stream << "# dweight_population: " << this->disease_weights[0] << std::endl;
+    stream << "# dweight_income: " << this->disease_weights[1] << std::endl;
+    stream << "# dweight_risk: " << this->disease_weights[2] << std::endl;
+    stream << "# dweight_age: " << this->disease_weights[3] << std::endl;
+    stream << "# dweight_sex: " << this->disease_weights[4] << std::endl;
+    stream << "#" << std::endl;
+    stream << "# mean_household_pop" << this->mean_household_population << std::endl;
+    stream << "# mean_income trend: " << this->mean_income->to_string() << std::endl;
+    stream << "# sd_income trend: " << this->sd_income->to_string() << std::endl;
+    stream << "# mean_disease trend: " << this->mean_disease->to_string() << std::endl;
+    stream << "# sd_disease trend: " << this->sd_disease->to_string() << std::endl;
+    stream << "# popdens trend: " << this->population_density->to_string() << std::endl;
+    stream << std::endl;
+    
+    household_stream << stream.str();
+    individual_stream << stream.str();
+
+    // put in the csv headers
+    household_stream << "index,x,y,r,a,income,disease_risk" << std::endl;
+    individual_stream << "household_index,sex,age,disease" << std::endl;
 
     for( tile_list_type::const_iterator it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it )
       it->second->to_csv( household_stream, individual_stream );

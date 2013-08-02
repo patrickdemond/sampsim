@@ -69,7 +69,7 @@ namespace sampsim
      */
     void generate();
     virtual void to_json( Json::Value& ) const;
-    virtual void to_csv( std::ofstream&, std::ofstream& ) const;
+    virtual void to_csv( std::ostream&, std::ostream& ) const;
 
     double get_income() const { return this->income; }
     double get_disease_risk() const { return this->disease_risk; }

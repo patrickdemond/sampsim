@@ -21,6 +21,7 @@
 #include "base_object.h"
 
 #include "coordinate.h"
+#include "distribution.h"
 
 #include <vector>
 
@@ -67,7 +68,7 @@ namespace sampsim
      */
     void generate();
     virtual void to_json( Json::Value& ) const;
-    virtual void to_csv( std::ofstream&, std::ofstream& ) const;
+    virtual void to_csv( std::ostream&, std::ostream& ) const;
 
     double get_mean_income() const { return this->mean_income; }
     void set_mean_income( const double mean ) { this->mean_income = mean; }
@@ -102,6 +103,9 @@ namespace sampsim
      */
     double get_area() const;
 
+    distribution* get_income_distribution() { return &( this->income_distribution ); }
+    distribution* get_disease_risk_distribution() { return &( this->disease_risk_distribution ); }
+
   protected:
     /**
      * Sets the tile's 2D index within the population.
@@ -121,6 +125,10 @@ namespace sampsim
     coordinate centroid;
 
     building_list_type building_list;
+
+    // distributions
+    distribution income_distribution;
+    distribution disease_risk_distribution;
   };
 }
 

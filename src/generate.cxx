@@ -1,35 +1,19 @@
 /*=========================================================================
 
   Program:  sampsim
-  Module:   sampsim.cxx
+  Module:   generate.cxx
   Language: C++
 
 =========================================================================*/
 //
 // .SECTION Description
-// The main function which launches the application.
+// An executable which generates a population
 //
 
 #include "AnyOption/anyoption.h"
 #include "population.h"
 #include "trend.h"
 #include "utilities.h"
-
-#include <cstdlib>
-#include <ctime>
-#include <map>
-#include <random>
-#include <stdexcept>
-#include <string>
-
-using namespace sampsim;
-
-// instantiate static variables in utilities class
-std::mt19937 sampsim::utilities::random_engine;
-sampsim::utilities::safe_delete_type sampsim::utilities::safe_delete;
-bool sampsim::utilities::verbose = false;
-int sampsim::utilities::household_index = 0;
-clock_t sampsim::utilities::start_time = clock();
 
 // main function
 int main( int argc, char** argv )
@@ -39,11 +23,11 @@ int main( int argc, char** argv )
   std::string filename;
 
   double mean_household_pop = 4;
-  sampsim::trend *mean_income = new trend;
-  sampsim::trend *sd_income = new trend;
-  sampsim::trend *mean_disease = new trend;
-  sampsim::trend *sd_disease = new trend;
-  sampsim::trend *popdens = new trend;
+  sampsim::trend *mean_income = new sampsim::trend;
+  sampsim::trend *sd_income = new sampsim::trend;
+  sampsim::trend *mean_disease = new sampsim::trend;
+  sampsim::trend *sd_disease = new sampsim::trend;
+  sampsim::trend *popdens = new sampsim::trend;
   int tile_x = 10, tile_y = 10;
   double dweight_population = 1.0,
          dweight_income = 1.0,
@@ -279,7 +263,7 @@ int main( int argc, char** argv )
     else
     {
       // launch application
-      sampsim::population *pop = new population;
+      sampsim::population *pop = new sampsim::population;
       pop->set_seed( seed );
       pop->set_mean_household_population( mean_household_pop );
       pop->set_income( mean_income, sd_income );

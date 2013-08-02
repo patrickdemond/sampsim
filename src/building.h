@@ -69,7 +69,7 @@ namespace sampsim
      */
     void generate();
     virtual void to_json( Json::Value& ) const;
-    virtual void to_csv( std::ofstream&, std::ofstream& ) const;
+    virtual void to_csv( std::ostream&, std::ostream& ) const;
 
     /**
      * Counts the total population of the building

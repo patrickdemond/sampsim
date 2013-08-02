@@ -13,7 +13,7 @@
 #include "utilities.h"
 
 #include <algorithm>
-#include <fstream>
+#include <ostream>
 #include <json/value.h>
 
 namespace sampsim
@@ -41,6 +41,10 @@ namespace sampsim
   {
     if( utilities::verbose )
       utilities::output( "generating tile at %d, %d", this->index.first , this->index.second );
+
+    // create the needed distributions
+    this->income_distribution.set_lognormal( this->mean_income, this->sd_income );
+    this->disease_risk_distribution.set_normal( this->mean_disease, this->sd_disease );
 
     // need to keep creating buildings until the population density is met
     int count = 0;
@@ -81,7 +85,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void tile::to_csv( std::ofstream &household_stream, std::ofstream &individual_stream ) const
+  void tile::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
   {
     building_list_type::const_iterator it;
     for( it = this->building_list.begin(); it != this->building_list.end(); ++it )

@@ -10,7 +10,7 @@
 
 #include "household.h"
 
-#include <fstream>
+#include <ostream>
 #include <json/value.h>
 
 namespace sampsim
@@ -46,7 +46,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void individual::to_csv( std::ofstream &stream ) const
+  void individual::to_csv( std::ostream &stream ) const
   {
     stream << ( this->male ? "m" : "f" ) << ","
            << ( this->adult ? "a" : "c" ) << ","
