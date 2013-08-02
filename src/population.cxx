@@ -238,6 +238,32 @@ namespace sampsim
     // need to reset the static household indexing variable
     utilities::household_index = 0;
 
+    // put in the parameters
+    std::stringstream stream;
+    stream << "# version: " << SAMPSIM_VERSION_MAJOR << "." << SAMPSIM_VERSION_MINOR
+                     << "." << SAMPSIM_VERSION_PATCH << std::endl;
+    stream << "# seed: " << this->seed << std::endl;
+    stream << "# number_tiles_x: " << this->number_tiles_x << std::endl;
+    stream << "# number_tiles_y: " << this->number_tiles_y << std::endl;
+    stream << "# tile_width: " << this->tile_width << std::endl;
+    stream << "#" << std::endl;
+    stream << "# dweight_population: " << this->disease_weights[0] << std::endl;
+    stream << "# dweight_income: " << this->disease_weights[1] << std::endl;
+    stream << "# dweight_risk: " << this->disease_weights[2] << std::endl;
+    stream << "# dweight_age: " << this->disease_weights[3] << std::endl;
+    stream << "# dweight_sex: " << this->disease_weights[4] << std::endl;
+    stream << "#" << std::endl;
+    stream << "# mean_household_pop" << this->mean_household_population << std::endl;
+    stream << "# mean_income trend: " << this->mean_income->to_string() << std::endl;
+    stream << "# sd_income trend: " << this->sd_income->to_string() << std::endl;
+    stream << "# mean_disease trend: " << this->mean_disease->to_string() << std::endl;
+    stream << "# sd_disease trend: " << this->sd_disease->to_string() << std::endl;
+    stream << "# popdens trend: " << this->population_density->to_string() << std::endl;
+    stream << std::endl;
+    
+    household_stream << stream.str();
+    individual_stream << stream.str();
+
     // put in the csv headers
     household_stream << "index,x,y,income,disease_risk" << std::endl;
     individual_stream << "household_index,sex,age,disease" << std::endl;
