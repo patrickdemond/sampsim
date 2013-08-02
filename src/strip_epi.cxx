@@ -1,13 +1,13 @@
 /*=========================================================================
 
   Program:  sampsim
-  Module:   sample.cxx
+  Module:   strip_epi.cxx
   Language: C++
 
 =========================================================================*/
 //
 // .SECTION Description
-// An executable which samples a population
+// An executable which samples a population using the strip EPI method
 //
 
 #include "AnyOption/anyoption.h"
@@ -39,6 +39,7 @@ int main( int argc, char** argv )
     opt->addUsage( "Sampling parameters (overrides config files):" );
     opt->addUsage( "" );
     opt->addUsage( " --seed                 Seed used by the random generator" );
+    opt->addUsage( " --strip_width          Width of the strip used to find buildings (in meters)" );
 
     // runtime arguments
     opt->setCommandFlag( "help", 'h' );
@@ -48,6 +49,7 @@ int main( int argc, char** argv )
 
     // population parameters
     opt->setOption( "seed" );
+    opt->setOption( "strip_width" );
 
     opt->useCommandArgs( argc, argv );
     opt->processCommandArgs();
@@ -55,6 +57,7 @@ int main( int argc, char** argv )
     bool show_help = false;
     bool flat_file = false;
     std::string seed = "";
+    double strip_width = 0;
 
     // make sure there is a file argument
     if( 1 != opt->getArgc() ) show_help = true;
@@ -75,6 +78,7 @@ int main( int argc, char** argv )
 
     // process population parameters
     if( opt->getValue( "seed" ) ) seed = opt->getValue( "seed" );
+    if( opt->getValue( "strip_width" ) ) strip_width = atof( opt->getValue( "strip_width" ) );
 
     // now either show the help or run the application
     if( show_help )

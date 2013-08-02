@@ -23,12 +23,6 @@ You will need the jsoncpp development libraries.  You can download these from th
 website or install them using your distro's package manager (try package libjsoncpp-dev)
 
 
-Eigen3 (eigen.tuxfamily.org)
-----------------------------------
-You will need the Eigen3 development libraries.  You can download these from their website
-or install them using your distro's package manager (try package libeigen3-dev).
-
-
 Building sampsim
 ================
 
