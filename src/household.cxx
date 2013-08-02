@@ -17,7 +17,6 @@
 
 #include <fstream>
 #include <json/value.h>
-#include <random>
 
 namespace sampsim
 {
@@ -48,16 +47,11 @@ namespace sampsim
     population *pop = this->get_population();
 
     // income and disease are Normal deviates from the tile average
-    normal = std::normal_distribution<double>( tile->get_mean_income(), tile->get_sd_income() );
-    this->income = normal( utilities::random_engine );
-    normal = std::normal_distribution<double>( tile->get_mean_disease(), tile->get_sd_disease() );
-    this->disease_risk = normal( utilities::random_engine );
+    this->income = tile->get_income_distribution()->generate_value();
+    this->disease_risk = tile->get_disease_risk_distribution()->generate_value();
 
-    // Randomly determine the number of individuals in the household using a poisson distribution
-    // We'll use 1 + Poisson( mean - 1 ) so that there are no empty households
-    double mean_population = pop->get_mean_household_population();
-    poisson = std::poisson_distribution<int>( mean_population - 1 );
-    int population = poisson( utilities::random_engine ) + 1;
+    // We'll use 1 + distribution so that there are no empty households
+    int population = pop->get_population_distribution()->generate_value() + 1;
     
     // make the first individual an adult of random sex
     bool male = 0 == utilities::random( 0, 1 );

@@ -42,6 +42,10 @@ namespace sampsim
     if( utilities::verbose )
       utilities::output( "generating tile at %d, %d", this->index.first , this->index.second );
 
+    // create the needed distributions
+    this->income_distribution.set_lognormal( this->mean_income, this->sd_income );
+    this->disease_risk_distribution.set_normal( this->mean_disease, this->sd_disease );
+
     // need to keep creating buildings until the population density is met
     int count = 0;
     while( static_cast< double >( this->count_population() ) / this->get_area() < this->population_density )

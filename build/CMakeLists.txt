@@ -46,6 +46,7 @@ SET( SAMPSIM_SOURCE
   ${SAMPSIM_SRC_DIR}/base_object.cxx
   ${SAMPSIM_SRC_DIR}/building.cxx
   ${SAMPSIM_SRC_DIR}/coordinate.cxx
+  ${SAMPSIM_SRC_DIR}/distribution.cxx
   ${SAMPSIM_SRC_DIR}/household.cxx
   ${SAMPSIM_SRC_DIR}/individual.cxx
   ${SAMPSIM_SRC_DIR}/population.cxx

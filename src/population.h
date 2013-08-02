@@ -20,6 +20,8 @@
 
 #include "base_object.h"
 
+#include "distribution.h"
+
 #include <map>
 #include <string>
 
@@ -99,6 +101,8 @@ namespace sampsim
     virtual void to_json( Json::Value& ) const;
     virtual void to_csv( std::ofstream&, std::ofstream& ) const;
 
+    distribution* get_population_distribution() { return &( this->population_distribution ); }
+
   protected:
 
   private:
@@ -115,6 +119,9 @@ namespace sampsim
     trend *sd_disease;
     trend *population_density;
     tile_list_type tile_list;
+
+    // distributions
+    distribution population_distribution;
   };
 }
 

@@ -62,6 +62,9 @@ namespace sampsim
 
     utilities::output( "generating population" );
 
+    // create the needed distributions
+    this->population_distribution.set_poisson( this->mean_household_population - 1 );
+
     // create tiles
     for( int y = 0; y < this->number_tiles_y; y++ )
     {
