@@ -178,7 +178,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::write( const std::string filename, const bool flat_file ) const
   {
-    utilities::output( "writting population to %s", filename.c_str() );
+    utilities::output( "writting population to %s.%s", filename.c_str(), flat_file ? "*.csv" : "json" );
 
     if( flat_file )
     {
@@ -190,7 +190,7 @@ namespace sampsim
     }
     else
     {
-      std::ofstream stream( filename, std::ofstream::out );
+      std::ofstream stream( filename + ".json", std::ofstream::out );
       Json::Value root;
       this->to_json( root );
       Json::StyledWriter writer;
