@@ -238,6 +238,10 @@ namespace sampsim
     // need to reset the static household indexing variable
     utilities::household_index = 0;
 
+    // put in the csv headers
+    household_stream << "index,x,y,income,disease_risk" << std::endl;
+    individual_stream << "household_index,sex,age,disease" << std::endl;
+
     for( tile_list_type::const_iterator it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it )
       it->second->to_csv( household_stream, individual_stream );
   }
