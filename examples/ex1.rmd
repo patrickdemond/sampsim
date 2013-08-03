@@ -1,8 +1,11 @@
 Example visualization
 ====================
 
+```{r opts,echo=FALSE}
+opts_chunk$set(fig.height=5,fig.width=5)
+```
 
-```{r pkgs}
+```{r pkgs,message=FALSE}
 library(data.table)  ## for fast fread()
 library(ggplot2)  ## nice plots
 theme_set(theme_bw())  ## cosmetic
@@ -13,27 +16,28 @@ library(KernSmooth)
 Read data, organize, merge:
 
 ```{r getdat}
-hdat <- fread("ex1.household.csv")
-idat <- fread("ex1.individual.csv")
+fn <- "ex1"
+hdat <- fread(paste0(fn,".household.csv"))
+idat <- fread(paste0(fn,".individual.csv"))
 ## should be unnecessary once flat files have column headings
 setnames(idat, names(idat), c("hID", "sex", "age", "disStatus"))
 setnames(hdat, names(hdat), c("hID", "x", "y", "income", "disRisk"))
+## key both data sets on household ID and merge
 setkey(hdat, hID)
 setkey(idat, hID)
 idat2 <- merge(hdat, idat)
 ```
 
-
 R's plotting capabilities are not actually so great for dealing with
 very large data sets (these count as "somewhat large") -- we really
 need to summarize in some efficient way first, then plot ...
-
 
 ```{r plot1}
 ## plot(y~x,data=hdat,pch='.') ## not very informative!!
 ## with(hdat,plot(hexbin(x,y))) ## efficient but ugly nice except for edge
 ## effects ...
-ggplot(hdat, aes(x, y)) + geom_hex() + scale_x_continuous(expand = c(0, 0)) + 
+ggplot(hdat, aes(x, y)) + geom_hex() + 
+     scale_x_continuous(expand = c(0, 0)) + 
     scale_y_continuous(expand = c(0, 0))
 ```
 
@@ -60,20 +64,48 @@ Base contour plot (nothing going on here!)
 with(kk, contour(x1, x2, fhat))
 ```
 
+```{r xbrks,results="hide"}
+brks <- seq(min(hdat[,x]), max(hdat[,x]), length=51)
+## and := to avoid an additional copy
+## (can this be done in a single step?)
+idat2[,xbin:=findInterval(x, brks)]
+idat2[,ybin:=findInterval(y, brks)]
+```
+
+Aggregate with mean by bin; use `.N` to include number of elements per bin, and plot.
+```{r bin}
+idatsum <- idat2[, list(.N, d=mean(disStatus)), 
+                  by=list(xbin,ybin)]
+ggplot(idatsum,aes(xbin,ybin))+geom_tile(aes(fill=d))
+```
+Was going to plot average disease risk instead, but I think disease status wasn't implemented yet (no-one in this data set was infected)
+
+```{r bin2}
+hdatsum <- idat2[, j=list(x=x[1],y=y[1],
+                          .N, dsum=sum(disStatus)), 
+                  by=hID]
+ggplot(idatsum,aes(xbin,ybin))+geom_tile(aes(fill=d))
+```
+
+Zoom in on a region:
+```{r zoom}
+hdatfoc <- hdatsum[0.5<x & x<0.6 & 0.5<y & y<0.6,]
+ggplot(hdatfoc,aes(x,y))+geom_point(aes(size=N,colour=dsum))
+```
 
 ## To do
 
 ### Pix
 
-* hexbin plots of income, disease risk, ...
+* hexbin plots? of income, disease risk, ...
 * associations of covariates -- disease vs gender, age, income, etc.
 * check out `bigvis` package?
-* maybe use [data.table for 2D binning](http://procomun.wordpress.com/2013/04/22/using-data-table-for-binning/) ?
 
 ### Data manipulation
 
-* compute household averages of disease, for faster plotting (should be easy with `data.table`)
+* could compute household averages of disease, for faster plotting (should be easy with `data.table`)
                                                               
 ### Cosmetics
 
 * get rid of `fread` progress bars
+* fix `findInterval` edge cases?
