@@ -10,7 +10,7 @@
 // An executable which generates a population
 //
 
-#include "AnyOption/anyoption.h"
+#include "options.h"
 #include "population.h"
 #include "trend.h"
 #include "utilities.h"
@@ -19,271 +19,145 @@
 int main( int argc, char** argv )
 {
   int status = EXIT_FAILURE;
-  AnyOption *opt = NULL;
   std::string filename;
+  sampsim::options opts( argv[0] );
+  opts.set_min_remaining_arguments( 1 );
+  opts.set_max_remaining_arguments( 1 );
 
-  double mean_household_pop = 4;
   sampsim::trend *mean_income = new sampsim::trend;
   sampsim::trend *sd_income = new sampsim::trend;
   sampsim::trend *mean_disease = new sampsim::trend;
   sampsim::trend *sd_disease = new sampsim::trend;
   sampsim::trend *popdens = new sampsim::trend;
-  int tile_x = 10, tile_y = 10;
-  double dweight_population = 1.0,
-         dweight_income = 1.0,
-         dweight_risk = 1.0,
-         dweight_age = 1.0,
-         dweight_sex = 1.0;
-  double tile_width = 3.5;
+  sampsim::population *pop = new sampsim::population;
+
+  // define general parameters
+  opts.add_flag( 'f', "flat_file", "Whether to output data in two CSV files instead of JSON data" );
+  opts.add_flag( 'h', "help", "Prints this help" );
+  opts.add_flag( 'v', "verbose", "Be verbose when generating population" );
+
+  // define population parameters
+  opts.add_heading( "" );
+  opts.add_heading( "Population parameters (overrides config files):" );
+  opts.add_heading( "" );
+  opts.add_option( "seed", "", "Seed used by the random generator" );
+  opts.add_option( "mean_household_pop", "4", "Mean number of individuals per household" );
+  opts.add_option( "mean_income_b00", "1", "Mean income trend's independent coefficient" );
+  opts.add_option( "mean_income_b01", "0", "Mean income trend's X coefficient" );
+  opts.add_option( "mean_income_b10", "0", "Mean income trend's Y coefficient" );
+  opts.add_option( "mean_income_b02", "0", "Mean income trend's X^2 coefficient" );
+  opts.add_option( "mean_income_b20", "0", "Mean income trend's Y^2 coefficient" );
+  opts.add_option( "mean_income_b11", "0", "Mean income trend's XY coefficient" );
+  opts.add_option( "sd_income_b00", "1", "SD income trend's independent coefficient" );
+  opts.add_option( "sd_income_b01", "0", "SD income trend's X coefficient" );
+  opts.add_option( "sd_income_b10", "0", "SD income trend's Y coefficient" );
+  opts.add_option( "sd_income_b02", "0", "SD income trend's X^2 coefficient" );
+  opts.add_option( "sd_income_b20", "0", "SD income trend's Y^2 coefficient" );
+  opts.add_option( "sd_income_b11", "0", "SD income trend's XY coefficient" );
+  opts.add_option( "mean_disease_b00", "1", "Mean disease trend's independent coefficient" );
+  opts.add_option( "mean_disease_b01", "0", "Mean disease trend's X coefficient" );
+  opts.add_option( "mean_disease_b10", "0", "Mean disease trend's Y coefficient" );
+  opts.add_option( "mean_disease_b02", "0", "Mean disease trend's X^2 coefficient" );
+  opts.add_option( "mean_disease_b20", "0", "Mean disease trend's Y^2 coefficient" );
+  opts.add_option( "mean_disease_b11", "0", "Mean disease trend's XY coefficient" );
+  opts.add_option( "sd_disease_b00", "1", "SD disease trend's independent coefficient" );
+  opts.add_option( "sd_disease_b01", "0", "SD disease trend's X coefficient" );
+  opts.add_option( "sd_disease_b10", "0", "SD disease trend's Y coefficient" );
+  opts.add_option( "sd_disease_b02", "0", "SD disease trend's X^2 coefficient" );
+  opts.add_option( "sd_disease_b20", "0", "SD disease trend's Y^2 coefficient" );
+  opts.add_option( "sd_disease_b11", "0", "SD disease trend's XY coefficient" );
+  opts.add_option( "popdens_b00", "1", "Population density trend's independent coefficient" );
+  opts.add_option( "popdens_b01", "0", "Population density trend's X coefficient" );
+  opts.add_option( "popdens_b10", "0", "Population density trend's Y coefficient" );
+  opts.add_option( "popdens_b02", "0", "Population density trend's X^2 coefficient" );
+  opts.add_option( "popdens_b20", "0", "Population density trend's Y^2 coefficient" );
+  opts.add_option( "popdens_b11", "0", "Population density trend's XY coefficient" );
+  opts.add_option( "tile_x", "1", "Number of tiles in the horizontal direction" );
+  opts.add_option( "tile_y", "1", "Number of tiles in the vertical direction" );
+  opts.add_option( "tile_width", "1", "Width of a tile in kilometers" );
+
+  // define disease parameters
+  opts.add_heading( "" );
+  opts.add_heading( "Disease status weighting parameters (overrides config files):" );
+  opts.add_heading( "" );
+  opts.add_option( "dweight_population", "1.0", "Disease weight for household population" );
+  opts.add_option( "dweight_income", "1.0", "Disease weight for household income" );
+  opts.add_option( "dweight_risk", "1.0", "Disease weight for household risk" );
+  opts.add_option( "dweight_age", "1.0", "Disease weight for household age" );
+  opts.add_option( "dweight_sex", "1.0", "Disease weight for household sex" );
 
   try
   {
     // parse the command line arguments
-    std::string usage = "Usage: ";
-    usage += argv[0];
-    usage += " [options...] <file>";
-    opt = new AnyOption();
-    opt->addUsage( usage.c_str() );
-    opt->addUsage( "" );
-    opt->addUsage( " -c  --config           A configuration file containing population parameters" );
-    opt->addUsage( " -h  --help             Prints this help" );
-    opt->addUsage( " -v  --verbose          Be verbose when generating population" );
-    opt->addUsage( " -f  --flat_file        Whether to output data in two CSV files instead of JSON data" );
-    opt->addUsage( "" );
-    opt->addUsage( "Population parameters (overrides config files):" );
-    opt->addUsage( "" );
-    opt->addUsage( " --seed                 Seed used by the random generator" );
-    opt->addUsage( " --mean_household_pop   Mean number of individuals per household" );
-    opt->addUsage( " --mean_income_b00      Mean income trend's independent coefficient" );
-    opt->addUsage( " --mean_income_b01      Mean income trend's X coefficient" );
-    opt->addUsage( " --mean_income_b10      Mean income trend's Y coefficient" );
-    opt->addUsage( " --mean_income_b02      Mean income trend's X^2 coefficient" );
-    opt->addUsage( " --mean_income_b20      Mean income trend's Y^2 coefficient" );
-    opt->addUsage( " --mean_income_b11      Mean income trend's XY coefficient" );
-    opt->addUsage( " --sd_income_b00        SD income trend's independent coefficient" );
-    opt->addUsage( " --sd_income_b01        SD income trend's X coefficient" );
-    opt->addUsage( " --sd_income_b10        SD income trend's Y coefficient" );
-    opt->addUsage( " --sd_income_b02        SD income trend's X^2 coefficient" );
-    opt->addUsage( " --sd_income_b20        SD income trend's Y^2 coefficient" );
-    opt->addUsage( " --sd_income_b11        SD income trend's XY coefficient" );
-    opt->addUsage( " --mean_disease_b00     Mean disease trend's independent coefficient" );
-    opt->addUsage( " --mean_disease_b01     Mean disease trend's X coefficient" );
-    opt->addUsage( " --mean_disease_b10     Mean disease trend's Y coefficient" );
-    opt->addUsage( " --mean_disease_b02     Mean disease trend's X^2 coefficient" );
-    opt->addUsage( " --mean_disease_b20     Mean disease trend's Y^2 coefficient" );
-    opt->addUsage( " --mean_disease_b11     Mean disease trend's XY coefficient" );
-    opt->addUsage( " --sd_disease_b00       SD disease trend's independent coefficient" );
-    opt->addUsage( " --sd_disease_b01       SD disease trend's X coefficient" );
-    opt->addUsage( " --sd_disease_b10       SD disease trend's Y coefficient" );
-    opt->addUsage( " --sd_disease_b02       SD disease trend's X^2 coefficient" );
-    opt->addUsage( " --sd_disease_b20       SD disease trend's Y^2 coefficient" );
-    opt->addUsage( " --sd_disease_b11       SD disease trend's XY coefficient" );
-    opt->addUsage( " --popdens_b00          Population density trend's independent coefficient" );
-    opt->addUsage( " --popdens_b01          Population density trend's X coefficient" );
-    opt->addUsage( " --popdens_b10          Population density trend's Y coefficient" );
-    opt->addUsage( " --popdens_b02          Population density trend's X^2 coefficient" );
-    opt->addUsage( " --popdens_b20          Population density trend's Y^2 coefficient" );
-    opt->addUsage( " --popdens_b11          Population density trend's XY coefficient" );
-    opt->addUsage( " --tile_x               Number of tiles in the horizontal direction" );
-    opt->addUsage( " --tile_y               Number of tiles in the vertical direction" );
-    opt->addUsage( " --tile_width           Width of a tile in kilometers" );
-    opt->addUsage( "" );
-    opt->addUsage( "Disease status weighting parameters (overrides config files):" );
-    opt->addUsage( "" );
-    opt->addUsage( " --dweight_population   Disease weight for household population" );
-    opt->addUsage( " --dweight_income       Disease weight for household income" );
-    opt->addUsage( " --dweight_risk         Disease weight for household risk" );
-    opt->addUsage( " --dweight_age          Disease weight for household age" );
-    opt->addUsage( " --dweight_sex          Disease weight for household sex" );
-
-    // runtime arguments
-    opt->setCommandFlag( "help", 'h' );
-    opt->setCommandFlag( "verbose", 'v' );
-    opt->setCommandFlag( "flat_file", 'f' );
-    opt->setOption( "config", 'c' );
-
-    // population parameters
-    opt->setOption( "seed" );
-    opt->setOption( "mean_household_pop" );
-    opt->setOption( "mean_income_b00" );
-    opt->setOption( "mean_income_b01" );
-    opt->setOption( "mean_income_b10" );
-    opt->setOption( "mean_income_b02" );
-    opt->setOption( "mean_income_b20" );
-    opt->setOption( "mean_income_b11" );
-    opt->setOption( "sd_income_b00" );
-    opt->setOption( "sd_income_b01" );
-    opt->setOption( "sd_income_b10" );
-    opt->setOption( "sd_income_b02" );
-    opt->setOption( "sd_income_b20" );
-    opt->setOption( "sd_income_b11" );
-    opt->setOption( "mean_disease_b00" );
-    opt->setOption( "mean_disease_b01" );
-    opt->setOption( "mean_disease_b10" );
-    opt->setOption( "mean_disease_b02" );
-    opt->setOption( "mean_disease_b20" );
-    opt->setOption( "mean_disease_b11" );
-    opt->setOption( "sd_disease_b00" );
-    opt->setOption( "sd_disease_b01" );
-    opt->setOption( "sd_disease_b10" );
-    opt->setOption( "sd_disease_b02" );
-    opt->setOption( "sd_disease_b20" );
-    opt->setOption( "sd_disease_b11" );
-    opt->setOption( "popdens_b00" );
-    opt->setOption( "popdens_b01" );
-    opt->setOption( "popdens_b10" );
-    opt->setOption( "popdens_b02" );
-    opt->setOption( "popdens_b20" );
-    opt->setOption( "popdens_b11" );
-    opt->setOption( "tile_x" );
-    opt->setOption( "tile_y" );
-    opt->setOption( "tile_width" );
-    opt->setOption( "dweight_population" );
-    opt->setOption( "dweight_income" );
-    opt->setOption( "dweight_risk" );
-    opt->setOption( "dweight_age" );
-    opt->setOption( "dweight_sex" );
-
-    opt->useCommandArgs( argc, argv );
-    opt->processCommandArgs();
-
-    bool show_help = false;
-    bool flat_file = false;
-    std::string seed = "";
-
-    // make sure there is a file argument
-    if( 1 != opt->getArgc() ) show_help = true;
-    else filename = opt->getArgv( 0 );
-
-    // runtime arguments
-    if( opt->getFlag( "help" ) || opt->getFlag( 'h' ) ) show_help = true;
-    if( opt->getFlag( "verbose" ) || opt->getFlag( 'v' ) ) sampsim::utilities::verbose = true;
-    if( opt->getFlag( "flat_file" ) || opt->getFlag( 'c' ) ) flat_file = true;
-
-    // load config file population parameters
-    if( opt->getValue( "config" ) || opt->getValue( 'c' ) )
-      opt->useFileName( opt->getValue( "config" ) );
-
-    // process the file, then command arguments
-    opt->processFile();
-    opt->processCommandArgs();
-
-    // process population parameters
-    if( opt->getValue( "seed" ) ) seed = opt->getValue( "seed" );
-
-    if( opt->getValue( "mean_household_pop" ) )
-      mean_household_pop = atof( opt->getValue( "mean_household_pop" ) );
-
-    if( opt->getValue( "mean_income_b00" ) )
-      mean_income->set_b00( atof( opt->getValue( "mean_income_b00" ) ) );
-    if( opt->getValue( "mean_income_b01" ) )
-      mean_income->set_b01( atof( opt->getValue( "mean_income_b01" ) ) );
-    if( opt->getValue( "mean_income_b10" ) )
-      mean_income->set_b10( atof( opt->getValue( "mean_income_b10" ) ) );
-    if( opt->getValue( "mean_income_b02" ) )
-      mean_income->set_b02( atof( opt->getValue( "mean_income_b02" ) ) );
-    if( opt->getValue( "mean_income_b20" ) )
-      mean_income->set_b20( atof( opt->getValue( "mean_income_b20" ) ) );
-    if( opt->getValue( "mean_income_b11" ) )
-      mean_income->set_b11( atof( opt->getValue( "mean_income_b11" ) ) );
-    if( opt->getValue( "sd_income_b00" ) )
-      sd_income->set_b00( atof( opt->getValue( "sd_income_b00" ) ) );
-    if( opt->getValue( "sd_income_b01" ) )
-      sd_income->set_b01( atof( opt->getValue( "sd_income_b01" ) ) );
-    if( opt->getValue( "sd_income_b10" ) )
-      sd_income->set_b10( atof( opt->getValue( "sd_income_b10" ) ) );
-    if( opt->getValue( "sd_income_b02" ) )
-      sd_income->set_b02( atof( opt->getValue( "sd_income_b02" ) ) );
-    if( opt->getValue( "sd_income_b20" ) )
-      sd_income->set_b20( atof( opt->getValue( "sd_income_b20" ) ) );
-    if( opt->getValue( "sd_income_b11" ) )
-      sd_income->set_b11( atof( opt->getValue( "sd_income_b11" ) ) );
-
-    if( opt->getValue( "mean_disease_b00" ) )
-      mean_disease->set_b00( atof( opt->getValue( "mean_disease_b00" ) ) );
-    if( opt->getValue( "mean_disease_b01" ) )
-      mean_disease->set_b01( atof( opt->getValue( "mean_disease_b01" ) ) );
-    if( opt->getValue( "mean_disease_b10" ) )
-      mean_disease->set_b10( atof( opt->getValue( "mean_disease_b10" ) ) );
-    if( opt->getValue( "mean_disease_b02" ) )
-      mean_disease->set_b02( atof( opt->getValue( "mean_disease_b02" ) ) );
-    if( opt->getValue( "mean_disease_b20" ) )
-      mean_disease->set_b20( atof( opt->getValue( "mean_disease_b20" ) ) );
-    if( opt->getValue( "mean_disease_b11" ) )
-      mean_disease->set_b11( atof( opt->getValue( "mean_disease_b11" ) ) );
-    if( opt->getValue( "sd_disease_b00" ) )
-      sd_disease->set_b00( atof( opt->getValue( "sd_disease_b00" ) ) );
-    if( opt->getValue( "sd_disease_b01" ) )
-      sd_disease->set_b01( atof( opt->getValue( "sd_disease_b01" ) ) );
-    if( opt->getValue( "sd_disease_b10" ) )
-      sd_disease->set_b10( atof( opt->getValue( "sd_disease_b10" ) ) );
-    if( opt->getValue( "sd_disease_b02" ) )
-      sd_disease->set_b02( atof( opt->getValue( "sd_disease_b02" ) ) );
-    if( opt->getValue( "sd_disease_b20" ) )
-      sd_disease->set_b20( atof( opt->getValue( "sd_disease_b20" ) ) );
-    if( opt->getValue( "sd_disease_b11" ) )
-      sd_disease->set_b11( atof( opt->getValue( "sd_disease_b11" ) ) );
-
-    if( opt->getValue( "popdens_b00" ) )
-      popdens->set_b00( atof( opt->getValue( "popdens_b00" ) ) );
-    if( opt->getValue( "popdens_b01" ) )
-      popdens->set_b01( atof( opt->getValue( "popdens_b01" ) ) );
-    if( opt->getValue( "popdens_b10" ) )
-      popdens->set_b10( atof( opt->getValue( "popdens_b10" ) ) );
-    if( opt->getValue( "popdens_b02" ) )
-      popdens->set_b02( atof( opt->getValue( "popdens_b02" ) ) );
-    if( opt->getValue( "popdens_b20" ) )
-      popdens->set_b20( atof( opt->getValue( "popdens_b20" ) ) );
-    if( opt->getValue( "popdens_b11" ) )
-      popdens->set_b11( atof( opt->getValue( "popdens_b11" ) ) );
-
-    if( opt->getValue( "tile_x" ) )
-      tile_x = atoi( opt->getValue( "tile_x" ) );
-    if( opt->getValue( "tile_y" ) )
-      tile_y = atoi( opt->getValue( "tile_y" ) );
-    if( opt->getValue( "tile_width" ) )
-      tile_width = atof( opt->getValue( "tile_width" ) );
-
-    if( opt->getValue( "dweight_population" ) )
-      dweight_population = atof( opt->getValue( "dweight_population" ) );
-    if( opt->getValue( "dweight_income" ) )
-      dweight_income = atof( opt->getValue( "dweight_income" ) );
-    if( opt->getValue( "dweight_risk" ) )
-      dweight_risk = atof( opt->getValue( "dweight_risk" ) );
-    if( opt->getValue( "dweight_age" ) )
-      dweight_age = atof( opt->getValue( "dweight_age" ) );
-    if( opt->getValue( "dweight_sex" ) )
-      dweight_sex = atof( opt->getValue( "dweight_sex" ) );
-
-    // now either show the help or run the application
-    if( show_help )
+    opts.set_arguments( argc, argv );
+    if( opts.process() )
     {
-      opt->printUsage();
-    }
-    else
-    {
-      // launch application
-      sampsim::population *pop = new sampsim::population;
-      pop->set_seed( seed );
-      pop->set_mean_household_population( mean_household_pop );
-      pop->set_income( mean_income, sd_income );
-      pop->set_disease( mean_disease, sd_disease );
-      pop->set_population_density( popdens );
-      pop->set_number_tiles_x( tile_x );
-      pop->set_number_tiles_y( tile_y );
-      pop->set_tile_width( tile_width );
-      pop->set_disease_weights(
-        dweight_population,
-        dweight_income,
-        dweight_risk,
-        dweight_age,
-        dweight_sex );
-      pop->generate();
-      pop->write( filename, flat_file );
-      sampsim::utilities::safe_delete( pop );
-    }
+      // now either show the help or run the application
+      if( opts.get_flag( "help" ) )
+      {
+        opts.print_usage();
+      }
+      else
+      {
+        // get the filename to write the population to
+        std::vector< std::string > arguments = opts.get_arguments();
+        filename = arguments[0];
 
-    status = EXIT_SUCCESS;
+        // build trends
+        mean_income->set_b00( opts.get_option_as_double( "mean_income_b00" ) );
+        mean_income->set_b01( opts.get_option_as_double( "mean_income_b01" ) );
+        mean_income->set_b10( opts.get_option_as_double( "mean_income_b10" ) );
+        mean_income->set_b02( opts.get_option_as_double( "mean_income_b02" ) );
+        mean_income->set_b20( opts.get_option_as_double( "mean_income_b20" ) );
+        mean_income->set_b11( opts.get_option_as_double( "mean_income_b11" ) );
+        sd_income->set_b00( opts.get_option_as_double( "sd_income_b00" ) );
+        sd_income->set_b01( opts.get_option_as_double( "sd_income_b01" ) );
+        sd_income->set_b10( opts.get_option_as_double( "sd_income_b10" ) );
+        sd_income->set_b02( opts.get_option_as_double( "sd_income_b02" ) );
+        sd_income->set_b20( opts.get_option_as_double( "sd_income_b20" ) );
+        sd_income->set_b11( opts.get_option_as_double( "sd_income_b11" ) );
+
+        mean_disease->set_b00( opts.get_option_as_double( "mean_disease_b00" ) );
+        mean_disease->set_b01( opts.get_option_as_double( "mean_disease_b01" ) );
+        mean_disease->set_b10( opts.get_option_as_double( "mean_disease_b10" ) );
+        mean_disease->set_b02( opts.get_option_as_double( "mean_disease_b02" ) );
+        mean_disease->set_b20( opts.get_option_as_double( "mean_disease_b20" ) );
+        mean_disease->set_b11( opts.get_option_as_double( "mean_disease_b11" ) );
+        sd_disease->set_b00( opts.get_option_as_double( "sd_disease_b00" ) );
+        sd_disease->set_b01( opts.get_option_as_double( "sd_disease_b01" ) );
+        sd_disease->set_b10( opts.get_option_as_double( "sd_disease_b10" ) );
+        sd_disease->set_b02( opts.get_option_as_double( "sd_disease_b02" ) );
+        sd_disease->set_b20( opts.get_option_as_double( "sd_disease_b20" ) );
+        sd_disease->set_b11( opts.get_option_as_double( "sd_disease_b11" ) );
+
+        popdens->set_b00( opts.get_option_as_double( "popdens_b00" ) );
+        popdens->set_b01( opts.get_option_as_double( "popdens_b01" ) );
+        popdens->set_b10( opts.get_option_as_double( "popdens_b10" ) );
+        popdens->set_b02( opts.get_option_as_double( "popdens_b02" ) );
+        popdens->set_b20( opts.get_option_as_double( "popdens_b20" ) );
+        popdens->set_b11( opts.get_option_as_double( "popdens_b11" ) );
+
+        // launch application
+        pop->set_seed( opts.get_option( "seed" ) );
+        pop->set_mean_household_population( opts.get_option_as_double( "mean_household_pop" ) );
+        pop->set_income( mean_income, sd_income );
+        pop->set_disease( mean_disease, sd_disease );
+        pop->set_population_density( popdens );
+        pop->set_number_tiles_x( opts.get_option_as_int( "tile_x" ) );
+        pop->set_number_tiles_y( opts.get_option_as_int( "tile_y" ) );
+        pop->set_tile_width( opts.get_option_as_double( "tile_width" ) );
+        pop->set_disease_weights(
+          opts.get_option_as_double( "dweight_population" ),
+          opts.get_option_as_double( "dweight_income" ),
+          opts.get_option_as_double( "dweight_risk" ),
+          opts.get_option_as_double( "dweight_age" ),
+          opts.get_option_as_double( "dweight_sex" ) );
+        pop->generate();
+        pop->write( filename, opts.get_flag( "flat_file" ) );
+      }
+
+      status = EXIT_SUCCESS;
+    }
   }
   catch( std::exception &e )
   {
@@ -295,6 +169,6 @@ int main( int argc, char** argv )
   sampsim::utilities::safe_delete( mean_disease );
   sampsim::utilities::safe_delete( sd_disease );
   sampsim::utilities::safe_delete( popdens );
-  sampsim::utilities::safe_delete( opt );
+  sampsim::utilities::safe_delete( pop );
   return status;
 }

@@ -49,6 +49,8 @@ SET( SAMPSIM_SOURCE
   ${SAMPSIM_SRC_DIR}/distribution.cxx
   ${SAMPSIM_SRC_DIR}/household.cxx
   ${SAMPSIM_SRC_DIR}/individual.cxx
+  ${SAMPSIM_SRC_DIR}/options.cxx
+  ${SAMPSIM_SRC_DIR}/parameter.cxx
   ${SAMPSIM_SRC_DIR}/population.cxx
   ${SAMPSIM_SRC_DIR}/tile.cxx
   ${SAMPSIM_SRC_DIR}/trend.cxx
@@ -57,9 +59,9 @@ SET( SAMPSIM_SOURCE
 
 SET( SAMPSIM_EXECUTABLES
   generate
-  arc_epi
-  random
-  strip_epi
+  arc_epi_sample
+  random_sample
+  strip_epi_sample
 )
 
 # Define abstract classes in the following block
@@ -86,7 +88,6 @@ FOREACH( EXECUTABLE ${SAMPSIM_EXECUTABLES} )
     ${SAMPSIM_SOURCE}
   )
   TARGET_LINK_LIBRARIES( ${EXECUTABLE}
-    anyoption
     ${JSONCPP_LIBRARIES}
   )
 ENDFOREACH( EXECUTABLE IN ${SAMPSIM_EXECUTABLES} )

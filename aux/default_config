@@ -77,3 +77,13 @@ sd_disease_b00: 0.25
 # The default values for b00 is 1 and 0 for all other coefficients
 #
 popdens_b00: 400
+
+#
+# The weights used to determine disease status including:
+#   population, income, disease risk, age and sex
+#
+dweight_population: 1.0
+dweight_income: 1.0
+dweight_risk: 1.0
+dweight_age: 1.0
+dweight_sex: 1.0

@@ -1,1 +1,1 @@
-ADD_SUBDIRECTORY( AnyOption )
+# use ADD_SUBDIRECTORY( <dir name> ) to add a lib
