@@ -50,7 +50,6 @@ SET( SAMPSIM_SOURCE
   ${SAMPSIM_SRC_DIR}/household.cxx
   ${SAMPSIM_SRC_DIR}/individual.cxx
   ${SAMPSIM_SRC_DIR}/options.cxx
-  ${SAMPSIM_SRC_DIR}/parameter.cxx
   ${SAMPSIM_SRC_DIR}/population.cxx
   ${SAMPSIM_SRC_DIR}/tile.cxx
   ${SAMPSIM_SRC_DIR}/trend.cxx
