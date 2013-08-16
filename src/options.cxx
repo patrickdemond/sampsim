@@ -21,13 +21,8 @@ namespace sampsim
   options::options( const std::string executable_name )
   {
     this->usage_printed = false;
-    this->min_remaining_arguments = 0;
-    this->max_remaining_arguments = -1;
-
-    std::stringstream stream;
-    stream << "Usage: " << executable_name << " [options...] <file>";
-    this->add_heading( stream.str() );
-    this->add_heading( "" );
+    this->executable_name = executable_name;
+    this->add_flag( 'h', "help", "Prints usage help" );
     this->add_option( 'c', "config", "", "A configuration file containing flags and options" );
   }
 
@@ -38,25 +33,31 @@ namespace sampsim
   }
   
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void options::add_input( const std::string name )
+  {
+    this->input_map[name] = "";
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void options::add_flag(
     const char short_name,
     const std::string long_name,
     const std::string description )
   {
-    flag f;
-    f.short_name = short_name;
-    f.long_name = long_name;
-    f.description = description;
-    this->flag_list.push_back( f );
+    flag flag;
+    flag.short_name = short_name;
+    flag.long_name = long_name;
+    flag.description = description;
+    this->flag_list.push_back( flag );
 
     // now add the usage string for this flag
     std::stringstream stream;
     stream << " ";
-    if( f.has_short_name() ) stream << "-" << f.short_name << "  ";
-    if( f.has_long_name() ) stream << "--" << f.long_name;
+    if( flag.has_short_name() ) stream << "-" << flag.short_name << "  ";
+    if( flag.has_long_name() ) stream << "--" << flag.long_name;
     std::string spacing;
     spacing.assign( 25 - stream.str().length(), ' ' );
-    stream << spacing << f.description;
+    stream << spacing << flag.description;
     this->add_heading( stream.str() );
   }
   
@@ -67,28 +68,22 @@ namespace sampsim
     const std::string initial,
     const std::string description )
   {
-    option o;
-    o.short_name = short_name;
-    o.long_name = long_name;
-    o.initial = initial;
-    o.description = description;
-    this->option_list.push_back( o );
+    option option;
+    option.short_name = short_name;
+    option.long_name = long_name;
+    option.initial = initial;
+    option.description = description;
+    this->option_list.push_back( option );
 
     // now add the usage string for this option
     std::stringstream stream;
     stream << " ";
-    if( o.has_short_name() ) stream << "-" << o.short_name << "  ";
-    if( o.has_long_name() ) stream << "--" << o.long_name;
+    if( option.has_short_name() ) stream << "-" << option.short_name << "  ";
+    if( option.has_long_name() ) stream << "--" << option.long_name;
     std::string spacing;
     spacing.assign( 25 - stream.str().length(), ' ' );
-    stream << spacing << o.description;
+    stream << spacing << option.description;
     this->add_heading( stream.str() );
-  }
-
-  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  std::vector< std::string > options::get_arguments() const
-  {
-    return this->remaining_argument_list;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -130,9 +125,11 @@ namespace sampsim
     char short_name = ' ';
     std::string long_name = "";
     std::string error = "";
+    flag *flag;
+    option *option;
 
-    // reset the remaining argument list since it will get rebuilt
-    this->remaining_argument_list.clear();
+    // make a temporary vector of all inputs
+    std::vector< std::string > input_list;
 
     std::vector< std::string >::const_iterator it;
     for( it = this->argument_list.cbegin(); it != this->argument_list.cend(); ++it )
@@ -150,10 +147,9 @@ namespace sampsim
           long_name = arg.substr( 2, std::string::npos );
 
           // see if this is a flag
-          flag *f = this->find_flag( long_name );
-          if( NULL != f )
+          if( NULL != ( flag = this->find_flag( long_name ) ) )
           {
-            f->value = true;
+            flag->value = true;
             long_name = "";
           }
         }
@@ -167,10 +163,10 @@ namespace sampsim
           short_name = arg[1];
 
           // see if this is a flag
-          flag *f = this->find_flag( short_name );
-          if( NULL != f )
+          flag = this->find_flag( short_name );
+          if( NULL != ( flag = this->find_flag( short_name ) ) )
           {
-            f->value = true;
+            flag->value = true;
             short_name = ' ';
           }
         }
@@ -179,44 +175,72 @@ namespace sampsim
       { // defining a value
         if( 0 < long_name.length() )
         { // expecting a value for an option identified by its long name
-          option *o = this->find_option( long_name );
-          if( NULL != o )
+          if( NULL != ( option = this->find_option( long_name ) ) )
           {
-            o->value = arg;
+            option->value = arg;
             long_name = "";
           }
           else invalid = true;
         }
         else if( ' ' != short_name )
         { // expecting a value for an option identified by its short name
-          option *o = this->find_option( short_name );
-          if( NULL != o )
+          if( NULL != ( option = this->find_option( short_name ) ) )
           {
-            o->value = arg;
+            option->value = arg;
             short_name = ' ';
           }
           else invalid = true;
         }
         else
         {
-          this->remaining_argument_list.push_back( arg );
+          input_list.push_back( arg );
         }
       }
 
       if( invalid )
       {
-        std::cout << "ERROR: Invalid argument \"" << arg << "\"" << std::endl;
+        std::cout << "ERROR: Invalid ";
+        if( 0 < long_name.length() ) std::cout << "option \"--" << long_name << "\"";
+        else if( ' ' != short_name ) std::cout << "option \"-" << short_name << "\"";
+        else std::cout << "argument \"" << arg << "\"";
+        std::cout << std::endl;
         break;
       }
     }
 
-    // now make sure we have the correct number of remaining arguments
-    if( this->min_remaining_arguments > this->remaining_argument_list.size() ||
-        ( 0 <= this->max_remaining_arguments && 
-          this->max_remaining_arguments < this->remaining_argument_list.size() ) )
+    // make sure there are no left over options
+    if( !invalid )
     {
-      std::cout << "ERROR: Wrong number of free arguments " << std::endl;
-      invalid = true;
+      if( 0 < long_name.length() )
+      {
+        std::cout << "ERROR: expecting a value after \"--" << long_name << "\"" << std::endl;
+        invalid = true;
+      }
+      else if( ' ' != short_name )
+      {
+        std::cout << "ERROR: expecting a value after \"-" << short_name << "\"" << std::endl;
+        invalid = true;
+      }
+
+      // only process the input arguments if the help switch is off
+      if( !this->find_flag( "help" )->value )
+      {
+        // now make sure we have the correct number of inputs
+        if( input_list.size() != this->input_map.size() )
+        {
+          std::cout << "ERROR: Wrong number of free (input) arguments " << std::endl;
+          invalid = true;
+        }
+        else
+        {
+          // populate the input map
+          std::vector< std::string >::const_iterator list_it = input_list.cbegin();
+          std::map< std::string, std::string >::iterator map_it = this->input_map.begin();
+
+          for( ; list_it != input_list.cend() && map_it != this->input_map.end(); ++list_it, ++map_it )
+            map_it->second = (*list_it);
+        }
+      }
     }
 
     if( invalid )
@@ -233,8 +257,8 @@ namespace sampsim
   {
     bool invalid = false;
     std::string line, key, value;
-    flag* f;
-    option* o;
+    flag* flag;
+    option* option;
 
     std::ifstream file( filename, std::ifstream::in );
     while( !file.eof() )
@@ -248,11 +272,11 @@ namespace sampsim
       { // flag
         key = utilities::trim( parts[0] );
 
-        f = NULL;
-        if( 1 == key.length() ) f = this->find_flag( key[0] );
-        else f = this->find_flag( key );
+        flag = NULL;
+        if( 1 == key.length() ) flag = this->find_flag( key[0] );
+        else flag = this->find_flag( key );
 
-        if( NULL != f ) f->value = true;
+        if( NULL != flag ) flag->value = true;
         else invalid = true;
       }
       else if( 2 == parts.size() )
@@ -260,11 +284,11 @@ namespace sampsim
         key = utilities::trim( parts[0] );
         value = utilities::trim( parts[1] );
 
-        o = NULL;
-        if( 1 == key.length() ) o = this->find_option( key[0] );
-        else o = this->find_option( key );
+        option = NULL;
+        if( 1 == key.length() ) option = this->find_option( key[0] );
+        else option = this->find_option( key );
 
-        if( NULL != o ) o->value = value;
+        if( NULL != option ) option->value = value;
         else invalid = true;
       }
       else if( 2 < parts.size() ) invalid = true;
@@ -294,12 +318,35 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   std::string options::get_usage() const
   {
+    // start by printing the command line
     std::stringstream stream;
-    std::vector< std::string >::const_iterator it;
-    for( it = this->usage_list.cbegin(); it != this->usage_list.cend(); ++it ) stream << (*it) << std::endl;
+    stream << "Usage: " << this->executable_name << " [options...]";
+    std::map< std::string, std::string >::const_iterator input_it;
+    for( input_it = this->input_map.cbegin(); input_it != this->input_map.cend(); ++input_it )
+      stream << " <" << input_it->first << ">";
+    stream << std::endl << std::endl;
+
+    // then the options/flags/comments
+    std::vector< std::string >::const_iterator usage_it;
+    for( usage_it = this->usage_list.cbegin(); usage_it != this->usage_list.cend(); ++usage_it )
+      stream << (*usage_it) << std::endl;
     return stream.str();
   }
   
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  std::string options::get_input( const std::string name ) const
+  {
+    std::map< std::string, std::string >::const_iterator it = this->input_map.find( name );
+    if( this->input_map.cend() == it )
+    {
+      std::stringstream stream;
+      stream << "Tried to get input \"" << name << "\" which doesn't exist";
+      throw std::runtime_error( stream.str() );
+    }
+
+    return it->second;
+  }
+
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   bool options::get_flag( const char short_name, const std::string long_name ) const
   {

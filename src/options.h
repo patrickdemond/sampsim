@@ -18,6 +18,7 @@
 #ifndef __sampsim_options_h
 #define __sampsim_options_h
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -53,10 +54,9 @@ namespace sampsim
   public:
     options( const std::string executable_name );
 
-    void set_min_remaining_arguments( int min ) { this->min_remaining_arguments = min; }
-    void set_max_remaining_arguments( int max ) { this->max_remaining_arguments = max; }
-
     void add_heading( const std::string description );
+
+    void add_input( const std::string name );
 
     void add_flag(
       const char short_name,
@@ -77,12 +77,12 @@ namespace sampsim
     void add_option( const std::string long_name, const std::string initial, const std::string description )
     { this->add_option( ' ', long_name, initial, description ); }
 
-    std::vector< std::string > get_arguments() const;
     void set_arguments( const int argc, char** argv );
 
     bool process();
     void print_usage();
 
+    std::string get_input( const std::string name ) const;
     bool get_flag( const std::string long_name ) const
     { return this->get_flag( ' ', long_name ); }
     bool get_flag( const char short_name ) const
@@ -113,11 +113,10 @@ namespace sampsim
     bool process_arguments();
     bool process_config_file( const std::string filename );
 
+    std::string executable_name;
     bool usage_printed;
-    int min_remaining_arguments;
-    int max_remaining_arguments;
 
-    std::vector< std::string > remaining_argument_list;
+    std::map< std::string, std::string > input_map;
     std::vector< std::string > argument_list;
     std::vector< std::string > config_file_list;
     std::vector< flag > flag_list;

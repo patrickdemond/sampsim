@@ -21,18 +21,13 @@ int main( int argc, char** argv )
   int status = EXIT_FAILURE;
   std::string filename;
   sampsim::options opts( argv[0] );
-  opts.set_min_remaining_arguments( 1 );
-  opts.set_max_remaining_arguments( 1 );
+
+  // define inputs
+  opts.add_input( "population_file" );
+  opts.add_input( "output_file" );
 
   // define general parameters
-  std::string usage = "Usage: ";
-  usage += argv[0];
-  usage += " [options...] <file>";
-  opts.add_heading( usage );
-  opts.add_heading( "" );
-  opts.add_option( 'c', "config", "", "A configuration file containing sampling parameters" );
   opts.add_flag( 'f', "flat_file", "Whether to output data in two CSV files instead of JSON data" );
-  opts.add_flag( 'h', "help", "Prints this help" );
   opts.add_flag( 'v', "verbose", "Be verbose when generating sample" );
 
   try

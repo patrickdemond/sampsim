@@ -1,3 +1,2 @@
 Test nested config files
 Make abstract base_object::to_csv() method
-Make 'h'/"help" an automatic parameter

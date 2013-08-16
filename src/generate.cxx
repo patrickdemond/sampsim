@@ -20,9 +20,6 @@ int main( int argc, char** argv )
 {
   int status = EXIT_FAILURE;
   sampsim::options opts( argv[0] );
-  opts.set_min_remaining_arguments( 1 );
-  opts.set_max_remaining_arguments( 1 );
-
   sampsim::trend *mean_income = new sampsim::trend;
   sampsim::trend *sd_income = new sampsim::trend;
   sampsim::trend *mean_disease = new sampsim::trend;
@@ -30,9 +27,11 @@ int main( int argc, char** argv )
   sampsim::trend *popdens = new sampsim::trend;
   sampsim::population *pop = new sampsim::population;
 
+  // define inputs
+  opts.add_input( "output_file" );
+
   // define general parameters
   opts.add_flag( 'f', "flat_file", "Whether to output data in two CSV files instead of JSON data" );
-  opts.add_flag( 'h', "help", "Prints this help" );
   opts.add_flag( 'v', "verbose", "Be verbose when generating population" );
 
   // define population parameters
@@ -98,8 +97,7 @@ int main( int argc, char** argv )
       }
       else
       {
-        std::vector< std::string > arguments = opts.get_arguments();
-        std::string filename = arguments[0];
+        std::string filename = opts.get_input( "output_file" );
         sampsim::utilities::verbose = opts.get_flag( "verbose" );
 
         // build trends
