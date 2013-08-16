@@ -15,8 +15,8 @@
  * @brief A tile which belongs to a population and contains buildings
  */
 
-#ifndef __tile_h
-#define __tile_h
+#ifndef __sampsim_tile_h
+#define __sampsim_tile_h
 
 #include "base_object.h"
 

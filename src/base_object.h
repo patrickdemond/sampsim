@@ -15,8 +15,8 @@
  * @brief Abstract base class for all classes
  */
 
-#ifndef __base_object_h
-#define __base_object_h
+#ifndef __sampsim_base_object_h
+#define __sampsim_base_object_h
 
 #include <json/value.h>
 

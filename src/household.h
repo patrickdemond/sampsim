@@ -15,8 +15,8 @@
  * @brief A household which belongs to a building and contains individuals
  */
 
-#ifndef __household_h
-#define __household_h
+#ifndef __sampsim_household_h
+#define __sampsim_household_h
 
 #include "base_object.h"
 

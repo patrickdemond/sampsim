@@ -12,8 +12,8 @@
 // A utilities header to include typedefs, macros, global functions, etc.
 //
 
-#ifndef __utilities_h
-#define __utilities_h
+#ifndef __sampsim_utilities_h
+#define __sampsim_utilities_h
 
 #define SAMPSIM_VERSION_MAJOR @SAMPSIM_VERSION_MAJOR@
 #define SAMPSIM_VERSION_MINOR @SAMPSIM_VERSION_MINOR@

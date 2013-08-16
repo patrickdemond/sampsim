@@ -15,8 +15,8 @@
  * @brief An individual which belongs to a household
  */
 
-#ifndef __individual_h
-#define __individual_h
+#ifndef __sampsim_individual_h
+#define __sampsim_individual_h
 
 #include "base_object.h"
 

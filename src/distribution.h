@@ -15,8 +15,8 @@
  * @brief A distribution object which encapsulates multiple statistical distributions
  */
 
-#ifndef __distribution_h
-#define __distribution_h
+#ifndef __sampsim_distribution_h
+#define __sampsim_distribution_h
 
 #include "base_object.h"
 

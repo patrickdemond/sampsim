@@ -15,8 +15,8 @@
  * @brief A building which belongs to a tile and contains households
  */
 
-#ifndef __building_h
-#define __building_h
+#ifndef __sampsim_building_h
+#define __sampsim_building_h
 
 #include "base_object.h"
 

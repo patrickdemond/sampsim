@@ -15,8 +15,8 @@
  * @brief A coordinate pair
  */
 
-#ifndef __coordinate_h
-#define __coordinate_h
+#ifndef __sampsim_coordinate_h
+#define __sampsim_coordinate_h
 
 #include "base_object.h"
 

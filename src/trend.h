@@ -16,8 +16,8 @@
  *        b00 + b01 X + b10 Y + b02 X^2 + b20 Y^2 + b11 XY
  */
 
-#ifndef __trend_h
-#define __trend_h
+#ifndef __sampsim_trend_h
+#define __sampsim_trend_h
 
 #include "base_object.h"
 

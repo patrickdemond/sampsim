@@ -15,8 +15,8 @@
  * @brief A class used to manage input optionss
  */
 
-#ifndef __options_h
-#define __options_h
+#ifndef __sampsim_options_h
+#define __sampsim_options_h
 
 #include <string>
 #include <vector>

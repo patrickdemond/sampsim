@@ -15,8 +15,8 @@
  * @brief A population which contains X by Y tiles
  */
 
-#ifndef __population_h
-#define __population_h
+#ifndef __sampsim_population_h
+#define __sampsim_population_h
 
 #include "base_object.h"
 

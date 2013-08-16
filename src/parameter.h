@@ -15,8 +15,8 @@
  * @brief A class used to manage input parameters
  */
 
-#ifndef __parameter_h
-#define __parameter_h
+#ifndef __sampsim_parameter_h
+#define __sampsim_parameter_h
 
 #include <string>
 
