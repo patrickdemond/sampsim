@@ -8,6 +8,7 @@
 
 #include "sample.h"
 
+#include "population.h"
 #include "utilities.h"
 
 #include <json/value.h>
@@ -24,12 +25,25 @@ namespace sample
     this->one_per_household = false;
     this->age = ANY_AGE;
     this->sex = ANY_SEX;
+    this->population = new sampsim::population;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  sample::~sample()
+  {
+    sampsim::utilities::safe_delete( this->population );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sample::write( const std::string filename, const bool flat_file ) const
   {
     sampsim::utilities::output( "writting sample to %s.%s", filename.c_str(), flat_file ? "*.csv" : "json" );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void sample::set_population( const std::string filename )
+  {
+    this->population->read( filename );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

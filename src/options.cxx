@@ -235,9 +235,9 @@ namespace sampsim
         {
           // populate the input map
           std::vector< std::string >::const_iterator list_it = input_list.cbegin();
-          std::map< std::string, std::string >::iterator map_it = this->input_map.begin();
+          std::map< std::string, std::string >::reverse_iterator map_it = this->input_map.rbegin();
 
-          for( ; list_it != input_list.cend() && map_it != this->input_map.end(); ++list_it, ++map_it )
+          for( ; list_it != input_list.cend() && map_it != this->input_map.rend(); ++list_it, ++map_it )
             map_it->second = (*list_it);
         }
       }
@@ -321,14 +321,12 @@ namespace sampsim
     // start by printing the command line
     std::stringstream stream;
     stream << "Usage: " << this->executable_name << " [options...]";
-    std::map< std::string, std::string >::const_iterator input_it;
-    for( input_it = this->input_map.cbegin(); input_it != this->input_map.cend(); ++input_it )
+    for( auto input_it = this->input_map.crbegin(); input_it != this->input_map.crend(); ++input_it )
       stream << " <" << input_it->first << ">";
     stream << std::endl << std::endl;
 
     // then the options/flags/comments
-    std::vector< std::string >::const_iterator usage_it;
-    for( usage_it = this->usage_list.cbegin(); usage_it != this->usage_list.cend(); ++usage_it )
+    for( auto usage_it = this->usage_list.cbegin(); usage_it != this->usage_list.cend(); ++usage_it )
       stream << (*usage_it) << std::endl;
     return stream.str();
   }

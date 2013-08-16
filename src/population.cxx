@@ -17,6 +17,7 @@
 
 #include <ctime>
 #include <fstream>
+#include <json/reader.h>
 #include <json/value.h>
 #include <json/writer.h>
 #include <utility>
@@ -180,6 +181,24 @@ namespace sampsim
     }
 
     utilities::output( "finished generating population" );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  bool population::read( const std::string filename )
+  {
+    utilities::output( "reading population from %s", filename.c_str() );
+
+    Json::Value root;
+    Json::Reader reader;
+    bool success = reader.parse( filename, root, false );
+
+    if( !success )
+    {
+      std::cout << "ERROR: failed to parse population file \"" << filename << "\"" << std::endl
+                << reader.getFormattedErrorMessages();
+    }
+
+    return success;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

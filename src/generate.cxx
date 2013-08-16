@@ -25,7 +25,7 @@ int main( int argc, char** argv )
   sampsim::trend *mean_disease = new sampsim::trend;
   sampsim::trend *sd_disease = new sampsim::trend;
   sampsim::trend *popdens = new sampsim::trend;
-  sampsim::population *pop = new sampsim::population;
+  sampsim::population *population = new sampsim::population;
 
   // define inputs
   opts.add_input( "output_file" );
@@ -135,22 +135,22 @@ int main( int argc, char** argv )
         popdens->set_b11( opts.get_option_as_double( "popdens_b11" ) );
 
         // launch application
-        pop->set_seed( opts.get_option( "seed" ) );
-        pop->set_mean_household_population( opts.get_option_as_double( "mean_household_pop" ) );
-        pop->set_income( mean_income, sd_income );
-        pop->set_disease( mean_disease, sd_disease );
-        pop->set_population_density( popdens );
-        pop->set_number_tiles_x( opts.get_option_as_int( "tile_x" ) );
-        pop->set_number_tiles_y( opts.get_option_as_int( "tile_y" ) );
-        pop->set_tile_width( opts.get_option_as_double( "tile_width" ) );
-        pop->set_disease_weights(
+        population->set_seed( opts.get_option( "seed" ) );
+        population->set_mean_household_population( opts.get_option_as_double( "mean_household_pop" ) );
+        population->set_income( mean_income, sd_income );
+        population->set_disease( mean_disease, sd_disease );
+        population->set_population_density( popdens );
+        population->set_number_tiles_x( opts.get_option_as_int( "tile_x" ) );
+        population->set_number_tiles_y( opts.get_option_as_int( "tile_y" ) );
+        population->set_tile_width( opts.get_option_as_double( "tile_width" ) );
+        population->set_disease_weights(
           opts.get_option_as_double( "dweight_population" ),
           opts.get_option_as_double( "dweight_income" ),
           opts.get_option_as_double( "dweight_risk" ),
           opts.get_option_as_double( "dweight_age" ),
           opts.get_option_as_double( "dweight_sex" ) );
-        pop->generate();
-        pop->write( filename, opts.get_flag( "flat_file" ) );
+        population->generate();
+        population->write( filename, opts.get_flag( "flat_file" ) );
       }
 
       status = EXIT_SUCCESS;
@@ -166,6 +166,6 @@ int main( int argc, char** argv )
   sampsim::utilities::safe_delete( mean_disease );
   sampsim::utilities::safe_delete( sd_disease );
   sampsim::utilities::safe_delete( popdens );
-  sampsim::utilities::safe_delete( pop );
+  sampsim::utilities::safe_delete( population );
   return status;
 }

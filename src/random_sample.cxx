@@ -36,6 +36,7 @@ int main( int argc, char** argv )
   opts.add_heading( "" );
   opts.add_option( "age", "either", "Restricts sample by age (\"adult\", \"child\" or \"either\")" );
   opts.add_flag( "one_per_household", "Only sample one individual per household" );
+  opts.add_option( "seed", "", "Seed used by the random generator" );
   opts.add_option( "sex", "either", "Restricts sample by sex (\"male\", \"female\" or \"either\")" );
   opts.add_option( "size", "1000", "The sample's size (in individuals)" );
 
@@ -61,6 +62,7 @@ int main( int argc, char** argv )
         sample->set_age_type( sampsim::sample::get_age_type( opts.get_option( "age" ) ) );
         sample->set_sex_type( sampsim::sample::get_sex_type( opts.get_option( "sex" ) ) );
         sample->set_one_per_household( opts.get_flag( "one_per_household" ) );
+        sample->set_population( opts.get_input( "population_file" ) );
         sample->generate();
         sample->write( filename, opts.get_flag( "flat_file" ) );
       }

@@ -35,6 +35,7 @@ namespace Json{ class Value; }
 
 namespace sampsim
 {
+class population;
 namespace sample
 {
     enum age_type
@@ -89,7 +90,7 @@ namespace sample
   {
   public:
     sample();
-    ~sample() {}
+    ~sample();
 
     /**
      * Generate the sample
@@ -97,6 +98,7 @@ namespace sample
     virtual void generate() = 0;
     void write( const std::string filename, const bool flat_file = false ) const;
 
+    void set_population( const std::string filename );
     void set_seed( const std::string seed );
     std::string get_seed() const { return this->seed; }
     void set_size( const unsigned int size );
@@ -116,6 +118,7 @@ namespace sample
   protected:
 
   private:
+    sampsim::population *population;
     std::string seed;
     unsigned int size;
     bool one_per_household;

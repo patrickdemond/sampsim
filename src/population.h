@@ -63,6 +63,7 @@ namespace sampsim
      * Generate the sample by generating all tiles in the population
      */
     void generate();
+    bool read( const std::string filename );
     void write( const std::string filename, const bool flat_file = false ) const;
 
     void set_seed( const std::string seed );

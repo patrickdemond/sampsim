@@ -44,14 +44,14 @@ namespace sampsim
     std::poisson_distribution<int> poisson;
 
     tile *tile = this->get_tile();
-    population *pop = this->get_population();
+    population *population = this->get_population();
 
     // income and disease are Normal deviates from the tile average
     this->income = tile->get_income_distribution()->generate_value();
     this->disease_risk = tile->get_disease_risk_distribution()->generate_value();
 
     // We'll use 1 + distribution so that there are no empty households
-    int population = pop->get_population_distribution()->generate_value() + 1;
+    int size = population->get_population_distribution()->generate_value() + 1;
     
     // make the first individual an adult of random sex
     bool male = 0 == utilities::random( 0, 1 );
@@ -61,7 +61,7 @@ namespace sampsim
     this->individual_list.push_back( i );
 
     // now make the rest of the members of this household
-    for( int c = 1; c < population; c++ )
+    for( int c = 1; c < size; c++ )
     {
       individual *i = new individual( this );
 
@@ -98,11 +98,11 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void household::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
   {
-    population *pop = this->get_population();
+    population *population = this->get_population();
 
     // write the household index and position to the household stream
     household_stream << utilities::household_index << ",";
-    this->get_building()->get_position().to_csv( household_stream, pop->get_centroid() );
+    this->get_building()->get_position().to_csv( household_stream, population->get_centroid() );
     household_stream << "," << this->income << "," << this->disease_risk << std::endl;
 
     // write all individuals in this household to the individual stream
