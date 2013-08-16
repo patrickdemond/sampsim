@@ -101,6 +101,7 @@ namespace sampsim
     coordinate get_centroid() const { return this->centroid; }
     double get_area() const;
 
+    virtual void from_json( const Json::Value& );
     virtual void to_json( Json::Value& ) const;
     virtual void to_csv( std::ostream&, std::ostream& ) const;
 

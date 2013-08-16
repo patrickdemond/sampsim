@@ -34,8 +34,9 @@ namespace sampsim
     ~base_object() {}
 
     /**
-     * Writes the object's details to the provided json object.
+     * Reads and writes the object's details to/from the provided json object.
      */
+    virtual void from_json( const Json::Value &json ) = 0;
     virtual void to_json( Json::Value &json ) const = 0;
 
   protected:

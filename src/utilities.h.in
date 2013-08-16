@@ -45,6 +45,13 @@ namespace sampsim
   class utilities
   {
   public:
+    inline static std::string get_version()
+    {
+      std::stringstream stream;
+      stream << SAMPSIM_VERSION_MAJOR << "." << SAMPSIM_VERSION_MINOR << "." << SAMPSIM_VERSION_PATCH;
+      return stream.str();
+    }
+
     inline static void output( std::string message, ... )
     {
       va_list args;  // Pointer to optional arguments

@@ -71,6 +71,7 @@ namespace sampsim
     virtual void set_weibull( const double a = 1.0, const double b = 1.0 );
 
     double generate_value();
+    virtual void from_json( const Json::Value& );
     virtual void to_json( Json::Value& ) const;
 
   protected:

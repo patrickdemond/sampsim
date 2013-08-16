@@ -20,6 +20,7 @@
 #include <json/reader.h>
 #include <json/value.h>
 #include <json/writer.h>
+#include <stdexcept>
 #include <utility>
 
 namespace sampsim
@@ -44,7 +45,7 @@ namespace sampsim
   population::~population()
   {
     // delete all tiles
-    for( tile_list_type::iterator it = this->tile_list.begin(); it != this->tile_list.end(); ++it )
+    for( auto it = this->tile_list.begin(); it != this->tile_list.end(); ++it )
       utilities::safe_delete( it->second );
     this->tile_list.clear();
 
@@ -110,20 +111,15 @@ namespace sampsim
     
     int individual_index = 0;
 
-    tile_list_type::const_iterator tile_it;
-    building_list_type::const_iterator building_it;
-    household_list_type::const_iterator household_it;
-    individual_list_type::const_iterator individual_it;
-
-    for( tile_it = this->tile_list.begin();
+    for( auto tile_it = this->tile_list.begin();
          tile_it != this->tile_list.end();
          ++tile_it )
     {
-      for( building_it = tile_it->second->get_building_list_cbegin();
+      for( auto building_it = tile_it->second->get_building_list_cbegin();
            building_it != tile_it->second->get_building_list_cend();
            ++building_it )
       {
-        for( household_it = ( *building_it )->get_household_list_cbegin();
+        for( auto household_it = ( *building_it )->get_household_list_cbegin();
              household_it != ( *building_it )->get_household_list_cend();
              ++household_it )
         {
@@ -132,7 +128,7 @@ namespace sampsim
           value[1] = house->get_income();
           value[2] = house->get_disease_risk();
 
-          for( individual_it = ( *household_it )->get_individual_list_cbegin();
+          for( auto individual_it = ( *household_it )->get_individual_list_cbegin();
                individual_it != ( *household_it )->get_individual_list_cend();
                ++individual_it )
           {
@@ -187,16 +183,29 @@ namespace sampsim
   bool population::read( const std::string filename )
   {
     utilities::output( "reading population from %s", filename.c_str() );
+    
+    std::ifstream stream( filename, std::ifstream::in );
 
     Json::Value root;
     Json::Reader reader;
-    bool success = reader.parse( filename, root, false );
+    bool success = reader.parse( stream, root, false );
 
     if( !success )
     {
       std::cout << "ERROR: failed to parse population file \"" << filename << "\"" << std::endl
                 << reader.getFormattedErrorMessages();
     }
+    else try
+    {
+      this->from_json( root );
+    }
+    catch( std::runtime_error &e )
+    {
+      std::cout << e.what() << std::endl;
+      success = false;
+    }
+
+    stream.close();
 
     return success;
   }
@@ -228,9 +237,50 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::from_json( const Json::Value &json )
+  {
+    // check to make sure the version is compatible
+    if( !json.isMember( "version" ) )
+      throw std::runtime_error( "ERROR: Cannot determine population generator version" );
+    std::string version = json["version"].asString();
+    if( version != utilities::get_version() )
+    {
+      std::stringstream stream;
+      stream << "ERROR: Cannot read population, incompatible version ("
+             << version << " != " << utilities::get_version() << ")";
+      throw std::runtime_error( stream.str() );
+    }
+
+    this->seed = json["seed"].asString();
+    this->number_tiles_x = json["number_tiles_x"].asInt();
+    this->number_tiles_y = json["number_tiles_y"].asInt();
+    this->tile_width = json["tile_width"].asDouble();
+    for( unsigned int c = 0; c < population::NUMBER_OF_WEIGHTS; c++ )
+      this->disease_weights[c] = json["disease_weights"][c].asDouble();
+
+    this->mean_household_population = json["mean_household_population"].asInt();
+    this->mean_income->from_json( json["mean_income"] );
+    this->sd_income->from_json( json["sd_income"] );
+    this->mean_disease->from_json( json["mean_disease"] );
+    this->sd_disease->from_json( json["sd_disease"] );
+    this->population_density->from_json( json["population_density"] );
+
+    std::pair< int, int > index;
+    for( unsigned int c = 0; c < json["tile_list"].size(); c++ )
+    {
+      Json::Value tile_json = json["tile_list"][c];
+      index = std::pair< int, int >( tile_json["x"].asInt(), tile_json["y"].asInt() );
+      tile *t = new tile( this, index );
+      t->from_json( tile_json );
+      this->tile_list[index] = t;
+    }
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::to_json( Json::Value &json ) const
   {
     json = Json::Value( Json::objectValue );
+    json["version"] = utilities::get_version();
     json["seed"] = this->seed;
     json["number_tiles_x"] = this->number_tiles_x;
     json["number_tiles_y"] = this->number_tiles_y;
@@ -249,9 +299,7 @@ namespace sampsim
     json["tile_list"].resize( this->tile_list.size() );
 
     int index = 0;
-    for( tile_list_type::const_iterator it = this->tile_list.cbegin();
-         it != this->tile_list.cend();
-         ++it, ++index )
+    for( auto it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it, ++index )
       it->second->to_json( json["tile_list"][index] );
   }
 
@@ -263,8 +311,7 @@ namespace sampsim
 
     // put in the parameters
     std::stringstream stream;
-    stream << "# version: " << SAMPSIM_VERSION_MAJOR << "." << SAMPSIM_VERSION_MINOR
-                     << "." << SAMPSIM_VERSION_PATCH << std::endl;
+    stream << "# version: " << utilities::get_version() << std::endl;
     stream << "# seed: " << this->seed << std::endl;
     stream << "# number_tiles_x: " << this->number_tiles_x << std::endl;
     stream << "# number_tiles_y: " << this->number_tiles_y << std::endl;
@@ -291,7 +338,7 @@ namespace sampsim
     household_stream << "index,x,y,r,a,income,disease_risk" << std::endl;
     individual_stream << "household_index,sex,age,disease" << std::endl;
 
-    for( tile_list_type::const_iterator it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it )
+    for( auto it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it )
       it->second->to_csv( household_stream, individual_stream );
   }
 
@@ -371,7 +418,7 @@ namespace sampsim
   int population::count_population() const
   {
     int count = 0;
-    for( tile_list_type::const_iterator it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it )
+    for( auto it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it )
       count += it->second->count_population();
 
     return count;

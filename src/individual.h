@@ -48,6 +48,7 @@ namespace sampsim
     tile* get_tile() const;
     population* get_population() const;
 
+    virtual void from_json( const Json::Value& );
     virtual void to_json( Json::Value& ) const;
     virtual void to_csv( std::ostream& ) const;
 

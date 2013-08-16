@@ -48,6 +48,10 @@ namespace sample
      */
     virtual void generate();
 
+    virtual void from_json( const Json::Value& );
+    virtual void to_json( Json::Value& ) const;
+    virtual void to_csv( std::ostream&, std::ostream& ) const;
+
   protected:
 
   private:

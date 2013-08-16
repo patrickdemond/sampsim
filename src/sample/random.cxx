@@ -29,5 +29,23 @@ namespace sample
 
     utilities::random_engine.seed( atoi( this->get_seed().c_str() ) );
   }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void random::from_json( const Json::Value& )
+  {
+    // TODO: implement
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void random::to_json( Json::Value& ) const
+  {
+    // TODO: implement
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void random::to_csv( std::ostream&, std::ostream& ) const
+  {
+    // TODO: implement
+  }
 }
 }

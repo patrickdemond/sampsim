@@ -98,7 +98,7 @@ namespace sample
     virtual void generate() = 0;
     void write( const std::string filename, const bool flat_file = false ) const;
 
-    void set_population( const std::string filename );
+    bool set_population( const std::string filename );
     void set_seed( const std::string seed );
     std::string get_seed() const { return this->seed; }
     void set_size( const unsigned int size );
@@ -112,12 +112,14 @@ namespace sample
     sex_type get_sex_type() const { return this->sex; }
     std::string get_sex_type_name() const { return sampsim::sample::get_sex_type_name( this->sex ); }
 
+    virtual void from_json( const Json::Value& );
     virtual void to_json( Json::Value& ) const;
     virtual void to_csv( std::ostream&, std::ostream& ) const;
 
   protected:
 
   private:
+    bool ready;
     sampsim::population *population;
     std::string seed;
     unsigned int size;

@@ -37,6 +37,12 @@ namespace sampsim
   population* individual::get_population() const { return this->parent->get_population(); }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void individual::from_json( const Json::Value &json )
+  {
+    // TODO: implement
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void individual::to_json( Json::Value &json ) const
   {
     json = Json::Value( Json::objectValue );

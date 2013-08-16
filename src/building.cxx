@@ -50,6 +50,12 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void building::from_json( const Json::Value &json )
+  {
+    // TODO: implement
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void building::to_json( Json::Value &json ) const
   {
     json = Json::Value( Json::objectValue );
@@ -58,16 +64,14 @@ namespace sampsim
     json["household_list"].resize( this->household_list.size() );
 
     int index = 0;
-    household_list_type::const_iterator it;
-    for( it = this->household_list.cbegin(); it != this->household_list.cend(); ++it, ++index )
+    for( auto it = this->household_list.cbegin(); it != this->household_list.cend(); ++it, ++index )
       ( *it )->to_json( json["household_list"][index] );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void building::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
   {
-    household_list_type::const_iterator it;
-    for( it = this->household_list.begin(); it != this->household_list.end(); ++it )
+    for( auto it = this->household_list.begin(); it != this->household_list.end(); ++it )
       ( *it )->to_csv( household_stream, individual_stream );
   }
 
@@ -75,8 +79,7 @@ namespace sampsim
   int building::count_population() const
   {
     int count = 0;
-    household_list_type::const_iterator it;
-    for( it = this->household_list.begin(); it != this->household_list.end(); ++it )
+    for( auto it = this->household_list.begin(); it != this->household_list.end(); ++it )
       count += (*it)->count_population();
 
     return count;

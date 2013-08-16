@@ -73,7 +73,7 @@ SET_SOURCE_FILES_PROPERTIES(
   ABSTRACT
 )
 
-# Use the include path and library for Qt
+# Include library paths
 INCLUDE_DIRECTORIES(
   ${SAMPSIM_INCLUDE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}

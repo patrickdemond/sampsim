@@ -131,8 +131,7 @@ namespace sampsim
     // make a temporary vector of all inputs
     std::vector< std::string > input_list;
 
-    std::vector< std::string >::const_iterator it;
-    for( it = this->argument_list.cbegin(); it != this->argument_list.cend(); ++it )
+    for( auto it = this->argument_list.cbegin(); it != this->argument_list.cend(); ++it )
     {
       // skip the first argument (it's the executable's name
       if( this->argument_list.cbegin() == it ) continue;
@@ -234,8 +233,8 @@ namespace sampsim
         else
         {
           // populate the input map
-          std::vector< std::string >::const_iterator list_it = input_list.cbegin();
-          std::map< std::string, std::string >::reverse_iterator map_it = this->input_map.rbegin();
+          auto list_it = input_list.cbegin();
+          auto map_it = this->input_map.rbegin();
 
           for( ; list_it != input_list.cend() && map_it != this->input_map.rend(); ++list_it, ++map_it )
             map_it->second = (*list_it);
@@ -334,7 +333,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   std::string options::get_input( const std::string name ) const
   {
-    std::map< std::string, std::string >::const_iterator it = this->input_map.find( name );
+    auto it = this->input_map.find( name );
     if( this->input_map.cend() == it )
     {
       std::stringstream stream;
@@ -348,8 +347,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   bool options::get_flag( const char short_name, const std::string long_name ) const
   {
-    std::vector< flag >::const_iterator it;
-    for( it = this->flag_list.cbegin(); it != this->flag_list.cend(); ++it )
+    for( auto it = this->flag_list.cbegin(); it != this->flag_list.cend(); ++it )
       if( ( 0 < long_name.length() && it->long_name == long_name ) ||
           ( ' ' != short_name && it->short_name == short_name ) ) return it->value;
 
@@ -365,8 +363,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   std::string options::get_option( const char short_name, const std::string long_name ) const
   {
-    std::vector< option >::const_iterator it;
-    for( it = this->option_list.cbegin(); it != this->option_list.cend(); ++it )
+    for( auto it = this->option_list.cbegin(); it != this->option_list.cend(); ++it )
       if( ( 0 < long_name.length() && it->long_name == long_name ) ||
           ( ' ' != short_name && it->short_name == short_name ) ) return it->get_value();
 
@@ -382,8 +379,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   options::flag* options::find_flag( const char short_name )
   {
-    std::vector< flag >::iterator flag_it;
-    for( flag_it = this->flag_list.begin(); flag_it != this->flag_list.end(); ++flag_it )
+    for( auto flag_it = this->flag_list.begin(); flag_it != this->flag_list.end(); ++flag_it )
       if( flag_it->has_short_name() && short_name == flag_it->short_name ) return &( *flag_it );
     return NULL;
   }
@@ -391,8 +387,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   options::flag* options::find_flag( const std::string long_name )
   {
-    std::vector< flag >::iterator flag_it;
-    for( flag_it = this->flag_list.begin(); flag_it != this->flag_list.end(); ++flag_it )
+    for( auto flag_it = this->flag_list.begin(); flag_it != this->flag_list.end(); ++flag_it )
       if( flag_it->has_long_name() && long_name == flag_it->long_name ) return &( *flag_it );
     return NULL;
   }
@@ -400,8 +395,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   options::option* options::find_option( const char short_name )
   {
-    std::vector< option >::iterator option_it;
-    for( option_it = this->option_list.begin(); option_it != this->option_list.end(); ++option_it )
+    for( auto option_it = this->option_list.begin(); option_it != this->option_list.end(); ++option_it )
       if( option_it->has_short_name() && short_name == option_it->short_name ) return &( *option_it );
     return NULL;
   }
@@ -409,8 +403,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   options::option* options::find_option( const std::string long_name )
   {
-    std::vector< option >::iterator option_it;
-    for( option_it = this->option_list.begin(); option_it != this->option_list.end(); ++option_it )
+    for( auto option_it = this->option_list.begin(); option_it != this->option_list.end(); ++option_it )
       if( option_it->has_long_name() && long_name == option_it->long_name ) return &( *option_it );
     return NULL;
   }

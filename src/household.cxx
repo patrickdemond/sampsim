@@ -81,6 +81,12 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void household::from_json( const Json::Value &json )
+  {
+    // TODO: implement
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void household::to_json( Json::Value &json ) const
   {
     json = Json::Value( Json::objectValue );
@@ -90,8 +96,7 @@ namespace sampsim
     json["individual_list"].resize( this->individual_list.size() );
 
     int index = 0;
-    individual_list_type::const_iterator it; 
-    for( it = this->individual_list.cbegin(); it != this->individual_list.cend(); ++it, ++index )
+    for( auto it = this->individual_list.cbegin(); it != this->individual_list.cend(); ++it, ++index )
       ( *it )->to_json( json["individual_list"][index] );
   }
 
@@ -106,8 +111,7 @@ namespace sampsim
     household_stream << "," << this->income << "," << this->disease_risk << std::endl;
 
     // write all individuals in this household to the individual stream
-    individual_list_type::const_iterator it;
-    for( it = this->individual_list.begin(); it != this->individual_list.end(); ++it )
+    for( auto it = this->individual_list.begin(); it != this->individual_list.end(); ++it )
     {
       individual_stream << utilities::household_index << ",";
       ( *it )->to_csv( individual_stream );

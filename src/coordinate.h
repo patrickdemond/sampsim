@@ -50,6 +50,7 @@ namespace sampsim
     double length() const { return sqrt( this->x*this->x + this->y+this->y ); }
     double distance( const coordinate c ) const { return ( *this - c ).length(); }
 
+    virtual void from_json( const Json::Value& );
     virtual void to_json( Json::Value& ) const;
     virtual void to_csv( std::ostream&, const coordinate center ) const;
 

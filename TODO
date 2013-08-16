@@ -1,3 +1,2 @@
 Test nested config files
-Make abstract base_object::to_csv() method
-Make use of "auto" keyword in iterator loops
+Make library out of common classes and link

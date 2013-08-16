@@ -68,6 +68,7 @@ namespace sampsim
      * Generate the building by generating all households in the building
      */
     void generate();
+    virtual void from_json( const Json::Value& );
     virtual void to_json( Json::Value& ) const;
     virtual void to_csv( std::ostream&, std::ostream& ) const;
 

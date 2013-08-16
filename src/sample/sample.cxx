@@ -41,9 +41,9 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void sample::set_population( const std::string filename )
+  bool sample::set_population( const std::string filename )
   {
-    this->population->read( filename );
+    return this->population->read( filename );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -88,6 +88,12 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void sample::from_json( const Json::Value& )
+  {
+    // TODO: implement
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sample::to_json( Json::Value &json ) const
   {
     json = Json::Value( Json::objectValue );
@@ -98,9 +104,8 @@ namespace sample
     json["sex"] = sampsim::sample::get_sex_type_name( this->sex );
 
     /*
-    for( household_list_type::const_iterator it = this->household_list.cbegin();
-         it != this->household_list.cend();
-         ++it )
+    TODO: implement
+    for( auto it = this->household_list.cbegin(); it != this->household_list.cend(); ++it )
       it->second->to_json( json["household_list"][index] );
     */
   }
@@ -127,9 +132,8 @@ namespace sample
     individual_stream << "household_index,sex,age,disease" << std::endl;
 
     /*
-    for( household_list_type::const_iterator it = this->household_list.cbegin();
-         it != this->household_list.cend();
-         ++it )
+    TODO: implement
+    for( auto it = this->household_list.cbegin(); it != this->household_list.cend(); ++it )
       it->second->to_csv( household_stream, individual_stream );
     */
   }

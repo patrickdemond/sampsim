@@ -62,6 +62,7 @@ namespace sampsim
     double get_value( const coordinate );
 
     std::string to_string() const;
+    virtual void from_json( const Json::Value& );
     virtual void to_json( Json::Value& ) const;
 
   protected:
