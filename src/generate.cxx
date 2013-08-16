@@ -19,7 +19,6 @@
 int main( int argc, char** argv )
 {
   int status = EXIT_FAILURE;
-  std::string filename;
   sampsim::options opts( argv[0] );
   opts.set_min_remaining_arguments( 1 );
   opts.set_max_remaining_arguments( 1 );
@@ -99,9 +98,9 @@ int main( int argc, char** argv )
       }
       else
       {
-        // get the filename to write the population to
         std::vector< std::string > arguments = opts.get_arguments();
-        filename = arguments[0];
+        std::string filename = arguments[0];
+        sampsim::utilities::verbose = opts.get_flag( "verbose" );
 
         // build trends
         mean_income->set_b00( opts.get_option_as_double( "mean_income_b00" ) );
