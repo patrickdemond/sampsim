@@ -11,6 +11,7 @@
 //
 
 #include "options.h"
+#include "sample/random.h"
 #include "utilities.h"
 
 #include <stdexcept>
@@ -59,15 +60,13 @@ int main( int argc, char** argv )
         std::vector< std::string > arguments = opts.get_arguments();
         std::string filename = arguments[0];
         sampsim::utilities::verbose = opts.get_flag( "verbose" );
-        std::string age = opts.get_option( "age" );
-        std::string sex = opts.get_option( "sex" );
 
         // launch application
         sample->set_seed( opts.get_option( "seed" ) );
         sample->set_size( opts.get_option_as_int( "size" ) );
-        if( "adult" == age || "child" == age ) sample->set_age( age );
-        if( "male" == sex || "female" == sex ) sample->set_sex( sex );
-        sample->set_one_per_household( opts.get_flag( "one_per_household" );
+        sample->set_age_type( sampsim::sample::get_age_type( opts.get_option( "age" ) ) );
+        sample->set_sex_type( sampsim::sample::get_sex_type( opts.get_option( "sex" ) ) );
+        sample->set_one_per_household( opts.get_flag( "one_per_household" ) );
         sample->generate();
         sample->write( filename, opts.get_flag( "flat_file" ) );
       }

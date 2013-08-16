@@ -55,6 +55,9 @@ SET( SAMPSIM_SOURCE
   ${SAMPSIM_SRC_DIR}/tile.cxx
   ${SAMPSIM_SRC_DIR}/trend.cxx
   ${SAMPSIM_SRC_DIR}/utilities.cxx
+
+  ${SAMPSIM_SRC_DIR}/sample/random.cxx
+  ${SAMPSIM_SRC_DIR}/sample/sample.cxx
 )
 
 SET( SAMPSIM_EXECUTABLES
@@ -67,6 +70,7 @@ SET( SAMPSIM_EXECUTABLES
 # Define abstract classes in the following block
 SET_SOURCE_FILES_PROPERTIES(
   ${SAMPSIM_SRC_DIR}/base_object.cxx
+  ${SAMPSIM_SRC_DIR}/sample/sample.cxx
   ABSTRACT
 )
 
