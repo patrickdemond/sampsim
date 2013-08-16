@@ -279,6 +279,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::set_seed( const std::string seed )
   {
+    if( utilities::verbose ) utilities::output( "setting seed to %s", seed );
     this->seed = seed;
   }
 
