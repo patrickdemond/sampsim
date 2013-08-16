@@ -30,7 +30,7 @@ namespace sampsim
     this->number_tiles_x = 0;
     this->number_tiles_y = 0;
     this->tile_width = 0;
-    for( unsigned int c = 0; c < population::number_of_weights; c++ ) this->disease_weights[c] = 1.0;
+    for( unsigned int c = 0; c < population::NUMBER_OF_WEIGHTS; c++ ) this->disease_weights[c] = 1.0;
     this->mean_household_population = 0;
     this->mean_income = new trend;
     this->sd_income = new trend;
@@ -98,11 +98,11 @@ namespace sampsim
     const int population_size = this->count_population();
     individual *ind;
     household *house;
-    double value[population::number_of_weights], total[population::number_of_weights];
-    for( unsigned int c = 0; c < population::number_of_weights; c++ ) total[c] = 0;
+    double value[population::NUMBER_OF_WEIGHTS], total[population::NUMBER_OF_WEIGHTS];
+    for( unsigned int c = 0; c < population::NUMBER_OF_WEIGHTS; c++ ) total[c] = 0;
     
-    std::vector< double > matrix[population::number_of_weights];
-    for( unsigned int c = 0; c < population::number_of_weights; c++ )
+    std::vector< double > matrix[population::NUMBER_OF_WEIGHTS];
+    for( unsigned int c = 0; c < population::NUMBER_OF_WEIGHTS; c++ )
       matrix[c].resize( population_size );
     std::vector< individual* > individual_list;
     individual_list.resize( population_size );
@@ -139,7 +139,7 @@ namespace sampsim
             value[3] = ind->is_adult() ? 1 : 0;
             value[4] = ind->is_male() ? 1 : 0;
 
-            for( unsigned int c = 0; c < population::number_of_weights; c++ )
+            for( unsigned int c = 0; c < population::NUMBER_OF_WEIGHTS; c++ )
             {
               total[c] += value[c];
               matrix[c][individual_index] = value[c];
@@ -155,9 +155,9 @@ namespace sampsim
     }
 
     // subtract the mean of a column from each of its values and divide by the column's sd
-    double mean[population::number_of_weights], sd[population::number_of_weights];
+    double mean[population::NUMBER_OF_WEIGHTS], sd[population::NUMBER_OF_WEIGHTS];
 
-    for( unsigned int c = 0; c < population::number_of_weights; c++ )
+    for( unsigned int c = 0; c < population::NUMBER_OF_WEIGHTS; c++ )
     {
       mean[c] = total[c] / population_size;
       sd[c] = 0;
@@ -173,7 +173,7 @@ namespace sampsim
     for( unsigned int i = 0; i < population_size; i++ )
     {
       double eta = 0, probability;
-      for( unsigned int c = 0; c < population::number_of_weights; c++ )
+      for( unsigned int c = 0; c < population::NUMBER_OF_WEIGHTS; c++ )
         eta += matrix[c][i] * this->disease_weights[c];
       probability = 1 / ( 1 + exp( -eta ) );
       individual_list[i]->set_disease( utilities::random() < probability );
@@ -217,8 +217,8 @@ namespace sampsim
     json["number_tiles_y"] = this->number_tiles_y;
     json["tile_width"] = this->tile_width;
     json["disease_weights"] = Json::Value( Json::arrayValue );
-    json["disease_weights"].resize( population::number_of_weights );
-    for( unsigned int c = 0; c < population::number_of_weights; c++ )
+    json["disease_weights"].resize( population::NUMBER_OF_WEIGHTS );
+    for( unsigned int c = 0; c < population::NUMBER_OF_WEIGHTS; c++ )
       json["disease_weights"][c] = this->disease_weights[c];
     json["mean_household_population"] = this->mean_household_population;
     this->mean_income->to_json( json["mean_income"] );

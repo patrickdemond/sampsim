@@ -108,13 +108,13 @@ namespace sampsim
   protected:
 
   private:
-    static const unsigned int number_of_weights = 5;
+    static const unsigned int NUMBER_OF_WEIGHTS = 5;
     std::string seed;
     int number_tiles_x;
     int number_tiles_y;
     double tile_width;
     coordinate centroid;
-    double disease_weights[number_of_weights];
+    double disease_weights[NUMBER_OF_WEIGHTS];
     double mean_household_population;
     trend *mean_income;
     trend *sd_income;
