@@ -63,6 +63,7 @@ namespace sampsim
     utilities::output( "generating population" );
 
     // create the needed distributions
+    utilities::random_engine.seed( atoi( this->seed.c_str() ) );
     this->population_distribution.set_poisson( this->mean_household_population - 1 );
 
     this->centroid = coordinate( this->number_tiles_x, this->number_tiles_y );
@@ -279,7 +280,6 @@ namespace sampsim
   void population::set_seed( const std::string seed )
   {
     this->seed = seed;
-    utilities::random_engine.seed( atoi( this->seed.c_str() ) );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
