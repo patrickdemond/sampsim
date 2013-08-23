@@ -22,7 +22,7 @@
 
 #include "utilities.h"
 
-#include <map>
+#include <list>
 #include <string>
 
 namespace Json{ class Value; }
@@ -44,9 +44,9 @@ namespace sample
     ~sample();
 
     /**
-     * Generate the sample
+     * Generates the sample by calling select_next_household() until sample size has been met
      */
-    virtual void generate() = 0;
+    virtual void generate();
     void write( const std::string filename, const bool flat_file = false ) const;
 
     /** 
@@ -78,10 +78,14 @@ namespace sample
     virtual void to_csv( std::ostream&, std::ostream& ) const;
 
   protected:
-    sampsim::population *population;
-    household_list_type household_list;
+    /**
+     * Algorithm which selects households based on the sampling method
+     */
+    virtual std::list< household* >::iterator select_next_household( std::list< household* >& ) const = 0;
 
   private:
+    sampsim::population *population;
+    household_list_type household_list;
     bool ready;
     std::string seed;
     unsigned int size;

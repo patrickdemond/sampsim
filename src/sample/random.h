@@ -23,8 +23,7 @@
 #include "coordinate.h"
 #include "distribution.h"
 
-#include <map>
-#include <string>
+#include <list>
 
 namespace Json{ class Value; }
 
@@ -43,12 +42,11 @@ namespace sample
     random() {}
     ~random() {}
 
-    /**
-     * Generate the random
-     */
-    virtual void generate();
-
   protected:
+    /**
+     * Algorithm which selects households based on the sampling method
+     */
+    virtual std::list< household* >::iterator select_next_household( std::list< household* >& ) const;
 
   private:
   };
