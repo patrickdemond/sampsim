@@ -18,7 +18,7 @@
 #ifndef __sampsim_building_h
 #define __sampsim_building_h
 
-#include "base_object.h"
+#include "model_object.h"
 
 #include "coordinate.h"
 #include "utilities.h"
@@ -38,7 +38,7 @@ namespace sampsim
   class population;
   class tile;
 
-  class building : public base_object
+  class building : public model_object
   {
   public:
     building( tile *parent );
@@ -76,13 +76,15 @@ namespace sampsim
     int count_population() const;
 
     coordinate get_position() const { return this->position; }
+    bool is_selected() const { return this->selected; }
+    void set_selected( const bool selected ) { this->selected = selected; }
 
   protected:
 
   private:
     tile *parent;
     coordinate position;
-  public:
+    bool selected;
 
     household_list_type household_list;
   };

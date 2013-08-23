@@ -18,7 +18,7 @@
 #ifndef __sampsim_individual_h
 #define __sampsim_individual_h
 
-#include "base_object.h"
+#include "model_object.h"
 
 #include "utilities.h"
 
@@ -36,7 +36,7 @@ namespace sampsim
   class population;
   class tile;
 
-  class individual : public base_object
+  class individual : public model_object
   {
   public:
     individual( household *parent );
@@ -61,7 +61,7 @@ namespace sampsim
     bool is_disease() const { return this->disease; }
     void set_disease( const bool disease ) { this->disease = disease; }
     bool is_selected() const { return this->selected; }
-    void set_selected( const bool selected ) { this->selected = selected; }
+    void set_selected( const bool selected );
 
   protected:
 

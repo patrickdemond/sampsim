@@ -18,7 +18,7 @@
 #ifndef __sampsim_household_h
 #define __sampsim_household_h
 
-#include "base_object.h"
+#include "model_object.h"
 #include "coordinate.h"
 #include "utilities.h"
 
@@ -38,7 +38,7 @@ namespace sampsim
   class population;
   class tile;
 
-  class household : public base_object
+  class household : public model_object
   {
   public:
     household( building *parent );
@@ -68,15 +68,13 @@ namespace sampsim
      */
     void generate();
     virtual void from_json( const Json::Value& );
-    virtual void to_json( Json::Value& json ) const
-    { this->to_json( json, false ); }
-    virtual void to_json( Json::Value&, bool selected_only ) const;
-    virtual void to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
-    { this->to_csv( household_stream, individual_stream, false ); }
-    virtual void to_csv( std::ostream&, std::ostream&, bool selected_only ) const;
+    virtual void to_json( Json::Value& ) const;
+    virtual void to_csv( std::ostream&, std::ostream& ) const;
 
     double get_income() const { return this->income; }
     double get_disease_risk() const { return this->disease_risk; }
+    bool is_selected() const { return this->selected; }
+    void set_selected( const bool selected );
 
     /**
      * Counts the total population of the household
@@ -89,6 +87,7 @@ namespace sampsim
     building *parent;
     double income;
     double disease_risk;
+    bool selected;
 
     individual_list_type individual_list;
   };

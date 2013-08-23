@@ -24,6 +24,7 @@ namespace sampsim
   {
     this->parent = parent;
     this->set_index( index );
+    this->set_sample_mode( this->parent->get_sample_mode() );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -97,18 +98,28 @@ namespace sampsim
     json["sd_disease"] = this->sd_disease;
     json["population_density"] = this->population_density;
     json["building_list"] = Json::Value( Json::arrayValue );
-    json["building_list"].resize( this->building_list.size() );
 
     int index = 0;
-    for( auto it = this->building_list.cbegin(); it != this->building_list.cend(); ++it, ++index )
-      ( *it )->to_json( json["building_list"][index] );
+    for( auto it = this->building_list.cbegin(); it != this->building_list.cend(); ++it )
+    {
+      building *b = *it;
+      if( !this->get_sample_mode() || b->is_selected() )
+      {
+        Json::Value child;
+        b->to_json( child );
+        json["building_list"].append( child );
+      }
+    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void tile::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
   {
     for( auto it = this->building_list.begin(); it != this->building_list.end(); ++it )
-      ( *it )->to_csv( household_stream, individual_stream );
+    {
+      building *b = *it;
+      if( !this->get_sample_mode() || b->is_selected() ) b->to_csv( household_stream, individual_stream );
+    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

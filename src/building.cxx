@@ -24,6 +24,7 @@ namespace sampsim
   building::building( tile *parent )
   {
     this->parent = parent;
+    this->set_sample_mode( this->parent->get_sample_mode() );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -79,18 +80,28 @@ namespace sampsim
     json = Json::Value( Json::objectValue );
     this->position.to_json( json["position"] );
     json["household_list"] = Json::Value( Json::arrayValue );
-    json["household_list"].resize( this->household_list.size() );
 
-    int index = 0;
-    for( auto it = this->household_list.cbegin(); it != this->household_list.cend(); ++it, ++index )
-      ( *it )->to_json( json["household_list"][index] );
+    for( auto it = this->household_list.cbegin(); it != this->household_list.cend(); ++it )
+    {
+      household *h = *it;
+      if( !this->get_sample_mode() || h->is_selected() )
+      {
+        Json::Value child;
+        h->to_json( child );
+        json["household_list"].append( child );
+      }
+    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void building::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
+  void building::to_csv(
+    std::ostream &household_stream, std::ostream &individual_stream ) const
   {
     for( auto it = this->household_list.begin(); it != this->household_list.end(); ++it )
-      ( *it )->to_csv( household_stream, individual_stream );
+    {
+      household *h = *it;
+      if( !this->get_sample_mode() || h->is_selected() ) h->to_csv( household_stream, individual_stream );
+    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

@@ -18,7 +18,7 @@
 #ifndef __sampsim_tile_h
 #define __sampsim_tile_h
 
-#include "base_object.h"
+#include "model_object.h"
 
 #include "coordinate.h"
 #include "distribution.h"
@@ -38,7 +38,7 @@ namespace sampsim
   class building;
   class population;
 
-  class tile : public base_object
+  class tile : public model_object
   {
   public:
     tile( population *parent, const std::pair< int, int > index );

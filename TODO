@@ -2,3 +2,4 @@ Test nested config files
 Make library out of common classes and link
 Add to_csv to base_object class as pure abstract method
 Bug in options (try --flat)
+Add sample type to csv output (get_type() = 0, perhaps?)

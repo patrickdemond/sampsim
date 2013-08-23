@@ -18,7 +18,7 @@
 #ifndef __sampsim_population_h
 #define __sampsim_population_h
 
-#include "base_object.h"
+#include "model_object.h"
 
 #include "coordinate.h"
 #include "distribution.h"
@@ -39,7 +39,7 @@ namespace sampsim
   class tile;
   class trend;
 
-  class population : public base_object
+  class population : public model_object
   {
   public:
     population();

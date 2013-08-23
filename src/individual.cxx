@@ -23,6 +23,7 @@ namespace sampsim
     this->sex = UNKNOWN_SEX_TYPE;
     this->disease = false;
     this->selected = false;
+    this->set_sample_mode( this->parent->get_sample_mode() );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -73,5 +74,12 @@ namespace sampsim
     stream << sampsim::get_age_type_name( this->age ) << ","
            << sampsim::get_sex_type_name( this->sex ) << ","
            << ( this->disease ? 1 : 0 );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void individual::set_selected( const bool selected )
+  {
+    this->selected = selected;
+    this->get_household()->set_selected( selected );
   }
 }

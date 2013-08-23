@@ -31,6 +31,7 @@ namespace sample
     this->age = ANY_AGE;
     this->sex = ANY_SEX;
     this->population = new sampsim::population;
+    this->population->set_sample_mode( true );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -195,14 +196,7 @@ namespace sample
     this->one_per_household = json["one_per_household"].asBool();
     this->age = sampsim::get_age_type( json["age"].asString() );
     this->sex = sampsim::get_sex_type( json["sex"].asString() );
-    
-    this->household_list.reserve( json["household_list"].size() );
-    for( unsigned int c = 0; c < json["household_list"].size(); c++ )
-    {   
-      household *h = new household( NULL );
-      h->from_json( json["household_list"][c] );
-      this->household_list.push_back( h );
-    }   
+    this->population->from_json( json["population"] );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -214,11 +208,8 @@ namespace sample
     json["one_per_household"] = this->one_per_household;
     json["age"] = sampsim::get_age_type_name( this->age );
     json["sex"] = sampsim::get_sex_type_name( this->sex );
-
-    // write the households, limiting the individuals appropriately
-    int index = 0;
-    for( auto it = this->household_list.cbegin(); it != this->household_list.cend(); ++it, ++index )
-      ( *it )->to_json( json["household_list"][index], true );
+    json["population"] = Json::Value( Json::objectValue );
+    this->population->to_json( json["population"] );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -226,6 +217,8 @@ namespace sample
   {
     // put in the parameters
     std::stringstream stream;
+    stream << "# sampling parameters" << std::endl;
+    stream << "# -----------------------------------------------------------------------" << std::endl;
     stream << "# version: " << SAMPSIM_VERSION_MAJOR << "." << SAMPSIM_VERSION_MINOR
            << "." << SAMPSIM_VERSION_PATCH << std::endl;
     stream << "# seed: " << this->seed << std::endl;
@@ -238,12 +231,7 @@ namespace sample
     household_stream << stream.str();
     individual_stream << stream.str();
 
-    // put in the csv headers
-    household_stream << "index,x,y,r,a,income,disease_risk" << std::endl;
-    individual_stream << "household_index,sex,age,disease" << std::endl;
-
-    for( auto it = this->household_list.begin(); it != this->household_list.end(); ++it )
-      ( *it )->to_csv( household_stream, individual_stream, true );
+    this->population->to_csv( household_stream, individual_stream );
   }
 }
 }

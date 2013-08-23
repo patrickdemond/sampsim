@@ -25,6 +25,7 @@ namespace sampsim
   household::household( building *parent )
   {
     this->parent = parent;
+    this->set_sample_mode( this->parent->get_sample_mode() );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -111,7 +112,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void household::to_json( Json::Value &json, bool selected_only ) const
+  void household::to_json( Json::Value &json ) const
   {
     json = Json::Value( Json::objectValue );
 
@@ -119,11 +120,10 @@ namespace sampsim
     json["disease_risk"] = this->disease_risk;
     json["individual_list"] = Json::Value( Json::arrayValue );
 
-    int index = 0;
-    for( auto it = this->individual_list.cbegin(); it != this->individual_list.cend(); ++it, ++index )
+    for( auto it = this->individual_list.cbegin(); it != this->individual_list.cend(); ++it )
     {
       individual *i = *it;
-      if( !selected_only || i->is_selected() )
+      if( !this->get_sample_mode() || i->is_selected() )
       {
         Json::Value child;
         i->to_json( child );
@@ -133,8 +133,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void household::to_csv(
-    std::ostream &household_stream, std::ostream &individual_stream, bool selected_only ) const
+  void household::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
   {
     population *population = this->get_population();
 
@@ -147,7 +146,7 @@ namespace sampsim
     for( auto it = this->individual_list.begin(); it != this->individual_list.end(); ++it )
     {
       individual *i = *it;
-      if( !selected_only || i->is_selected() )
+      if( !this->get_sample_mode() || i->is_selected() )
       {
         individual_stream << utilities::household_index << ",";
         i->to_csv( individual_stream );
@@ -162,5 +161,12 @@ namespace sampsim
   int household::count_population() const
   {
     return this->individual_list.size();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void household::set_selected( const bool selected )
+  {
+    this->selected = selected;
+    this->get_building()->set_selected( selected );
   }
 }
