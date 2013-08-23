@@ -19,6 +19,7 @@
 #define __sampsim_household_h
 
 #include "base_object.h"
+#include "coordinate.h"
 #include "utilities.h"
 
 #include <vector>
@@ -69,8 +70,10 @@ namespace sampsim
     virtual void from_json( const Json::Value& );
     virtual void to_json( Json::Value& json ) const
     { this->to_json( json, false ); }
-    virtual void to_json( Json::Value& json, bool selected_only ) const;
-    virtual void to_csv( std::ostream&, std::ostream& ) const;
+    virtual void to_json( Json::Value&, bool selected_only ) const;
+    virtual void to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
+    { this->to_csv( household_stream, individual_stream, false ); }
+    virtual void to_csv( std::ostream&, std::ostream&, bool selected_only ) const;
 
     double get_income() const { return this->income; }
     double get_disease_risk() const { return this->disease_risk; }

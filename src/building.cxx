@@ -39,7 +39,7 @@ namespace sampsim
     std::for_each( this->household_list.begin(), this->household_list.end(), utilities::safe_delete_type() );
 
     // we're holding a light reference to the parent, don't delete it
-    this->parent = 0;
+    this->parent = NULL;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

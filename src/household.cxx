@@ -34,7 +34,7 @@ namespace sampsim
     std::for_each( this->individual_list.begin(), this->individual_list.end(), utilities::safe_delete_type() );
 
     // we're holding a light reference to the parent, don't delete it
-    this->parent = 0;
+    this->parent = NULL;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -114,21 +114,27 @@ namespace sampsim
   void household::to_json( Json::Value &json, bool selected_only ) const
   {
     json = Json::Value( Json::objectValue );
+
     json["income"] = this->income;
     json["disease_risk"] = this->disease_risk;
     json["individual_list"] = Json::Value( Json::arrayValue );
-    json["individual_list"].resize( this->individual_list.size() );
 
     int index = 0;
     for( auto it = this->individual_list.cbegin(); it != this->individual_list.cend(); ++it, ++index )
     {
       individual *i = *it;
-      if( !selected_only || i->is_selected() ) i->to_json( json["individual_list"][index] );
+      if( !selected_only || i->is_selected() )
+      {
+        Json::Value child;
+        i->to_json( child );
+        json["individual_list"].append( child );
+      }
     }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void household::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
+  void household::to_csv(
+    std::ostream &household_stream, std::ostream &individual_stream, bool selected_only ) const
   {
     population *population = this->get_population();
 
@@ -140,9 +146,13 @@ namespace sampsim
     // write all individuals in this household to the individual stream
     for( auto it = this->individual_list.begin(); it != this->individual_list.end(); ++it )
     {
-      individual_stream << utilities::household_index << ",";
-      ( *it )->to_csv( individual_stream );
-      individual_stream << std::endl;
+      individual *i = *it;
+      if( !selected_only || i->is_selected() )
+      {
+        individual_stream << utilities::household_index << ",";
+        i->to_csv( individual_stream );
+        individual_stream << std::endl;
+      }
     }
 
     utilities::household_index++;

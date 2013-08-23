@@ -201,7 +201,7 @@ namespace sample
     {   
       household *h = new household( NULL );
       h->from_json( json["household_list"][c] );
-      this->household_list[c] = h;
+      this->household_list.push_back( h );
     }   
   }
 
@@ -243,7 +243,7 @@ namespace sample
     individual_stream << "household_index,sex,age,disease" << std::endl;
 
     for( auto it = this->household_list.begin(); it != this->household_list.end(); ++it )
-      ( *it )->to_csv( household_stream, individual_stream );
+      ( *it )->to_csv( household_stream, individual_stream, true );
   }
 }
 }

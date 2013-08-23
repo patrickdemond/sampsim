@@ -34,7 +34,7 @@ namespace sampsim
     this->building_list.empty();
 
     // we're holding a light reference to the parent, don't delete it
-    this->parent = 0;
+    this->parent = NULL;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

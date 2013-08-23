@@ -29,7 +29,7 @@ namespace sampsim
   individual::~individual()
   {
     // we're holding a light reference to the parent, don't delete it
-    this->parent = 0;
+    this->parent = NULL;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
