@@ -60,8 +60,8 @@ int main( int argc, char** argv )
         std::cout << "sampsim random_sample version " << sampsim::utilities::get_version() << std::endl;
         sample->set_seed( opts.get_option( "seed" ) );
         sample->set_size( opts.get_option_as_int( "size" ) );
-        sample->set_age_type( sampsim::get_age_type( opts.get_option( "age" ) ) );
-        sample->set_sex_type( sampsim::get_sex_type( opts.get_option( "sex" ) ) );
+        sample->set_age( sampsim::get_age_type( opts.get_option( "age" ) ) );
+        sample->set_sex( sampsim::get_sex_type( opts.get_option( "sex" ) ) );
         sample->set_one_per_household( opts.get_flag( "one_per_household" ) );
         if( sample->set_population( opts.get_input( "population_file" ) ) )
         {

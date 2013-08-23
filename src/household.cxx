@@ -71,8 +71,8 @@ namespace sampsim
     // make the first individual an adult of random sex
     bool male = 0 == utilities::random( 0, 1 );
     individual *i = new individual( this );
-    i->set_male( male );
-    i->set_adult( true );
+    i->set_age( ADULT );
+    i->set_sex( male ? MALE : FEMALE );
     this->individual_list.push_back( i );
 
     // now make the rest of the members of this household
@@ -82,13 +82,13 @@ namespace sampsim
 
       if( 1 == c )
       { // the first must be an adult of opposite sex of the first
-        i->set_male( !male );
-        i->set_adult( true );
+        i->set_sex( !male ? MALE : FEMALE );
+        i->set_age( ADULT );
       }
       else
       { // the rest are children of random sex
-        i->set_male( 0 == utilities::random( 0, 1 ) );
-        i->set_adult( false );
+        i->set_sex( 0 == utilities::random( 0, 1 ) ? MALE : FEMALE );
+        i->set_age( CHILD );
       }
 
       this->individual_list.push_back( i );
@@ -111,7 +111,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void household::to_json( Json::Value &json, bool single_selection, age_type age, sex_type sex ) const
+  void household::to_json( Json::Value &json, bool selected_only ) const
   {
     json = Json::Value( Json::objectValue );
     json["income"] = this->income;
@@ -121,7 +121,10 @@ namespace sampsim
 
     int index = 0;
     for( auto it = this->individual_list.cbegin(); it != this->individual_list.cend(); ++it, ++index )
-      ( *it )->to_json( json["individual_list"][index] );
+    {
+      individual *i = *it;
+      if( !selected_only || i->is_selected() ) i->to_json( json["individual_list"][index] );
+    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

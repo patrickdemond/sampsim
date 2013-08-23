@@ -10,6 +10,7 @@
 
 #include "building.h"
 #include "household.h"
+#include "individual.h"
 #include "population.h"
 #include "tile.h"
 #include "utilities.h"
@@ -27,9 +28,9 @@ namespace sample
     utilities::output( "generating random sample" );
 
     // check to make sure the age and sex restrictions are valid
-    if( UNKNOWN_AGE_TYPE == this->get_age_type() )
+    if( UNKNOWN_AGE_TYPE == this->get_age() )
       throw std::runtime_error( "Cannot generate random, age type is unknown" );
-    if( UNKNOWN_SEX_TYPE == this->get_sex_type() )
+    if( UNKNOWN_SEX_TYPE == this->get_sex() )
       throw std::runtime_error( "Cannot generate random, sex type is unknown" );
 
     utilities::random_engine.seed( atoi( this->get_seed().c_str() ) );
@@ -55,14 +56,42 @@ namespace sample
     utilities::output( "selecting from a list of %d households", remaining_household_list.size() );
 
     // keep randomly selecting households until we've filled our sample size
-    int count = 0;
-    while( this->get_size() > count && 0 < remaining_household_list.size() )
+    int running_count = 0;
+    while( this->get_size() > running_count )
     {
-      auto it = remaining_household_list.begin();
-      std::advance( it, utilities::random( 0, remaining_household_list.size() - 1 ) );
-      this->household_list.push_back( *it );
-      count += this->get_one_per_household() ? 1 : (*it)->count_population();
-      remaining_household_list.erase( it );
+      if( 0 == remaining_household_list.size() )
+      {
+        std::cout << "WARNING: unable to fulfill sample size" << std::endl;
+        break;
+      }
+
+      auto household_it = remaining_household_list.begin();
+      std::advance( household_it, utilities::random( 0, remaining_household_list.size() - 1 ) );
+      household *h = *household_it;
+
+      int count = 0;
+      // select individuals within the household
+      for( auto individual_it = h->get_individual_list_begin();
+           individual_it != h->get_individual_list_end();
+           ++individual_it )
+      {
+        individual *i = *individual_it;
+        if( ( ANY_AGE == this->get_age() || this->get_age() == i->get_age() ) &&
+            ( ANY_SEX == this->get_sex() || this->get_sex() == i->get_sex() ) )
+        {
+          i->set_selected( true );
+          count++;
+          if( this->get_one_per_household() ) break;
+        }
+      }
+
+      if( count )
+      {
+        this->household_list.push_back( h );
+        running_count += count;
+      }
+
+      remaining_household_list.erase( household_it );
     }
 
     utilities::output(

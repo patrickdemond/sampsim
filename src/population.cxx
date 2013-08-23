@@ -133,8 +133,8 @@ namespace sampsim
                ++individual_it )
           {
             ind = ( *individual_it );
-            value[3] = ind->is_adult() ? 1 : 0;
-            value[4] = ind->is_male() ? 1 : 0;
+            value[3] = ADULT == ind->get_age() ? 1 : 0;
+            value[4] = MALE == ind->get_sex() ? 1 : 0;
 
             for( unsigned int c = 0; c < population::NUMBER_OF_WEIGHTS; c++ )
             {

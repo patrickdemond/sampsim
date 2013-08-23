@@ -91,19 +91,19 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void sample::set_age_type( const age_type age )
+  void sample::set_age( const age_type age )
   {
     if( sampsim::utilities::verbose )
-      sampsim::utilities::output( "setting age_type to %s",
+      sampsim::utilities::output( "setting age to %s",
                                   sampsim::get_age_type_name( age ).c_str() );
     this->age = age;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void sample::set_sex_type( const sex_type sex )
+  void sample::set_sex( const sex_type sex )
   {
     if( sampsim::utilities::verbose )
-      sampsim::utilities::output( "setting sex_type to %s",
+      sampsim::utilities::output( "setting sex to %s",
                                   sampsim::get_sex_type_name( sex ).c_str() );
     this->sex = sex;
   }
@@ -139,7 +139,7 @@ namespace sample
     // write the households, limiting the individuals appropriately
     int index = 0;
     for( auto it = this->household_list.cbegin(); it != this->household_list.cend(); ++it, ++index )
-      ( *it )->to_json( json["household_list"][index], this->one_per_household, this->age, this->sex );
+      ( *it )->to_json( json["household_list"][index], true );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

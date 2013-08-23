@@ -68,12 +68,10 @@ namespace sample
     unsigned int get_size() const { return this->size; }
     void set_one_per_household( const bool one_per_household );
     bool get_one_per_household() const { return this->one_per_household; }
-    void set_age_type( const age_type age );
-    age_type get_age_type() const { return this->age; }
-    std::string get_age_type_name() const { return sampsim::get_age_type_name( this->age ); }
-    void set_sex_type( const sex_type sex );
-    sex_type get_sex_type() const { return this->sex; }
-    std::string get_sex_type_name() const { return sampsim::get_sex_type_name( this->sex ); }
+    void set_age( const age_type age );
+    age_type get_age() const { return this->age; }
+    void set_sex( const sex_type sex );
+    sex_type get_sex() const { return this->sex; }
 
     virtual void from_json( const Json::Value& );
     virtual void to_json( Json::Value& ) const;

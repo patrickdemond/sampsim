@@ -20,6 +20,8 @@
 
 #include "base_object.h"
 
+#include "utilities.h"
+
 namespace Json { class Value; }
 
 /**
@@ -52,20 +54,23 @@ namespace sampsim
     virtual void to_json( Json::Value& ) const;
     virtual void to_csv( std::ostream& ) const;
 
-    bool is_male() const { return this->male; }
-    void set_male( const bool male ) { this->male = male; }
-    bool is_adult() const { return this->adult; }
-    void set_adult( const bool adult ) { this->adult = adult; }
+    sex_type get_sex() const { return this->sex; }
+    void set_sex( const sex_type sex ) { this->sex = sex; }
+    age_type get_age() const { return this->age; }
+    void set_age( const age_type age ) { this->age = age; }
     bool is_disease() const { return this->disease; }
     void set_disease( const bool disease ) { this->disease = disease; }
+    bool is_selected() const { return this->selected; }
+    void set_selected( const bool selected ) { this->selected = selected; }
 
   protected:
 
   private:
     household *parent;
-    bool male;
-    bool adult;
+    age_type age;
+    sex_type sex;
     bool disease;
+    bool selected;
   };
 }
 

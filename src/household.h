@@ -68,8 +68,8 @@ namespace sampsim
     void generate();
     virtual void from_json( const Json::Value& );
     virtual void to_json( Json::Value& json ) const
-    { this->to_json( json, false, ANY_AGE, ANY_SEX ); }
-    virtual void to_json( Json::Value&, bool single_selection, age_type age, sex_type sex ) const;
+    { this->to_json( json, false ); }
+    virtual void to_json( Json::Value& json, bool selected_only ) const;
     virtual void to_csv( std::ostream&, std::ostream& ) const;
 
     double get_income() const { return this->income; }
