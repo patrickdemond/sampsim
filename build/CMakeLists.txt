@@ -55,7 +55,9 @@ SET( SAMPSIM_SOURCE
   ${SAMPSIM_SRC_DIR}/trend.cxx
   ${SAMPSIM_SRC_DIR}/utilities.cxx
 
+  ${SAMPSIM_SRC_DIR}/sample/arc_epi.cxx
   ${SAMPSIM_SRC_DIR}/sample/random.cxx
+  ${SAMPSIM_SRC_DIR}/sample/strip_epi.cxx
   ${SAMPSIM_SRC_DIR}/sample/sample.cxx
 )
 
@@ -81,7 +83,7 @@ INCLUDE_DIRECTORIES(
   ${JSONCPP_INCLUDE_DIR}
 )
 
-# We're using <random>, so we need c++11
+# We're using <random>, the auto keyword, constant iterators, etc, so we need c++11
 SET( CMAKE_CXX_FLAGS "-std=c++0x " )
 
 # Targets
