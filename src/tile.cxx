@@ -81,7 +81,7 @@ namespace sampsim
     {
       building *b = new building( this );
       b->from_json( json["building_list"][c] );
-      this->building_list[c] = b;
+      this->building_list.push_back( b );
     }
   }
 

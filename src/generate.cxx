@@ -135,6 +135,7 @@ int main( int argc, char** argv )
         popdens->set_b11( opts.get_option_as_double( "popdens_b11" ) );
 
         // launch application
+        std::cout << "sampsim generate version " << sampsim::utilities::get_version() << std::endl;
         population->set_seed( opts.get_option( "seed" ) );
         population->set_mean_household_population( opts.get_option_as_double( "mean_household_pop" ) );
         population->set_income( mean_income, sd_income );

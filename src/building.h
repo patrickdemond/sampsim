@@ -82,6 +82,7 @@ namespace sampsim
   private:
     tile *parent;
     coordinate position;
+  public:
 
     household_list_type household_list;
   };

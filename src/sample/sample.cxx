@@ -11,6 +11,7 @@
 #include "household.h"
 #include "population.h"
 
+#include <fstream>
 #include <json/value.h>
 #include <json/writer.h>
 
@@ -38,6 +39,26 @@ namespace sample
   void sample::write( const std::string filename, const bool flat_file ) const
   {
     sampsim::utilities::output( "writting sample to %s.%s", filename.c_str(), flat_file ? "*.csv" : "json" );
+
+    if( flat_file )
+    {
+      std::ofstream household_stream( filename + ".household.csv", std::ofstream::out );
+      std::ofstream individual_stream( filename + ".individual.csv", std::ofstream::out );
+      this->to_csv( household_stream, individual_stream );
+      household_stream.close();
+      individual_stream.close();
+    }
+    else
+    {
+      std::ofstream stream( filename + ".json", std::ofstream::out );
+      Json::Value root;
+      this->to_json( root );
+      Json::StyledWriter writer;
+      stream << writer.write( root );
+      stream.close();
+    }
+
+    utilities::output( "finished writting population" );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -74,7 +95,7 @@ namespace sample
   {
     if( sampsim::utilities::verbose )
       sampsim::utilities::output( "setting age_type to %s",
-                                  sampsim::sample::get_age_type_name( age ).c_str() );
+                                  sampsim::get_age_type_name( age ).c_str() );
     this->age = age;
   }
 
@@ -83,7 +104,7 @@ namespace sample
   {
     if( sampsim::utilities::verbose )
       sampsim::utilities::output( "setting sex_type to %s",
-                                  sampsim::sample::get_sex_type_name( sex ).c_str() );
+                                  sampsim::get_sex_type_name( sex ).c_str() );
     this->sex = sex;
   }
 
@@ -93,8 +114,8 @@ namespace sample
     this->seed = json["seed"].asString();
     this->size = json["size"].asInt();
     this->one_per_household = json["one_per_household"].asBool();
-    this->age = sampsim::sample::get_age_type( json["age"].asString() );
-    this->sex = sampsim::sample::get_sex_type( json["sex"].asString() );
+    this->age = sampsim::get_age_type( json["age"].asString() );
+    this->sex = sampsim::get_sex_type( json["sex"].asString() );
     
     this->household_list.reserve( json["household_list"].size() );
     for( unsigned int c = 0; c < json["household_list"].size(); c++ )
@@ -112,12 +133,13 @@ namespace sample
     json["seed"] = this->seed;
     json["size"] = this->size;
     json["one_per_household"] = this->one_per_household;
-    json["age"] = sampsim::sample::get_age_type_name( this->age );
-    json["sex"] = sampsim::sample::get_sex_type_name( this->sex );
+    json["age"] = sampsim::get_age_type_name( this->age );
+    json["sex"] = sampsim::get_sex_type_name( this->sex );
 
+    // write the households, limiting the individuals appropriately
     int index = 0;
     for( auto it = this->household_list.cbegin(); it != this->household_list.cend(); ++it, ++index )
-      ( *it )->to_json( json["household_list"][index] );
+      ( *it )->to_json( json["household_list"][index], this->one_per_household, this->age, this->sex );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -130,8 +152,8 @@ namespace sample
     stream << "# seed: " << this->seed << std::endl;
     stream << "# size: " << this->size << std::endl;
     stream << "# one_per_household: " << ( this->one_per_household ? "true" : "false" ) << std::endl;
-    stream << "# age: " << sampsim::sample::get_age_type_name( this->age ) << std::endl;
-    stream << "# sex: " << sampsim::sample::get_sex_type_name( this->sex ) << std::endl;
+    stream << "# age: " << sampsim::get_age_type_name( this->age ) << std::endl;
+    stream << "# sex: " << sampsim::get_sex_type_name( this->sex ) << std::endl;
     stream << std::endl;
 
     household_stream << stream.str();

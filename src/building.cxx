@@ -35,6 +35,9 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   building::~building()
   {
+    // delete all households
+    std::for_each( this->household_list.begin(), this->household_list.end(), utilities::safe_delete_type() );
+
     // we're holding a light reference to the parent, don't delete it
     this->parent = 0;
   }
@@ -66,7 +69,7 @@ namespace sampsim
     {
       household *h = new household( this );
       h->from_json( json["household_list"][c] );
-      this->household_list[c] = h;
+      this->household_list.push_back( h );
     }
   }
 

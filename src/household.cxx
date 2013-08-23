@@ -28,6 +28,16 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  household::~household()
+  {
+    // delete all individuals
+    std::for_each( this->individual_list.begin(), this->individual_list.end(), utilities::safe_delete_type() );
+
+    // we're holding a light reference to the parent, don't delete it
+    this->parent = 0;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   tile* household::get_tile() const
   {
     return NULL == this->parent ? NULL : this->parent->get_tile();
@@ -37,13 +47,6 @@ namespace sampsim
   population* household::get_population() const
   {
     return NULL == this->parent ? NULL : this->parent->get_population();
-  }
-
-  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  household::~household()
-  {
-    // we're holding a light reference to the parent, don't delete it
-    this->parent = 0;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -103,12 +106,12 @@ namespace sampsim
     {
       individual *i = new individual( this );
       i->from_json( json["individual_list"][c] );
-      this->individual_list[c] = i;
+      this->individual_list.push_back( i );
     }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void household::to_json( Json::Value &json ) const
+  void household::to_json( Json::Value &json, bool single_selection, age_type age, sex_type sex ) const
   {
     json = Json::Value( Json::objectValue );
     json["income"] = this->income;
