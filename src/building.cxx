@@ -16,6 +16,7 @@
 #include <ostream>
 #include <json/value.h>
 #include <random>
+#include <stdexcept>
 
 namespace sampsim
 {
@@ -26,7 +27,10 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  population* building::get_population() const { return this->parent->get_population(); }
+  population* building::get_population() const
+  {
+    return NULL == this->parent ? NULL : this->parent->get_population();
+  }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   building::~building()
@@ -38,6 +42,9 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void building::generate()
   {
+    // make sure the building has a parent
+    if( NULL == this->parent ) throw std::runtime_error( "Tried to generate an orphaned building" );
+
     // determine the building's position
     std::pair< coordinate, coordinate > extent = this->get_tile()->get_extent();
     this->position.x = utilities::random() * ( extent.second.x - extent.first.x ) + extent.first.x;
@@ -52,7 +59,15 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void building::from_json( const Json::Value &json )
   {
-    // TODO: implement
+    this->position.from_json( json["position"] );
+    
+    this->household_list.reserve( json["household_list"].size() );
+    for( unsigned int c = 0; c < json["household_list"].size(); c++ )
+    {
+      household *h = new household( this );
+      h->from_json( json["household_list"][c] );
+      this->household_list[c] = h;
+    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

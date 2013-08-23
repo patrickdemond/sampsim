@@ -21,6 +21,7 @@
 #include "base_object.h"
 
 #include "coordinate.h"
+#include "utilities.h"
 
 #include <vector>
 
@@ -36,9 +37,6 @@ namespace sampsim
   class household;
   class population;
   class tile;
-
-  // household list type
-  typedef std::vector< household* > household_list_type;
 
   class building : public base_object
   {

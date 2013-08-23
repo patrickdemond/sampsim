@@ -70,7 +70,24 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void distribution::from_json( const Json::Value &json )
   {
-    // TODO: implement
+    distribution::type type = distribution::get_type( json["type"].asString() );
+
+    if( distribution::LOGNORMAL == type )
+    {
+      this->set_lognormal( json["m"].asDouble(), json["s"].asDouble() );
+    }
+    else if( distribution::NORMAL == type )
+    {
+      this->set_normal( json["mean"].asDouble(), json["stddev"].asDouble() );
+    }
+    else if( distribution::POISSON == type )
+    {
+      this->set_poisson( json["mean"].asDouble() );
+    }
+    else if( distribution::WEIBULL == type )
+    {
+      this->set_weibull( json["a"].asDouble(), json["b"].asDouble() );
+    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

@@ -27,6 +27,7 @@
 #include <ctime>
 #include <cctype>
 #include <iostream>
+#include <map>
 #include <random>
 #include <sstream>
 #include <stdarg.h>
@@ -42,6 +43,18 @@
 
 namespace sampsim
 {
+  class tile;
+  typedef std::map< std::pair< int, int >, tile* > tile_list_type;
+
+  class building;
+  typedef std::vector< building* > building_list_type;
+
+  class household;
+  typedef std::vector< household* > household_list_type;
+
+  class individual;
+  typedef std::vector< individual* > individual_list_type;
+
   class utilities
   {
   public:

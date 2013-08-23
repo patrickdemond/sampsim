@@ -19,6 +19,7 @@
 #define __sampsim_household_h
 
 #include "base_object.h"
+#include "utilities.h"
 
 #include <vector>
 
@@ -35,9 +36,6 @@ namespace sampsim
   class individual;
   class population;
   class tile;
-
-  // individual list type
-  typedef std::vector< individual* > individual_list_type;
 
   class household : public base_object
   {

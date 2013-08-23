@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <ostream>
 #include <json/value.h>
+#include <stdexcept>
 
 namespace sampsim
 {
@@ -67,7 +68,21 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void tile::from_json( const Json::Value &json )
   {
-    // TODO: implement
+    this->index.first = json["x_index"].asInt();
+    this->index.second = json["y_index"].asInt();
+    this->mean_income = json["mean_income"].asDouble();
+    this->sd_income = json["sd_income"].asDouble();
+    this->mean_disease = json["mean_disease"].asDouble();
+    this->sd_disease = json["sd_disease"].asDouble();
+    this->population_density = json["population_density"].asDouble();
+
+    this->building_list.reserve( json["building_list"].size() );
+    for( unsigned int c = 0; c < json["building_list"].size(); c++ )
+    {
+      building *b = new building( this );
+      b->from_json( json["building_list"][c] );
+      this->building_list[c] = b;
+    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -99,6 +114,9 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void tile::set_index( const std::pair< int, int > index )
   {
+    // make sure the tile has a parent
+    if( NULL == this->parent ) throw std::runtime_error( "Tried to set the index of an orphaned tile" );
+
     this->index = index;
 
     // determine the extent
@@ -125,6 +143,9 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   double tile::get_area() const
   {
+    // make sure the tile has a parent
+    if( NULL == this->parent ) throw std::runtime_error( "Tried to get the area of an orphaned tile" );
+
     double width = this->get_population()->get_tile_width();
     return width * width;
   }

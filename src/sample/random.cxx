@@ -31,21 +31,21 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void random::from_json( const Json::Value& )
+  void random::from_json( const Json::Value &json )
   {
-    // TODO: implement
+    sample::from_json( json );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void random::to_json( Json::Value& ) const
+  void random::to_json( Json::Value &json ) const
   {
-    // TODO: implement
+    sample::to_json( json );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void random::to_csv( std::ostream&, std::ostream& ) const
+  void random::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
   {
-    // TODO: implement
+    sample::to_csv( household_stream, individual_stream );
   }
 }
 }

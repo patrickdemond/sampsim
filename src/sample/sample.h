@@ -20,8 +20,7 @@
 
 #include "base_object.h"
 
-#include "coordinate.h"
-#include "distribution.h"
+#include "utilities.h"
 
 #include <map>
 #include <string>
@@ -38,53 +37,53 @@ namespace sampsim
 class population;
 namespace sample
 {
-    enum age_type
-    {
-      UNKNOWN_AGE_TYPE = 0,
-      ANY_AGE,
-      ADULT,
-      CHILD
-    };
+  enum age_type
+  {
+    UNKNOWN_AGE_TYPE = 0,
+    ANY_AGE,
+    ADULT,
+    CHILD
+  };
 
-    inline static sample::age_type get_age_type( const std::string name )
-    {
-      if( "either" == name ) return ANY_AGE;
-      else if( "adult" == name ) return ADULT;
-      else if( "child" == name ) return CHILD;
-      return UNKNOWN_AGE_TYPE;
-    }
+  inline static sample::age_type get_age_type( const std::string name )
+  {
+    if( "either" == name ) return ANY_AGE;
+    else if( "adult" == name ) return ADULT;
+    else if( "child" == name ) return CHILD;
+    return UNKNOWN_AGE_TYPE;
+  }
 
-    inline static std::string get_age_type_name( const sample::age_type type )
-    {
-      if( ANY_AGE == type ) return "either";
-      else if( ADULT == type ) return "adult";
-      else if( CHILD == type ) return "child";
-      return "unknown";
-    }
+  inline static std::string get_age_type_name( const sample::age_type type )
+  {
+    if( ANY_AGE == type ) return "either";
+    else if( ADULT == type ) return "adult";
+    else if( CHILD == type ) return "child";
+    return "unknown";
+  }
 
-    enum sex_type
-    {
-      UNKNOWN_SEX_TYPE = 0,
-      ANY_SEX,
-      FEMALE,
-      MALE
-    };
+  enum sex_type
+  {
+    UNKNOWN_SEX_TYPE = 0,
+    ANY_SEX,
+    FEMALE,
+    MALE
+  };
 
-    inline static sample::sex_type get_sex_type( const std::string name )
-    {
-      if( "either" == name ) return ANY_SEX;
-      else if( "female" == name ) return FEMALE;
-      else if( "male" == name ) return MALE;
-      return UNKNOWN_SEX_TYPE;
-    }
+  inline static sample::sex_type get_sex_type( const std::string name )
+  {
+    if( "either" == name ) return ANY_SEX;
+    else if( "female" == name ) return FEMALE;
+    else if( "male" == name ) return MALE;
+    return UNKNOWN_SEX_TYPE;
+  }
 
-    inline static std::string get_sex_type_name( const sample::sex_type type )
-    {
-      if( ANY_SEX == type ) return "either";
-      else if( FEMALE == type ) return "female";
-      else if( MALE == type ) return "male";
-      return "unknown";
-    }
+  inline static std::string get_sex_type_name( const sample::sex_type type )
+  {
+    if( ANY_SEX == type ) return "either";
+    else if( FEMALE == type ) return "female";
+    else if( MALE == type ) return "male";
+    return "unknown";
+  }
 
   class sample : public sampsim::base_object
   {
@@ -98,6 +97,18 @@ namespace sample
     virtual void generate() = 0;
     void write( const std::string filename, const bool flat_file = false ) const;
 
+    /** 
+     * Iterator access
+     */
+    household_list_type::iterator get_household_list_begin()
+    { return this->household_list.begin(); }
+    household_list_type::iterator get_household_list_end()
+    { return this->household_list.end(); }
+    household_list_type::const_iterator get_household_list_cbegin() const
+    { return this->household_list.cbegin(); }
+    household_list_type::const_iterator get_household_list_cend() const
+    { return this->household_list.cend(); }
+    
     bool set_population( const std::string filename );
     void set_seed( const std::string seed );
     std::string get_seed() const { return this->seed; }
@@ -121,6 +132,7 @@ namespace sample
   private:
     bool ready;
     sampsim::population *population;
+    household_list_type household_list;
     std::string seed;
     unsigned int size;
     bool one_per_household;

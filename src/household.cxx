@@ -17,6 +17,7 @@
 
 #include <ostream>
 #include <json/value.h>
+#include <stdexcept>
 
 namespace sampsim
 {
@@ -27,8 +28,16 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  tile* household::get_tile() const { return this->parent->get_tile(); }
-  population* household::get_population() const { return this->parent->get_population(); }
+  tile* household::get_tile() const
+  {
+    return NULL == this->parent ? NULL : this->parent->get_tile();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  population* household::get_population() const
+  {
+    return NULL == this->parent ? NULL : this->parent->get_population();
+  }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   household::~household()
@@ -40,6 +49,9 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void household::generate()
   {
+    // make sure the household has a parent
+    if( NULL == this->parent ) throw std::runtime_error( "Tried to generate an orphaned household" );
+
     std::normal_distribution<double> normal;
     std::poisson_distribution<int> poisson;
 
@@ -83,7 +95,16 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void household::from_json( const Json::Value &json )
   {
-    // TODO: implement
+    this->income = json["income"].asDouble();
+    this->disease_risk = json["disease_risk"].asDouble();
+
+    this->individual_list.reserve( json["individual_list"].size() );
+    for( unsigned int c = 0; c < json["individual_list"].size(); c++ )
+    {
+      individual *i = new individual( this );
+      i->from_json( json["individual_list"][c] );
+      this->individual_list[c] = i;
+    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

@@ -32,14 +32,29 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  building* individual::get_building() const { return this->parent->get_building(); }
-  tile* individual::get_tile() const { return this->parent->get_tile(); }
-  population* individual::get_population() const { return this->parent->get_population(); }
+  building* individual::get_building() const
+  {
+    return NULL == this->parent ? NULL : this->parent->get_building();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  tile* individual::get_tile() const
+  {
+    return NULL == this->parent ? NULL : this->parent->get_tile();
+  }
+  
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  population* individual::get_population() const
+  {
+    return NULL == this->parent ? NULL : this->parent->get_population();
+  }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void individual::from_json( const Json::Value &json )
   {
-    // TODO: implement
+    this->male = "m" == json["sex"].asString();
+    this->adult = "a" == json["age"].asString();
+    this->disease = 1 == json["disease"].asInt();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

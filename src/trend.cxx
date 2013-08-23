@@ -106,7 +106,12 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void trend::from_json( const Json::Value &json )
   {
-    // TODO: implement
+    this->b00 = json["b00"].asDouble();
+    this->b01 = json["b01"].asDouble();
+    this->b10 = json["b10"].asDouble();
+    this->b02 = json["b02"].asDouble();
+    this->b20 = json["b20"].asDouble();
+    this->b11 = json["b11"].asDouble();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

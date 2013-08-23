@@ -22,6 +22,7 @@
 
 #include "coordinate.h"
 #include "distribution.h"
+#include "utilities.h"
 
 #include <map>
 #include <string>
@@ -37,9 +38,6 @@ namespace sampsim
 {
   class tile;
   class trend;
-
-  // tile list type
-  typedef std::map< std::pair< int, int >, tile* > tile_list_type;
 
   class population : public base_object
   {

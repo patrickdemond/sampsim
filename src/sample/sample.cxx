@@ -8,8 +8,8 @@
 
 #include "sample.h"
 
+#include "household.h"
 #include "population.h"
-#include "utilities.h"
 
 #include <json/value.h>
 #include <json/writer.h>
@@ -88,9 +88,21 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void sample::from_json( const Json::Value& )
+  void sample::from_json( const Json::Value &json )
   {
-    // TODO: implement
+    this->seed = json["seed"].asString();
+    this->size = json["size"].asInt();
+    this->one_per_household = json["one_per_household"].asBool();
+    this->age = sampsim::sample::get_age_type( json["age"].asString() );
+    this->sex = sampsim::sample::get_sex_type( json["sex"].asString() );
+    
+    this->household_list.reserve( json["household_list"].size() );
+    for( unsigned int c = 0; c < json["household_list"].size(); c++ )
+    {   
+      household *h = new household( NULL );
+      h->from_json( json["household_list"][c] );
+      this->household_list[c] = h;
+    }   
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -103,11 +115,9 @@ namespace sample
     json["age"] = sampsim::sample::get_age_type_name( this->age );
     json["sex"] = sampsim::sample::get_sex_type_name( this->sex );
 
-    /*
-    TODO: implement
-    for( auto it = this->household_list.cbegin(); it != this->household_list.cend(); ++it )
-      it->second->to_json( json["household_list"][index] );
-    */
+    int index = 0;
+    for( auto it = this->household_list.cbegin(); it != this->household_list.cend(); ++it, ++index )
+      ( *it )->to_json( json["household_list"][index] );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -131,11 +141,8 @@ namespace sample
     household_stream << "index,x,y,r,a,income,disease_risk" << std::endl;
     individual_stream << "household_index,sex,age,disease" << std::endl;
 
-    /*
-    TODO: implement
-    for( auto it = this->household_list.cbegin(); it != this->household_list.cend(); ++it )
-      it->second->to_csv( household_stream, individual_stream );
-    */
+    for( auto it = this->household_list.begin(); it != this->household_list.end(); ++it )
+      ( *it )->to_csv( household_stream, individual_stream );
   }
 }
 }
