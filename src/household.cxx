@@ -149,7 +149,7 @@ namespace sampsim
       if( !this->get_sample_mode() || i->is_selected() )
       {
         individual_stream << utilities::household_index << ",";
-        i->to_csv( individual_stream );
+        i->to_csv( household_stream, individual_stream );
         individual_stream << std::endl;
       }
     }

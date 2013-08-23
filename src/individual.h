@@ -52,7 +52,7 @@ namespace sampsim
 
     virtual void from_json( const Json::Value& );
     virtual void to_json( Json::Value& ) const;
-    virtual void to_csv( std::ostream& ) const;
+    virtual void to_csv( std::ostream&, std::ostream& ) const;
 
     sex_type get_sex() const { return this->sex; }
     void set_sex( const sex_type sex ) { this->sex = sex; }

@@ -69,11 +69,11 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void individual::to_csv( std::ostream &stream ) const
+  void individual::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
   {
-    stream << sampsim::get_age_type_name( this->age ) << ","
-           << sampsim::get_sex_type_name( this->sex ) << ","
-           << ( this->disease ? 1 : 0 );
+    individual_stream << sampsim::get_age_type_name( this->age ) << ","
+                      << sampsim::get_sex_type_name( this->sex ) << ","
+                      << ( this->disease ? 1 : 0 );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
