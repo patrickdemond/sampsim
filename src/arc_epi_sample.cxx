@@ -34,20 +34,19 @@ int main( int argc, char** argv )
   {
     // parse the command line arguments
     opts.set_arguments( argc, argv );
-    if( opts.process() )
-    {
-      // now either show the help or run the application
-      if( opts.get_flag( "help" ) )
-      {
-        opts.print_usage();
-      }
-      else
-      {
-        // launch application
-      }
+    opts.process();
 
-      status = EXIT_SUCCESS;
+    // now either show the help or run the application
+    if( opts.get_flag( "help" ) )
+    {
+      opts.print_usage();
     }
+    else
+    {
+      // launch application
+    }
+
+    status = EXIT_SUCCESS;
   }
   catch( std::exception &e )
   {

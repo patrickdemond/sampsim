@@ -88,74 +88,73 @@ int main( int argc, char** argv )
   {
     // parse the command line arguments
     opts.set_arguments( argc, argv );
-    if( opts.process() )
+    opts.process();
+
+    // now either show the help or run the application
+    if( opts.get_flag( "help" ) )
     {
-      // now either show the help or run the application
-      if( opts.get_flag( "help" ) )
-      {
-        opts.print_usage();
-      }
-      else
-      {
-        std::string filename = opts.get_input( "output_file" );
-        sampsim::utilities::verbose = opts.get_flag( "verbose" );
-
-        // build trends
-        mean_income->set_b00( opts.get_option_as_double( "mean_income_b00" ) );
-        mean_income->set_b01( opts.get_option_as_double( "mean_income_b01" ) );
-        mean_income->set_b10( opts.get_option_as_double( "mean_income_b10" ) );
-        mean_income->set_b02( opts.get_option_as_double( "mean_income_b02" ) );
-        mean_income->set_b20( opts.get_option_as_double( "mean_income_b20" ) );
-        mean_income->set_b11( opts.get_option_as_double( "mean_income_b11" ) );
-        sd_income->set_b00( opts.get_option_as_double( "sd_income_b00" ) );
-        sd_income->set_b01( opts.get_option_as_double( "sd_income_b01" ) );
-        sd_income->set_b10( opts.get_option_as_double( "sd_income_b10" ) );
-        sd_income->set_b02( opts.get_option_as_double( "sd_income_b02" ) );
-        sd_income->set_b20( opts.get_option_as_double( "sd_income_b20" ) );
-        sd_income->set_b11( opts.get_option_as_double( "sd_income_b11" ) );
-
-        mean_disease->set_b00( opts.get_option_as_double( "mean_disease_b00" ) );
-        mean_disease->set_b01( opts.get_option_as_double( "mean_disease_b01" ) );
-        mean_disease->set_b10( opts.get_option_as_double( "mean_disease_b10" ) );
-        mean_disease->set_b02( opts.get_option_as_double( "mean_disease_b02" ) );
-        mean_disease->set_b20( opts.get_option_as_double( "mean_disease_b20" ) );
-        mean_disease->set_b11( opts.get_option_as_double( "mean_disease_b11" ) );
-        sd_disease->set_b00( opts.get_option_as_double( "sd_disease_b00" ) );
-        sd_disease->set_b01( opts.get_option_as_double( "sd_disease_b01" ) );
-        sd_disease->set_b10( opts.get_option_as_double( "sd_disease_b10" ) );
-        sd_disease->set_b02( opts.get_option_as_double( "sd_disease_b02" ) );
-        sd_disease->set_b20( opts.get_option_as_double( "sd_disease_b20" ) );
-        sd_disease->set_b11( opts.get_option_as_double( "sd_disease_b11" ) );
-
-        popdens->set_b00( opts.get_option_as_double( "popdens_b00" ) );
-        popdens->set_b01( opts.get_option_as_double( "popdens_b01" ) );
-        popdens->set_b10( opts.get_option_as_double( "popdens_b10" ) );
-        popdens->set_b02( opts.get_option_as_double( "popdens_b02" ) );
-        popdens->set_b20( opts.get_option_as_double( "popdens_b20" ) );
-        popdens->set_b11( opts.get_option_as_double( "popdens_b11" ) );
-
-        // launch application
-        std::cout << "sampsim generate version " << sampsim::utilities::get_version() << std::endl;
-        population->set_seed( opts.get_option( "seed" ) );
-        population->set_mean_household_population( opts.get_option_as_double( "mean_household_pop" ) );
-        population->set_income( mean_income, sd_income );
-        population->set_disease( mean_disease, sd_disease );
-        population->set_population_density( popdens );
-        population->set_number_tiles_x( opts.get_option_as_int( "tile_x" ) );
-        population->set_number_tiles_y( opts.get_option_as_int( "tile_y" ) );
-        population->set_tile_width( opts.get_option_as_double( "tile_width" ) );
-        population->set_disease_weights(
-          opts.get_option_as_double( "dweight_population" ),
-          opts.get_option_as_double( "dweight_income" ),
-          opts.get_option_as_double( "dweight_risk" ),
-          opts.get_option_as_double( "dweight_age" ),
-          opts.get_option_as_double( "dweight_sex" ) );
-        population->generate();
-        population->write( filename, opts.get_flag( "flat_file" ) );
-      }
-
-      status = EXIT_SUCCESS;
+      opts.print_usage();
     }
+    else
+    {
+      std::string filename = opts.get_input( "output_file" );
+      sampsim::utilities::verbose = opts.get_flag( "verbose" );
+
+      // build trends
+      mean_income->set_b00( opts.get_option_as_double( "mean_income_b00" ) );
+      mean_income->set_b01( opts.get_option_as_double( "mean_income_b01" ) );
+      mean_income->set_b10( opts.get_option_as_double( "mean_income_b10" ) );
+      mean_income->set_b02( opts.get_option_as_double( "mean_income_b02" ) );
+      mean_income->set_b20( opts.get_option_as_double( "mean_income_b20" ) );
+      mean_income->set_b11( opts.get_option_as_double( "mean_income_b11" ) );
+      sd_income->set_b00( opts.get_option_as_double( "sd_income_b00" ) );
+      sd_income->set_b01( opts.get_option_as_double( "sd_income_b01" ) );
+      sd_income->set_b10( opts.get_option_as_double( "sd_income_b10" ) );
+      sd_income->set_b02( opts.get_option_as_double( "sd_income_b02" ) );
+      sd_income->set_b20( opts.get_option_as_double( "sd_income_b20" ) );
+      sd_income->set_b11( opts.get_option_as_double( "sd_income_b11" ) );
+
+      mean_disease->set_b00( opts.get_option_as_double( "mean_disease_b00" ) );
+      mean_disease->set_b01( opts.get_option_as_double( "mean_disease_b01" ) );
+      mean_disease->set_b10( opts.get_option_as_double( "mean_disease_b10" ) );
+      mean_disease->set_b02( opts.get_option_as_double( "mean_disease_b02" ) );
+      mean_disease->set_b20( opts.get_option_as_double( "mean_disease_b20" ) );
+      mean_disease->set_b11( opts.get_option_as_double( "mean_disease_b11" ) );
+      sd_disease->set_b00( opts.get_option_as_double( "sd_disease_b00" ) );
+      sd_disease->set_b01( opts.get_option_as_double( "sd_disease_b01" ) );
+      sd_disease->set_b10( opts.get_option_as_double( "sd_disease_b10" ) );
+      sd_disease->set_b02( opts.get_option_as_double( "sd_disease_b02" ) );
+      sd_disease->set_b20( opts.get_option_as_double( "sd_disease_b20" ) );
+      sd_disease->set_b11( opts.get_option_as_double( "sd_disease_b11" ) );
+
+      popdens->set_b00( opts.get_option_as_double( "popdens_b00" ) );
+      popdens->set_b01( opts.get_option_as_double( "popdens_b01" ) );
+      popdens->set_b10( opts.get_option_as_double( "popdens_b10" ) );
+      popdens->set_b02( opts.get_option_as_double( "popdens_b02" ) );
+      popdens->set_b20( opts.get_option_as_double( "popdens_b20" ) );
+      popdens->set_b11( opts.get_option_as_double( "popdens_b11" ) );
+
+      // launch application
+      std::cout << "sampsim generate version " << sampsim::utilities::get_version() << std::endl;
+      population->set_seed( opts.get_option( "seed" ) );
+      population->set_mean_household_population( opts.get_option_as_double( "mean_household_pop" ) );
+      population->set_income( mean_income, sd_income );
+      population->set_disease( mean_disease, sd_disease );
+      population->set_population_density( popdens );
+      population->set_number_tiles_x( opts.get_option_as_int( "tile_x" ) );
+      population->set_number_tiles_y( opts.get_option_as_int( "tile_y" ) );
+      population->set_tile_width( opts.get_option_as_double( "tile_width" ) );
+      population->set_disease_weights(
+        opts.get_option_as_double( "dweight_population" ),
+        opts.get_option_as_double( "dweight_income" ),
+        opts.get_option_as_double( "dweight_risk" ),
+        opts.get_option_as_double( "dweight_age" ),
+        opts.get_option_as_double( "dweight_sex" ) );
+      population->generate();
+      population->write( filename, opts.get_flag( "flat_file" ) );
+    }
+
+    status = EXIT_SUCCESS;
   }
   catch( std::exception &e )
   {

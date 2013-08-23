@@ -79,7 +79,7 @@ namespace sampsim
 
     void set_arguments( const int argc, char** argv );
 
-    bool process();
+    void process();
     void print_usage();
 
     std::string get_input( const std::string name ) const;
