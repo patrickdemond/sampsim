@@ -146,7 +146,8 @@ namespace sampsim
   {
     int count = 0;
     for( auto it = this->building_list.begin(); it != this->building_list.end(); ++it )
-      count += (*it)->count_population();
+      if( !this->get_sample_mode() || (*it)->is_selected() )
+        count += (*it)->count_population();
 
     return count;
   }

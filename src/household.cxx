@@ -140,7 +140,9 @@ namespace sampsim
     // write the household index and position to the household stream
     household_stream << utilities::household_index << ",";
     this->get_building()->get_position().to_csv( household_stream, individual_stream );
-    household_stream << "," << this->income << "," << this->disease_risk << std::endl;
+    household_stream << "," << this->count_population()
+                     << "," << this->income << ","
+                     << this->disease_risk << std::endl;
 
     // write all individuals in this household to the individual stream
     for( auto it = this->individual_list.begin(); it != this->individual_list.end(); ++it )
@@ -160,7 +162,19 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   int household::count_population() const
   {
-    return this->individual_list.size();
+    int count = 0;
+
+    if( this->get_sample_mode() )
+    {
+      for( auto it = this->individual_list.cbegin(); it != this->individual_list.cend(); ++it )
+        if( (*it)->is_selected() ) count++;
+    }
+    else
+    {
+      count = this->individual_list.size();
+    }
+
+    return count;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
