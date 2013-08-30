@@ -82,7 +82,7 @@ namespace sample
     /**
      * Algorithm which selects households based on the sampling method
      */
-    virtual std::list< household* >::iterator select_next_household( std::list< household* >& ) const = 0;
+    virtual std::list< household* >::iterator select_next_household( std::list< household* >& ) = 0;
 
   private:
     sampsim::population *population;

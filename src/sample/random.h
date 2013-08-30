@@ -20,9 +20,6 @@
 
 #include "sample/sample.h"
 
-#include "coordinate.h"
-#include "distribution.h"
-
 #include <list>
 
 namespace Json{ class Value; }
@@ -48,7 +45,7 @@ namespace sample
     /**
      * Algorithm which selects households based on the sampling method
      */
-    virtual std::list< household* >::iterator select_next_household( std::list< household* >& ) const;
+    virtual std::list< household* >::iterator select_next_household( std::list< household* >& );
 
   private:
   };

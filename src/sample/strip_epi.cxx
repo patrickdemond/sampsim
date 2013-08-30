@@ -13,7 +13,7 @@ namespace sampsim
 namespace sample
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  std::list< household* >::iterator strip_epi::select_next_household( std::list< household* > &list ) const
+  std::list< household* >::iterator strip_epi::select_next_household( std::list< household* > &list )
   {
     // TODO: implement
     return list.begin();

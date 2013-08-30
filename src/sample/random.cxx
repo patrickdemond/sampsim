@@ -13,7 +13,7 @@ namespace sampsim
 namespace sample
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  std::list< household* >::iterator random::select_next_household( std::list< household* > &list ) const
+  std::list< household* >::iterator random::select_next_household( std::list< household* > &list )
   {
     // simple: pick a random household
     auto household_it = list.begin();

@@ -14,6 +14,7 @@
 #include "sample/arc_epi.h"
 #include "utilities.h"
 
+#include <cmath>
 #include <stdexcept>
 
 // main function
@@ -35,6 +36,7 @@ int main( int argc, char** argv )
   opts.add_heading( "Sampling parameters (overrides config files):" );
   opts.add_heading( "" );
   opts.add_option( "age", "either", "Restricts sample by age (\"adult\", \"child\" or \"either\")" );
+  opts.add_option( "arc_angle", "3.6", "Angle of arc when sampling a line from the centre (in degrees)" );
   opts.add_flag( "one_per_household", "Only sample one individual per household" );
   opts.add_option( "seed", "", "Seed used by the random generator" );
   opts.add_option( "sex", "either", "Restricts sample by sex (\"male\", \"female\" or \"either\")" );
@@ -62,6 +64,7 @@ int main( int argc, char** argv )
         sample->set_size( opts.get_option_as_int( "size" ) );
         sample->set_age( sampsim::get_age_type( opts.get_option( "age" ) ) );
         sample->set_sex( sampsim::get_sex_type( opts.get_option( "sex" ) ) );
+        sample->set_arc_angle( opts.get_option_as_double( "arc_angle" ) / 180 * M_PI );
         sample->set_one_per_household( opts.get_flag( "one_per_household" ) );
         if( sample->set_population( opts.get_input( "population_file" ) ) )
         {
