@@ -50,9 +50,11 @@ namespace sampsim
     if( NULL == this->parent ) throw std::runtime_error( "Tried to generate an orphaned building" );
 
     // determine the building's position
+    coordinate centroid = this->get_population()->get_centroid();
     std::pair< coordinate, coordinate > extent = this->get_tile()->get_extent();
     this->position.x = utilities::random() * ( extent.second.x - extent.first.x ) + extent.first.x;
     this->position.y = utilities::random() * ( extent.second.y - extent.first.y ) + extent.first.y;
+    this->position.set_centroid( this->get_population()->get_centroid() );
 
     // for now we're only allowing one household per building
     household *h = new household( this );

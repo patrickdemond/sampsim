@@ -139,7 +139,7 @@ namespace sampsim
 
     // write the household index and position to the household stream
     household_stream << utilities::household_index << ",";
-    this->get_building()->get_position().to_csv( household_stream, population->get_centroid() );
+    this->get_building()->get_position().to_csv( household_stream, individual_stream );
     household_stream << "," << this->income << "," << this->disease_risk << std::endl;
 
     // write all individuals in this household to the individual stream

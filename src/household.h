@@ -19,7 +19,6 @@
 #define __sampsim_household_h
 
 #include "model_object.h"
-#include "coordinate.h"
 #include "utilities.h"
 
 #include <vector>

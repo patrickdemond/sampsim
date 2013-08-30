@@ -34,7 +34,7 @@ namespace sampsim
   class coordinate : public base_object
   {
   public:
-    coordinate( const double x = 0, const double y = 0 ) : x(x), y(y) {}
+    coordinate( const double x = 0, const double y = 0 ) : x(x), y(y), cx(0), cy(0) {}
     ~coordinate() {}
 
     bool operator == ( const coordinate c ) const { return this->x == c.x && this->y == c.y; }
@@ -47,17 +47,21 @@ namespace sampsim
     coordinate& operator -= ( const coordinate &c ) { this->x -= c.x; this->y -= c.y; return (*this); }
     coordinate& operator *= ( const double a ) { this->x *= a; this->y *= a; return (*this); }
     coordinate& operator /= ( const double a ) { this->x /= a; this->y /= a; return (*this); }
-    double length() const { return sqrt( this->x*this->x + this->y+this->y ); }
-    double distance( const coordinate c ) const { return ( *this - c ).length(); }
 
     virtual void from_json( const Json::Value& );
     virtual void to_json( Json::Value& ) const;
-    virtual void to_csv( std::ostream&, const coordinate center ) const;
+    virtual void to_csv( std::ostream&, std::ostream& ) const;
 
-    double get_r( const coordinate center ) const;
-    double get_a( const coordinate center ) const;
+    double distance( const coordinate c ) const;
+    double length() const { return this->distance( coordinate( this->cx, this->cy ) ); }
+    coordinate get_centroid() { return coordinate( this->cx, this->cy ); }
+    void set_centroid( coordinate c ) { this->cx = c.x; this->cy = c.y; }
+    double get_r() const { return this->length(); }
+    double get_a() const;
     double x;
     double y;
+    double cx;
+    double cy;
 
   protected:
 

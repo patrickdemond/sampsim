@@ -38,6 +38,7 @@ namespace sampsim
      */
     virtual void from_json( const Json::Value& ) = 0;
     virtual void to_json( Json::Value& ) const = 0;
+    virtual void to_csv( std::ostream&, std::ostream& ) const = 0;
 
   protected:
 

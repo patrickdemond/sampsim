@@ -29,24 +29,23 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void coordinate::to_csv( std::ostream &stream, const coordinate center ) const
+  void coordinate::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
   {
-    stream.precision( 3 );
-    stream << std::fixed << this->x << "," << this->y << ","
-           << std::fixed << this->get_r( center ) << "," << this->get_a( center );
+    household_stream.precision( 3 );
+    household_stream << std::fixed << this->x << "," << this->y << ","
+                     << std::fixed << this->get_r() << "," << this->get_a();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  double coordinate::get_r( const coordinate center ) const
+  double coordinate::distance( const coordinate c ) const
   {
-    double dx = this->x - center.x;
-    double dy = this->y - center.y;
-    return sqrt( dx*dx + dy*dy );
+    return sqrt( ( this->x - c.x )*( this->x - c.x ) +
+                 ( this->y - c.y )*( this->y - c.y ) );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  double coordinate::get_a( const coordinate center ) const
+  double coordinate::get_a() const
   {
-    return atan2( this->y - center.y, this->x - center.x );
+    return atan2( this->y - this->cy, this->x - this->cx );
   }
 }

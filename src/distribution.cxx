@@ -116,4 +116,10 @@ namespace sampsim
       json["b"] = this->weibull.b();
     }
   }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void distribution::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
+  {
+    // distributions are not included in either the household or individual stream, so we have nothing to do
+  }
 }

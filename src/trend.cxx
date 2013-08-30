@@ -125,4 +125,10 @@ namespace sampsim
     json["b20"] = this->b20;
     json["b11"] = this->b11;
   }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void trend::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
+  {
+    // trends are not included in either the household or individual stream, so we have nothing to do
+  }
 }
