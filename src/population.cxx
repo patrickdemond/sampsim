@@ -270,7 +270,7 @@ namespace sampsim
     for( unsigned int c = 0; c < json["tile_list"].size(); c++ )
     {
       Json::Value tile_json = json["tile_list"][c];
-      index = std::pair< int, int >( tile_json["x"].asInt(), tile_json["y"].asInt() );
+      index = std::pair< int, int >( tile_json["x_index"].asInt(), tile_json["y_index"].asInt() );
       tile *t = new tile( this, index );
       t->from_json( tile_json );
       this->tile_list[index] = t;
