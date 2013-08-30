@@ -68,9 +68,6 @@ namespace sampsim
     utilities::random_engine.seed( atoi( this->seed.c_str() ) );
     this->population_distribution.set_poisson( this->mean_household_population - 1 );
 
-    this->centroid = coordinate( this->number_tiles_x, this->number_tiles_y );
-    this->centroid *= this->tile_width / 2;
-
     // create tiles
     for( int y = 0; y < this->number_tiles_y; y++ )
     {
@@ -426,6 +423,14 @@ namespace sampsim
       count += it->second->count_population();
 
     return count;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  coordinate population::get_centroid() const
+  {
+    coordinate centroid( this->number_tiles_x, this->number_tiles_y );
+    centroid *= this->tile_width / 2;
+    return centroid;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

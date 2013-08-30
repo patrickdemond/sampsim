@@ -96,7 +96,7 @@ namespace sampsim
     /**
      * Determines the centroid and surface area of the population
      */
-    coordinate get_centroid() const { return this->centroid; }
+    coordinate get_centroid() const;
     double get_area() const;
 
     virtual void from_json( const Json::Value& );
@@ -113,7 +113,6 @@ namespace sampsim
     int number_tiles_x;
     int number_tiles_y;
     double tile_width;
-    coordinate centroid;
     double disease_weights[NUMBER_OF_WEIGHTS];
     double mean_household_population;
     trend *mean_income;

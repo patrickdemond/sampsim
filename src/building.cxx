@@ -66,6 +66,7 @@ namespace sampsim
   void building::from_json( const Json::Value &json )
   {
     this->position.from_json( json["position"] );
+    this->position.set_centroid( this->get_population()->get_centroid() );
     
     this->household_list.reserve( json["household_list"].size() );
     for( unsigned int c = 0; c < json["household_list"].size(); c++ )
