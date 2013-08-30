@@ -25,6 +25,7 @@ namespace sampsim
   household::household( building *parent )
   {
     this->parent = parent;
+    this->selected = false;
     this->set_sample_mode( this->parent->get_sample_mode() );
   }
 

@@ -19,10 +19,10 @@ namespace sampsim
   individual::individual( household *parent )
   {
     this->parent = parent;
+    this->selected = false;
     this->age = UNKNOWN_AGE_TYPE;
     this->sex = UNKNOWN_SEX_TYPE;
     this->disease = false;
-    this->selected = false;
     this->set_sample_mode( this->parent->get_sample_mode() );
   }
 

@@ -67,7 +67,7 @@ namespace sample
         for( auto household_it = (*building_it)->get_household_list_cbegin();
              household_it != (*building_it)->get_household_list_cend();
              ++household_it )
-        remaining_household_list.push_back( *household_it );
+          remaining_household_list.push_back( *household_it );
       }
     }
 
