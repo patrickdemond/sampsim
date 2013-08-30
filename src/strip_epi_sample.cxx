@@ -44,33 +44,34 @@ int main( int argc, char** argv )
   {
     // parse the command line arguments
     opts.set_arguments( argc, argv );
-    opts.process();
-
-    // now either show the help or run the application
-    if( opts.get_flag( "help" ) )
+    if( opts.process() )
     {
-      opts.print_usage();
-    }
-    else
-    {
-      std::string filename = opts.get_input( "output_file" );
-      sampsim::utilities::verbose = opts.get_flag( "verbose" );
-
-      // launch application
-      std::cout << "sampsim strip_epi_sample version " << sampsim::utilities::get_version() << std::endl;
-      sample->set_seed( opts.get_option( "seed" ) );
-      sample->set_size( opts.get_option_as_int( "size" ) );
-      sample->set_age( sampsim::get_age_type( opts.get_option( "age" ) ) );
-      sample->set_sex( sampsim::get_sex_type( opts.get_option( "sex" ) ) );
-      sample->set_one_per_household( opts.get_flag( "one_per_household" ) );
-      if( sample->set_population( opts.get_input( "population_file" ) ) )
+      // now either show the help or run the application
+      if( opts.get_flag( "help" ) )
       {
-        sample->generate();
-        sample->write( filename, opts.get_flag( "flat_file" ) );
+        opts.print_usage();
       }
-    }
+      else
+      {
+        std::string filename = opts.get_input( "output_file" );
+        sampsim::utilities::verbose = opts.get_flag( "verbose" );
 
-    status = EXIT_SUCCESS;
+        // launch application
+        std::cout << "sampsim strip_epi_sample version " << sampsim::utilities::get_version() << std::endl;
+        sample->set_seed( opts.get_option( "seed" ) );
+        sample->set_size( opts.get_option_as_int( "size" ) );
+        sample->set_age( sampsim::get_age_type( opts.get_option( "age" ) ) );
+        sample->set_sex( sampsim::get_sex_type( opts.get_option( "sex" ) ) );
+        sample->set_one_per_household( opts.get_flag( "one_per_household" ) );
+        if( sample->set_population( opts.get_input( "population_file" ) ) )
+        {
+          sample->generate();
+          sample->write( filename, opts.get_flag( "flat_file" ) );
+        }
+      }
+
+      status = EXIT_SUCCESS;
+    }
   }
   catch( std::exception &e )
   {

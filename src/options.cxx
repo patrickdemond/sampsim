@@ -94,11 +94,12 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void options::process()
+  bool options::process()
   {
     bool config_file_processed = false;
+    bool success = this->process_arguments();
 
-    if( this->process_arguments() )
+    if( success )
     {
       std::string config_file = this->get_option( "config" );
       while( 0 < config_file.length() )
@@ -112,10 +113,12 @@ namespace sampsim
         config_file = this->get_option( "config" );
         if( false == config_file_processed ) config_file_processed = true;
       }
+
+      // command line arguments override config file arguments
+      if( config_file_processed ) success = this->process_arguments();
     }
 
-    // command line arguments override config file arguments
-    if( config_file_processed ) this->process_arguments();
+    return success;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
