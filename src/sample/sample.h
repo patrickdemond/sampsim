@@ -49,18 +49,6 @@ namespace sample
     virtual void generate();
     void write( const std::string filename, const bool flat_file = false ) const;
 
-    /** 
-     * Iterator access
-     */
-    household_list_type::iterator get_household_list_begin()
-    { return this->household_list.begin(); }
-    household_list_type::iterator get_household_list_end()
-    { return this->household_list.end(); }
-    household_list_type::const_iterator get_household_list_cbegin() const
-    { return this->household_list.cbegin(); }
-    household_list_type::const_iterator get_household_list_cend() const
-    { return this->household_list.cend(); }
-    
     virtual std::string get_type() const = 0;
     bool set_population( const std::string filename );
     void set_seed( const std::string seed );
@@ -86,7 +74,6 @@ namespace sample
 
   private:
     sampsim::population *population;
-    household_list_type household_list;
     bool ready;
     std::string seed;
     unsigned int size;

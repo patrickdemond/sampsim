@@ -74,8 +74,9 @@ namespace sample
     utilities::output( "selecting from a list of %d households", remaining_household_list.size() );
 
     // keep selecting households until we've filled our sample size
-    int running_count = 0;
-    while( this->get_size() > running_count )
+    int individual_count = 0;
+    int household_count = 0;
+    while( this->get_size() > individual_count )
     {
       if( 0 == remaining_household_list.size() )
       {
@@ -104,17 +105,16 @@ namespace sample
 
       if( count )
       {
-        this->household_list.push_back( h );
-        running_count += count;
+        individual_count += count;
+        household_count++;
       }
-
       remaining_household_list.erase( household_it );
     }
 
     utilities::output(
       "finished generating %s sample, %d households selected",
       this->get_type().c_str(),
-      this->household_list.size() );
+      household_count );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

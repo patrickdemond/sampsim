@@ -39,6 +39,7 @@ int main( int argc, char** argv )
   opts.add_option( "seed", "", "Seed used by the random generator" );
   opts.add_option( "sex", "either", "Restricts sample by sex (\"male\", \"female\" or \"either\")" );
   opts.add_option( "size", "1000", "The sample's size (in individuals)" );
+  opts.add_option( "strip_width", "10", "Width of the strip used to sampling from the centre (in meters)" );
 
   try
   {
@@ -63,6 +64,7 @@ int main( int argc, char** argv )
         sample->set_age( sampsim::get_age_type( opts.get_option( "age" ) ) );
         sample->set_sex( sampsim::get_sex_type( opts.get_option( "sex" ) ) );
         sample->set_one_per_household( opts.get_flag( "one_per_household" ) );
+        sample->set_strip_width( opts.get_option_as_double( "strip_width" ) / 1000 );
         if( sample->set_population( opts.get_input( "population_file" ) ) )
         {
           sample->generate();

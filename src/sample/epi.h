@@ -1,24 +1,24 @@
 /*=========================================================================
 
   Program:  sampsim
-  Module:   arc_epi.h
+  Module:   epi.h
   Language: C++
 
 =========================================================================*/
 
 /**
- * @class arc_epi
+ * @class epi
  * @namespace sampsim
  * 
  * @author Patrick Emond <emondpd@mcmaster.ca>
  * 
- * @brief EPI method which picks the initial household using a sector
+ * @brief Base class for EPI sampling methods
  */
 
-#ifndef __sampsim_sample_arc_epi_h
-#define __sampsim_sample_arc_epi_h
+#ifndef __sampsim_sample_epi_h
+#define __sampsim_sample_epi_h
 
-#include "sample/epi.h"
+#include "sample/sample.h"
 
 #include <list>
 
@@ -31,18 +31,12 @@ namespace Json{ class Value; }
 
 namespace sampsim
 {
-class household;
 namespace sample
 {
-  class arc_epi : public epi
+  class epi : public sample
   {
   public:
-    arc_epi() : arc_angle( 0 ) {}
-
-    virtual std::string get_type() const { return "arc EPI"; }
-
-    void set_arc_angle( double angle ) { this->arc_angle = angle; }
-    double get_arc_angle() { return this->arc_angle; }
+    epi() : angle( 0 ), current_household( NULL ) {}
 
   protected:
     /**
@@ -50,8 +44,8 @@ namespace sample
      */
     virtual std::list< household* >::iterator select_next_household( std::list< household* >& );
 
-  private:
-    double arc_angle;
+    double angle;
+    household *current_household;
   };
 }
 }

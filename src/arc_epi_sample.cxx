@@ -64,8 +64,8 @@ int main( int argc, char** argv )
         sample->set_size( opts.get_option_as_int( "size" ) );
         sample->set_age( sampsim::get_age_type( opts.get_option( "age" ) ) );
         sample->set_sex( sampsim::get_sex_type( opts.get_option( "sex" ) ) );
-        sample->set_arc_angle( opts.get_option_as_double( "arc_angle" ) / 180 * M_PI );
         sample->set_one_per_household( opts.get_flag( "one_per_household" ) );
+        sample->set_arc_angle( opts.get_option_as_double( "arc_angle" ) / 180 * M_PI );
         if( sample->set_population( opts.get_input( "population_file" ) ) )
         {
           sample->generate();
