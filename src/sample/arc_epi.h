@@ -42,6 +42,8 @@ namespace sample
     arc_epi() {}
     ~arc_epi() {}
 
+    virtual std::string get_type() const { return "arc EPI"; }
+
   protected:
     /**
      * Algorithm which selects households based on the sampling method

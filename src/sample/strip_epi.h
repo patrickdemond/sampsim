@@ -42,6 +42,8 @@ namespace sample
     strip_epi() {}
     ~strip_epi() {}
 
+    virtual std::string get_type() const { return "strip EPI"; }
+
   protected:
     /**
      * Algorithm which selects households based on the sampling method

@@ -1,4 +1,3 @@
 Test nested config files
 Make library out of common classes and link
-Add sample type to csv output (get_type() = 0, perhaps?)
 Add number of individuals to household csv

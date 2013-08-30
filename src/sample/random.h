@@ -42,6 +42,8 @@ namespace sample
     random() {}
     ~random() {}
 
+    virtual std::string get_type() const { return "random"; }
+
   protected:
     /**
      * Algorithm which selects households based on the sampling method

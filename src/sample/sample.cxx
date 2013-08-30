@@ -37,13 +37,13 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   sample::~sample()
   {
-    sampsim::utilities::safe_delete( this->population );
+    utilities::safe_delete( this->population );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sample::generate()
   {
-    utilities::output( "generating sample" );
+    utilities::output( "generating %s sample", this->get_type().c_str() );
 
     // check to make sure the age and sex restrictions are valid
     if( UNKNOWN_AGE_TYPE == this->get_age() )
@@ -112,13 +112,19 @@ namespace sample
     }
 
     utilities::output(
-      "finished generating sample, %d households selected", this->household_list.size() );
+      "finished generating %s sample, %d households selected",
+      this->get_type().c_str(),
+      this->household_list.size() );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sample::write( const std::string filename, const bool flat_file ) const
   {
-    sampsim::utilities::output( "writting sample to %s.%s", filename.c_str(), flat_file ? "*.csv" : "json" );
+    utilities::output(
+      "writting %s sample to %s.%s",
+      this->get_type().c_str(),
+      filename.c_str(),
+      flat_file ? "*.csv" : "json" );
 
     if( flat_file )
     {
@@ -138,7 +144,7 @@ namespace sample
       stream.close();
     }
 
-    utilities::output( "finished writting population" );
+    utilities::output( "finished writting %s sample", this->get_type().c_str() );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -150,47 +156,53 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sample::set_seed( const std::string seed )
   {
-    if( sampsim::utilities::verbose ) sampsim::utilities::output( "setting seed to %s", seed.c_str() );
+    if( utilities::verbose ) utilities::output( "setting seed to %s", seed.c_str() );
     this->seed = seed;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sample::set_size( const unsigned int size )
   {
-    if( sampsim::utilities::verbose ) sampsim::utilities::output( "setting size to %d", size );
+    if( utilities::verbose ) utilities::output( "setting size to %d", size );
     this->size = size;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sample::set_one_per_household( const bool one_per_household )
   {
-    if( sampsim::utilities::verbose )
-      sampsim::utilities::output( "setting one_per_household to %s",
-                                  one_per_household ? "true" : "false" );
+    if( utilities::verbose )
+      utilities::output( "setting one_per_household to %s", one_per_household ? "true" : "false" );
     this->one_per_household = one_per_household;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sample::set_age( const age_type age )
   {
-    if( sampsim::utilities::verbose )
-      sampsim::utilities::output( "setting age to %s",
-                                  sampsim::get_age_type_name( age ).c_str() );
+    if( utilities::verbose )
+      utilities::output( "setting age to %s", sampsim::get_age_type_name( age ).c_str() );
     this->age = age;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sample::set_sex( const sex_type sex )
   {
-    if( sampsim::utilities::verbose )
-      sampsim::utilities::output( "setting sex to %s",
-                                  sampsim::get_sex_type_name( sex ).c_str() );
+    if( utilities::verbose )
+      utilities::output( "setting sex to %s", sampsim::get_sex_type_name( sex ).c_str() );
     this->sex = sex;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sample::from_json( const Json::Value &json )
   {
+    // make sure the type is correct
+    if( this->get_type() != json["type"].asString() )
+    {
+      std::stringstream stream;
+      stream << "Tried to unserialize " << json["type"].asString() << " sample as a "
+             << this->get_type() << " sample";
+      throw std::runtime_error( stream.str() );
+    }
+
     this->seed = json["seed"].asString();
     this->size = json["size"].asInt();
     this->one_per_household = json["one_per_household"].asBool();
@@ -203,6 +215,7 @@ namespace sample
   void sample::to_json( Json::Value &json ) const
   {
     json = Json::Value( Json::objectValue );
+    json["type"] = this->get_type().c_str();
     json["seed"] = this->seed;
     json["size"] = this->size;
     json["one_per_household"] = this->one_per_household;
@@ -221,6 +234,7 @@ namespace sample
     stream << "# -----------------------------------------------------------------------" << std::endl;
     stream << "# version: " << SAMPSIM_VERSION_MAJOR << "." << SAMPSIM_VERSION_MINOR
            << "." << SAMPSIM_VERSION_PATCH << std::endl;
+    stream << "# type: " << this->get_type() << std::endl;
     stream << "# seed: " << this->seed << std::endl;
     stream << "# size: " << this->size << std::endl;
     stream << "# one_per_household: " << ( this->one_per_household ? "true" : "false" ) << std::endl;
