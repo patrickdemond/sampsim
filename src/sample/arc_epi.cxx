@@ -44,15 +44,24 @@ namespace sample
         for( auto it = list.begin(); it != list.end(); ++it )
         {
           household *household = (*it);
-          double a1 = this->angle;
-          double a2 = this->angle + this->arc_angle;
+          double a1 = this->angle - this->arc_angle / 2.0;
+          double a2 = this->angle + this->arc_angle / 2.0;
           double a = (*it)->get_building()->get_position().get_a();
 
           // it is possible that a2 > PI, if so then we need to loop around to -PI
           if( M_PI < a2 )
           {
-            // translate a2 into the 4th quadrant
+            // translate a2 into the 3rd quadrant (in negative radians)
             a2 -= 2 * M_PI;
+
+            // test from a1 to PI and from -PI to a2
+            if( ( a1 <= a && a <= M_PI ) || ( -M_PI <= a && a < a2 ) ) initial_households.push_back( it );
+          }
+          // it is possible that a1 < -PI, if so then we need to loop around to PI
+          else if( -M_PI > a1 )
+          {
+            // translate a1 into the 2nd quadrant (in positive radians)
+            a1 += 2 * M_PI;
 
             // test from a1 to PI and from -PI to a2
             if( ( a1 <= a && a <= M_PI ) || ( -M_PI <= a && a < a2 ) ) initial_households.push_back( it );
