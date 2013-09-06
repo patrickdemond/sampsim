@@ -41,15 +41,27 @@ namespace sample
         // pick a random angle in [-PI, PI]
         this->angle = utilities::random() * 2 * M_PI - M_PI;
 
+        // determine the line coefficient (for lines making strip of the appropriate width)
+        double coef = this->strip_width / 2 / cos( this->angle );
+
         for( auto it = list.begin(); it != list.end(); ++it )
         {
-          household *household = (*it);
-          // TODO: implement
-          initial_households.push_back( it );
+          coordinate p = (*it)->get_building()->get_position();
+
+          // determine the house's coefficient based on a line at the same angle as the strip lines
+          // but crossing through the point
+          double house_coef = p.y - p.x * atan( this->angle );
+
+          if( -coef <= house_coef && house_coef < coef ) 
+          {
+            // now rotate the point by -angle to see if is in the strip or on the opposite side
+            double rotated_x = p.x * cos( -this->angle ) - p.y * sin( -this->angle );
+            if( 0 <= rotated_x ) initial_households.push_back( it );
+          }
         }
       }
 
-      // 4. select a random building from the list produced by step 2
+      // 3. select a random building from the list produced by step 2
       auto initial_it = initial_households.begin();
       std::advance( initial_it, utilities::random( 0, initial_households.size() - 1 ) );
       household_it = *initial_it;
