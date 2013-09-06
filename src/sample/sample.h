@@ -73,8 +73,9 @@ namespace sample
      */
     virtual std::list< household* >::iterator select_next_household( std::list< household* >& ) = 0;
 
-  private:
     sampsim::population *population;
+
+  private:
     bool ready;
     std::string seed;
     unsigned int size;

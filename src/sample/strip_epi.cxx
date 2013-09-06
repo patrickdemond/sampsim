@@ -10,6 +10,7 @@
 
 #include "building.h"
 #include "household.h"
+#include "population.h"
 
 #include <stdexcept>
 #include <vector>
@@ -43,7 +44,14 @@ namespace sample
         utilities::output( "selected starting angle of %0.3f radians", this->angle );
 
         // determine the line coefficient (for lines making strip of the appropriate width)
-        double coef = this->strip_width / 2 / cos( this->angle );
+        double sin_min_angle = sin( -angle );
+        double cos_min_angle = cos( -angle );
+        double tan_angle = tan( angle );
+        coordinate c = this->population->get_centroid();
+        double coef = c.y - c.x * tan_angle;
+        double offset = this->strip_width / 2 / cos( this->angle );
+        double coef1 = coef - offset;
+        double coef2 = coef + offset;
 
         for( auto it = list.begin(); it != list.end(); ++it )
         {
@@ -51,13 +59,13 @@ namespace sample
 
           // determine the house's coefficient based on a line at the same angle as the strip lines
           // but crossing through the point
-          double house_coef = p.y - p.x * atan( this->angle );
+          double house_coef = p.y - p.x * tan_angle;
 
-          if( -coef <= house_coef && house_coef < coef ) 
+          if( coef1 <= house_coef && house_coef < coef2 ) 
           {
             // now rotate the point by -angle to see if is in the strip or on the opposite side
-            double rotated_x = p.x * cos( -this->angle ) - p.y * sin( -this->angle );
-            if( 0 <= rotated_x ) initial_households.push_back( it );
+            double rotated_x = ( p.x - c.x ) * cos_min_angle - ( p.y - c.y ) * sin_min_angle + c.x;
+            if( c.x <= rotated_x ) initial_households.push_back( it );
           }
         }
       }
@@ -67,8 +75,9 @@ namespace sample
       auto initial_it = initial_households.begin();
       std::advance( initial_it, this->first_house_index );
       household_it = *initial_it;
+      (*household_it)->get_building()->get_position().to_csv( std::cout, std::cout ); std::cout << std::endl;
       utilities::output(
-        "starting with household %d of %d",
+        "selecting household %d of %d in strip",
         this->first_house_index + 1,
         initial_households.size() );
     }

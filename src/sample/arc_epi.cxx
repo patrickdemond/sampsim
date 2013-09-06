@@ -80,7 +80,7 @@ namespace sample
       std::advance( initial_it, this->first_house_index );
       household_it = *initial_it;
       utilities::output(
-        "starting with household %d of %d", 
+        "selecting household %d of %d in arc",
         this->first_house_index + 1, 
         initial_households.size() );
     }
