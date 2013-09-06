@@ -36,7 +36,7 @@ int main( int argc, char** argv )
   opts.add_heading( "Sampling parameters (overrides config files):" );
   opts.add_heading( "" );
   opts.add_option( "age", "either", "Restricts sample by age (\"adult\", \"child\" or \"either\")" );
-  opts.add_option( "arc_angle", "3.6", "Angle of arc when sampling a line from the centre (in degrees)" );
+  opts.add_option( "arc_angle", "0.5", "Angle of arc when sampling a line from the centre (in degrees)" );
   opts.add_flag( "one_per_household", "Only sample one individual per household" );
   opts.add_option( "seed", "", "Seed used by the random generator" );
   opts.add_option( "sex", "either", "Restricts sample by sex (\"male\", \"female\" or \"either\")" );

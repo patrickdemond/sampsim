@@ -39,7 +39,7 @@ int main( int argc, char** argv )
   opts.add_option( "seed", "", "Seed used by the random generator" );
   opts.add_option( "sex", "either", "Restricts sample by sex (\"male\", \"female\" or \"either\")" );
   opts.add_option( "size", "1000", "The sample's size (in individuals)" );
-  opts.add_option( "strip_width", "10", "Width of the strip used to sampling from the centre (in meters)" );
+  opts.add_option( "strip_width", "50", "Width of the strip used to sampling from the centre (in meters)" );
 
   try
   {
