@@ -43,6 +43,9 @@ namespace sample
     void set_strip_width( double angle ) { this->strip_width = angle; }
     double get_strip_width() { return this->strip_width; }
 
+    void to_json( Json::Value& ) const;
+    virtual std::string get_csv_header() const;
+
   protected:
     /**
      * Algorithm which selects households based on the sampling method

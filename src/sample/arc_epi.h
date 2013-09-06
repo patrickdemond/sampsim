@@ -44,6 +44,9 @@ namespace sample
     void set_arc_angle( double angle ) { this->arc_angle = angle; }
     double get_arc_angle() { return this->arc_angle; }
 
+    void to_json( Json::Value& ) const;
+    virtual std::string get_csv_header() const;
+
   protected:
     /**
      * Algorithm which selects households based on the sampling method

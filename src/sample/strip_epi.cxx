@@ -40,6 +40,7 @@ namespace sample
       {
         // pick a random angle in [-PI, PI]
         this->angle = utilities::random() * 2 * M_PI - M_PI;
+        utilities::output( "selected starting angle of %0.3f radians", this->angle );
 
         // determine the line coefficient (for lines making strip of the appropriate width)
         double coef = this->strip_width / 2 / cos( this->angle );
@@ -62,9 +63,14 @@ namespace sample
       }
 
       // 3. select a random building from the list produced by step 2
+      this->first_house_index = utilities::random( 0, initial_households.size() - 1 );
       auto initial_it = initial_households.begin();
-      std::advance( initial_it, utilities::random( 0, initial_households.size() - 1 ) );
+      std::advance( initial_it, this->first_house_index );
       household_it = *initial_it;
+      utilities::output(
+        "starting with household %d of %d",
+        this->first_house_index + 1,
+        initial_households.size() );
     }
     else
     {
@@ -73,6 +79,22 @@ namespace sample
 
     this->current_household = *household_it;
     return household_it;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void strip_epi::to_json( Json::Value &json ) const
+  {
+    epi::to_json( json );
+    json["strip_width"] = this->strip_width;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  std::string strip_epi::get_csv_header() const
+  {
+    std::stringstream stream;
+    stream << epi::get_csv_header();
+    stream << "# strip_width: " << this->strip_width << std::endl;
+    return stream.str();
   }
 }
 }

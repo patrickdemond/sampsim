@@ -226,9 +226,8 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void sample::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
+  std::string sample::get_csv_header() const
   {
-    // put in the parameters
     std::stringstream stream;
     stream << "# sampling parameters" << std::endl;
     stream << "# -----------------------------------------------------------------------" << std::endl;
@@ -240,11 +239,14 @@ namespace sample
     stream << "# one_per_household: " << ( this->one_per_household ? "true" : "false" ) << std::endl;
     stream << "# age: " << sampsim::get_age_type_name( this->age ) << std::endl;
     stream << "# sex: " << sampsim::get_sex_type_name( this->sex ) << std::endl;
-    stream << std::endl;
+    return stream.str();
+  }
 
-    household_stream << stream.str();
-    individual_stream << stream.str();
-
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void sample::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
+  {
+    household_stream << this->get_csv_header() << std::endl;
+    individual_stream << this->get_csv_header() << std::endl;
     this->population->to_csv( household_stream, individual_stream );
   }
 }

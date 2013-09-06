@@ -65,5 +65,22 @@ namespace sample
     this->current_household = *household_it;
     return household_it;
   }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void epi::to_json( Json::Value &json ) const
+  {
+    sample::to_json( json );
+    json["angle"] = this->angle;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  std::string epi::get_csv_header() const
+  {
+    std::stringstream stream;
+    stream << sample::get_csv_header();
+    stream << "# angle: " << this->angle << std::endl;
+    stream << "# first_house_index: " << this->first_house_index << std::endl;
+    return stream.str();
+  }
 }
 }

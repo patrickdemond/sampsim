@@ -65,6 +65,7 @@ namespace sample
     virtual void from_json( const Json::Value& );
     virtual void to_json( Json::Value& ) const;
     virtual void to_csv( std::ostream&, std::ostream& ) const;
+    virtual std::string get_csv_header() const;
 
   protected:
     /**
