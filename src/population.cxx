@@ -211,7 +211,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::write( const std::string filename, const bool flat_file ) const
   {
-    utilities::output( "writting population to %s.%s", filename.c_str(), flat_file ? "*.csv" : "json" );
+    utilities::output( "writing population to %s.%s", filename.c_str(), flat_file ? "*.csv" : "json" );
 
     if( flat_file )
     {
@@ -231,7 +231,7 @@ namespace sampsim
       stream.close();
     }
 
-    utilities::output( "finished writting population" );
+    utilities::output( "finished writing population" );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
