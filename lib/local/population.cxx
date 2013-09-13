@@ -216,19 +216,39 @@ namespace sampsim
     if( flat_file )
     {
       std::ofstream household_stream( filename + ".household.csv", std::ofstream::out );
+      if( !household_stream.is_open() )
+      {
+        std::stringstream stream;
+        stream << "Unable to open \"" << filename << ".household.csv\" for writing";
+        throw std::runtime_error( stream.str() );
+      }
+      
       std::ofstream individual_stream( filename + ".individual.csv", std::ofstream::out );
+      if( !individual_stream.is_open() )
+      {
+        std::stringstream stream;
+        stream << "Unable to open \"" << filename << ".individual.csv\" for writing";
+        throw std::runtime_error( stream.str() );
+      }
+
       this->to_csv( household_stream, individual_stream );
       household_stream.close();
       individual_stream.close();
     }
     else
     {
-      std::ofstream stream( filename + ".json", std::ofstream::out );
+      std::ofstream json_stream( filename + ".json", std::ofstream::out );
+      if( !json_stream.is_open() )
+      {
+        std::stringstream stream;
+        stream << "Unable to open \"" << filename << ".json\" for writing";
+        throw std::runtime_error( stream.str() );
+      }
       Json::Value root;
       this->to_json( root );
       Json::StyledWriter writer;
-      stream << writer.write( root );
-      stream.close();
+      json_stream << writer.write( root );
+      json_stream.close();
     }
 
     utilities::output( "finished writing population" );
