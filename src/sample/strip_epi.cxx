@@ -49,7 +49,7 @@ namespace sample
         double tan_angle = tan( angle );
         coordinate c = this->population->get_centroid();
         double coef = c.y - c.x * tan_angle;
-        double offset = this->strip_width / 2 / cos( this->angle );
+        double offset = this->strip_width / 2;
         double coef1 = coef - offset;
         double coef2 = coef + offset;
 
@@ -68,6 +68,8 @@ namespace sample
             if( c.x <= rotated_x ) initial_households.push_back( it );
           }
         }
+
+        if( 0 == initial_households.size() ) utilities::output( "no households found in strip" );
       }
 
       // 3. select a random building from the list produced by step 2
@@ -75,7 +77,6 @@ namespace sample
       auto initial_it = initial_households.begin();
       std::advance( initial_it, this->first_house_index );
       household_it = *initial_it;
-      (*household_it)->get_building()->get_position().to_csv( std::cout, std::cout ); std::cout << std::endl;
       utilities::output(
         "selecting household %d of %d in strip",
         this->first_house_index + 1,
