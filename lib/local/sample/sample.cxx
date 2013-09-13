@@ -30,14 +30,34 @@ namespace sample
     this->one_per_household = false;
     this->age = ANY_AGE;
     this->sex = ANY_SEX;
-    this->population = new sampsim::population;
-    this->population->set_sample_mode( true );
+    this->population = NULL;
+    this->owns_population = false;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   sample::~sample()
   {
-    utilities::safe_delete( this->population );
+    this->delete_population();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void sample::create_population()
+  {
+    if( this->population ) this->delete_population();
+    this->population = new sampsim::population;
+    this->population->set_sample_mode( true );
+    this->owns_population = true;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void sample::delete_population()
+  {
+    if( this->population )
+    {
+      if( owns_population ) utilities::safe_delete( this->population );
+      this->population = NULL;
+      this->owns_population = false;
+    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -50,8 +70,6 @@ namespace sample
       throw std::runtime_error( "Cannot generate sample, age type is unknown" );
     if( UNKNOWN_SEX_TYPE == this->get_sex() )
       throw std::runtime_error( "Cannot generate sample, sex type is unknown" );
-
-    utilities::random_engine.seed( atoi( this->get_seed().c_str() ) );
 
     // create a list of all households
     std::list< household* > remaining_household_list;
@@ -97,7 +115,7 @@ namespace sample
         if( ( ANY_AGE == this->get_age() || this->get_age() == i->get_age() ) &&
             ( ANY_SEX == this->get_sex() || this->get_sex() == i->get_sex() ) )
         {
-          i->set_selected( true );
+          i->select();
           count++;
           if( this->get_one_per_household() ) break;
         }
@@ -129,19 +147,40 @@ namespace sample
     if( flat_file )
     {
       std::ofstream household_stream( filename + ".household.csv", std::ofstream::out );
+      if( !household_stream.is_open() )
+      {
+        std::stringstream stream;
+        stream << "Unable to open \"" << filename << ".household.csv\" for writing";
+        throw std::runtime_error( stream.str() );
+      }
+
       std::ofstream individual_stream( filename + ".individual.csv", std::ofstream::out );
+      if( !individual_stream.is_open() )
+      {
+        std::stringstream stream;
+        stream << "Unable to open \"" << filename << ".individual.csv\" for writing";
+        throw std::runtime_error( stream.str() );
+      }
+
       this->to_csv( household_stream, individual_stream );
       household_stream.close();
       individual_stream.close();
     }
     else
     {
-      std::ofstream stream( filename + ".json", std::ofstream::out );
+      std::ofstream json_stream( filename + ".json", std::ofstream::out );
+      if( !json_stream.is_open() )
+      {
+        std::stringstream stream;
+        stream << "Unable to open \"" << filename << ".json\" for writing";
+        throw std::runtime_error( stream.str() );
+      }
+
       Json::Value root;
       this->to_json( root );
       Json::StyledWriter writer;
-      stream << writer.write( root );
-      stream.close();
+      json_stream << writer.write( root );
+      json_stream.close();
     }
 
     utilities::output( "finished writting %s sample", this->get_type().c_str() );
@@ -150,7 +189,15 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   bool sample::set_population( const std::string filename )
   {
+    this->create_population();
     return this->population->read( filename );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  bool sample::set_population( sampsim::population *population )
+  {
+    this->delete_population();
+    return this->population = population; // copy pointer but do not delete when finished
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -158,6 +205,7 @@ namespace sample
   {
     if( utilities::verbose ) utilities::output( "setting seed to %s", seed.c_str() );
     this->seed = seed;
+    utilities::random_engine.seed( atoi( this->get_seed().c_str() ) );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

@@ -19,8 +19,6 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void distribution::set_lognormal( const double mean, const double sd )
   {
-    if( distribution::UNKNOWN != this->distribution_type )
-      throw std::runtime_error( "Tried to set distribution type after it has already been defined" );
     this->distribution_type = distribution::LOGNORMAL;
     this->lognormal = std::lognormal_distribution<double>( mean, sd );
   }
@@ -28,8 +26,6 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void distribution::set_normal( const double m, const double s )
   {
-    if( distribution::UNKNOWN != this->distribution_type )
-      throw std::runtime_error( "Tried to set distribution type after it has already been defined" );
     this->distribution_type = distribution::NORMAL;
     this->normal = std::normal_distribution<double>( m, s );
   }
@@ -37,8 +33,6 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void distribution::set_poisson( const double mean )
   {
-    if( distribution::UNKNOWN != this->distribution_type )
-      throw std::runtime_error( "Tried to set distribution type after it has already been defined" );
     this->distribution_type = distribution::POISSON;
     this->poisson = std::poisson_distribution<int>( mean );
   }
@@ -46,8 +40,6 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void distribution::set_weibull( const double a, const double b )
   {
-    if( distribution::UNKNOWN != this->distribution_type )
-      throw std::runtime_error( "Tried to set distribution type after it has already been defined" );
     this->distribution_type = distribution::WEIBULL;
     this->weibull = std::weibull_distribution<double>( a, b );
   }

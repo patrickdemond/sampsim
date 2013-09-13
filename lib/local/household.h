@@ -73,7 +73,8 @@ namespace sampsim
     double get_income() const { return this->income; }
     double get_disease_risk() const { return this->disease_risk; }
     bool is_selected() const { return this->selected; }
-    void set_selected( const bool selected );
+    void select();
+    void unselect();
 
     /**
      * Counts the total population of the household

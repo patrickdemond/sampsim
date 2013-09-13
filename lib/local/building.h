@@ -77,7 +77,8 @@ namespace sampsim
 
     coordinate get_position() const { return this->position; }
     bool is_selected() const { return this->selected; }
-    void set_selected( const bool selected ) { this->selected = selected; }
+    void select() { this->selected = true; }
+    void unselect();
 
   protected:
 

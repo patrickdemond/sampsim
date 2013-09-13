@@ -65,7 +65,6 @@ namespace sampsim
     utilities::output( "generating population" );
 
     // create the needed distributions
-    utilities::random_engine.seed( atoi( this->seed.c_str() ) );
     this->population_distribution.set_poisson( this->mean_household_population - 1 );
 
     // create tiles
@@ -368,6 +367,7 @@ namespace sampsim
   {
     if( utilities::verbose ) utilities::output( "setting seed to %s", seed.c_str() );
     this->seed = seed;
+    utilities::random_engine.seed( atoi( this->seed.c_str() ) );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

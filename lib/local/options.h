@@ -77,7 +77,7 @@ namespace sampsim
     void add_option( const std::string long_name, const std::string initial, const std::string description )
     { this->add_option( ' ', long_name, initial, description ); }
 
-    void set_arguments( const int argc, char** argv );
+    void set_arguments( const int argc, const char** argv );
 
     bool process();
     void print_usage();

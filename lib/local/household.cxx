@@ -179,9 +179,17 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void household::set_selected( const bool selected )
+  void household::select()
   {
-    this->selected = selected;
-    this->get_building()->set_selected( selected );
+    this->selected = true;
+    this->get_building()->select();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void household::unselect()
+  {
+    this->selected = false;
+    for( auto it = this->individual_list.begin(); it != this->individual_list.end(); ++it )
+      (*it)->unselect();
   }
 }

@@ -77,9 +77,9 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void individual::set_selected( const bool selected )
+  void individual::select()
   {
-    this->selected = selected;
-    this->get_household()->set_selected( selected );
+    this->selected = true;
+    this->get_household()->select();
   }
 }

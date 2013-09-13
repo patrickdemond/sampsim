@@ -87,7 +87,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void options::set_arguments( const int argc, char** argv )
+  void options::set_arguments( const int argc, const char** argv )
   {
     this->argument_list.clear();
     for( int c = 0; c < argc; c++ ) this->argument_list.push_back( argv[c] );

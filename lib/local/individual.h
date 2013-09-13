@@ -61,7 +61,8 @@ namespace sampsim
     bool is_disease() const { return this->disease; }
     void set_disease( const bool disease ) { this->disease = disease; }
     bool is_selected() const { return this->selected; }
-    void set_selected( const bool selected );
+    void select();
+    void unselect() { this->selected = false; }
 
   protected:
 

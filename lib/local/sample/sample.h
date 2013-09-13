@@ -51,6 +51,7 @@ namespace sample
 
     virtual std::string get_type() const = 0;
     bool set_population( const std::string filename );
+    bool set_population( sampsim::population *population );
     void set_seed( const std::string seed );
     std::string get_seed() const { return this->seed; }
     void set_size( const unsigned int size );
@@ -76,7 +77,10 @@ namespace sample
     sampsim::population *population;
 
   private:
-    bool ready;
+    void create_population();
+    void delete_population();
+
+    bool owns_population;
     std::string seed;
     unsigned int size;
     bool one_per_household;

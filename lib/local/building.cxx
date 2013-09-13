@@ -118,4 +118,12 @@ namespace sampsim
 
     return count;
   }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void building::unselect()
+  {
+    this->selected = false;
+    for( auto it = this->household_list.begin(); it != this->household_list.end(); ++it )
+      (*it)->unselect();
+  }
 }
