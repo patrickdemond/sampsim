@@ -9,10 +9,6 @@ SET( SAMPSIM_VERSION_PATCH 0 )
 # Look in the build directory for cmake modules
 SET( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/" )
 
-# Find all required packages
-FIND_PACKAGE( JSONCpp REQUIRED )
-FIND_PACKAGE( Eigen3 REQUIRED )
-
 SET( SAMPSIM_ROOT_DIR    ${PROJECT_SOURCE_DIR}/.. )
 SET( SAMPSIM_AUX_DIR     ${SAMPSIM_ROOT_DIR}/aux )
 SET( SAMPSIM_SRC_DIR     ${SAMPSIM_ROOT_DIR}/src )
@@ -21,12 +17,11 @@ SET( SAMPSIM_DOC_DIR     ${SAMPSIM_ROOT_DIR}/doc )
 SET( SAMPSIM_DOXY_DIR    ${PROJECT_BINARY_DIR}/doxygen )
 SET( SAMPSIM_TESTING_DIR ${SAMPSIM_ROOT_DIR}/testing )
 
+# Find required packages
+FIND_PACKAGE( JSONCpp REQUIRED )
+
 # Build libs
 SUBDIRS( ${SAMPSIM_LIB_DIR} )
-
-# Configure the utitlities header
-CONFIGURE_FILE( ${SAMPSIM_SRC_DIR}/utilities.h.in
-                ${PROJECT_BINARY_DIR}/utilities.h @ONLY IMMEDIATE )
 
 # Copy the readme file to build
 CONFIGURE_FILE( ${SAMPSIM_ROOT_DIR}/readme
@@ -36,32 +31,6 @@ CONFIGURE_FILE( ${SAMPSIM_ROOT_DIR}/readme
 CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_config
                 ${PROJECT_BINARY_DIR}/default_config COPYONLY )
 
-# Set up include directories
-SET( SAMPSIM_INCLUDE_DIR
-  ${SAMPSIM_SRC_DIR}
-  ${SAMPSIM_LIB_DIR}
-)
-
-SET( SAMPSIM_SOURCE
-  ${SAMPSIM_SRC_DIR}/base_object.cxx
-  ${SAMPSIM_SRC_DIR}/building.cxx
-  ${SAMPSIM_SRC_DIR}/coordinate.cxx
-  ${SAMPSIM_SRC_DIR}/distribution.cxx
-  ${SAMPSIM_SRC_DIR}/household.cxx
-  ${SAMPSIM_SRC_DIR}/individual.cxx
-  ${SAMPSIM_SRC_DIR}/options.cxx
-  ${SAMPSIM_SRC_DIR}/population.cxx
-  ${SAMPSIM_SRC_DIR}/tile.cxx
-  ${SAMPSIM_SRC_DIR}/trend.cxx
-  ${SAMPSIM_SRC_DIR}/utilities.cxx
-
-  ${SAMPSIM_SRC_DIR}/sample/arc_epi.cxx
-  ${SAMPSIM_SRC_DIR}/sample/epi.cxx
-  ${SAMPSIM_SRC_DIR}/sample/random.cxx
-  ${SAMPSIM_SRC_DIR}/sample/strip_epi.cxx
-  ${SAMPSIM_SRC_DIR}/sample/sample.cxx
-)
-
 SET( SAMPSIM_EXECUTABLES
   generate
   arc_epi_sample
@@ -69,19 +38,11 @@ SET( SAMPSIM_EXECUTABLES
   strip_epi_sample
 )
 
-# Define abstract classes in the following block
-SET_SOURCE_FILES_PROPERTIES(
-  ${SAMPSIM_SRC_DIR}/base_object.cxx
-  ${SAMPSIM_SRC_DIR}/sample/epi.cxx
-  ${SAMPSIM_SRC_DIR}/sample/sample.cxx
-  ABSTRACT
-)
-
 # Include library paths
 INCLUDE_DIRECTORIES(
-  ${SAMPSIM_INCLUDE_DIR}
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${SAMPSIM_SRC_DIR}
+  ${SAMPSIM_LIB_DIR}/local
+  ${PROJECT_BINARY_DIR}/lib/local
   ${JSONCPP_INCLUDE_DIR}
 )
 
@@ -90,12 +51,9 @@ SET( CMAKE_CXX_FLAGS "-std=c++0x " )
 
 # Targets
 FOREACH( EXECUTABLE ${SAMPSIM_EXECUTABLES} )
-  ADD_EXECUTABLE( ${EXECUTABLE}
-    ${SAMPSIM_SRC_DIR}/${EXECUTABLE}.cxx
-    ${SAMPSIM_SOURCE}
-  )
+  ADD_EXECUTABLE( ${EXECUTABLE} ${SAMPSIM_SRC_DIR}/${EXECUTABLE}.cxx )
   TARGET_LINK_LIBRARIES( ${EXECUTABLE}
-    ${JSONCPP_LIBRARIES}
+    ${PROJECT_NAME}lib
   )
 ENDFOREACH( EXECUTABLE IN ${SAMPSIM_EXECUTABLES} )
 

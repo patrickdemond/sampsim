@@ -1,1 +1,1 @@
-# use ADD_SUBDIRECTORY( <dir name> ) to add a lib
+ADD_SUBDIRECTORY( local )
