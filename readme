@@ -19,14 +19,14 @@ individuals) then add the --flat_file option:
 
 Now sample the population using one of the sample commands:
 
-./strip_epi_sample --seed 4 test.json strip
+./strip_epi_sample test.json strip
 
 This will sample the population created in the previous step of size 1000.  Another file, strip.json,
 which can also be read by the samplers (should you choose to sample the sample you just created).
 Once again, if you wish to generate two csv files instead of a JSON file then add the --flat_file
 option:
 
-./strip_epi_sample --flat_file --seed 4 test.json strip
+./strip_epi_sample --flat_file test.json strip
 
 For more information and a list of all possible options use the --help option when running any
 command.
