@@ -20,6 +20,14 @@ namespace sampsim
 namespace sample
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void epi::generate()
+  {
+    // reset the current household before running the parent method
+    this->current_household = NULL;
+    sample::generate();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   std::list< household* >::iterator epi::select_next_household( std::list< household* > &list )
   {
     std::list< household* >::iterator household_it;

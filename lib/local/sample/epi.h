@@ -38,6 +38,8 @@ namespace sample
   public:
     epi() : angle( 0 ), first_house_index( 0 ), current_household( NULL ) {}
 
+    virtual void generate();
+
     void to_json( Json::Value& ) const;
     virtual std::string get_csv_header() const;
 
