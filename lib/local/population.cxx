@@ -67,6 +67,12 @@ namespace sampsim
     // create the needed distributions
     this->population_distribution.set_poisson( this->mean_household_population - 1 );
 
+    // delete all tiles and turn off sample mode (in case it is on)
+    for( auto it = this->tile_list.begin(); it != this->tile_list.end(); ++it )
+      utilities::safe_delete( it->second );
+    this->tile_list.clear();
+    this->set_sample_mode( false );
+
     // create tiles
     for( int y = 0; y < this->number_tiles_y; y++ )
     {

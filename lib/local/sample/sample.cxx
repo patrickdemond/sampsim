@@ -82,6 +82,7 @@ namespace sample
            building_it != tile_it->second->get_building_list_cend();
            ++building_it )
       {
+        (*building_it)->unselect(); // unselect the building
         for( auto household_it = (*building_it)->get_household_list_cbegin();
              household_it != (*building_it)->get_household_list_cend();
              ++household_it )
@@ -197,7 +198,9 @@ namespace sample
   bool sample::set_population( sampsim::population *population )
   {
     this->delete_population();
-    return this->population = population; // copy pointer but do not delete when finished
+    this->population = population; // copy pointer but do not delete when finished
+    this->population->set_sample_mode( true );
+    return true;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
