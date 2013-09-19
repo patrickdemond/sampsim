@@ -25,7 +25,6 @@ namespace sampsim
   {
     this->parent = parent;
     this->selected = false;
-    this->set_sample_mode( this->parent->get_sample_mode() );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -120,10 +119,11 @@ namespace sampsim
     json["disease_risk"] = this->disease_risk;
     json["individual_list"] = Json::Value( Json::arrayValue );
 
+    bool sample_mode = this->get_population()->get_sample_mode();
     for( auto it = this->individual_list.cbegin(); it != this->individual_list.cend(); ++it )
     {
       individual *i = *it;
-      if( !this->get_sample_mode() || i->is_selected() )
+      if( !sample_mode || i->is_selected() )
       {
         Json::Value child;
         i->to_json( child );
@@ -145,10 +145,11 @@ namespace sampsim
                      << this->disease_risk << std::endl;
 
     // write all individuals in this household to the individual stream
+    bool sample_mode = this->get_population()->get_sample_mode();
     for( auto it = this->individual_list.begin(); it != this->individual_list.end(); ++it )
     {
       individual *i = *it;
-      if( !this->get_sample_mode() || i->is_selected() )
+      if( !sample_mode || i->is_selected() )
       {
         individual_stream << utilities::household_index << ",";
         i->to_csv( household_stream, individual_stream );
@@ -164,7 +165,7 @@ namespace sampsim
   {
     int count = 0;
 
-    if( this->get_sample_mode() )
+    if( this->get_population()->get_sample_mode() )
     {
       for( auto it = this->individual_list.cbegin(); it != this->individual_list.cend(); ++it )
         if( (*it)->is_selected() ) count++;

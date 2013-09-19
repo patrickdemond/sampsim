@@ -61,6 +61,8 @@ namespace sampsim
     bool read( const std::string filename );
     void write( const std::string filename, const bool flat_file = false ) const;
 
+    bool get_sample_mode() { return this->sample_mode; }
+    void set_sample_mode( bool sample_mode ) { this->sample_mode = sample_mode; }
     void set_seed( const std::string seed );
     void set_number_tiles_x( const int );
     void set_number_tiles_y( const int );
@@ -106,6 +108,8 @@ namespace sampsim
 
   private:
     static const unsigned int NUMBER_OF_WEIGHTS = 5;
+
+    bool sample_mode;
     std::string seed;
     int number_tiles_x;
     int number_tiles_y;

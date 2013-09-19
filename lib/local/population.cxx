@@ -81,7 +81,6 @@ namespace sampsim
         // create the tile
         index = std::pair< int, int >( x, y );
         tile *t = new tile( this, index );
-        t->set_sample_mode( this->get_sample_mode() );
         t->set_mean_income( this->mean_income->get_value( t->get_centroid() ) );
         t->set_sd_income( this->sd_income->get_value( t->get_centroid() ) );
         t->set_mean_disease( this->mean_disease->get_value( t->get_centroid() ) );

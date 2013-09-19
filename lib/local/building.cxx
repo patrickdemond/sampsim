@@ -24,7 +24,6 @@ namespace sampsim
   {
     this->parent = parent;
     this->selected = false;
-    this->set_sample_mode( this->parent->get_sample_mode() );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -84,10 +83,11 @@ namespace sampsim
     this->position.to_json( json["position"] );
     json["household_list"] = Json::Value( Json::arrayValue );
 
+    bool sample_mode = this->get_population()->get_sample_mode();
     for( auto it = this->household_list.cbegin(); it != this->household_list.cend(); ++it )
     {
       household *h = *it;
-      if( !this->get_sample_mode() || h->is_selected() )
+      if( !sample_mode || h->is_selected() )
       {
         Json::Value child;
         h->to_json( child );
@@ -100,20 +100,21 @@ namespace sampsim
   void building::to_csv(
     std::ostream &household_stream, std::ostream &individual_stream ) const
   {
+    bool sample_mode = this->get_population()->get_sample_mode();
     for( auto it = this->household_list.begin(); it != this->household_list.end(); ++it )
     {
       household *h = *it;
-      if( !this->get_sample_mode() || h->is_selected() ) h->to_csv( household_stream, individual_stream );
+      if( !sample_mode || h->is_selected() ) h->to_csv( household_stream, individual_stream );
     }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   int building::count_population() const
   {
+    bool sample_mode = this->get_population()->get_sample_mode();
     int count = 0;
     for( auto it = this->household_list.begin(); it != this->household_list.end(); ++it )
-      if( !this->get_sample_mode() || (*it)->is_selected() )
-        count += (*it)->count_population();
+      if( !sample_mode || (*it)->is_selected() ) count += (*it)->count_population();
 
     return count;
   }

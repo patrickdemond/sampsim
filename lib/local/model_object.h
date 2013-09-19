@@ -31,16 +31,12 @@ namespace sampsim
   class model_object
   {
   public:
-    model_object() : sample_mode( false ) {}
+    model_object() {}
     ~model_object() {}
-
-    bool get_sample_mode() const { return this->sample_mode; }
-    void set_sample_mode( const bool sample_mode ) { this->sample_mode = sample_mode; }
 
   protected:
 
   private:
-    bool sample_mode;
   };
 }
 
