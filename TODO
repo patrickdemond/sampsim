@@ -1,3 +1,6 @@
 Test nested config files
 Test EPI methods at all angles
 Remove json headers from library .h files (so that it doesn't need to be included by applications)
+
+BUGS:
+option parser bug when running: ./generate --batch_npop 2 --batch_sampler arc_epi --batch_config small_config --batch_nsamp 2 --tile_width 0.35 -c default_config data/small/pop
