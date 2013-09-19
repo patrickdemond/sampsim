@@ -60,7 +60,7 @@ namespace sampsim
     }
 
     if( utilities::verbose )
-      utilities::output( "finished generating tile: population %d in %d buildins",
+      utilities::output( "finished generating tile: population %d in %d buildings",
                          this->count_population(),
                          this->building_list.size() );
   }
