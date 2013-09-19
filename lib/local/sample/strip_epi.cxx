@@ -42,7 +42,8 @@ namespace sample
       {
         // pick a random angle in [-PI, PI]
         this->angle = utilities::random() * 2 * M_PI - M_PI;
-        utilities::output( "selecting starting angle of %0.3f radians", this->angle );
+        if( utilities::verbose )
+          utilities::output( "selecting starting angle of %0.3f radians", this->angle );
 
         // determine the line coefficient (for lines making strip of the appropriate width)
         double sin_min_angle = sin( -angle );
@@ -70,7 +71,8 @@ namespace sample
           }
         }
 
-        if( 0 == initial_households.size() ) utilities::output( "no households found in strip" );
+        if( 0 == initial_households.size() && utilities::verbose )
+          utilities::output( "no households found in strip" );
       }
 
       // 3. select a random building from the list produced by step 2
@@ -78,10 +80,11 @@ namespace sample
       auto initial_it = initial_households.begin();
       std::advance( initial_it, this->first_house_index );
       household_it = *initial_it;
-      utilities::output(
-        "selecting household %d of %d in strip",
-        this->first_house_index + 1,
-        initial_households.size() );
+      if( utilities::verbose )
+        utilities::output(
+          "selecting household %d of %d in strip",
+          this->first_house_index + 1,
+          initial_households.size() );
     }
     else
     {

@@ -44,6 +44,7 @@ namespace sample
       building *current_building = this->current_household->get_building();
 
       // 4. sample all households in that building
+      if( utilities::verbose ) utilities::output( "sampling households in the selected building" );
       bool found = false;
       for( auto it = list.begin(); it != list.end(); ++it )
       {
@@ -57,6 +58,7 @@ namespace sample
       if( !found )
       {
         // 5. find the nearest building (distance measured in a straight path (as the crow flies))
+        if( utilities::verbose ) utilities::output( "finding the nearest unselected neighbouring building" );
         double min = std::numeric_limits<double>::max();
         for( auto it = list.begin(); it != list.end(); ++it )
         {
