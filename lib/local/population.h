@@ -24,9 +24,6 @@
 #include "distribution.h"
 #include "utilities.h"
 
-#include <map>
-#include <string>
-
 namespace Json{ class Value; }
 
 /**

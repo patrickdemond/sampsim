@@ -12,6 +12,7 @@
 #include "household.h"
 #include "population.h"
 
+#include <json/value.h>
 #include <stdexcept>
 #include <vector>
 

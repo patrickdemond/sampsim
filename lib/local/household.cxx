@@ -15,7 +15,6 @@
 #include "tile.h"
 #include "utilities.h"
 
-#include <ostream>
 #include <json/value.h>
 #include <stdexcept>
 

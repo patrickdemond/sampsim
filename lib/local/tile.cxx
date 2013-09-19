@@ -13,7 +13,6 @@
 #include "utilities.h"
 
 #include <algorithm>
-#include <ostream>
 #include <json/value.h>
 #include <stdexcept>
 

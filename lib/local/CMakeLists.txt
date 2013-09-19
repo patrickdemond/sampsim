@@ -1,5 +1,8 @@
 SET( SAMPSIM_LIB_NAME "${PROJECT_NAME}lib" )
 
+# Find required packages
+FIND_PACKAGE( JSONCpp REQUIRED )
+
 # Configure the utitlities header
 CONFIGURE_FILE( utilities.h.in
                 ${CMAKE_CURRENT_BINARY_DIR}/utilities.h @ONLY IMMEDIATE )
@@ -39,6 +42,7 @@ SET( CMAKE_CXX_FLAGS "-std=c++0x " )
 INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${JSONCPP_INCLUDE_DIR}
 )
 
 ADD_LIBRARY( ${SAMPSIM_LIB_NAME} SHARED ${SAMPSIM_LIB_SOURCE} )

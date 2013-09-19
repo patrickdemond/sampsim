@@ -23,8 +23,6 @@
 #include "coordinate.h"
 #include "utilities.h"
 
-#include <vector>
-
 namespace Json { class Value; }
 
 /**

@@ -19,7 +19,7 @@
 #ifndef __sampsim_model_object_h
 #define __sampsim_model_object_h
 
-#include <json/value.h>
+namespace Json { class Value; }
 
 /**
  * @addtogroup sampsim

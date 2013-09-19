@@ -23,8 +23,7 @@
 
 #include "coordinate.h"
 
-#include <json/value.h>
-#include <string>
+namespace Json { class Value; }
 
 /**
  * @addtogroup sampsim

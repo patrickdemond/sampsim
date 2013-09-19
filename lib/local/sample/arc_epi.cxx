@@ -12,6 +12,7 @@
 #include "household.h"
 
 #include <cmath>
+#include <json/value.h>
 #include <stdexcept>
 #include <vector>
 

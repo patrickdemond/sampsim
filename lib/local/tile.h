@@ -24,8 +24,6 @@
 #include "distribution.h"
 #include "utilities.h"
 
-#include <vector>
-
 namespace Json { class Value; }
 
 /**

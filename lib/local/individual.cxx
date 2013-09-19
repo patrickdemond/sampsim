@@ -10,7 +10,6 @@
 
 #include "household.h"
 
-#include <ostream>
 #include <json/value.h>
 
 namespace sampsim

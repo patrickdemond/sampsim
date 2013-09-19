@@ -8,7 +8,7 @@
 
 #include "coordinate.h"
 
-#include <ostream>
+#include <cmath>
 #include <json/value.h>
 
 namespace sampsim

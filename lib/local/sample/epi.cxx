@@ -11,6 +11,7 @@
 #include "building.h"
 #include "household.h"
 
+#include <json/value.h>
 #include <limits>
 #include <stdexcept>
 

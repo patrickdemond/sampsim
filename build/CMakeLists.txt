@@ -17,9 +17,6 @@ SET( SAMPSIM_DOC_DIR     ${SAMPSIM_ROOT_DIR}/doc )
 SET( SAMPSIM_DOXY_DIR    ${PROJECT_BINARY_DIR}/doxygen )
 SET( SAMPSIM_TESTING_DIR ${SAMPSIM_ROOT_DIR}/testing )
 
-# Find required packages
-FIND_PACKAGE( JSONCpp REQUIRED )
-
 # Build libs
 SUBDIRS( ${SAMPSIM_LIB_DIR} )
 
@@ -43,7 +40,6 @@ INCLUDE_DIRECTORIES(
   ${SAMPSIM_SRC_DIR}
   ${SAMPSIM_LIB_DIR}/local
   ${PROJECT_BINARY_DIR}/lib/local
-  ${JSONCPP_INCLUDE_DIR}
 )
 
 # We're using <random>, the auto keyword, constant iterators, etc, so we need c++11

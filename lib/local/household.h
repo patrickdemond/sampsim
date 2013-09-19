@@ -21,8 +21,6 @@
 #include "model_object.h"
 #include "utilities.h"
 
-#include <vector>
-
 namespace Json { class Value; }
 
 /**

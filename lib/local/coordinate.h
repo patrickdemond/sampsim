@@ -20,8 +20,6 @@
 
 #include "base_object.h"
 
-#include <cmath>
-
 namespace Json{ class Value; }
 
 /**
