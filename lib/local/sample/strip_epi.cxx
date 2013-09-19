@@ -42,7 +42,7 @@ namespace sample
       {
         // pick a random angle in [-PI, PI]
         this->angle = utilities::random() * 2 * M_PI - M_PI;
-        utilities::output( "selected starting angle of %0.3f radians", this->angle );
+        utilities::output( "selecting starting angle of %0.3f radians", this->angle );
 
         // determine the line coefficient (for lines making strip of the appropriate width)
         double sin_min_angle = sin( -angle );

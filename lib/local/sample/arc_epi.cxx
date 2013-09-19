@@ -40,7 +40,7 @@ namespace sample
       {
         // pick a random angle in [-PI, PI]
         this->angle = utilities::random() * 2 * M_PI - M_PI;
-        utilities::output( "selected starting angle of %0.3f radians", this->angle );
+        utilities::output( "selecting starting angle of %0.3f radians", this->angle );
 
         for( auto it = list.begin(); it != list.end(); ++it )
         {
