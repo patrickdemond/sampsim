@@ -1,0 +1,43 @@
+#########################################################################################
+#
+# This is a sample configuration file used to set up strip_epi_sample parameters for
+# sampsim
+#
+# No more than one parameter may be included per line.  Options with no values (flags)
+# are set to true if found on a line alone.  For example:
+#
+# one_per_household
+#
+# Options with values must be separated by a ":" character.  For example:
+#
+# seed: 1234
+#
+# All lines beginning with a # are ignored as comments.
+#
+#########################################################################################
+
+#
+# The seed to use when generating random numbers
+#
+seed: 1
+
+#
+# The width of the strip (in meters) to use when finding the initial building after selecting
+# a random starting angle
+#
+strip_width: 50
+
+#
+# How many individuals to sample
+#
+size: 100
+
+#
+# Whether to restrict sampling to adult, child or either
+#
+age: children
+
+#
+# Whether to restrict sampling to male, female or either
+#
+sex: either

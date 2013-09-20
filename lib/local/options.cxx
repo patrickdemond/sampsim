@@ -108,6 +108,7 @@ namespace sampsim
         if( !this->process_config_file( config_file ) )
         {
           config_file_processed = false;
+          success = false;
           break;
         }
         config_file = this->get_option( "config" );
@@ -230,7 +231,9 @@ namespace sampsim
         // now make sure we have the correct number of inputs
         if( input_list.size() != this->input_map.size() )
         {
-          std::cout << "ERROR: Wrong number of free (input) arguments " << std::endl;
+          std::cout << "ERROR: Wrong number of free (input) arguments (expecting "
+                    << this->input_map.size() << ", got " << input_list.size() << ")" << std::endl;
+          std::cout << input_list[0] << std::endl;
           invalid = true;
         }
         else

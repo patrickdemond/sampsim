@@ -24,9 +24,15 @@ SUBDIRS( ${SAMPSIM_LIB_DIR} )
 CONFIGURE_FILE( ${SAMPSIM_ROOT_DIR}/readme
                 ${PROJECT_BINARY_DIR}/readme COPYONLY )
 
-# Copy the sample config file to build
-CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_config
-                ${PROJECT_BINARY_DIR}/default_config COPYONLY )
+# Copy the sample config files to build
+CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_population_config
+                ${PROJECT_BINARY_DIR}/default_population_config COPYONLY )
+CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_arc_epi_config
+                ${PROJECT_BINARY_DIR}/default_arc_epi_config COPYONLY )
+CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_random_config
+                ${PROJECT_BINARY_DIR}/default_random_config COPYONLY )
+CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_strip_epi_config
+                ${PROJECT_BINARY_DIR}/default_strip_epi_config COPYONLY )
 
 SET( SAMPSIM_EXECUTABLES
   generate

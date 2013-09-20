@@ -227,8 +227,9 @@ int main( const int argc, const char** argv )
             else
             {
               // determine which sampler to use and set up the options for it
-              const char* sampler_argv[2];
-              sampler_argv[0] = "--config";
+              const char* sampler_argv[3];
+              sampler_argv[0] = batch_sampler.c_str();
+              sampler_argv[1] = "--config";
               sampsim::options sampler_opts( argv[0] );
               sampsim::sample::sample *sample;
               if( "arc_epi" == batch_sampler || "arc_epi_sample" == batch_sampler )
@@ -236,8 +237,8 @@ int main( const int argc, const char** argv )
                 setup_arc_epi_sample( sampler_opts );
                 if( 0 < batch_config.length() )
                 {
-                  sampler_argv[1] = batch_config.c_str();
-                  sampler_opts.set_arguments( 2, sampler_argv );
+                  sampler_argv[2] = batch_config.c_str();
+                  sampler_opts.set_arguments( 3, sampler_argv );
                 }
                 if( !sampler_opts.process() ) throw std::runtime_error( "Error while setting up sampler" );
                 parse_arc_epi_sample( sampler_opts, arc_epi_sample );
@@ -260,8 +261,10 @@ int main( const int argc, const char** argv )
               }
               else
               {
-                std::cout << "Unknown sampler \"" << batch_sampler << "\", must be the same as one of "
-                          << "the executables ending in _sample";
+                std::stringstream stream;
+                stream << "Unknown sampler \"" << batch_sampler << "\", must be the same as one of "
+                       << "the executables ending in _sample";
+                throw std::runtime_error( stream.str() );
               }
 
               std::string sample_filename;
