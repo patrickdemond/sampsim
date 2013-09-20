@@ -28,5 +28,24 @@ option:
 
 ./strip_epi_sample --flat_file test.json strip
 
+Additionally, the generate command has a batch mode capable of creating multiple populations and
+sample them multiple times using a single command using the --batch_* options.  For instance, to
+create 10 populations using the default configuration use the --batch_npop option:
+
+./generate -c default_config --batch_npop 10 multi
+
+Population files will automatically be numbered.  To skip writing the population files but instead
+sample them 10 times using the arc_epi sampler use the --batch_sampler option:
+
+./generate -c default_config --batch_npop 10 --batch_sampler arc_epi --batch_nsamp 10 multi2
+
+This will create a total of 100 samples in the form "multi2.N.M.json" where N is the population
+number (from 01 to 10) and M is the sample number (from 01 to 10).  The sampler will use default
+parameters.  In order to customise the parameters which the sampler uses they must be placed in
+a config file and read in using the --batch_config option:
+
+./generate -c default_config --batch_npop 10 --batch_sampler arc_epi --batch_nsamp 10 \
+           --batch_config sample_config multi2
+
 For more information and a list of all possible options use the --help option when running any
 command.
