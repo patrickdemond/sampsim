@@ -231,6 +231,7 @@ int main( const int argc, const char** argv )
               sampler_argv[0] = batch_sampler.c_str();
               sampler_argv[1] = "--config";
               sampsim::options sampler_opts( argv[0] );
+              sampler_opts.add_option( "seed", "", "Seed used by the random generator" );
               sampsim::sample::sample *sample;
               if( "arc_epi" == batch_sampler || "arc_epi_sample" == batch_sampler )
               {
