@@ -1,0 +1,33 @@
+## Sampling example 2
+
+The goal of this example is to start showing how we can read sampled files into R for post-processing and evaluation of their statistical properties.
+
+The goal:
+
+* generate samples
+* read samples into R
+* estimate prevalence of disease
+* run `glm()`, estimate various odds ratios, compare with truth?
+
+```
+./generate -c default_population_config test 
+ ## 13 seconds to generate, 13 seconds to write JSON (148M)
+./strip_epi_sample --flat_file test.json strip
+ ## ERROR: failed to parse population file "test.json"
+ ## * Line 1354997, Column 1
+ ##  Missing ',' or '}' in object declaration
+```
+
+But
+
+```
+./generate -c default_population_config --batch_npop 10 \
+            --batch_sampler arc_epi \
+            --batch_nsamp 10 multi2
+```
+does work (generates 100 samples)
+
+```{r}
+library(RJSONIO)
+readJSONStream(file("exdata/multi2.05.02.json"))
+```
