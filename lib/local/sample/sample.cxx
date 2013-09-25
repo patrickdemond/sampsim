@@ -140,7 +140,7 @@ namespace sample
   void sample::write( const std::string filename, const bool flat_file ) const
   {
     utilities::output(
-      "writting %s sample to %s.%s",
+      "writing %s sample to %s.%s",
       this->get_type().c_str(),
       filename.c_str(),
       flat_file ? "*.csv" : "json" );
@@ -184,7 +184,7 @@ namespace sample
       json_stream.close();
     }
 
-    utilities::output( "finished writting %s sample", this->get_type().c_str() );
+    utilities::output( "finished writing %s sample", this->get_type().c_str() );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
