@@ -45,6 +45,7 @@ INCLUDE_DIRECTORIES(
   ${SAMPSIM_SRC_DIR}
   ${SAMPSIM_LIB_DIR}/local
   ${PROJECT_BINARY_DIR}/lib/local
+  ${PROJECT_BINARY_DIR}/lib/local/sample
 )
 
 # We're using <random>, the auto keyword, constant iterators, etc, so we need c++11
@@ -54,7 +55,8 @@ SET( CMAKE_CXX_FLAGS "-std=c++0x " )
 FOREACH( EXECUTABLE ${SAMPSIM_EXECUTABLES} )
   ADD_EXECUTABLE( ${EXECUTABLE} ${SAMPSIM_SRC_DIR}/${EXECUTABLE}.cxx )
   TARGET_LINK_LIBRARIES( ${EXECUTABLE}
-    ${PROJECT_NAME}lib
+    ${PROJECT_NAME}
+    ${PROJECT_NAME}_sample
   )
 ENDFOREACH( EXECUTABLE IN ${SAMPSIM_EXECUTABLES} )
 

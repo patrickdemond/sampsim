@@ -1,4 +1,4 @@
-SET( SAMPSIM_LIB_NAME "${PROJECT_NAME}lib" )
+SET( SAMPSIM_LIB_NAME "${PROJECT_NAME}" )
 
 # Find required packages
 FIND_PACKAGE( JSONCpp REQUIRED )
@@ -19,19 +19,11 @@ SET( SAMPSIM_LIB_SOURCE
   tile.cxx
   trend.cxx
   utilities.cxx
-
-  sample/arc_epi.cxx
-  sample/epi.cxx
-  sample/random.cxx
-  sample/strip_epi.cxx
-  sample/sample.cxx
 )
 
 # Define abstract classes in the following block
 SET_SOURCE_FILES_PROPERTIES(
   base_object.cxx
-  sample/epi.cxx
-  sample/sample.cxx
   ABSTRACT
 )
 
@@ -51,6 +43,7 @@ TARGET_LINK_LIBRARIES( ${SAMPSIM_LIB_NAME}
 )
 INSTALL( TARGETS ${SAMPSIM_LIB_NAME} DESTINATION lib )
 
+ADD_SUBDIRECTORY( sample )
 IF( BUILD_TESTING )
   ADD_SUBDIRECTORY( testing )
 ENDIF()

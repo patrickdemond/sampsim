@@ -1,3 +1,3 @@
+Implement unit tests for all classes
 Test nested config files
 Test EPI methods at all angles
-Remove json headers from library .h files (so that it doesn't need to be included by applications)

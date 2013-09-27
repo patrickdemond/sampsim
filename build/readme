@@ -56,3 +56,16 @@ Building documentation
    doxygen.
 
 4. In the doxygen directory run cmake -P doc_makeall.cmake
+
+Building unit testing
+=====================
+
+1. Change the testing boolean in the CMakeCache.txt file:
+
+   BUILD_TESTING:BOOL=ON
+
+2. Re-run cmake to configure the tests, re-make the project then run make test:
+
+   cmake .
+   make
+   make test
