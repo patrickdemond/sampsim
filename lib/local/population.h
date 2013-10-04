@@ -83,8 +83,13 @@ namespace sampsim
     }
     double get_mean_household_population() const { return this->mean_household_population; }
     void set_mean_household_population( const double );
+    trend* get_mean_income() { return this->mean_income; }
+    trend* get_sd_income() { return this->sd_income; }
     void set_income( const trend *mean, const trend *sd );
+    trend* get_mean_disease() { return this->mean_disease; }
+    trend* get_sd_disease() { return this->sd_disease; }
     void set_disease( const trend *mean, const trend *sd );
+    trend* get_population_density() { return this->population_density; }
     void set_population_density( const trend *population_density );
 
     /**

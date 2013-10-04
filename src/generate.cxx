@@ -25,11 +25,6 @@ int main( const int argc, const char** argv )
 {
   int status = EXIT_FAILURE;
   sampsim::options opts( argv[0] );
-  sampsim::trend *mean_income = new sampsim::trend;
-  sampsim::trend *sd_income = new sampsim::trend;
-  sampsim::trend *mean_disease = new sampsim::trend;
-  sampsim::trend *sd_disease = new sampsim::trend;
-  sampsim::trend *popdens = new sampsim::trend;
   sampsim::population *population = new sampsim::population;
   sampsim::sample::arc_epi *arc_epi_sample = new sampsim::sample::arc_epi;
   sampsim::sample::random *random_sample = new sampsim::sample::random;
@@ -118,12 +113,14 @@ int main( const int argc, const char** argv )
         sampsim::utilities::verbose = opts.get_flag( "verbose" );
 
         // build trends
+        sampsim::trend *mean_income = population->get_mean_income();
         mean_income->set_b00( opts.get_option_as_double( "mean_income_b00" ) );
         mean_income->set_b01( opts.get_option_as_double( "mean_income_b01" ) );
         mean_income->set_b10( opts.get_option_as_double( "mean_income_b10" ) );
         mean_income->set_b02( opts.get_option_as_double( "mean_income_b02" ) );
         mean_income->set_b20( opts.get_option_as_double( "mean_income_b20" ) );
         mean_income->set_b11( opts.get_option_as_double( "mean_income_b11" ) );
+        sampsim::trend *sd_income = population->get_sd_income();
         sd_income->set_b00( opts.get_option_as_double( "sd_income_b00" ) );
         sd_income->set_b01( opts.get_option_as_double( "sd_income_b01" ) );
         sd_income->set_b10( opts.get_option_as_double( "sd_income_b10" ) );
@@ -131,12 +128,14 @@ int main( const int argc, const char** argv )
         sd_income->set_b20( opts.get_option_as_double( "sd_income_b20" ) );
         sd_income->set_b11( opts.get_option_as_double( "sd_income_b11" ) );
 
+        sampsim::trend *mean_disease = population->get_mean_disease();
         mean_disease->set_b00( opts.get_option_as_double( "mean_disease_b00" ) );
         mean_disease->set_b01( opts.get_option_as_double( "mean_disease_b01" ) );
         mean_disease->set_b10( opts.get_option_as_double( "mean_disease_b10" ) );
         mean_disease->set_b02( opts.get_option_as_double( "mean_disease_b02" ) );
         mean_disease->set_b20( opts.get_option_as_double( "mean_disease_b20" ) );
         mean_disease->set_b11( opts.get_option_as_double( "mean_disease_b11" ) );
+        sampsim::trend *sd_disease = population->get_sd_disease();
         sd_disease->set_b00( opts.get_option_as_double( "sd_disease_b00" ) );
         sd_disease->set_b01( opts.get_option_as_double( "sd_disease_b01" ) );
         sd_disease->set_b10( opts.get_option_as_double( "sd_disease_b10" ) );
@@ -181,6 +180,7 @@ int main( const int argc, const char** argv )
         else
         {
           std::cout << "sampsim generate version " << sampsim::utilities::get_version() << std::endl;
+          sampsim::trend *popdens = population->get_population_density();
           popdens->set_b00( opts.get_option_as_double( "popdens_b00" ) );
           popdens->set_b01( opts.get_option_as_double( "popdens_b01" ) );
           popdens->set_b10( opts.get_option_as_double( "popdens_b10" ) );
@@ -190,9 +190,6 @@ int main( const int argc, const char** argv )
 
           population->set_seed( opts.get_option( "seed" ) );
           population->set_mean_household_population( opts.get_option_as_double( "mean_household_pop" ) );
-          population->set_income( mean_income, sd_income );
-          population->set_disease( mean_disease, sd_disease );
-          population->set_population_density( popdens );
           population->set_number_tiles_x( opts.get_option_as_int( "tile_x" ) );
           population->set_number_tiles_y( opts.get_option_as_int( "tile_y" ) );
           population->set_tile_width( opts.get_option_as_double( "tile_width" ) );
@@ -298,11 +295,6 @@ int main( const int argc, const char** argv )
     std::cerr << "Uncaught exception: " << e.what() << std::endl;
   }
 
-  sampsim::utilities::safe_delete( mean_income );
-  sampsim::utilities::safe_delete( sd_income );
-  sampsim::utilities::safe_delete( mean_disease );
-  sampsim::utilities::safe_delete( sd_disease );
-  sampsim::utilities::safe_delete( popdens );
   sampsim::utilities::safe_delete( population );
   sampsim::utilities::safe_delete( arc_epi_sample );
   sampsim::utilities::safe_delete( random_sample );
