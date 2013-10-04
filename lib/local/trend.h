@@ -48,11 +48,17 @@ namespace sampsim
 
     void copy( const trend* );
 
+    double get_b00() const { return this->b00; }
     void set_b00( const double b00 ) { this->b00 = b00; }
+    double get_b01() const { return this->b01; }
     void set_b01( const double b01 ) { this->b01 = b01; }
+    double get_b10() const { return this->b10; }
     void set_b10( const double b10 ) { this->b10 = b10; }
+    double get_b02() const { return this->b02; }
     void set_b02( const double b02 ) { this->b02 = b02; }
+    double get_b20() const { return this->b20; }
     void set_b20( const double b20 ) { this->b20 = b20; }
+    double get_b11() const { return this->b11; }
     void set_b11( const double b11 ) { this->b11 = b11; }
 
     /**
