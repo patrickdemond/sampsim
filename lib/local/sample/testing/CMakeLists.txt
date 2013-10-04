@@ -12,7 +12,11 @@ FOREACH( HEADER ${HEADER_FILENAMES} )
     MESSAGE( "Warning: did not find any unit testing for sample::${CLASS_NAME} class" )
   ELSE()
     ADD_EXECUTABLE( ${TEST_NAME} ${TEST_NAME}.cxx )
-    TARGET_LINK_LIBRARIES( ${TEST_NAME} UnitTest++ )
+    TARGET_LINK_LIBRARIES(
+      ${TEST_NAME} UnitTest++
+      ${PROJECT_NAME}
+      ${PROJECT_NAME}_sample
+    )
     ADD_TEST( sample::${CLASS_NAME} ${TEST_NAME} )
   ENDIF()
 ENDFOREACH()

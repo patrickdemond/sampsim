@@ -14,7 +14,8 @@
 
 int main( const int argc, const char** argv ) { return UnitTest::RunAllTests(); }
 
-TEST( test_options_ )
+TEST( test_options )
 {
+  // TODO: implement
   CHECK( true );
 }

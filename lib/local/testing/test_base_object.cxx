@@ -14,7 +14,8 @@
 
 int main( const int argc, const char** argv ) { return UnitTest::RunAllTests(); }
 
-TEST( test_base_object_ )
+TEST( test_base_object )
 {
+  // no tests to perform for this class
   CHECK( true );
 }
