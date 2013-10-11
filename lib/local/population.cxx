@@ -28,6 +28,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   population::population()
   {
+    this->sample_mode = false;
     this->seed = "";
     this->number_tiles_x = 0;
     this->number_tiles_y = 0;
