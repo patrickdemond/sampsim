@@ -74,6 +74,7 @@ TEST( test_sample_strip_epi )
   cout << "Testing writing sample to disk in json format..." << endl;
   try { sample1->write( temp_sample_filename.str(), false ); }
   catch(...) { CHECK( false ); }
+  temp_sample_filename << ".json";
 
   for( double start_angle = -M_PI; start_angle <= M_PI; start_angle += M_PI / 18 )
   {
