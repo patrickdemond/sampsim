@@ -62,6 +62,7 @@ namespace sample
     age_type get_age() const { return this->age; }
     void set_sex( const sex_type sex );
     sex_type get_sex() const { return this->sex; }
+    household* get_first_household() { return this->first_household; }
 
     virtual void from_json( const Json::Value& );
     virtual void to_json( Json::Value& ) const;
@@ -86,6 +87,7 @@ namespace sample
     bool one_per_household;
     age_type age;
     sex_type sex;
+    household *first_household;
   };
 }
 }

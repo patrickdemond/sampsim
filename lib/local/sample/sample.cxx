@@ -30,6 +30,7 @@ namespace sample
     this->one_per_household = false;
     this->age = ANY_AGE;
     this->sex = ANY_SEX;
+    this->first_household = NULL;
     this->population = NULL;
     this->owns_population = false;
   }
@@ -95,6 +96,7 @@ namespace sample
     // keep selecting households until we've filled our sample size
     int individual_count = 0;
     int household_count = 0;
+    this->first_household = NULL;
     while( this->get_size() > individual_count )
     {
       if( 0 == remaining_household_list.size() )
@@ -105,6 +107,9 @@ namespace sample
 
       auto household_it = this->select_next_household( remaining_household_list );
       household *h = *household_it;
+
+      // set the first household
+      if( NULL == this->first_household ) this->first_household = h;
 
       int count = 0;
       // select individuals within the household
