@@ -84,5 +84,6 @@ TEST( test_building )
     }
   }
 
-  delete population;
+  // clean up
+  sampsim::utilities::safe_delete( population );
 }

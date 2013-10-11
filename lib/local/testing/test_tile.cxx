@@ -76,5 +76,6 @@ TEST( test_tile )
     CHECK( 0 != tile->count_population() );
   }
 
-  delete population;
+  // clean up
+  sampsim::utilities::safe_delete( population );
 }

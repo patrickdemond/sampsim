@@ -14,7 +14,8 @@
 
 int main( const int argc, const char** argv ) { return UnitTest::RunAllTests(); }
 
-TEST( test_sample_epi_ )
+TEST( test_sample_epi )
 {
+  // no tests to perform for this class
   CHECK( true );
 }

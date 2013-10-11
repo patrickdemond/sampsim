@@ -78,5 +78,6 @@ TEST( test_household )
     }
   }
 
-  delete population;
+  // clean up
+  sampsim::utilities::safe_delete( population );
 }
