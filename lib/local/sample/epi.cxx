@@ -20,6 +20,15 @@ namespace sampsim
 namespace sample
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  epi::epi()
+  {
+    this->start_angle_defined = false;
+    this->start_angle = 0;
+    this->first_house_index = 0;
+    this->current_household = NULL;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void epi::generate()
   {
     // reset the current household before running the parent method
@@ -81,7 +90,7 @@ namespace sample
   void epi::to_json( Json::Value &json ) const
   {
     sample::to_json( json );
-    json["angle"] = this->angle;
+    json["start_angle"] = this->start_angle;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -89,7 +98,7 @@ namespace sample
   {
     std::stringstream stream;
     stream << sample::get_csv_header();
-    stream << "# angle: " << this->angle << std::endl;
+    stream << "# start_angle: " << this->start_angle << std::endl;
     stream << "# first_house_index: " << this->first_house_index << std::endl;
     return stream.str();
   }

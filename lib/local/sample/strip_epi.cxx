@@ -38,17 +38,19 @@ namespace sample
       std::vector< std::list< household* >::iterator > initial_households;
 
       // 2. keep repeating step 2 until the list produced is not empty
-      while( 0 == initial_households.size() )
+      int iterations = 0;
+      while( 0 == initial_households.size() && iterations < 100 )
       {
-        // pick a random angle in [-PI, PI]
-        this->angle = utilities::random() * 2 * M_PI - M_PI;
+        // if a start angle hasn't been defined then pick a random start angle in [-PI, PI]
+        if( !this->start_angle_defined )
+          this->start_angle = utilities::random() * 2 * M_PI - M_PI;
         if( utilities::verbose )
-          utilities::output( "selecting starting angle of %0.3f radians", this->angle );
+          utilities::output( "selecting starting angle of %0.3f radians", this->start_angle );
 
         // determine the line coefficient (for lines making strip of the appropriate width)
-        double sin_min_angle = sin( -angle );
-        double cos_min_angle = cos( -angle );
-        double tan_angle = tan( angle );
+        double sin_min_angle = sin( -this->start_angle );
+        double cos_min_angle = cos( -this->start_angle );
+        double tan_angle = tan( this->start_angle );
         coordinate c = this->population->get_centroid();
         double coef = c.y - c.x * tan_angle;
         double offset = this->strip_width / 2;
@@ -73,7 +75,13 @@ namespace sample
 
         if( 0 == initial_households.size() && utilities::verbose )
           utilities::output( "no households found in strip" );
+
+        iterations++;
       }
+
+      if( 0 == initial_households.size() )
+        throw std::runtime_error(
+          "Unable to find initial household after 100 attempts (try widening the strip width)" );
 
       // 3. select a random building from the list produced by step 2
       this->first_house_index = utilities::random( 0, initial_households.size() - 1 );

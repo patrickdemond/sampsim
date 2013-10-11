@@ -36,18 +36,20 @@ namespace sample
       std::vector< std::list< household* >::iterator > initial_households;
 
       // 2. keep repeating step 2 until the list produced is not empty
-      while( 0 == initial_households.size() )
+      int iterations = 0;
+      while( 0 == initial_households.size() && iterations < 100 )
       {
-        // pick a random angle in [-PI, PI]
-        this->angle = utilities::random() * 2 * M_PI - M_PI;
+        // if a start angle hasn't been defined then pick a random start angle in [-PI, PI]
+        if( !this->start_angle_defined )
+          this->start_angle = utilities::random() * 2 * M_PI - M_PI;
         if( utilities::verbose )
-          utilities::output( "selecting starting angle of %0.3f radians", this->angle );
+          utilities::output( "selecting starting angle of %0.3f radians", this->start_angle );
 
         for( auto it = list.begin(); it != list.end(); ++it )
         {
           household *household = (*it);
-          double a1 = this->angle - this->arc_angle / 2.0;
-          double a2 = this->angle + this->arc_angle / 2.0;
+          double a1 = this->start_angle - this->arc_angle / 2.0;
+          double a2 = this->start_angle + this->arc_angle / 2.0;
           double a = (*it)->get_building()->get_position().get_a();
 
           // it is possible that a2 > PI, if so then we need to loop around to -PI
@@ -77,7 +79,13 @@ namespace sample
 
         if( 0 == initial_households.size() && utilities::verbose ) 
           utilities::output( "no households found in strip" );
+
+        iterations++;
       }
+
+      if( 0 == initial_households.size() )
+        throw std::runtime_error(
+          "Unable to find initial household after 100 attempts (try increasing the arc angle)" );
 
       // 3. select a random building from the list produced by step 2
       this->first_house_index = utilities::random( 0, initial_households.size() - 1 );
