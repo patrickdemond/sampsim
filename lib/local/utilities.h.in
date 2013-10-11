@@ -135,9 +135,9 @@ namespace sampsim
       std::cout << time << " " << buffer << std::endl;
     }
 
-    inline static std::string exec( const char* command )
+    inline static std::string exec( const std::string command )
     {
-      FILE* pipe = popen( command, "r" );
+      FILE* pipe = popen( command.c_str(), "r" );
       if( !pipe ) return "ERROR";
       char buffer[128];
       std::string result = "";
