@@ -6,15 +6,6 @@
 
 =========================================================================*/
 
-/**
- * @class base_object
- * @namespace sampsim
- * 
- * @author Patrick Emond <emondpd@mcmaster.ca>
- * 
- * @brief Abstract base class for all classes
- */
-
 #ifndef __sampsim_base_object_h
 #define __sampsim_base_object_h
 
@@ -29,22 +20,37 @@ namespace Json { class Value; }
 
 namespace sampsim
 {
+  /**
+   * @class base_object
+   * @author Patrick Emond <emondpd@mcmaster.ca>
+   * @brief Abstract base class for most classes.
+   */
   class base_object
   {
   public:
-    base_object() {}
-    ~base_object() {}
-
     /**
-     * Reads and writes the object's details to/from the provided json object.
+     * Deserialize object
+     * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
      */
     virtual void from_json( const Json::Value& ) = 0;
+
+    /**
+     * Serialize object
+     * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
+     */
     virtual void to_json( Json::Value& ) const = 0;
+
+    /**
+     * Output object to two CSV files (households and individuals)
+     * 
+     * All objects must provide an implementation for printing to a CSV (comma separated value) format.
+     * Two streams are expected, the first is for household data and the second for individual data.
+     */
     virtual void to_csv( std::ostream&, std::ostream& ) const = 0;
-
-  protected:
-
-  private:
   };
 }
 

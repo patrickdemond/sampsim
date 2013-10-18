@@ -95,6 +95,7 @@ IF( BUILD_DOCUMENTATION )
 
   SET( DOXY_INPUT_SOURCE 
     ${SAMPSIM_LIB_DIR}/local
+    ${SAMPSIM_LIB_DIR}/local/sample
     ${SAMPSIM_DOXY_DIR}/doc_mainpage.dox )
 
   string( REPLACE ";" "\" \"" SAMPSIM_DOXY_LIST "${DOXY_INPUT_SOURCE}" )

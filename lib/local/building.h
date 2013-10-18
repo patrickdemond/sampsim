@@ -6,15 +6,6 @@
 
 =========================================================================*/
 
-/**
- * @class building
- * @namespace sampsim
- * 
- * @author Patrick Emond <emondpd@mcmaster.ca>
- * 
- * @brief A building which belongs to a tile and contains households
- */
-
 #ifndef __sampsim_building_h
 #define __sampsim_building_h
 
@@ -36,55 +27,177 @@ namespace sampsim
   class population;
   class tile;
 
+  /**
+   * @class building
+   * @author Patrick Emond <emondpd@mcmaster.ca>
+   * @brief A building which belongs to a tile and contains households
+   * @details
+   * Populations are organized into a tree such that all nodes are responsible for creating,
+   * generating and deleting their children.  The structure is as follows:
+   * - population
+   *   + list of n by m tiles
+   *     - list of buildings in tile
+   *       + list of households in building
+   *         - list of individuals belonging to household
+   * 
+   * Buildings belong to one and only one tile based on its position.  They contain a list of
+   * households which are in the building.  When a building is selected the selection state of
+   * its households are unchanged.  When unselecting a building all households contained within
+   * the building are also unselected.
+   */
   class building : public model_object
   {
   public:
+    /**
+     * Constructor
+     * 
+     * When a building is created its parent tile must be defined.
+     */
     building( tile *parent );
+
+    /**
+    * Destructor
+    * 
+    * Deletes all households belonging to this building.
+    */
     ~building();
 
     /**
-     * Iterator access
+     * Iterator access to child households
+     * 
+     * These methods provide iterator access to the list of households belonging to this building.
      */
     household_list_type::iterator get_household_list_begin()
     { return this->household_list.begin(); }
+
+    /**
+     * Iterator access to child households
+     * 
+     * These methods provide iterator access to the list of households belonging to this building.
+     */
     household_list_type::iterator get_household_list_end()
     { return this->household_list.end(); }
+
+    /**
+     * Constant iterator access to child households
+     * 
+     * These methods provide constant iterator access to the list of households belonging to this building.
+     */
     household_list_type::const_iterator get_household_list_cbegin() const
     { return this->household_list.cbegin(); }
+
+    /**
+     * Constant iterator access to child households
+     * 
+     * These methods provide constant iterator access to the list of households belonging to this building.
+     */
     household_list_type::const_iterator get_household_list_cend() const
     { return this->household_list.cend(); }
 
     /**
-     * Lineage methods
+     * Returns the building's parent tile
      */
     tile* get_tile() const { return this->parent; }
+
+    /**
+     * Returns the population that the building belongs to
+     */
     population* get_population() const;
 
     /**
-     * Generate the building by generating all households in the building
+     * Generate the building and create all households belonging to it
+     * 
+     * This method will generate the building according to its population's parameters.  A position within
+     * the parent tile's bounds (including the lower bounds and up but not including the upper bounds) is
+     * randomly determined and a list of households within the building are generated.  Currently the
+     * simulation defines exactly one household per building, but this may change in future development.
      */
     void generate();
+
+    /**
+     * Deserialize the building
+     * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
+     */
     virtual void from_json( const Json::Value& );
+
+    /**
+     * Serialize the building
+     * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
+     */
     virtual void to_json( Json::Value& ) const;
+
+    /**
+     * Output the building to two CSV files (households and individuals)
+     * 
+     * All objects must provide an implementation for printing to a CSV (comma separated value) format.
+     * Two streams are expected, the first is for household data and the second for individual data.
+     */
     virtual void to_csv( std::ostream&, std::ostream& ) const;
 
     /**
-     * Counts the total population of the building
+     * Get the number of individuals in the building
+     * 
+     * Returns a sum of all individuals in all households in the building.  This method iterates over
+     * all households every time it is called, so it should only be used when re-counting is necessary.
+     * A building contains no households (so no population) until its generate() method is called.
      */
     int count_population() const;
 
+    /**
+     * Get the position of the building
+     * 
+     * The building's position is determined by the generate() method and always falls inside its
+     * parent tile's bounds.
+     */
     coordinate get_position() const { return this->position; }
+
+    /**
+     * Returns whether the building is selected or not
+     * 
+     * Selection works in the following manner: selecting an object also selects its parent but not its
+     * children.  Unselecting an object also unselects its children but not its parent.  This mechanism
+     * therefore defines "selection" as true if any of its children are selected, and allows for
+     * unselecting all children by unselecting the object.  Only buildings, households and individuals
+     * may be selected/unselected.
+     */
     bool is_selected() const { return this->selected; }
+
+    /**
+     * Selects the building
+     */
     void select() { this->selected = true; }
+
+    /**
+     * Unselectes the building
+     * 
+     * This will also unselect all households contained within this building.
+     */
     void unselect();
 
-  protected:
-
   private:
+    /**
+     * A reference to the tile that the building belongs to (not reference counted)
+     */
     tile *parent;
+
+    /**
+     * The position of the building
+     */
     coordinate position;
+
+    /**
+     * Whether the building is selected
+     */
     bool selected;
 
+    /**
+     * A container holding all households belonging to this building.  The building is responsible
+     * for managing the memory needed for all of its child households.
+     */
     household_list_type household_list;
   };
 }

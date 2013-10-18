@@ -6,15 +6,6 @@
 
 =========================================================================*/
 
-/**
- * @class distribution
- * @namespace sampsim
- * 
- * @author Patrick Emond <emondpd@mcmaster.ca>
- * 
- * @brief A distribution object which encapsulates multiple statistical distributions
- */
-
 #ifndef __sampsim_distribution_h
 #define __sampsim_distribution_h
 
@@ -29,9 +20,20 @@
 
 namespace sampsim
 {
+  /**
+   * @class distribution
+   * @author Patrick Emond <emondpd@mcmaster.ca>
+   * @brief A distribution object which encapsulates multiple statistical distributions
+   * @details
+   * 
+   */
   class distribution : public base_object
   {
   public:
+
+    /**
+     * 
+     */
     enum type
     {
       UNKNOWN = 0,
@@ -41,6 +43,9 @@ namespace sampsim
       WEIBULL
     };
 
+    /**
+     * 
+     */
     inline static distribution::type get_type( const std::string name )
     {
       if( "lognormal" == name ) return LOGNORMAL;
@@ -50,6 +55,9 @@ namespace sampsim
       return UNKNOWN;
     }
 
+    /**
+     * 
+     */
     inline static std::string get_type_name( const distribution::type distribution_type )
     {
       if( LOGNORMAL == distribution_type ) return "lognormal";
@@ -59,29 +67,86 @@ namespace sampsim
       return "unknown";
     }
 
+    /**
+     * 
+     */
     distribution() : distribution_type( distribution::UNKNOWN ) {}
-    ~distribution() {}
 
+    /**
+     * 
+     */
     distribution::type get_type() const { return this->distribution_type; }
+
+    /**
+     * 
+     */
     std::string get_type_name() const { return distribution::get_type_name( this->distribution_type ); }
 
+    /**
+     * 
+     */
     virtual void set_lognormal( const double mean = 0.0, const double sd = 1.0 );
+
+    /**
+     * 
+     */
     virtual void set_normal( const double m = 0.0, const double s = 1.0 );
+
+    /**
+     * 
+     */
     virtual void set_poisson( const double mean = 1.0 );
+
+    /**
+     * 
+     */
     virtual void set_weibull( const double a = 1.0, const double b = 1.0 );
 
+    /**
+     * 
+     */
     double generate_value();
+
+    /**
+     * 
+     */
     virtual void from_json( const Json::Value& );
+
+    /**
+     * 
+     */
     virtual void to_json( Json::Value& ) const;
+
+    /**
+     * 
+     */
     virtual void to_csv( std::ostream&, std::ostream& ) const;
 
   protected:
+
+    /**
+     * 
+     */
     distribution::type distribution_type;
 
-    // distributions
+    /**
+     * 
+     */
     std::lognormal_distribution<double> lognormal;
+
+    /**
+     * 
+     */
     std::normal_distribution<double> normal;
+
+    /**
+     * 
+     */
     std::poisson_distribution<int> poisson;
+
+    /**
+     * 
+     */
     std::weibull_distribution<double> weibull;
   };
 }

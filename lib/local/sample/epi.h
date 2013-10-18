@@ -6,15 +6,6 @@
 
 =========================================================================*/
 
-/**
- * @class epi
- * @namespace sampsim
- * 
- * @author Patrick Emond <emondpd@mcmaster.ca>
- * 
- * @brief Base class for EPI sampling methods
- */
-
 #ifndef __sampsim_sample_epi_h
 #define __sampsim_sample_epi_h
 
@@ -32,28 +23,62 @@ namespace Json{ class Value; }
 
 namespace sampsim
 {
+
+/**
+ * @addtogroup sample
+ * @{
+ */
+
 namespace sample
 {
+  /**
+   * @class epi
+   * @author Patrick Emond <emondpd@mcmaster.ca>
+   * @brief Base class for EPI sampling methods
+   * @details
+   * 
+   */
   class epi : public sample
   {
   public:
+    /**
+     * 
+     */
     epi();
 
+    /**
+     * 
+     */
     virtual void generate();
 
+    /**
+     * 
+     */
     void to_json( Json::Value& ) const;
+
+    /**
+     * 
+     */
     virtual std::string get_csv_header() const;
 
+    /**
+     * 
+     */
     double get_start_angle() { return this->start_angle; }
+
+    /**
+     * 
+     */
     void set_start_angle( double start_angle )
     {
       this->start_angle_defined = true;
       this->start_angle = start_angle;
     }
-    void unset_start_angle()
-    {
-      this->start_angle_defined = false;
-    }
+
+    /**
+     * 
+     */
+    void unset_start_angle() { this->start_angle_defined = false; }
 
   protected:
     /**
@@ -61,12 +86,30 @@ namespace sample
      */
     virtual std::list< household* >::iterator select_next_household( std::list< household* >& );
 
+    /**
+     * 
+     */
     bool start_angle_defined;
+
+    /**
+     * 
+     */
     double start_angle;
+
+    /**
+     * 
+     */
     int first_house_index;
+
+    /**
+     * 
+     */
     household *current_household;
   };
 }
+
+/** @} end of doxygen group */
+
 }
 
 /** @} end of doxygen group */
