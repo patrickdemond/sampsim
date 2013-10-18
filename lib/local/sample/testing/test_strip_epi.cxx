@@ -15,6 +15,7 @@
 #include "strip_epi_sample.h"
 #include "building.h"
 #include "common.h"
+#include "coordinate.h"
 #include "household.h"
 #include "individual.h"
 #include "population.h"
@@ -90,7 +91,35 @@ TEST( test_sample_strip_epi )
       continue;
     }
 
-    // TODO: test position of first household
+    cout << "Testing strip " << sample1->get_strip_width() << " kilometers wide at an angle of "
+         << sample1->get_start_angle() << " radians..." << endl;
+
+    // determine the slope and intercepts for the two lines defining the strip
+    double m = tan( start_angle );
+    sampsim::coordinate p0 = population->get_centroid();
+    p0.x += sample1->get_strip_width() * sin( start_angle ) / 2;
+    p0.y -= sample1->get_strip_width() * cos( start_angle ) / 2;
+    sampsim::coordinate p1 = population->get_centroid();
+    p1.x -= sample1->get_strip_width() * sin( start_angle ) / 2;
+    p1.y += sample1->get_strip_width() * cos( start_angle ) / 2;
+    double b0 = p0.y - m * p0.x;
+    double b1 = p1.y - m * p1.x;
+
+    // confirm that the intercept is between the strip line's intercepts
+    sampsim::coordinate p = sample1->get_first_household()->get_building()->get_position();
+    double b = p.y - m * p.x;
+
+    cout << b0 << ", " << b << ", " << b1 << endl;
+    if( b0 < b1 )
+    {
+      CHECK( b >= b0 );
+      CHECK( b < b1 );
+    }
+    else
+    {
+      CHECK( b <= b0 );
+      CHECK( b > b1 );
+    }
 
     cout << "Testing adult-female only sampling..." << endl;
     sampsim::age_type age = sampsim::get_age_type( "adult" );
