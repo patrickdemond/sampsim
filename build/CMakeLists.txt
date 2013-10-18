@@ -94,10 +94,7 @@ IF( BUILD_DOCUMENTATION )
     ${SAMPSIM_DOXY_DIR}/doc_mainpage.dox )
 
   SET( DOXY_INPUT_SOURCE 
-    ${SAMPSIM_SRC_DIR}
-    ${SAMPSIM_MODEL_DIR}
-    ${SAMPSIM_VTK_DIR}
-    ${SAMPSIM_QT_DIR}
+    ${SAMPSIM_LIB_DIR}/local
     ${SAMPSIM_DOXY_DIR}/doc_mainpage.dox )
 
   string( REPLACE ";" "\" \"" SAMPSIM_DOXY_LIST "${DOXY_INPUT_SOURCE}" )
