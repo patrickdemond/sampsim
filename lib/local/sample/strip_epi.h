@@ -35,38 +35,45 @@ namespace sample
    * @author Patrick Emond <emondpd@mcmaster.ca>
    * @brief EPI method which picks the initial household using a strip
    * @details
-   * 
+   * A contrete implementation of the sample class.  This EPI method uses a strip to determine
+   * which buildings are considered to be inside the list of buildings defined by the initial
+   * starting angle.
    */
   class strip_epi : public epi
   {
   public:
     /**
-     * 
+     * Constructor
      */
     strip_epi() : strip_width( 0 ) {}
 
     /**
-     * 
+     * Returns the name of the sampling method
      */
     virtual std::string get_type() const { return "strip EPI"; }
 
     /**
-     * 
+     * Sets the width of the strip (in meters) used to determine the initial building list
      */
     void set_strip_width( double angle ) { this->strip_width = angle; }
 
     /**
-     * 
+     * Returns the width of the strip (in meters) used to determine the initial building list
      */
     double get_strip_width() { return this->strip_width; }
 
     /**
+     * Serialize the sample
      * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
      */
     void to_json( Json::Value& ) const;
 
     /**
+     * Returns the header for generated CSV files
      * 
+     * The header includes all parameters used by the sampling method
      */
     virtual std::string get_csv_header() const;
 
@@ -78,7 +85,7 @@ namespace sample
 
   private:
     /**
-     * 
+     * The width of the strip (in meters) used to determine the initial building list
      */
     double strip_width;
   };

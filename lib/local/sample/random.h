@@ -35,13 +35,14 @@ namespace sample
    * @author Patrick Emond <emondpd@mcmaster.ca>
    * @brief Random sampler
    * @details
-   * 
+   * A concrete implementation of the sample class.  This is a pure random sampler.  It random
+   * selects households until the sample size has been met.
    */
   class random : public sample
   {
   public:
     /**
-     * 
+     * Returns the name of the sampling method
      */
     virtual std::string get_type() const { return "random"; }
 

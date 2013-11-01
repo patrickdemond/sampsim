@@ -43,18 +43,21 @@ namespace sample
    * @author Patrick Emond <emondpd@mcmaster.ca>
    * @brief An abstract base class for all sampling methods
    * @details
-   * 
+   * All sampling methods work by selecting households until the sample size has been met.
+   * Implementations of this class define how households are selected by defining the 
+   * select_next_household() method.
+   * Populations used by sample classes are put into sampling mode.
    */
   class sample : public sampsim::base_object
   {
   public:
     /**
-     * 
+     * Constructor
      */
     sample();
 
     /**
-     * 
+     * Destructor
      */
     ~sample();
 
@@ -64,154 +67,172 @@ namespace sample
     virtual void generate();
 
     /**
+     * Writes the sample to disk
      * 
+     * This method opens and writes a serialization of the selected inviduals in the sample's population.
+     * If the flat_file parameter is true then the population will be written as two CSV files (one for
+     * households and the other for individuals), otherwise a single file is written in JSON format.
      */
     void write( const std::string filename, const bool flat_file = false ) const;
 
     /**
-     * 
+     * Returns the name of the sampling method
      */
     virtual std::string get_type() const = 0;
 
     /**
-     * 
+     * Loads a population from disk to sample from
      */
     bool set_population( const std::string filename );
 
     /**
-     * 
+     * Loads a population from memory to sample from
      */
     bool set_population( sampsim::population *population );
 
     /**
-     * 
+     * Sets the random generator's seed
      */
     void set_seed( const std::string seed );
 
     /**
-     * 
+     * Returns the random generator's seed
      */
     std::string get_seed() const { return this->seed; }
 
     /**
-     * 
+     * Sets the size of the sample (how many individuals to sample)
      */
     void set_size( const unsigned int size );
 
     /**
-     * 
+     * Returns the size of the sample (how many individuals to sample)
      */
     unsigned int get_size() const { return this->size; }
 
     /**
-     * 
+     * Sets whether to sample one individual per household
      */
     void set_one_per_household( const bool one_per_household );
 
     /**
-     * 
+     * Returns whether sampling is restricted to one individual per household
      */
     bool get_one_per_household() const { return this->one_per_household; }
 
     /**
-     * 
+     * Sets what age to restrict the sample to
      */
     void set_age( const age_type age );
 
     /**
-     * 
+     * Returns the age the sampling is restricted to
      */
     age_type get_age() const { return this->age; }
 
     /**
-     * 
+     * Sets what sex to restrict the sample to
      */
     void set_sex( const sex_type sex );
 
     /**
-     * 
+     * Returns the sex the sampling is restricted to
      */
     sex_type get_sex() const { return this->sex; }
 
     /**
-     * 
+     * Returns the first household which was selected by the sampler
      */
     household* get_first_household() { return this->first_household; }
 
     /**
+     * Deserialize the sample
      * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
      */
     virtual void from_json( const Json::Value& );
 
     /**
+     * Serialize the sample
      * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
      */
     virtual void to_json( Json::Value& ) const;
 
     /**
+     * Output the sample to two CSV files (households and individuals)
      * 
+     * All objects must provide an implementation for printing to a CSV (comma separated value) format.
+     * Two streams are expected, the first is for household data and the second for individual data.
      */
     virtual void to_csv( std::ostream&, std::ostream& ) const;
 
     /**
+     * Returns the header for generated CSV files
      * 
+     * The header includes all parameters used by the sampling method
      */
     virtual std::string get_csv_header() const;
 
   protected:
     /**
      * Algorithm which selects households based on the sampling method
+     * 
+     * This pure virtual method must be defined by all child classes.  It allows each sampling method
+     * to define how households are selected (in sequence).
      */
     virtual std::list< household* >::iterator select_next_household( std::list< household* >& ) = 0;
 
     /**
-     * 
+     * The population to sample from
      */
     sampsim::population *population;
 
   private:
     /**
-     * 
+     * Internal method for creating new populations when they are read from disk
      */
     void create_population();
 
     /**
-     * 
+     * Internal method for deleting populations when they are read from disk
      */
     void delete_population();
 
     /**
-     * 
+     * Defines whether this class is reponsible for deleting the memory used by the population object
      */
     bool owns_population;
 
     /**
-     * 
+     * The random generator's seed
      */
     std::string seed;
 
     /**
-     * 
+     * The size of the sample (how many individuals to sample)
      */
     unsigned int size;
 
     /**
-     * 
+     * Whether to sample one individual per household
      */
     bool one_per_household;
 
     /**
-     * 
+     * What age to restrict the sample to
      */
     age_type age;
 
     /**
-     * 
+     * What age to restrict the sample to
      */
     sex_type sex;
 
     /**
-     * 
+     * A reference to the first household selected by the sampler
      */
     household *first_household;
   };
