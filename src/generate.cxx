@@ -246,6 +246,12 @@ int main( const int argc, const char** argv )
               else if( "random" == batch_sampler || "random_sample" == batch_sampler )
               {
                 setup_random_sample( sampler_opts );
+                if( 0 < batch_config.length() )
+                {
+                  sampler_argv[2] = batch_config.c_str();
+                  sampler_opts.set_arguments( 3, sampler_argv );
+                }
+                if( !sampler_opts.process() ) throw std::runtime_error( "Error while setting up sampler" );
                 parse_random_sample( sampler_opts, random_sample );
                 random_sample->set_population( population );
                 sample = random_sample;
@@ -253,6 +259,12 @@ int main( const int argc, const char** argv )
               else if( "strip_epi" == batch_sampler || "strip_epi_sample" == batch_sampler )
               {
                 setup_strip_epi_sample( sampler_opts );
+                if( 0 < batch_config.length() )
+                {
+                  sampler_argv[2] = batch_config.c_str();
+                  sampler_opts.set_arguments( 3, sampler_argv );
+                }
+                if( !sampler_opts.process() ) throw std::runtime_error( "Error while setting up sampler" );
                 parse_strip_epi_sample( sampler_opts, strip_epi_sample );
                 strip_epi_sample->set_population( population );
                 sample = strip_epi_sample;
