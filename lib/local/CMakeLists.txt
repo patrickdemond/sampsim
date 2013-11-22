@@ -14,6 +14,7 @@ SET( SAMPSIM_LIB_SOURCE
   distribution.cxx
   household.cxx
   individual.cxx
+  kd_tree.cxx
   options.cxx
   population.cxx
   tile.cxx

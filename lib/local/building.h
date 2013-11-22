@@ -178,6 +178,12 @@ namespace sampsim
      */
     void unselect();
 
+    /**
+     * TODO: document
+     */
+    static bool sort_by_x( building* a, building* b ) { return a->get_position().x < b->get_position().x; }
+    static bool sort_by_y( building* a, building* b ) { return a->get_position().y < b->get_position().y; }
+
   private:
     /**
      * A reference to the tile that the building belongs to (not reference counted)
