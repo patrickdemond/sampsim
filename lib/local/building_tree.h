@@ -11,8 +11,11 @@
 
 #include "base_object.h"
 
+#include "building.h"
 #include "coordinate.h"
 #include "utilities.h"
+
+#include <stdexcept>
 
 namespace Json { class Value; }
 
@@ -42,21 +45,31 @@ namespace sampsim
     /**
      * TODO: document
      */
-    struct leaf
+    struct node
     {
-      leaf( long long int d )
+      node( node* parent = NULL )
       {
-        this->depth = d;
-        this->median = 0;
+        this->parent = parent;
+        this->depth = NULL == parent ? 0 : parent->depth + 1;
         this->building = NULL;
         this->left = NULL;
         this->right = NULL;
       }
+
+      double get_median()
+      {
+        if( NULL == this->building )
+          throw std::runtime_error( "Tried to get median of node that has no building" );
+
+        sampsim::coordinate c = this->building->get_position();
+        return 0 == depth % 2 ? c.x : c.y;
+      }
+
+      node* parent;
       long long int depth;
-      double median;
       sampsim::building* building;
-      leaf *left;
-      leaf *right;
+      node *left;
+      node *right;
     };
 
   public:
@@ -66,18 +79,20 @@ namespace sampsim
 
     building* find_nearest( coordinate );
 
-    std::string to_string() { return building_tree::to_string( this->root ); }
+    std::string to_string() { return building_tree::to_string( this->root_node ); }
 
   private:
-    static leaf* build( long long int depth, building_list_type );
+    static node* build( building_list_type, node* parent_node = NULL );
 
-    static void destroy( leaf* );
+    static void destroy( node* );
     
-    static leaf* find( leaf*, double x, double y );
+    static node* find_nearest_node( node*, coordinate, double& );
 
-    static std::string to_string( leaf* );
+    static node* find_leaf( node*, double x, double y );
 
-    leaf *root;
+    static std::string to_string( node* );
+
+    node *root_node;
   };
 }
 

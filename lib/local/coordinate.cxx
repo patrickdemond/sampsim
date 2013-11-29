@@ -39,8 +39,13 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   double coordinate::distance( const coordinate c ) const
   {
-    return sqrt( ( this->x - c.x )*( this->x - c.x ) +
-                 ( this->y - c.y )*( this->y - c.y ) );
+    return sqrt( this->squared_distance( c ) );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  double coordinate::squared_distance( const coordinate c ) const
+  {
+    return ( this->x - c.x )*( this->x - c.x ) + ( this->y - c.y )*( this->y - c.y );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

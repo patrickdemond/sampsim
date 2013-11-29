@@ -139,6 +139,14 @@ namespace sampsim
     double distance( const coordinate c ) const;
 
     /**
+     * Returns the scalar squared distance to another coordinate
+     * 
+     * This method is faster than distance() so it should be used where comparing relative distances
+     * is needed but absolute distance measurements isn't required.
+     */
+    double squared_distance( const coordinate c ) const;
+
+    /**
      * Returns the length of the coordinate
      * 
      * The length of a coordinate is based on the coordinate's centroid.  This is equivalent to calling

@@ -8,101 +8,142 @@
 
 #include "building_tree.h"
 
-#include "building.h"
-
-#include <stdexcept>
+#include <limits>
 
 namespace sampsim
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   building_tree::building_tree( building_list_type building_list )
   {
-    this->root = building_tree::build( 0, building_list );
+    this->root_node = building_tree::build( building_list );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   building_tree::~building_tree()
   {
-    building_tree::destroy( this->root );
-    this->root = NULL;
+    building_tree::destroy( this->root_node );
+    this->root_node = NULL;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  building* building_tree::find_nearest( coordinate c )
+  sampsim::building* building_tree::find_nearest( coordinate search_coord )
   {
-    return building_tree::find( this->root, c.x, c.y )->building;
+    double sqdist = std::numeric_limits<double>::max();
+    node* nearest_node = building_tree::find_nearest_node( this->root_node, search_coord, sqdist );
+    return NULL == nearest_node ? NULL : nearest_node->building;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  building_tree::leaf* building_tree::build( long long int depth, building_list_type building_list )
+  std::string building_tree::to_string( node* current_node )
   {
-    leaf* node = new leaf( depth );
+    std::string spacer = std::string( current_node->depth * 2, ' ' );
+    std::stringstream stream;
+    coordinate p = current_node->building->get_position();
+    stream << "( " << p.x << ", " << p.y << " )" << std::endl;
+
+    if( NULL != current_node->left )
+      stream << spacer << "left: " << building_tree::to_string( current_node->left );
+    if( NULL != current_node->right )
+      stream << spacer << "right: " << building_tree::to_string( current_node->right );
+    
+    return stream.str();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  building_tree::node* building_tree::build(
+    building_list_type building_list, node* parent_node )
+  {
+    // only create a new node if we don't have an empty list
     int size = building_list.size();
+    node* current_node = 0 == size ? NULL : new node( parent_node );
 
-    // sanity check
-    if( 0 == size ) throw std::runtime_error( "Tried to build building_tree with an empty list" );
     // one building in the list means we've reached the end
-    else if( 1 == size ) node->building = building_list.front();
-    else
+    if( 1 == size ) current_node->building = building_list.front();
+    else if( 1 < size )
     {
       const building_list_type::iterator begin = building_list.begin();
       const building_list_type::iterator end = building_list.end();
-      bool even = 0 == depth % 2;
 
-      std::sort( begin, building_list.end(), even ? building::sort_by_x : building::sort_by_y );
+      std::sort(
+        begin, building_list.end(),
+        0 == current_node->depth % 2 ? building::sort_by_x : building::sort_by_y );
       int median_index = floor( static_cast< double >( size ) / 2.0 ) - 1;
-      node->median = even
-                  ? building_list[median_index]->get_position().x
-                  : building_list[median_index]->get_position().y;
+      current_node->building = building_list[median_index];
 
-      int left_size = median_index + 1;
-      int right_size = size - left_size;
+      int left_size = median_index;
+      int right_size = size - left_size - 1;
 
       building_list_type left_building_list( left_size );
-      std::copy( begin, end - right_size, left_building_list.begin() );
+      std::copy( begin, end - right_size - 1, left_building_list.begin() );
 
       building_list_type right_building_list( right_size );
       std::copy( end - right_size, end, right_building_list.begin() );
 
-      node->left = building_tree::build( depth + 1, left_building_list );
-      node->right = building_tree::build( depth + 1, right_building_list );
+      current_node->left = building_tree::build( left_building_list, current_node );
+      current_node->right = building_tree::build( right_building_list, current_node );
     }
 
-    return node;
+    return current_node;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void building_tree::destroy( leaf* node )
+  void building_tree::destroy( node* current_node )
   {
-    if( NULL != node->left ) building_tree::destroy( node->left );
-    if( NULL != node->right ) building_tree::destroy( node->right );
-    utilities::safe_delete( node );
+    if( NULL != current_node->left ) building_tree::destroy( current_node->left );
+    if( NULL != current_node->right ) building_tree::destroy( current_node->right );
+    utilities::safe_delete( current_node );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  building_tree::leaf* building_tree::find( leaf* node, double x, double y )
+  building_tree::node* building_tree::find_nearest_node(
+    node* root_node, coordinate search_coord, double& nearest_sqdist )
   {
-    if( NULL == node->building )
-      return building_tree::find( x < node->median ? node->left : node->right, y, x );
-    else return node;
-  }
+    if( NULL == root_node )
+      throw std::runtime_error( "Tried to find nearest node without a root node" );
 
-  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  std::string building_tree::to_string( leaf* node )
-  {
-    std::string spacer = std::string( node->depth * 2, ' ' );
-    std::stringstream stream;
-    stream << spacer;
-    if( NULL == node->building ) stream << node->median << std::endl;
-    else 
+    node* nearest_node = NULL;
+
+    // start by finding the nearest leaf
+    node* current_node = building_tree::find_leaf( root_node, search_coord.x, search_coord.y );
+
+    // now travel up the tree back to the root searching for a node which is closer
+    while( current_node )
     {
-      coordinate p = node->building->get_position();
-      stream << "( " << p.x << ", " << p.y << " )" << std::endl;
+      coordinate current_coord = current_node->building->get_position();
+      if( current_coord.squared_distance( search_coord ) < nearest_sqdist )
+      { // found a new nearest neighbour
+        nearest_node = current_node;
+        nearest_sqdist = current_coord.squared_distance( search_coord );
+
+        // if the distance > the splitting hyperplane then we need to go down the otherbranch of the tree
+        node* parent_node = nearest_node->parent;
+        coordinate plane_coord = parent_node->building->get_position();
+
+        // the distance to the hyperplane only requires a single dimension
+        double plane_sqdist = 0 == parent_node->depth % 2
+                            ? ( plane_coord.y - current_coord.y ) * ( plane_coord.y - current_coord.y )
+                            : ( plane_coord.x - current_coord.x ) * ( plane_coord.x - current_coord.x );
+        if( plane_sqdist < nearest_sqdist )
+        {
+          node* sibling_node = nearest_node == parent_node->left ? parent_node->right : parent_node->left;
+          if( sibling_node )
+          {
+            node* branch_node =
+              building_tree::find_nearest_node( sibling_node, search_coord, nearest_sqdist );
+            if( branch_node ) nearest_node = branch_node;
+          }
+        }
+      }
+      current_node = current_node->parent;
     }
 
-    if( NULL != node->left ) stream << spacer << "(left)" << std::endl << building_tree::to_string( node->left );
-    if( NULL != node->right ) stream << spacer << "(right)" << std::endl << building_tree::to_string( node->right );
-    
-    return stream.str();
+    return nearest_node;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  building_tree::node* building_tree::find_leaf( node* current_node, double x, double y )
+  {
+    node* next_node = x < current_node->get_median() ? current_node->left : current_node->right;
+    return NULL == next_node ? current_node : building_tree::find_leaf( next_node, y, x );
   }
 }
