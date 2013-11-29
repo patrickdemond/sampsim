@@ -38,7 +38,7 @@ namespace sampsim
   {
     std::string spacer = std::string( current_node->depth * 2, ' ' );
     std::stringstream stream;
-    coordinate p = current_node->building->get_position();
+    coordinate p = current_node->get_position();
     stream << "( " << p.x << ", " << p.y << " )" << std::endl;
 
     if( NULL != current_node->left )
@@ -67,7 +67,7 @@ namespace sampsim
       std::sort(
         begin, building_list.end(),
         0 == current_node->depth % 2 ? building::sort_by_x : building::sort_by_y );
-      int median_index = floor( static_cast< double >( size ) / 2.0 ) - 1;
+      int median_index = floor( static_cast< double >( size ) / 2.0 );
       current_node->building = building_list[median_index];
 
       int left_size = median_index;
@@ -105,35 +105,39 @@ namespace sampsim
 
     // start by finding the nearest leaf
     node* current_node = building_tree::find_leaf( root_node, search_coord.x, search_coord.y );
+    node* previous_node = NULL;
 
     // now travel up the tree back to the root searching for a node which is closer
     while( current_node )
     {
-      coordinate current_coord = current_node->building->get_position();
+      coordinate current_coord = current_node->get_position();
       if( current_coord.squared_distance( search_coord ) < nearest_sqdist )
       { // found a new nearest neighbour
         nearest_node = current_node;
         nearest_sqdist = current_coord.squared_distance( search_coord );
 
         // if the distance > the splitting hyperplane then we need to go down the otherbranch of the tree
-        node* parent_node = nearest_node->parent;
-        coordinate plane_coord = parent_node->building->get_position();
-
-        // the distance to the hyperplane only requires a single dimension
-        double plane_sqdist = 0 == parent_node->depth % 2
-                            ? ( plane_coord.y - current_coord.y ) * ( plane_coord.y - current_coord.y )
-                            : ( plane_coord.x - current_coord.x ) * ( plane_coord.x - current_coord.x );
-        if( plane_sqdist < nearest_sqdist )
+        node* opposite_node = current_node->left == previous_node ? current_node->right : current_node->left;
+        if( opposite_node )
         {
-          node* sibling_node = nearest_node == parent_node->left ? parent_node->right : parent_node->left;
-          if( sibling_node )
+          coordinate plane_coord = opposite_node->get_position();
+
+          // the distance to the hyperplane only requires a single dimension
+          double plane_sqdist = 0 == opposite_node->depth % 2
+                              ? ( plane_coord.y - current_coord.y ) * ( plane_coord.y - current_coord.y )
+                              : ( plane_coord.x - current_coord.x ) * ( plane_coord.x - current_coord.x );
+
+
+          if( plane_sqdist < nearest_sqdist )
           {
             node* branch_node =
-              building_tree::find_nearest_node( sibling_node, search_coord, nearest_sqdist );
+              building_tree::find_nearest_node( opposite_node, search_coord, nearest_sqdist );
             if( branch_node ) nearest_node = branch_node;
           }
         }
       }
+
+      previous_node = current_node;
       current_node = current_node->parent;
     }
 

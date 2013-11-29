@@ -81,6 +81,8 @@ TEST( test_building_tree )
     cout << endl;
   }
 
+  cout << tree.to_string() << endl;
+
   // clean up
   sampsim::utilities::safe_delete( population );
 }

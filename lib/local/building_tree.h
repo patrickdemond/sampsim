@@ -68,11 +68,19 @@ namespace sampsim
        */
       double get_median()
       {
-        if( NULL == this->building )
-          throw std::runtime_error( "Tried to get median of node that has no building" );
-
-        sampsim::coordinate c = this->building->get_position();
+        sampsim::coordinate c = this->get_position();
         return 0 == depth % 2 ? c.x : c.y;
+      }
+
+      /**
+       * Convenience method for getting a node's position from its building
+       */
+      coordinate get_position()
+      {
+        if( NULL == this->building )
+          throw std::runtime_error( "Tried to get position of node that has no building" );
+
+        return this->building->get_position();
       }
 
       /**
