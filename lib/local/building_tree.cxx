@@ -1,12 +1,12 @@
 /*=========================================================================
 
   Program:  sampsim
-  Module:   kd_tree.cxx
+  Module:   building_tree.cxx
   Language: C++
 
 =========================================================================*/
 
-#include "kd_tree.h"
+#include "building_tree.h"
 
 #include "building.h"
 
@@ -15,32 +15,32 @@
 namespace sampsim
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  kd_tree::kd_tree( building_list_type building_list )
+  building_tree::building_tree( building_list_type building_list )
   {
-    this->root = kd_tree::build( 0, building_list );
+    this->root = building_tree::build( 0, building_list );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  kd_tree::~kd_tree()
+  building_tree::~building_tree()
   {
-    kd_tree::destroy( this->root );
+    building_tree::destroy( this->root );
     this->root = NULL;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  building* kd_tree::find_nearest( coordinate c )
+  building* building_tree::find_nearest( coordinate c )
   {
-    return kd_tree::find( this->root, c.x, c.y )->building;
+    return building_tree::find( this->root, c.x, c.y )->building;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  kd_tree::leaf* kd_tree::build( long long int depth, building_list_type building_list )
+  building_tree::leaf* building_tree::build( long long int depth, building_list_type building_list )
   {
     leaf* node = new leaf( depth );
     int size = building_list.size();
 
     // sanity check
-    if( 0 == size ) throw std::runtime_error( "Tried to build kd_tree with an empty list" );
+    if( 0 == size ) throw std::runtime_error( "Tried to build building_tree with an empty list" );
     // one building in the list means we've reached the end
     else if( 1 == size ) node->building = building_list.front();
     else
@@ -64,31 +64,31 @@ namespace sampsim
       building_list_type right_building_list( right_size );
       std::copy( end - right_size, end, right_building_list.begin() );
 
-      node->left = kd_tree::build( depth + 1, left_building_list );
-      node->right = kd_tree::build( depth + 1, right_building_list );
+      node->left = building_tree::build( depth + 1, left_building_list );
+      node->right = building_tree::build( depth + 1, right_building_list );
     }
 
     return node;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void kd_tree::destroy( leaf* node )
+  void building_tree::destroy( leaf* node )
   {
-    if( NULL != node->left ) kd_tree::destroy( node->left );
-    if( NULL != node->right ) kd_tree::destroy( node->right );
+    if( NULL != node->left ) building_tree::destroy( node->left );
+    if( NULL != node->right ) building_tree::destroy( node->right );
     utilities::safe_delete( node );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  kd_tree::leaf* kd_tree::find( leaf* node, double x, double y )
+  building_tree::leaf* building_tree::find( leaf* node, double x, double y )
   {
     if( NULL == node->building )
-      return kd_tree::find( x < node->median ? node->left : node->right, y, x );
+      return building_tree::find( x < node->median ? node->left : node->right, y, x );
     else return node;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  std::string kd_tree::to_string( leaf* node )
+  std::string building_tree::to_string( leaf* node )
   {
     std::string spacer = std::string( node->depth * 2, ' ' );
     std::stringstream stream;
@@ -100,8 +100,8 @@ namespace sampsim
       stream << "( " << p.x << ", " << p.y << " )" << std::endl;
     }
 
-    if( NULL != node->left ) stream << spacer << "(left)" << std::endl << kd_tree::to_string( node->left );
-    if( NULL != node->right ) stream << spacer << "(right)" << std::endl << kd_tree::to_string( node->right );
+    if( NULL != node->left ) stream << spacer << "(left)" << std::endl << building_tree::to_string( node->left );
+    if( NULL != node->right ) stream << spacer << "(right)" << std::endl << building_tree::to_string( node->right );
     
     return stream.str();
   }

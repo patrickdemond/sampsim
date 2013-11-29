@@ -1,13 +1,13 @@
 /*=========================================================================
 
   Program:  sampsim
-  Module:   kd_tree.h
+  Module:   building_tree.h
   Language: C++
 
 =========================================================================*/
 
-#ifndef __sampsim_kd_tree_h
-#define __sampsim_kd_tree_h
+#ifndef __sampsim_building_tree_h
+#define __sampsim_building_tree_h
 
 #include "base_object.h"
 
@@ -26,16 +26,17 @@ namespace sampsim
   class building;
 
   /**
-   * @class kd_tree
+   * @class building_tree
    * @author Patrick Emond <emondpd@mcmaster.ca>
    * @brief An implementation of a kd-tree
    * @details
-   * A kD tree (otherwise known as a kd-tree, or k-Dimension tree) is a data structure that is used
-   * for storing coordinates so nearest-neighbour searches or range-searches are quick.
+   * A 2D tree of buildings.  Otherwise known as a kd-tree, or k-Dimension tree, this class is
+   * a data structure that is used for storing coordinates so nearest-neighbour searches or
+   * range-searches are quick.
    * It is a binary-search tree that is specialised for coordinate searching, and is useful for
-   * answering questions such as which pub is closest to my current location?
+   * answering questions such as: which pub is closest to my current location?
    */
-  class kd_tree
+  class building_tree
   {
   private:
     /**
@@ -59,13 +60,13 @@ namespace sampsim
     };
 
   public:
-    kd_tree( building_list_type );
+    building_tree( building_list_type );
     
-    ~kd_tree();
+    ~building_tree();
 
     building* find_nearest( coordinate );
 
-    std::string to_string() { return kd_tree::to_string( this->root ); }
+    std::string to_string() { return building_tree::to_string( this->root ); }
 
   private:
     static leaf* build( long long int depth, building_list_type );

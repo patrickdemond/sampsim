@@ -1,13 +1,13 @@
 /*=========================================================================
 
   Program:  sampsim
-  Module:   test_kd_tree.cxx
+  Module:   test_building_tree.cxx
   Language: C++
 
 =========================================================================*/
 //
 // .SECTION Description
-// Unit tests for the kd_tree class
+// Unit tests for the building_tree class
 //
 
 #include "UnitTest++.h"
@@ -17,7 +17,7 @@
 #include "coordinate.h"
 #include "household.h"
 #include "individual.h"
-#include "kd_tree.h"
+#include "building_tree.h"
 #include "population.h"
 #include "tile.h"
 #include "utilities.h"
@@ -26,7 +26,7 @@ using namespace std;
 
 int main( const int argc, const char** argv ) { return UnitTest::RunAllTests(); }
 
-TEST( test_kd_tree )
+TEST( test_building_tree )
 {
   // create a population
   sampsim::population *population = new sampsim::population;
@@ -46,7 +46,7 @@ TEST( test_kd_tree )
   }
 
   sampsim::building *b;
-  sampsim::kd_tree tree = sampsim::kd_tree( building_list );
+  sampsim::building_tree tree = sampsim::building_tree( building_list );
   b = tree.find_nearest( sampsim::coordinate( 5, 5 ) );
   b->get_position().to_csv( cout, cout );
   cout << endl;
