@@ -179,9 +179,17 @@ namespace sampsim
     void unselect();
 
     /**
-     * TODO: document
+     * A static function which describes how to sort buildings by their x position.
+     * 
+     * This function is used by the building_tree class in order to sort buildings by their position.
      */
     static bool sort_by_x( building* a, building* b ) { return a->get_position().x < b->get_position().x; }
+
+    /**
+     * A static function which describes how to sort buildings by their y position.
+     * 
+     * This function is used by the building_tree class in order to sort buildings by their position.
+     */
     static bool sort_by_y( building* a, building* b ) { return a->get_position().y < b->get_position().y; }
 
   private:
