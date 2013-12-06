@@ -146,7 +146,7 @@ namespace sampsim
      * 
      * This is used by the find_nearest() method.
      */
-    static node* find_nearest_node( node*, coordinate, double& );
+    static node* find_nearest_node( node*, coordinate );
 
     /**
      * A recursive function that searches for the nearest leaf-node

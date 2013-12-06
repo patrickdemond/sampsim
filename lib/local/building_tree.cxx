@@ -28,8 +28,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   sampsim::building* building_tree::find_nearest( coordinate search_coord )
   {
-    double sqdist = std::numeric_limits<double>::max();
-    node* nearest_node = building_tree::find_nearest_node( this->root_node, search_coord, sqdist );
+    node* nearest_node = building_tree::find_nearest_node( this->root_node, search_coord );
     return NULL == nearest_node ? NULL : nearest_node->building;
   }
 
@@ -95,50 +94,61 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  building_tree::node* building_tree::find_nearest_node(
-    node* root_node, coordinate search_coord, double& nearest_sqdist )
+  building_tree::node* building_tree::find_nearest_node( node* root_node, coordinate search_coord )
   {
     if( NULL == root_node )
       throw std::runtime_error( "Tried to find nearest node without a root node" );
 
-    node* nearest_node = NULL;
-
     // start by finding the nearest leaf
-    node* current_node = building_tree::find_leaf( root_node, search_coord.x, search_coord.y );
-    node* previous_node = NULL;
+    node* nearest_node = building_tree::find_leaf( root_node, search_coord.x, search_coord.y );
 
-    // now travel up the tree back to the root searching for a node which is closer
-    while( current_node )
+    // if the leaf is the root then we're done, otherwise we need to unwind the tree back to the root
+    if( nearest_node != root_node )
     {
-      coordinate current_coord = current_node->get_position();
-      if( current_coord.squared_distance( search_coord ) < nearest_sqdist )
-      { // found a new nearest neighbour
-        nearest_node = current_node;
-        nearest_sqdist = current_coord.squared_distance( search_coord );
+      double nearest_sqdist = nearest_node->get_position().squared_distance( search_coord );
+      node* current_node = nearest_node->parent;
+      node* previous_node = nearest_node;
 
-        // if the distance > the splitting hyperplane then we need to go down the otherbranch of the tree
+      // now travel up the tree back to the root searching for a node which is closer
+      while( true )
+      {
+        coordinate current_coord = current_node->get_position();
+        double current_sqdist = current_coord.squared_distance( search_coord );
+        if( current_sqdist < nearest_sqdist )
+        { // found a new nearest neighbour
+          nearest_node = current_node;
+          nearest_sqdist = current_sqdist;
+        }
+
+        // if the distance > the splitting hyperplane then we need to go down the other branch of the tree
         node* opposite_node = current_node->left == previous_node ? current_node->right : current_node->left;
         if( opposite_node )
         {
-          coordinate plane_coord = opposite_node->get_position();
-
-          // the distance to the hyperplane only requires a single dimension
-          double plane_sqdist = 0 == opposite_node->depth % 2
-                              ? ( plane_coord.y - current_coord.y ) * ( plane_coord.y - current_coord.y )
-                              : ( plane_coord.x - current_coord.x ) * ( plane_coord.x - current_coord.x );
-
-
+          // if the search coordinate is closer to the current node's splitting plane than it is to the
+          // nearest node then we need to perform the nearest node search down the other side
+          double plane_sqdist = 0 == current_node->depth % 2
+                              ? current_coord.x - search_coord.x
+                              : current_coord.y - search_coord.y;
+          plane_sqdist *= plane_sqdist;
           if( plane_sqdist < nearest_sqdist )
           {
-            node* branch_node =
-              building_tree::find_nearest_node( opposite_node, search_coord, nearest_sqdist );
-            if( branch_node ) nearest_node = branch_node;
+            node* branch_node = 
+              building_tree::find_nearest_node( opposite_node, search_coord );
+
+            double branch_sqdist = branch_node->get_position().squared_distance( search_coord );
+            if( branch_sqdist < nearest_sqdist )
+            {
+              nearest_node = branch_node;
+              nearest_sqdist = branch_sqdist;
+            }
           }
         }
-      }
 
-      previous_node = current_node;
-      current_node = current_node->parent;
+        if( current_node == root_node ) break;
+
+        previous_node = current_node;
+        current_node = current_node->parent;
+      }
     }
 
     return nearest_node;

@@ -30,9 +30,9 @@ inline void create_test_population( sampsim::population *population )
   population->set_seed( stream.str() );
   population->set_mean_household_population( 4 );
   population->set_tile_width( 1 );
-  population->set_number_tiles_x( 3 );
-  population->set_number_tiles_y( 3 );
-  population->get_population_density()->set_b00( 1 );
+  population->set_number_tiles_x( 10 );
+  population->set_number_tiles_y( 10 );
+  population->get_population_density()->set_b00( 100 );
   population->generate();
 }
 
