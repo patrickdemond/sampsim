@@ -26,10 +26,30 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  sampsim::building* building_tree::find_nearest( coordinate search_coord )
+  building* building_tree::find_nearest( coordinate search_coord )
   {
     node* nearest_node = building_tree::find_nearest_node( this->root_node, search_coord );
     return NULL == nearest_node ? NULL : nearest_node->building;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void building_tree::remove( building* building )
+  {
+    // gather all ancestors to the building's node
+    node* remove_node = this->get_node( building );
+    node* parent_node = remove_node->parent;
+    building_list_type building_list;
+    building_tree::get_building_list( remove_node, building_list );
+    
+    // replace the node with a tree built from the node's child buildings
+    node* replacement_node = building_tree::build( building_list );
+
+    if( NULL == parent_node ) this->root_node = replacement_node;
+    else if( parent_node->left == remove_node ) parent_node->left = replacement_node;
+    else parent_node->right = replacement_node;
+
+    // now we can delete the node
+    utilities::safe_delete( remove_node );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -91,6 +111,43 @@ namespace sampsim
     if( NULL != current_node->left ) building_tree::destroy( current_node->left );
     if( NULL != current_node->right ) building_tree::destroy( current_node->right );
     utilities::safe_delete( current_node );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void building_tree::get_building_list( node* root_node, building_list_type& building_list )
+  {
+    if( root_node->left )
+    {
+      node* node = root_node->left;
+      building_list.push_back( node->building );
+      get_building_list( node, building_list );
+    }
+    if( root_node->right )
+    {
+      node* node = root_node->right;
+      building_list.push_back( node->building );
+      get_building_list( node, building_list );
+    }
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  building_tree::node* building_tree::find_node( node* root_node, building* building )
+  {
+    node* found_node = NULL;
+    if( building == root_node->building )
+      found_node = root_node;
+    if( NULL == found_node && root_node->left )
+      found_node = building_tree::find_node( root_node->left, building );
+    if( NULL == found_node && root_node->right )
+      found_node = building_tree::find_node( root_node->right, building );
+
+    return found_node;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  building_tree::node* building_tree::get_node( building* building )
+  {
+    return building_tree::find_node( this->root_node, building );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

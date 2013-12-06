@@ -68,7 +68,7 @@ namespace sampsim
        */
       double get_median()
       {
-        sampsim::coordinate c = this->get_position();
+        coordinate c = this->get_position();
         return 0 == depth % 2 ? c.x : c.y;
       }
 
@@ -121,9 +121,19 @@ namespace sampsim
     ~building_tree();
 
     /**
+     * Returns a building's node
+     */
+    node* get_node( building* );
+
+    /**
      * Returns the building which is located nearest to the given coordinate
      */
     building* find_nearest( coordinate );
+
+    /**
+     * Removes a building from the tree.
+     */
+    void remove( building* );
 
     /**
      * Provides a string representation of the tree
@@ -141,6 +151,20 @@ namespace sampsim
      */
     static void destroy( node* );
     
+    /**
+     * A recursive function that returns all buildings who are decendants of the given node
+     * 
+     * This is used by the remove() method.
+     */
+    static void get_building_list( node*, building_list_type& );
+
+    /**
+     * A recursive function that returns a particular building's node
+     * 
+     * This is used by the remove() method.
+     */
+    static node* find_node( node*, building* );
+
     /**
      * A recursive function that returns the nearest node in the tree
      * 
