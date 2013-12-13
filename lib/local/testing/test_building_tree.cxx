@@ -63,6 +63,7 @@ TEST( test_building_tree )
 
   for( int i = 0; i < 9; i++ )
   {
+    // find the nearest building
     b = tree.find_nearest( test_coords[i] );
     double distance = b->get_position().distance( test_coords[i] );
     cout << "Nearest point to (" << test_coords[i].x << ", " << test_coords[i].y << ") "
@@ -72,37 +73,56 @@ TEST( test_building_tree )
     // now check by looping through all buildings whether this is correct
     for( auto building_it = building_list.begin(); building_it != building_list.end(); ++building_it )
     {
-      b = *building_it;
-      double test = b->get_position().distance( test_coords[i] );
-      cout << "Testing (" << b->get_position().x << ", " << b->get_position().y << ") "
+      sampsim::building* btemp = *building_it;
+      double test = btemp->get_position().distance( test_coords[i] );
+      cout << "Testing " << btemp
+           << " (" << btemp->get_position().x << ", " << btemp->get_position().y << ") "
            << "which is " << ( test * 1000 ) << " meters away" << endl;
       CHECK( ( *building_it )->get_position().distance( test_coords[i] ) >= distance );
     }
     cout << endl;
 
-    // now find the next nearest building
-    tree.remove( b );
+    // now remove that building
     sampsim::coordinate bcoord = b->get_position();
-    b = tree.find_nearest( bcoord );
-    distance = b->get_position().distance( bcoord );
-    cout << "Nearest point to that building (" << bcoord.x << ", " << bcoord.y << ") "
-         << "is (" << b->get_position().x << ", " << b->get_position().y << ") "
-         << "which is " << ( distance * 1000 ) << " meters away" << endl;
+    cout << "Removing building at (" << bcoord.x << ", " << bcoord.y << ")" << endl;
 
-    // now check by looping through all buildings whether this is correct
+    tree.remove( b );
     for( auto building_it = building_list.begin(); building_it != building_list.end(); ++building_it )
     {
-      b = *building_it;
-      double test = b->get_position().distance( bcoord );
-      cout << "Testing (" << b->get_position().x << ", " << b->get_position().y << ") "
-           << "which is " << ( test * 1000 ) << " meters away" << endl;
-      CHECK( ( *building_it )->get_position().distance( bcoord ) >= distance );
+      if( *building_it == b )
+      {
+        building_list.erase( building_it );
+        break;
+      }
     }
+
+    // and find the next nearest building
+    b = tree.find_nearest( bcoord );
+    if( NULL == b )
+    {
+      cout << "Tree is empty" << endl;
+    }
+    else
+    {
+      distance = b->get_position().distance( bcoord );
+      cout << "Nearest point to removed building is ("
+           << b->get_position().x << ", " << b->get_position().y << ") "
+           << "which is " << ( distance * 1000 ) << " meters away" << endl;
+
+      // check by looping through all buildings whether this is correct
+      for( auto building_it = building_list.begin(); building_it != building_list.end(); ++building_it )
+      {
+        sampsim::building* btemp = *building_it;
+        double test = btemp->get_position().distance( bcoord );
+        cout << "Testing " << btemp
+             << " (" << btemp->get_position().x << ", " << btemp->get_position().y << ") "
+             << "which is " << ( test * 1000 ) << " meters away" << endl;
+        CHECK( ( *building_it )->get_position().distance( bcoord ) >= distance );
+      }
+    }
+
     cout << endl;
-
   }
-
-  cout << tree.to_string() << endl;
 
   // clean up
   sampsim::utilities::safe_delete( population );

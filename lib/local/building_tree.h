@@ -138,7 +138,8 @@ namespace sampsim
     /**
      * Provides a string representation of the tree
      */
-    std::string to_string() { return building_tree::to_string( this->root_node ); }
+    std::string to_string()
+    { return this->root_node ? building_tree::to_string( this->root_node ) : "empty"; }
 
   private:
     /**

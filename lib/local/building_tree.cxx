@@ -41,12 +41,24 @@ namespace sampsim
     building_list_type building_list;
     building_tree::get_building_list( remove_node, building_list );
     
-    // replace the node with a tree built from the node's child buildings
-    node* replacement_node = building_tree::build( building_list );
+    // special case: if the parent node is the root node and the building list is empty then
+    // rebuild the entire tree (for balancing purposes)
+    if( parent_node == this->root_node && 0 == building_list.size() )
+    {
+      building_tree::get_building_list( this->root_node, building_list );
+      building_list.push_back( this->root_node->building );
+      this->root_node = building_tree::build( building_list );
+    }
+    else
+    {
+      // replace the node with a tree built from the node's child buildings
+      node* replacement_node = building_tree::build( building_list );
 
-    if( NULL == parent_node ) this->root_node = replacement_node;
-    else if( parent_node->left == remove_node ) parent_node->left = replacement_node;
-    else parent_node->right = replacement_node;
+      if( replacement_node ) replacement_node->parent = parent_node;
+      if( NULL == parent_node ) this->root_node = replacement_node;
+      else if( parent_node->left == remove_node ) parent_node->left = replacement_node;
+      else parent_node->right = replacement_node;
+    }
 
     // now we can delete the node
     utilities::safe_delete( remove_node );
@@ -58,7 +70,7 @@ namespace sampsim
     std::string spacer = std::string( current_node->depth * 2, ' ' );
     std::stringstream stream;
     coordinate p = current_node->get_position();
-    stream << "( " << p.x << ", " << p.y << " )" << std::endl;
+    stream << current_node << " ( " << p.x << ", " << p.y << " )" << std::endl;
 
     if( NULL != current_node->left )
       stream << spacer << "left: " << building_tree::to_string( current_node->left );
@@ -108,9 +120,12 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void building_tree::destroy( node* current_node )
   {
-    if( NULL != current_node->left ) building_tree::destroy( current_node->left );
-    if( NULL != current_node->right ) building_tree::destroy( current_node->right );
-    utilities::safe_delete( current_node );
+    if( current_node )
+    {
+      if( NULL != current_node->left ) building_tree::destroy( current_node->left );
+      if( NULL != current_node->right ) building_tree::destroy( current_node->right );
+      utilities::safe_delete( current_node );
+    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -153,11 +168,13 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   building_tree::node* building_tree::find_nearest_node( node* root_node, coordinate search_coord )
   {
-    if( NULL == root_node )
-      throw std::runtime_error( "Tried to find nearest node without a root node" );
+    if( NULL == root_node ) return NULL;
 
     // start by finding the nearest leaf
-    node* nearest_node = building_tree::find_leaf( root_node, search_coord.x, search_coord.y );
+    node* nearest_node = building_tree::find_leaf(
+      root_node,
+      0 == root_node->depth % 2 ? search_coord.x : search_coord.y,
+      0 == root_node->depth % 2 ? search_coord.y : search_coord.x );
 
     // if the leaf is the root then we're done, otherwise we need to unwind the tree back to the root
     if( nearest_node != root_node )
@@ -215,6 +232,12 @@ namespace sampsim
   building_tree::node* building_tree::find_leaf( node* current_node, double x, double y )
   {
     node* next_node = x < current_node->get_median() ? current_node->left : current_node->right;
+    node* opposite_node = x < current_node->get_median() ? current_node->right : current_node->left;
+
+    // if the next node is null we've reached the end of the branch, but we may still be able to go
+    // down the other side from this node to reach the true leaf
+    if( NULL == next_node && NULL != opposite_node ) next_node = opposite_node;
+
     return NULL == next_node ? current_node : building_tree::find_leaf( next_node, y, x );
   }
 }
