@@ -9,6 +9,7 @@
 #include "strip_epi.h"
 
 #include "building.h"
+#include "building_tree.h"
 #include "population.h"
 
 #include <json/value.h>
@@ -20,21 +21,23 @@ namespace sampsim
 namespace sample
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  std::list< building* >::iterator strip_epi::select_next_building( std::list< building* > &list )
+  building* strip_epi::select_next_building( sampsim::building_tree &tree )
   {
     // make sure the strip width has been set
     if( 0 >= this->strip_width )
       throw std::runtime_error( "Tried to sample without first setting the strip width parameter" );
 
-    std::list< building* >::iterator building_it;
+    building* b;
 
     if( NULL == this->current_building )
     {   
+      building_list_type building_list = tree.get_building_list();
+
       // 1. get list of all buildings in rectangle formed by drawing a line from the centre
       //    of the population to the edge following the random angle, then widening that
       //    line into a rectangle the width of the input parameter "strip width" such that
       //    the original line runs along the centre of the rectagle
-      std::vector< std::list< building* >::iterator > initial_buildings;
+      building_list_type initial_buildings;
 
       // 2. keep repeating step 2 until the list produced is not empty
       int iterations = 0;
@@ -56,7 +59,7 @@ namespace sample
         double coef1 = coef - offset;
         double coef2 = coef + offset;
 
-        for( auto it = list.begin(); it != list.end(); ++it )
+        for( auto it = building_list.begin(); it != building_list.end(); ++it )
         {
           coordinate p = (*it)->get_position();
 
@@ -68,7 +71,7 @@ namespace sample
           {
             // now rotate the point by -angle to see if is in the strip or on the opposite side
             double rotated_x = ( p.x - c.x ) * cos_min_angle - ( p.y - c.y ) * sin_min_angle + c.x;
-            if( c.x <= rotated_x ) initial_buildings.push_back( it );
+            if( c.x <= rotated_x ) initial_buildings.push_back( *it );
           }
         }
 
@@ -86,7 +89,7 @@ namespace sample
       this->first_building_index = utilities::random( 0, initial_buildings.size() - 1 );
       auto initial_it = initial_buildings.begin();
       std::advance( initial_it, this->first_building_index );
-      building_it = *initial_it;
+      b = *initial_it;
       if( utilities::verbose )
         utilities::output(
           "selecting building %d of %d in strip",
@@ -95,11 +98,11 @@ namespace sample
     }
     else
     {
-      building_it = epi::select_next_building( list );
+      b = epi::select_next_building( tree );
     }
 
-    this->current_building = *building_it;
-    return building_it;
+    this->current_building = b;
+    return b;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

@@ -9,6 +9,7 @@
 #include "sample.h"
 
 #include "building.h"
+#include "building_tree.h"
 #include "household.h"
 #include "individual.h"
 #include "population.h"
@@ -73,7 +74,7 @@ namespace sample
       throw std::runtime_error( "Cannot generate sample, sex type is unknown" );
 
     // create a list of all buildings
-    std::list< building* > remaining_building_list;
+    building_list_type building_list;
 
     for( auto tile_it = this->population->get_tile_list_cbegin();
          tile_it != this->population->get_tile_list_cend();
@@ -84,11 +85,14 @@ namespace sample
            ++building_it )
       {
         (*building_it)->unselect(); // unselect the building
-        remaining_building_list.push_back( *building_it );
+        building_list.push_back( *building_it );
       }
     }
 
-    utilities::output( "selecting from a list of %d buildings", remaining_building_list.size() );
+    // store the building list in a tree
+    sampsim::building_tree tree( building_list );
+
+    utilities::output( "selecting from a list of %d buildings", building_list.size() );
 
     // keep selecting buildings until we've filled our sample size
     int individual_count = 0;
@@ -96,14 +100,13 @@ namespace sample
     this->first_building = NULL;
     while( this->get_size() > individual_count )
     {
-      if( 0 == remaining_building_list.size() )
+      if( tree.is_empty() )
       {
         std::cout << "WARNING: unable to fulfill sample size" << std::endl;
         break;
       }
 
-      auto building_it = this->select_next_building( remaining_building_list );
-      building *b = *building_it;
+      building* b = this->select_next_building( tree );
 
       // set the first building
       if( NULL == this->first_building ) this->first_building = b;
@@ -140,7 +143,7 @@ namespace sample
           if( this->get_size() <= individual_count ) break;
         }
       }
-      remaining_building_list.erase( building_it );
+      tree.remove( b );
     }
 
     utilities::output(

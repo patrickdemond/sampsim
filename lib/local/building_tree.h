@@ -126,6 +126,11 @@ namespace sampsim
     node* get_node( building* );
 
     /**
+     * Returns a list of all buildings in the tree
+     */
+    building_list_type get_building_list();
+
+    /**
      * Returns the building which is located nearest to the given coordinate
      */
     building* find_nearest( coordinate );
@@ -139,7 +144,12 @@ namespace sampsim
      * Provides a string representation of the tree
      */
     std::string to_string()
-    { return this->root_node ? building_tree::to_string( this->root_node ) : "empty"; }
+    { return this->is_empty() ? "empty" : building_tree::to_string( this->root_node ); }
+
+    /**
+     * Returns wether the tree is empty or not
+     */
+    bool is_empty() { return NULL == this->root_node; }
 
   private:
     /**

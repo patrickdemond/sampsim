@@ -92,7 +92,7 @@ namespace sample
     /**
      * Algorithm which selects buildings based on the sampling method
      */
-    virtual std::list< building* >::iterator select_next_building( std::list< building* >& );
+    virtual building* select_next_building( sampsim::building_tree& );
 
     /**
      * Whether the start angle has been defined

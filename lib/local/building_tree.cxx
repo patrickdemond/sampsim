@@ -26,6 +26,18 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  building_list_type building_tree::get_building_list()
+  {
+    building_list_type building_list;
+    if( !this->is_empty() )
+    {
+      building_list.push_back( this->root_node->building );
+      building_tree::get_building_list( this->root_node, building_list );
+    }
+    return building_list;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   building* building_tree::find_nearest( coordinate search_coord )
   {
     node* nearest_node = building_tree::find_nearest_node( this->root_node, search_coord );
