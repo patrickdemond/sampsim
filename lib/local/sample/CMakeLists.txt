@@ -3,6 +3,7 @@ SET( SAMPSIM_SAMPLE_LIB_NAME "${PROJECT_NAME}_sample" )
 SET( SAMPSIM_SAMPLE_LIB_SOURCE
   arc_epi.cxx
   epi.cxx
+  gps.cxx
   random.cxx
   strip_epi.cxx
   sample.cxx
