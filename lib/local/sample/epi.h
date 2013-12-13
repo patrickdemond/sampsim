@@ -39,7 +39,7 @@ namespace sample
    * A base class for all sampling methods based on the World Health Organization's Expanded Program
    * on Immunization (EPI).  These samplers start at the centre of the population, choose a random
    * direction, randomly selects one of the buildings in that direction and proceeds to sample
-   * the nearest households from the previously selected household until the sample size is met.
+   * the nearest buildings from the previously selected building until the sample size is met.
    */
   class epi : public sample
   {
@@ -50,7 +50,7 @@ namespace sample
     epi();
 
     /**
-     * Generates the sample by calling select_next_household() until sample size has been met
+     * Generates the sample by calling select_next_building() until sample size has been met
      */
     virtual void generate();
 
@@ -70,12 +70,12 @@ namespace sample
     virtual std::string get_csv_header() const;
 
     /**
-     * Returns the angle used in the selection of the initial household
+     * Returns the angle used in the selection of the initial building
      */
     double get_start_angle() { return this->start_angle; }
 
     /**
-     * Sets the angle used in the selection of the initial household
+     * Sets the angle used in the selection of the initial building
      */
     void set_start_angle( double start_angle )
     {
@@ -90,9 +90,9 @@ namespace sample
 
   protected:
     /**
-     * Algorithm which selects households based on the sampling method
+     * Algorithm which selects buildings based on the sampling method
      */
-    virtual std::list< household* >::iterator select_next_household( std::list< household* >& );
+    virtual std::list< building* >::iterator select_next_building( std::list< building* >& );
 
     /**
      * Whether the start angle has been defined
@@ -100,20 +100,20 @@ namespace sample
     bool start_angle_defined;
 
     /**
-     * The angle used in the selection of the initial household
+     * The angle used in the selection of the initial building
      */
     double start_angle;
 
     /**
-     * The index of the first household selected from all of those found in the direction of the
+     * The index of the first building selected from all of those found in the direction of the
      * starting angle
      */
-    int first_house_index;
+    int first_building_index;
 
     /**
-     * A reference to the currently selected household
+     * A reference to the currently selected building
      */
-    household *current_household;
+    building *current_building;
   };
 }
 

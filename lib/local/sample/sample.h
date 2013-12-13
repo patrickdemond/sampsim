@@ -43,9 +43,9 @@ namespace sample
    * @author Patrick Emond <emondpd@mcmaster.ca>
    * @brief An abstract base class for all sampling methods
    * @details
-   * All sampling methods work by selecting households until the sample size has been met.
-   * Implementations of this class define how households are selected by defining the 
-   * select_next_household() method.
+   * All sampling methods work by selecting buildings until the sample size has been met.
+   * Implementations of this class define how buildings are selected by defining the 
+   * select_next_building() method.
    * Populations used by sample classes are put into sampling mode.
    */
   class sample : public sampsim::base_object
@@ -62,7 +62,7 @@ namespace sample
     ~sample();
 
     /**
-     * Generates the sample by calling select_next_household() until sample size has been met
+     * Generates the sample by calling select_next_building() until sample size has been met
      */
     virtual void generate();
 
@@ -141,9 +141,9 @@ namespace sample
     sex_type get_sex() const { return this->sex; }
 
     /**
-     * Returns the first household which was selected by the sampler
+     * Returns the first building which was selected by the sampler
      */
-    household* get_first_household() { return this->first_household; }
+    building* get_first_building() { return this->first_building; }
 
     /**
      * Deserialize the sample
@@ -178,12 +178,12 @@ namespace sample
 
   protected:
     /**
-     * Algorithm which selects households based on the sampling method
+     * Algorithm which selects buildings based on the sampling method
      * 
      * This pure virtual method must be defined by all child classes.  It allows each sampling method
-     * to define how households are selected (in sequence).
+     * to define how buildings are selected (in sequence).
      */
-    virtual std::list< household* >::iterator select_next_household( std::list< household* >& ) = 0;
+    virtual std::list< building* >::iterator select_next_building( std::list< building* >& ) = 0;
 
     /**
      * The population to sample from
@@ -232,9 +232,9 @@ namespace sample
     sex_type sex;
 
     /**
-     * A reference to the first household selected by the sampler
+     * A reference to the first building selected by the sampler
      */
-    household *first_household;
+    building *first_building;
   };
 }
 

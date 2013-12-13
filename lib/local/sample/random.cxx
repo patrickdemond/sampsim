@@ -13,12 +13,12 @@ namespace sampsim
 namespace sample
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  std::list< household* >::iterator random::select_next_household( std::list< household* > &list )
+  std::list< building* >::iterator random::select_next_building( std::list< building* > &list )
   {
-    // simple: pick a random household
-    auto household_it = list.begin();
-    std::advance( household_it, utilities::random( 0, list.size() - 1 ) );
-    return household_it;
+    // simple: pick a random building
+    auto building_it = list.begin();
+    std::advance( building_it, utilities::random( 0, list.size() - 1 ) );
+    return building_it;
   }
 }
 }

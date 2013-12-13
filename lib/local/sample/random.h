@@ -35,8 +35,8 @@ namespace sample
    * @author Patrick Emond <emondpd@mcmaster.ca>
    * @brief Random sampler
    * @details
-   * A concrete implementation of the sample class.  This is a pure random sampler.  It random
-   * selects households until the sample size has been met.
+   * A concrete implementation of the sample class.  This is a pure random sampler.  It randomly
+   * selects buildings until the sample size has been met.
    */
   class random : public sample
   {
@@ -48,9 +48,9 @@ namespace sample
 
   protected:
     /**
-     * Algorithm which selects households based on the sampling method
+     * Algorithm which selects buildings based on the sampling method
      */
-    virtual std::list< household* >::iterator select_next_household( std::list< household* >& );
+    virtual std::list< building* >::iterator select_next_building( std::list< building* >& );
   };
 }
 

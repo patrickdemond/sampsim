@@ -33,7 +33,7 @@ namespace sample
   /**
    * @class strip_epi
    * @author Patrick Emond <emondpd@mcmaster.ca>
-   * @brief EPI method which picks the initial household using a strip
+   * @brief EPI method which picks the initial building using a strip
    * @details
    * A contrete implementation of the sample class.  This EPI method uses a strip to determine
    * which buildings are considered to be inside the list of buildings defined by the initial
@@ -79,9 +79,9 @@ namespace sample
 
   protected:
     /**
-     * Algorithm which selects households based on the sampling method
+     * Algorithm which selects buildings based on the sampling method
      */
-    virtual std::list< household* >::iterator select_next_household( std::list< household* >& );
+    virtual std::list< building* >::iterator select_next_building( std::list< building* >& );
 
   private:
     /**

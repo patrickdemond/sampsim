@@ -9,7 +9,6 @@
 #include "epi.h"
 
 #include "building.h"
-#include "household.h"
 
 #include <json/value.h>
 #include <limits>
@@ -24,66 +23,49 @@ namespace sample
   {
     this->start_angle_defined = false;
     this->start_angle = 0;
-    this->first_house_index = 0;
-    this->current_household = NULL;
+    this->first_building_index = 0;
+    this->current_building = NULL;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void epi::generate()
   {
-    // reset the current household before running the parent method
-    this->current_household = NULL;
+    // reset the current building before running the parent method
+    this->current_building = NULL;
     sample::generate();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  std::list< household* >::iterator epi::select_next_household( std::list< household* > &list )
+  std::list< building* >::iterator epi::select_next_building( std::list< building* > &list )
   {
-    std::list< household* >::iterator household_it;
+    std::list< building* >::iterator building_it;
 
-    // Steps 1, 2 and 3 are done by child classes in select_initial_household()
-    if( NULL == this->current_household )
+    // Steps 1, 2 and 3 are done by child classes in select_initial_building()
+    if( NULL == this->current_building )
     {
       throw std::runtime_error(
-        "Classes extending epi must select an initial household before passing "
+        "Classes extending epi must select an initial building before passing "
         "reponsibility to the parent method" );
     }
     else
     {
-      building *current_building = this->current_household->get_building();
-
-      // 4. sample all households in that building
-      if( utilities::verbose ) utilities::output( "sampling households in the selected building" );
-      bool found = false;
+      // 5. find the nearest building (distance measured in a straight path (as the crow flies))
+      if( utilities::verbose ) utilities::output( "finding the nearest unselected neighbouring building" );
+      double min = std::numeric_limits<double>::max();
       for( auto it = list.begin(); it != list.end(); ++it )
       {
-        if( (*it)->get_building() == current_building )
+        double distance =
+          current_building->get_position().distance( (*it)->get_position() );
+        if( distance < min )
         {
-          household_it = it;
-          found = true;
-        }
-      }
-
-      if( !found )
-      {
-        // 5. find the nearest building (distance measured in a straight path (as the crow flies))
-        if( utilities::verbose ) utilities::output( "finding the nearest unselected neighbouring building" );
-        double min = std::numeric_limits<double>::max();
-        for( auto it = list.begin(); it != list.end(); ++it )
-        {
-          double distance =
-            current_building->get_position().distance( (*it)->get_building()->get_position() );
-          if( distance < min )
-          {
-            household_it = it;
-            min = distance;
-          }
+          building_it = it;
+          min = distance;
         }
       }
     }
 
-    this->current_household = *household_it;
-    return household_it;
+    this->current_building = *building_it;
+    return building_it;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -99,7 +81,7 @@ namespace sample
     std::stringstream stream;
     stream << sample::get_csv_header();
     stream << "# start_angle: " << this->start_angle << std::endl;
-    stream << "# first_house_index: " << this->first_house_index << std::endl;
+    stream << "# first_building_index: " << this->first_building_index << std::endl;
     return stream.str();
   }
 }

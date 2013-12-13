@@ -82,7 +82,7 @@ TEST( test_sample_arc_epi )
     cout << "Testing arc from " << angle1 << " to " << angle2 << " radians..." << endl;
     sample1->generate();
 
-    double a = sample1->get_first_household()->get_building()->get_position().get_a();
+    double a = sample1->get_first_building()->get_position().get_a();
     if( -M_PI > angle1 || M_PI < angle2 )
     {
       if( 0 < a )

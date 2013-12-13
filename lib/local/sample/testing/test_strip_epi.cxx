@@ -106,7 +106,7 @@ TEST( test_sample_strip_epi )
     double b1 = p1.y - m * p1.x;
 
     // confirm that the intercept is between the strip line's intercepts
-    sampsim::coordinate p = sample1->get_first_household()->get_building()->get_position();
+    sampsim::coordinate p = sample1->get_first_building()->get_position();
     double b = p.y - m * p.x;
 
     cout << b0 << ", " << b << ", " << b1 << endl;

@@ -30,7 +30,7 @@ namespace sample
     this->one_per_household = false;
     this->age = ANY_AGE;
     this->sex = ANY_SEX;
-    this->first_household = NULL;
+    this->first_building = NULL;
     this->population = NULL;
     this->owns_population = false;
   }
@@ -72,8 +72,8 @@ namespace sample
     if( UNKNOWN_SEX_TYPE == this->get_sex() )
       throw std::runtime_error( "Cannot generate sample, sex type is unknown" );
 
-    // create a list of all households
-    std::list< household* > remaining_household_list;
+    // create a list of all buildings
+    std::list< building* > remaining_building_list;
 
     for( auto tile_it = this->population->get_tile_list_cbegin();
          tile_it != this->population->get_tile_list_cend();
@@ -84,55 +84,63 @@ namespace sample
            ++building_it )
       {
         (*building_it)->unselect(); // unselect the building
-        for( auto household_it = (*building_it)->get_household_list_cbegin();
-             household_it != (*building_it)->get_household_list_cend();
-             ++household_it )
-          remaining_household_list.push_back( *household_it );
+        remaining_building_list.push_back( *building_it );
       }
     }
 
-    utilities::output( "selecting from a list of %d households", remaining_household_list.size() );
+    utilities::output( "selecting from a list of %d buildings", remaining_building_list.size() );
 
-    // keep selecting households until we've filled our sample size
+    // keep selecting buildings until we've filled our sample size
     int individual_count = 0;
     int household_count = 0;
-    this->first_household = NULL;
+    this->first_building = NULL;
     while( this->get_size() > individual_count )
     {
-      if( 0 == remaining_household_list.size() )
+      if( 0 == remaining_building_list.size() )
       {
         std::cout << "WARNING: unable to fulfill sample size" << std::endl;
         break;
       }
 
-      auto household_it = this->select_next_household( remaining_household_list );
-      household *h = *household_it;
+      auto building_it = this->select_next_building( remaining_building_list );
+      building *b = *building_it;
 
-      // set the first household
-      if( NULL == this->first_household ) this->first_household = h;
+      // set the first building
+      if( NULL == this->first_building ) this->first_building = b;
 
       int count = 0;
-      // select individuals within the household
-      for( auto individual_it = h->get_individual_list_begin();
-           individual_it != h->get_individual_list_end();
-           ++individual_it )
+      // select households within the building (this is step 4 of the algorithm)
+      for( auto household_it = b->get_household_list_begin();
+           household_it != b->get_household_list_end();
+           ++household_it )
       {
-        individual *i = *individual_it;
-        if( ( ANY_AGE == this->get_age() || this->get_age() == i->get_age() ) &&
-            ( ANY_SEX == this->get_sex() || this->get_sex() == i->get_sex() ) )
+        household *h = *household_it;
+
+        // select individuals within the household
+        for( auto individual_it = h->get_individual_list_begin();
+             individual_it != h->get_individual_list_end();
+             ++individual_it )
         {
-          i->select();
-          count++;
-          if( this->get_one_per_household() ) break;
+          individual *i = *individual_it;
+          if( ( ANY_AGE == this->get_age() || this->get_age() == i->get_age() ) &&
+              ( ANY_SEX == this->get_sex() || this->get_sex() == i->get_sex() ) )
+          {
+            i->select();
+            count++;
+            if( this->get_one_per_household() ) break;
+          }
+        }
+
+        if( count )
+        {
+          individual_count += count;
+          household_count++;
+
+          // only select another household if we haven't reached our count
+          if( this->get_size() <= individual_count ) break;
         }
       }
-
-      if( count )
-      {
-        individual_count += count;
-        household_count++;
-      }
-      remaining_household_list.erase( household_it );
+      remaining_building_list.erase( building_it );
     }
 
     utilities::output(

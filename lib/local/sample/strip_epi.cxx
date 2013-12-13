@@ -9,7 +9,6 @@
 #include "strip_epi.h"
 
 #include "building.h"
-#include "household.h"
 #include "population.h"
 
 #include <json/value.h>
@@ -21,25 +20,25 @@ namespace sampsim
 namespace sample
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  std::list< household* >::iterator strip_epi::select_next_household( std::list< household* > &list )
+  std::list< building* >::iterator strip_epi::select_next_building( std::list< building* > &list )
   {
     // make sure the strip width has been set
     if( 0 >= this->strip_width )
       throw std::runtime_error( "Tried to sample without first setting the strip width parameter" );
 
-    std::list< household* >::iterator household_it;
+    std::list< building* >::iterator building_it;
 
-    if( NULL == this->current_household )
+    if( NULL == this->current_building )
     {   
       // 1. get list of all buildings in rectangle formed by drawing a line from the centre
       //    of the population to the edge following the random angle, then widening that
       //    line into a rectangle the width of the input parameter "strip width" such that
       //    the original line runs along the centre of the rectagle
-      std::vector< std::list< household* >::iterator > initial_households;
+      std::vector< std::list< building* >::iterator > initial_buildings;
 
       // 2. keep repeating step 2 until the list produced is not empty
       int iterations = 0;
-      while( 0 == initial_households.size() && iterations < 100 )
+      while( 0 == initial_buildings.size() && iterations < 100 )
       {
         // if a start angle hasn't been defined then pick a random start angle in [-PI, PI]
         if( !this->start_angle_defined )
@@ -59,7 +58,7 @@ namespace sample
 
         for( auto it = list.begin(); it != list.end(); ++it )
         {
-          coordinate p = (*it)->get_building()->get_position();
+          coordinate p = (*it)->get_position();
 
           // determine the house's coefficient based on a line at the same angle as the strip lines
           // but crossing through the point
@@ -69,38 +68,38 @@ namespace sample
           {
             // now rotate the point by -angle to see if is in the strip or on the opposite side
             double rotated_x = ( p.x - c.x ) * cos_min_angle - ( p.y - c.y ) * sin_min_angle + c.x;
-            if( c.x <= rotated_x ) initial_households.push_back( it );
+            if( c.x <= rotated_x ) initial_buildings.push_back( it );
           }
         }
 
-        if( 0 == initial_households.size() && utilities::verbose )
-          utilities::output( "no households found in strip" );
+        if( 0 == initial_buildings.size() && utilities::verbose )
+          utilities::output( "no buildings found in strip" );
 
         iterations++;
       }
 
-      if( 0 == initial_households.size() )
+      if( 0 == initial_buildings.size() )
         throw std::runtime_error(
-          "Unable to find initial household after 100 attempts (try widening the strip width)" );
+          "Unable to find initial building after 100 attempts (try widening the strip width)" );
 
       // 3. select a random building from the list produced by step 2
-      this->first_house_index = utilities::random( 0, initial_households.size() - 1 );
-      auto initial_it = initial_households.begin();
-      std::advance( initial_it, this->first_house_index );
-      household_it = *initial_it;
+      this->first_building_index = utilities::random( 0, initial_buildings.size() - 1 );
+      auto initial_it = initial_buildings.begin();
+      std::advance( initial_it, this->first_building_index );
+      building_it = *initial_it;
       if( utilities::verbose )
         utilities::output(
-          "selecting household %d of %d in strip",
-          this->first_house_index + 1,
-          initial_households.size() );
+          "selecting building %d of %d in strip",
+          this->first_building_index + 1,
+          initial_buildings.size() );
     }
     else
     {
-      household_it = epi::select_next_household( list );
+      building_it = epi::select_next_building( list );
     }
 
-    this->current_household = *household_it;
-    return household_it;
+    this->current_building = *building_it;
+    return building_it;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
