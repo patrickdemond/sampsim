@@ -59,6 +59,23 @@ namespace sampsim
         this->left = NULL;
         this->right = NULL;
       }
+      
+      void copy( node* n )
+      {
+        this->parent = parent;
+        this->depth = n->depth;
+        this->building = n->building;
+        if( n->left )
+        {
+          this->left = new node( this );
+          this->left->copy( n->left );
+        }
+        if( n->right )
+        {
+          this->right = new node( this );
+          this->right->copy( n->right );
+        }
+      }
 
       /**
        * Returns the node's median value
@@ -114,6 +131,13 @@ namespace sampsim
      * Constructor
      */
     building_tree( building_list_type );
+
+    /**
+     * Constructor
+     * 
+     * Copies an existing building_tree
+     */
+    building_tree( const building_tree& );
     
     /**
      * Destructor
