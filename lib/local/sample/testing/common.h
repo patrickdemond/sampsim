@@ -34,6 +34,7 @@ inline void create_test_population( sampsim::population *population )
   population->set_number_tiles_x( 10 );
   population->set_number_tiles_y( 10 );
   population->get_population_density()->set_b00( 100 );
+  population->set_disease_pockets( 3 );
   population->generate();
 }
 

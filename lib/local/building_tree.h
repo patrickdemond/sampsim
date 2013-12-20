@@ -12,7 +12,6 @@
 #include "base_object.h"
 
 #include "building.h"
-#include "coordinate.h"
 #include "utilities.h"
 
 #include <stdexcept>

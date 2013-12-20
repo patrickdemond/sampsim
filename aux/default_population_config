@@ -32,6 +32,14 @@ tile_y: 10
 tile_width: 3.5
 
 #
+# The number of disease pockets to generate
+# The closer to a disease pocket a building is the higher the probability its inhabitants
+# will have a disease (proportional to the inverse square of the distance from the pocket).
+# Disease pockets are randomly placed within the bounds of the population
+#
+disease_pockets: 0
+
+#
 # The mean household population
 #
 mean_household_pop: 3.2
@@ -80,10 +88,11 @@ popdens_b00: 400
 
 #
 # The weights used to determine disease status including:
-#   population, income, disease risk, age and sex
+#   population, income, disease risk, age, sex and pocketing
 #
 dweight_population: 1.0
 dweight_income: 1.0
 dweight_risk: 1.0
 dweight_age: 1.0
 dweight_sex: 1.0
+dweight_pocket: 1.0
