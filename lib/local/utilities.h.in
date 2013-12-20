@@ -56,32 +56,33 @@ namespace sampsim
   class individual;
 
   /**
-   * 
+   * @typedef tile_list_type
    */
   typedef std::map< std::pair< int, int >, tile* > tile_list_type;
 
   /**
-   * 
+   * @typedef building_list_type
    */
   typedef std::vector< building* > building_list_type;
 
   /**
-   * 
+   * @typedef household_list_type
    */
   typedef std::vector< household* > household_list_type;
 
   /**
-   * 
+   * @typedef individual_list_type
    */
   typedef std::vector< individual* > individual_list_type;
 
   /**
-   * 
+   * @typedef coordinate_list_type
    */
   typedef std::vector< coordinate > coordinate_list_type;
 
   /**
-   * 
+   * @enum age_type
+   * A list of all possible ways to select inviduals by age
    */
   enum age_type
   {
@@ -92,7 +93,7 @@ namespace sampsim
   };
 
   /**
-   * 
+   * Converts the name of an age type to its enum value
    */
   inline static age_type get_age_type( const std::string name )
   {
@@ -103,7 +104,7 @@ namespace sampsim
   }
 
   /**
-   * 
+   * Converts the enum value of an age type to its name
    */
   inline static std::string get_age_type_name( const age_type type )
   {
@@ -114,7 +115,8 @@ namespace sampsim
   }
 
   /**
-   * 
+   * @enum sex_type
+   * A list of all possible ways to select individuals by sex
    */
   enum sex_type
   {
@@ -125,7 +127,7 @@ namespace sampsim
   };
 
   /**
-   * 
+   * Converts the name of a sex type to its enum value
    */
   inline static sex_type get_sex_type( const std::string name )
   {
@@ -136,7 +138,7 @@ namespace sampsim
   }
 
   /**
-   * 
+   * Converts the enum value of a sex type to its name
    */
   inline static std::string get_sex_type_name( const sex_type type )
   {
@@ -147,13 +149,15 @@ namespace sampsim
   }
 
   /**
-   * 
+   * @class utilities
+   * @author Patrick Emond <emondpd@mcmaster.ca>
+   * @brief A class of various utility functions (all inline static functions)
    */
   class utilities
   {
   public:
     /**
-     * 
+     * Returns a string representation of the software version
      */
     inline static std::string get_version()
     {
@@ -163,7 +167,9 @@ namespace sampsim
     }
 
     /**
+     * Outputs text to the standard output
      * 
+     * This function will prefix the output with the application's running time
      */
     inline static void output( std::string message, ... )
     {
@@ -184,7 +190,7 @@ namespace sampsim
     }
 
     /**
-     * 
+     * Executes an operation on the command line and returns the command's output
      */
     inline static std::string exec( const std::string command )
     {
@@ -198,7 +204,7 @@ namespace sampsim
     }
 
     /**
-     * 
+     * Returns whether a file exists
      */
     inline static bool file_exists( std::string filename )
     {
@@ -207,7 +213,7 @@ namespace sampsim
     }
 
     /**
-     * 
+     * Returns a file's extension (the string after the last . in the filename)
      */
     inline static std::string get_file_extension( std::string filename )
     {
@@ -217,7 +223,7 @@ namespace sampsim
     }
 
     /**
-     * 
+     * Returns the path from a full path and filename
      */
     inline static std::string get_filename_path( std::string filename )
     {
@@ -242,7 +248,7 @@ namespace sampsim
     }
 
     /**
-     * 
+     * Returns the file name from a full path and filename
      */
     inline static std::string get_filename_name( std::string filename )
     {
@@ -258,7 +264,7 @@ namespace sampsim
     }
 
     /**
-     * 
+     * Divides a string by the provided separator, returning the results as a vector of strings
      */
     inline static std::vector< std::string > explode( std::string str, std::string separator )
     {
@@ -275,7 +281,7 @@ namespace sampsim
     }
 
     /**
-     * 
+     * Removes all space characters (as defined by std::isspace) from the left side of a string
      */
     inline static std::string &ltrim( std::string &s )
     {
@@ -287,7 +293,7 @@ namespace sampsim
     }
 
     /**
-     * 
+     * Removes all space characters (as defined by std::isspace) from the right side of a string
      */
     inline static std::string &rtrim( std::string &s )
     {
@@ -299,7 +305,7 @@ namespace sampsim
     }
 
     /**
-     * 
+     * Removes all space characters (as defined by std::isspace) from both sides of a string
      */
     inline static std::string &trim(std::string &s)
     {
@@ -307,7 +313,7 @@ namespace sampsim
     }
 
     /**
-     * 
+     * Returns a random integer between the min and max values, inclusive
      */
     inline static unsigned int random( unsigned int min, unsigned int max )
     {
@@ -315,7 +321,7 @@ namespace sampsim
     }
 
     /**
-     * 
+     * Returns a random value between 0.0 and 1.0, inclusive
      */
     inline static double random()
     {
@@ -324,39 +330,41 @@ namespace sampsim
     }
 
     /**
-     * 
+     * @struct safe_delete_type
+     * @brief Used for safely deleting memory
      */
     struct safe_delete_type
     {
       /**
-       * 
+       * Overrides the () operator in order to allow instance of this struct to act as a
+       * safe-delete mechanism
        */
       template <typename T>
       void operator()( T *&p ) { if( p ) { delete p; p = 0; } };
     };
 
     /**
-     * 
+     * The random engine used by the random functions
      */
     static std::mt19937 random_engine;
     
     /**
-     * 
+     * A struct instance used to safely delete memory
      */
     static safe_delete_type safe_delete;
     
     /**
-     * 
+     * Whether to output additional messages during execution
      */
     static bool verbose;
     
     /**
-     * 
+     * A running household count used to identify households in CSV output files
      */
     static int household_index;
 
     /**
-     * 
+     * A clock used to track execution time
      */
     static clock_t start_time;
   };
