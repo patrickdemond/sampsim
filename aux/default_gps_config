@@ -35,3 +35,8 @@ age: children
 # Whether to restrict sampling to male, female or either
 #
 sex: either
+
+#
+# What distance from a GPS point to include when searching for households (in meters)
+#
+radius: 500
