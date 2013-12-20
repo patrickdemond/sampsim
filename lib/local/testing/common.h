@@ -25,9 +25,9 @@ using namespace std;
 
 inline void create_test_population( sampsim::population *population )
 {
+  sampsim::utilities::verbose = true;
   stringstream stream;
   stream << time( NULL );
-  cout << "Using seed " << stream.str() << endl;
   population->set_seed( stream.str() );
   population->set_mean_household_population( 4 );
   population->set_tile_width( 1 );
