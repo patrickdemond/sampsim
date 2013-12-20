@@ -56,6 +56,8 @@ namespace sampsim
   {
     // gather all ancestors to the building's node
     node* remove_node = this->get_node( building );
+    if( NULL == remove_node )
+      throw std::runtime_error( "Tried to remove building which doesn't exist in the building_tree" );
     node* parent_node = remove_node->parent;
     building_list_type building_list;
     building_tree::get_building_list( remove_node, building_list );
@@ -89,7 +91,8 @@ namespace sampsim
     std::string spacer = std::string( current_node->depth * 2, ' ' );
     std::stringstream stream;
     coordinate p = current_node->get_position();
-    stream << current_node << " ( " << p.x << ", " << p.y << " )" << std::endl;
+    stream << "node: " << current_node << " building: " << current_node->building
+           << " ( " << p.x << ", " << p.y << " )" << std::endl;
 
     if( NULL != current_node->left )
       stream << spacer << "left: " << building_tree::to_string( current_node->left );
