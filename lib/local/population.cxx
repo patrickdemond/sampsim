@@ -101,15 +101,13 @@ namespace sampsim
 
     // create a matrix of all participants (rows) and their various disease predictor factors
     const int population_size = this->count_population();
-    individual *ind;
-    household *house;
     double value[population::NUMBER_OF_WEIGHTS], total[population::NUMBER_OF_WEIGHTS];
     for( unsigned int c = 0; c < population::NUMBER_OF_WEIGHTS; c++ ) total[c] = 0;
     
     std::vector< double > matrix[population::NUMBER_OF_WEIGHTS];
     for( unsigned int c = 0; c < population::NUMBER_OF_WEIGHTS; c++ )
       matrix[c].resize( population_size );
-    std::vector< individual* > individual_list;
+    individual_list_type individual_list;
     individual_list.resize( population_size );
     
     int individual_index = 0;
@@ -122,22 +120,21 @@ namespace sampsim
            building_it != tile_it->second->get_building_list_cend();
            ++building_it )
       {
+        value[5] = ( *building_it )->get_pocket_factor();
         for( auto household_it = ( *building_it )->get_household_list_cbegin();
              household_it != ( *building_it )->get_household_list_cend();
              ++household_it )
         {
-          house = ( *household_it );
-          value[0] = house->count_population();
-          value[1] = house->get_income();
-          value[2] = house->get_disease_risk();
+          value[0] = ( *household_it )->count_population();
+          value[1] = ( *household_it )->get_income();
+          value[2] = ( *household_it )->get_disease_risk();
 
           for( auto individual_it = ( *household_it )->get_individual_list_cbegin();
                individual_it != ( *household_it )->get_individual_list_cend();
                ++individual_it )
           {
-            ind = ( *individual_it );
-            value[3] = ADULT == ind->get_age() ? 1 : 0;
-            value[4] = MALE == ind->get_sex() ? 1 : 0;
+            value[3] = ADULT == ( *individual_it )->get_age() ? 1 : 0;
+            value[4] = MALE == ( *individual_it )->get_sex() ? 1 : 0;
 
             for( unsigned int c = 0; c < population::NUMBER_OF_WEIGHTS; c++ )
             {
@@ -146,7 +143,7 @@ namespace sampsim
             }
 
             // keep a reference to the individual for writing to later
-            individual_list[individual_index] = ind;
+            individual_list[individual_index] = ( *individual_it );
             
             individual_index++;
           }
@@ -348,6 +345,7 @@ namespace sampsim
     stream << "# dweight_risk: " << this->disease_weights[2] << std::endl;
     stream << "# dweight_age: " << this->disease_weights[3] << std::endl;
     stream << "# dweight_sex: " << this->disease_weights[4] << std::endl;
+    stream << "# dweight_pocket: " << this->disease_weights[5] << std::endl;
     stream << "#" << std::endl;
     stream << "# mean_household_pop" << this->mean_household_population << std::endl;
     stream << "# mean_income trend: " << this->mean_income->to_string() << std::endl;
@@ -395,6 +393,16 @@ namespace sampsim
   {
     if( utilities::verbose ) utilities::output( "setting tile_width to %f meters", tile_width );
     this->tile_width = tile_width;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::set_disease_pockets( const int count )
+  {
+    this->disease_pocket_list.clear();
+    coordinate c = this->get_centroid();
+    for( int i = 0; i < count; i++ )
+      this->disease_pocket_list.push_back(
+        coordinate( 2 * c.x * utilities::random(), 2 * c.y * utilities::random() ) );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

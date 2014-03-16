@@ -11,7 +11,6 @@
 
 #include "model_object.h"
 
-#include "coordinate.h"
 #include "distribution.h"
 #include "utilities.h"
 

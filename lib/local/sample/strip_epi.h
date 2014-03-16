@@ -55,7 +55,7 @@ namespace sample
     /**
      * Sets the width of the strip (in meters) used to determine the initial building list
      */
-    void set_strip_width( double angle ) { this->strip_width = angle; }
+    void set_strip_width( double width ) { this->strip_width = width; }
 
     /**
      * Returns the width of the strip (in meters) used to determine the initial building list

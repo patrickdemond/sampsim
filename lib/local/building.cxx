@@ -49,11 +49,20 @@ namespace sampsim
     if( NULL == this->parent ) throw std::runtime_error( "Tried to generate an orphaned building" );
 
     // determine the building's position
-    coordinate centroid = this->get_population()->get_centroid();
+    population* pop = this->get_population();
+    coordinate centroid = pop->get_centroid();
     std::pair< coordinate, coordinate > extent = this->get_tile()->get_extent();
     this->position.x = utilities::random() * ( extent.second.x - extent.first.x ) + extent.first.x;
     this->position.y = utilities::random() * ( extent.second.y - extent.first.y ) + extent.first.y;
-    this->position.set_centroid( this->get_population()->get_centroid() );
+    this->position.set_centroid( pop->get_centroid() );
+
+    // determine the pocket factor
+    this->pocket_factor = 0.0;
+    for( auto it = pop->get_disease_pocket_list_cbegin(); it != pop->get_disease_pocket_list_cend(); ++it )
+    {
+      double distance = this->position.distance( *it );
+      this->pocket_factor += 1 / ( distance * distance );
+    }
 
     // for now we're only allowing one household per building
     household *h = new household( this );

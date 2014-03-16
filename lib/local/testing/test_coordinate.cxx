@@ -12,7 +12,6 @@
 
 #include "UnitTest++.h"
 
-#include "coordinate.h"
 #include "utilities.h"
 
 using namespace std;

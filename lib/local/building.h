@@ -11,7 +11,6 @@
 
 #include "model_object.h"
 
-#include "coordinate.h"
 #include "utilities.h"
 
 namespace Json { class Value; }
@@ -156,6 +155,14 @@ namespace sampsim
     coordinate get_position() const { return this->position; }
 
     /**
+     * Returns the building's pocket factor
+     * 
+     * This parameter is calculated based on the building's location relative to all pockets in the
+     * simulation.
+     */
+    double get_pocket_factor() const { return this->pocket_factor; }
+
+    /**
      * Returns whether the building is selected or not
      * 
      * Selection works in the following manner: selecting an object also selects its parent but not its
@@ -207,6 +214,11 @@ namespace sampsim
      * Whether the building is selected
      */
     bool selected;
+
+    /**
+     * The building's pocket factor
+     */
+    double pocket_factor;
 
     /**
      * A container holding all households belonging to this building.  The building is responsible

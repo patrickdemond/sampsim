@@ -11,7 +11,6 @@
 
 #include "model_object.h"
 
-#include "coordinate.h"
 #include "distribution.h"
 #include "utilities.h"
 
@@ -87,6 +86,22 @@ namespace sampsim
      */
     tile_list_type::const_iterator get_tile_list_cend() const
     { return this->tile_list.cend(); }
+
+    /**
+     * Constant iterator access to disease pocket coordinates
+     * 
+     * These methods provide constant iterator access to the list of disease pocket coordinates
+     */
+    coordinate_list_type::const_iterator get_disease_pocket_list_cbegin() const
+    { return this->disease_pocket_list.cbegin(); }
+
+    /**
+     * Constant iterator access to disease pocket coordinates
+     * 
+     * These methods provide constant iterator access to the list of disease pocket coordinates
+     */
+    coordinate_list_type::const_iterator get_disease_pocket_list_cend() const
+    { return this->disease_pocket_list.cend(); }
 
     /**
      * Generate the population and create all tiles belonging to it
@@ -178,14 +193,24 @@ namespace sampsim
       const double income,
       const double risk,
       const double age,
-      const double sex )
+      const double sex,
+      const double pocket )
     {
       this->disease_weights[0] = population;
       this->disease_weights[1] = income;
       this->disease_weights[2] = risk;
       this->disease_weights[3] = age;
       this->disease_weights[4] = sex;
+      this->disease_weights[5] = pocket;
     }
+
+    /**
+     * Creates the provided number of disease pockets.
+     * 
+     * Disease pockets affect the overall chance that an individual has a disease.  The factor is
+     * determined as a sum of the inverse square distance of an individual from each pocket.
+     */
+    void set_disease_pockets( const int );
 
     /**
      * Returns the population's mean household population
@@ -298,7 +323,7 @@ namespace sampsim
      * 
      * See the set_disease_weights() method for more details.
      */
-    static const unsigned int NUMBER_OF_WEIGHTS = 5;
+    static const unsigned int NUMBER_OF_WEIGHTS = 6;
 
     /**
      * Whether the population is in sample mode or not
@@ -382,6 +407,11 @@ namespace sampsim
      * The population distribution to use when creating individuals within households
      */
     distribution population_distribution;
+
+    /**
+     * A list of the coordinates of all disease pockets affecting the population
+     */
+    coordinate_list_type disease_pocket_list;
   };
 }
 

@@ -12,7 +12,6 @@
 #include "base_object.h"
 
 #include "building.h"
-#include "coordinate.h"
 #include "utilities.h"
 
 #include <stdexcept>
@@ -58,6 +57,23 @@ namespace sampsim
         this->building = NULL;
         this->left = NULL;
         this->right = NULL;
+      }
+      
+      void copy( node* n )
+      {
+        this->parent = parent;
+        this->depth = n->depth;
+        this->building = n->building;
+        if( n->left )
+        {
+          this->left = new node( this );
+          this->left->copy( n->left );
+        }
+        if( n->right )
+        {
+          this->right = new node( this );
+          this->right->copy( n->right );
+        }
       }
 
       /**
@@ -114,6 +130,13 @@ namespace sampsim
      * Constructor
      */
     building_tree( building_list_type );
+
+    /**
+     * Constructor
+     * 
+     * Copies an existing building_tree
+     */
+    building_tree( const building_tree& );
     
     /**
      * Destructor

@@ -15,7 +15,6 @@
 #include "strip_epi_sample.h"
 #include "building.h"
 #include "common.h"
-#include "coordinate.h"
 #include "household.h"
 #include "individual.h"
 #include "population.h"

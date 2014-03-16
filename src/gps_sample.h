@@ -23,6 +23,8 @@ void setup_gps_sample( sampsim::options &opts )
   opts.add_flag( "one_per_household", "Only sample one individual per household" );
   opts.add_option( "sex", "either", "Restricts sample by sex (\"male\", \"female\" or \"either\")" );
   opts.add_option( "size", "1000", "The sample's size (in individuals)" );
+  opts.add_option(
+    "radius", "500", "What distance from a GPS point to include when searching for households (in meters)" );
 }
 
 void parse_gps_sample( sampsim::options &opts, sampsim::sample::gps *sample )
@@ -31,4 +33,5 @@ void parse_gps_sample( sampsim::options &opts, sampsim::sample::gps *sample )
   sample->set_one_per_household( opts.get_flag( "one_per_household" ) );
   sample->set_sex( sampsim::get_sex_type( opts.get_option( "sex" ) ) );
   sample->set_size( opts.get_option_as_int( "size" ) );
+  sample->set_radius( opts.get_option_as_double( "radius" ) / 1000 );
 }

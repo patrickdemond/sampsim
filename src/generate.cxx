@@ -76,6 +76,7 @@ int main( const int argc, const char** argv )
   opts.add_option( "tile_x", "1", "Number of tiles in the horizontal direction" );
   opts.add_option( "tile_y", "1", "Number of tiles in the vertical direction" );
   opts.add_option( "tile_width", "1", "Width of a tile in kilometers" );
+  opts.add_option( "disease_pockets", "0", "Number of disease pockets to generate" );
 
   // define disease parameters
   opts.add_heading( "" );
@@ -86,6 +87,7 @@ int main( const int argc, const char** argv )
   opts.add_option( "dweight_risk", "1.0", "Disease weight for household risk" );
   opts.add_option( "dweight_age", "1.0", "Disease weight for household age" );
   opts.add_option( "dweight_sex", "1.0", "Disease weight for household sex" );
+  opts.add_option( "dweight_pocket", "1.0", "Disease weight for pocketing" );
 
   // define batch parameters
   opts.add_heading( "" );
@@ -198,7 +200,9 @@ int main( const int argc, const char** argv )
             opts.get_option_as_double( "dweight_income" ),
             opts.get_option_as_double( "dweight_risk" ),
             opts.get_option_as_double( "dweight_age" ),
-            opts.get_option_as_double( "dweight_sex" ) );
+            opts.get_option_as_double( "dweight_sex" ),
+            opts.get_option_as_double( "dweight_pocket" ) );
+          population->set_disease_pockets( opts.get_option_as_int( "disease_pockets" ) );
 
           std::string population_filename;
           for( int p = 1; p <= batch_npop; p++ )
