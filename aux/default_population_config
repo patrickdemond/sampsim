@@ -34,10 +34,23 @@ tile_width: 3.5
 #
 # The number of disease pockets to generate
 # The closer to a disease pocket a building is the higher the probability its inhabitants
-# will have a disease (proportional to the inverse square of the distance from the pocket).
+# will have a disease (based on the selected picket kernel type).
 # Disease pockets are randomly placed within the bounds of the population
 #
 disease_pockets: 0
+
+#
+# The influence function used by disease pockets
+# This determines how the position of disease pockets affect the disease status.
+# Possible values include exponential, inverse_square and gaussian
+#
+pocket_kernel_type: exponential
+
+#
+# The scaling used when determining the distance from disease pockets.
+# For all pocket kernel types the distance is divided by this scaling factor.
+#
+pocket_scaling: 1.0
 
 #
 # The mean household population

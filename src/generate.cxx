@@ -77,6 +77,8 @@ int main( const int argc, const char** argv )
   opts.add_option( "tile_y", "1", "Number of tiles in the vertical direction" );
   opts.add_option( "tile_width", "1", "Width of a tile in kilometers" );
   opts.add_option( "disease_pockets", "0", "Number of disease pockets to generate" );
+  opts.add_option( "pocket_kernel_type", "exponential", "Number of disease pockets to generate" );
+  opts.add_option( "pocket_scaling", "1", "Number of disease pockets to generate" );
 
   // define disease parameters
   opts.add_heading( "" );
@@ -203,6 +205,8 @@ int main( const int argc, const char** argv )
             opts.get_option_as_double( "dweight_sex" ),
             opts.get_option_as_double( "dweight_pocket" ) );
           population->set_disease_pockets( opts.get_option_as_int( "disease_pockets" ) );
+          population->set_pocket_kernel_type( opts.get_option( "pocket_kernel_type" ) );
+          population->set_pocket_scaling( opts.get_option_as_double( "pocket_scaling" ) );
 
           std::string population_filename;
           for( int p = 1; p <= batch_npop; p++ )

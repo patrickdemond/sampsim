@@ -60,8 +60,26 @@ namespace sampsim
     this->pocket_factor = 0.0;
     for( auto it = pop->get_disease_pocket_list_cbegin(); it != pop->get_disease_pocket_list_cend(); ++it )
     {
-      double distance = this->position.distance( *it );
-      this->pocket_factor += 1 / ( distance * distance );
+      double distance = this->position.distance( *it ) / pop->get_pocket_scaling();
+      std::string type = pop->get_pocket_kernel_type();
+      if( "exponential" == type )
+      {
+        this->pocket_factor += exp( -distance );
+      }
+      else if( "inverse_square" == type )
+      {
+        this->pocket_factor += 1 / ( distance * distance );
+      }
+      else if( "gaussian" == type )
+      {
+        this->pocket_factor += exp( - ( distance * distance ) );
+      }
+      else
+      {
+        std::stringstream stream;
+        stream << "Using unknown disease pocket kernel type \"" << type << "\"";
+        throw std::runtime_error( stream.str() );
+      }
     }
 
     // for now we're only allowing one household per building

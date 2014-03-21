@@ -40,6 +40,8 @@ namespace sampsim
     this->mean_disease = new trend;
     this->sd_disease = new trend;
     this->population_density = new trend;
+    this->pocket_kernel_type = "exponential";
+    this->pocket_scaling = 1.0;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -398,11 +400,33 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::set_disease_pockets( const int count )
   {
+    if( utilities::verbose ) utilities::output( "setting number of disease pockets to %d", count );
     this->disease_pocket_list.clear();
     coordinate c = this->get_centroid();
     for( int i = 0; i < count; i++ )
       this->disease_pocket_list.push_back(
         coordinate( 2 * c.x * utilities::random(), 2 * c.y * utilities::random() ) );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::set_pocket_kernel_type( const std::string type )
+  {
+    if( utilities::verbose ) utilities::output( "setting pocket_kernel_type to \"%s\"", type.c_str() );
+    if( "exponential" != type &&
+        "inverse_square" != type &&
+        "gaussian" != type )
+    {
+      utilities::output( "invalid kernel type \"%s\", using \"exponential\" instead", type.c_str() );
+      this->pocket_kernel_type = "exponential";
+    }
+    else this->pocket_kernel_type = type;
+  }
+  
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::set_pocket_scaling( const double scale )
+  {
+    if( utilities::verbose ) utilities::output( "setting pocket_scaling to %f", scale );
+    this->pocket_scaling = scale;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

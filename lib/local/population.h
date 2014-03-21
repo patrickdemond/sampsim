@@ -104,6 +104,18 @@ namespace sampsim
     { return this->disease_pocket_list.cend(); }
 
     /**
+     * Returns the disease pocket kernel type.
+     */
+    const std::string get_pocket_kernel_type() const
+    { return this->pocket_kernel_type; }
+
+    /**
+     * Returns the disease pocket scaling.
+     */
+    const double get_pocket_scaling() const
+    { return this->pocket_scaling; }
+
+    /**
      * Generate the population and create all tiles belonging to it
      * 
      * This method will generate the population according to its internal parameters.  A grid of N by M
@@ -211,6 +223,22 @@ namespace sampsim
      * determined as a sum of the inverse square distance of an individual from each pocket.
      */
     void set_disease_pockets( const int );
+
+    /**
+     * Determines which type of kernel disease pockets use.
+     * 
+     * The effect a disease pocket has on disease is based on the distance between an individual
+     * and the disease pocket.  The pocket kernel type determines how that effect varies with
+     * distance.
+     */
+    void set_pocket_kernel_type( const std::string );
+
+    /**
+     * Sets the scaling factor to use for disease pockets.
+     * 
+     * The distance an individual is from a pocket is divided by this factor.
+     */
+    void set_pocket_scaling( const double );
 
     /**
      * Returns the population's mean household population
@@ -412,6 +440,16 @@ namespace sampsim
      * A list of the coordinates of all disease pockets affecting the population
      */
     coordinate_list_type disease_pocket_list;
+
+    /**
+     * The type of kernel to use for disease pocketing
+     */
+    std::string pocket_kernel_type;
+
+    /**
+     * The scaling factor to use for disease pocketing
+     */
+    double pocket_scaling;
   };
 }
 
