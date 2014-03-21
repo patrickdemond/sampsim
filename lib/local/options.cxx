@@ -233,7 +233,6 @@ namespace sampsim
         {
           std::cout << "ERROR: Wrong number of free (input) arguments (expecting "
                     << this->input_map.size() << ", got " << input_list.size() << ")" << std::endl;
-          std::cout << input_list[0] << std::endl;
           invalid = true;
         }
         else
