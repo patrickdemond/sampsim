@@ -1,0 +1,181 @@
+## Multiple sampling etc.
+
+First stage of testing the sampling code to understand the properties (bias, variance, etc.) of the various sampling schemes.
+
+At this stage, R is really just being used as
+a thin wrapper around Patrick's C++ code to generate many replicate runs based on many combinations of the parameters. It might be simpler to run these sets of simulations in some other system (Unix shell commands or 
+Python or Perl), but for now this is what I'm going with.
+
+The structure of the replication below is that `npop` represents the number of simulated populations we're going to create per set of population parameters.  For each simulated population, we will simulate sampling `nsamp` times (these loops are all done within Patrick's code).
+
+```{r pkgs,message=FALSE}
+library(reshape2)
+library(plyr)
+library(ggplot2)
+theme_set(theme_bw())
+```
+
+```{r basefuns}
+## import simulation results into R
+import_results <- function(fn,pop,samp,w="individual")
+    read.csv(sprintf("%s.%02d.%02d.%s.csv",fn,pop,samp,w),comment.char="#")
+
+## generate a simulation
+gen_sim <- function(npop=10,nsamp=10,sampler="arc_epi",fn="tmpsim",
+                    config_file="default_population_config") {
+    ## TO DO: add wrapper to generate population config file on the fly,
+    ##  or specify population parameters
+    t1 <- system.time(system(paste("./generate -c",config_file,
+                                   "--batch_npop",npop,
+                                   "--batch_sampler",sampler,
+                                   "--batch_nsamp",nsamp,
+                                   "--flat_file",
+                                   fn)))
+    t1
+}
+
+## loop over number of populations, number of samples per population (??)
+sum_sim <- function(npop=10,nsamp=10,fn="tmpsim",mean.only=TRUE) {
+    res <- if (mean.only) {
+        matrix(NA,
+               npop,nsamp,
+               dimnames=list(pop=seq(npop),samp=seq(nsamp)))
+        } else {
+            array(NA,
+                  dim=c(npop,nsamp,3),
+                   dimnames=list(pop=seq(npop),samp=seq(nsamp),
+                   var=c("ndis","tot","mean")))
+        }
+    for (i in seq(npop)) {
+        for (j in seq(nsamp)) {
+            r <- import_results(fn,i,j)
+            ## summarize results by mean prevalence of disease
+            if (mean.only) {
+                res[i,j] <- mean(r$disease)
+            } else {
+                res[i,j,] <- c(sum(r$disease),nrow(r),mean(r$disease))
+            }
+        }
+    }
+    res
+}
+```
+
+**TO DO: Loop over population parameters:**
+
+```{r newsims,eval=FALSE}
+gen_sim(fn="tmpsim2",config_file="spathom_pop_config")
+gen_sim(fn="tmpsim3",sampler="random")
+gen_sim(fn="tmpsim4",sampler="strip_epi")
+```
+In this case I've already generated the simulations, now I want to
+summarize them:
+```{r summarize,cache=TRUE}
+ss1 <- sum_sim()
+ss1B <- sum_sim(mean.only=FALSE)
+ss2 <- sum_sim(fn="tmpsim2",mean.only=FALSE)
+ss3 <- sum_sim(fn="tmpsim3",mean.only=FALSE)
+ss4 <- sum_sim(fn="tmpsim4",mean.only=FALSE)
+```
+
+Base-R histogram (not run):
+```{r basehist,eval=FALSE}
+par(las=1,bty="l")
+hist(ss,breaks=20,col="gray")
+```
+
+`ggplot` histogram:
+```{r gghist,warning=FALSE,message=FALSE}
+ggplot(melt(ss),aes(x=value))+geom_histogram()
+```
+
+Distinguish among populations (useless in this case since we
+only have 10 samples per population):
+```{r gghist2,warning=FALSE,message=FALSE}
+ggplot(melt(ss),aes(x=value))+
+    geom_histogram(aes(group=pop,fill=factor(pop)),
+                   position="identity",alpha=0.5)
+```
+
+Mean and standard deviation of prevalence across simulations (lumping across populations):
+```{r sumstats}
+c(mean(ss),sd(ss))
+```
+
+## Summary statistics
+
+Calculating the bias, variance, and mean squared error (MSE) is easy:
+
+```{r}
+true <- 0.5
+(sample_bias <- mean(ss-true))
+(sample_var <- var(c(ss)))  ## use c() to collapse to a single vector
+(sample_mse <- mean((ss-true)^2))
+sample_var+sample_bias^2  ## ?? should be equal??
+```
+
+Estimating coverage based on exact binomial samples:
+```{r coverage}
+true <- 0.5
+library(epitools)
+library(plyr)
+sim.list <- list("base"=ss1B,"homog"=ss2,"srs"=ss3,"strip_epi"=ss4)
+bb <- binom.exact(c(ss1B[,,"ndis"]),c(ss1B[,,"tot"]))
+sum.comb <- ldply(sim.list,
+      function(x) {
+          bb <- binom.exact(c(x[,,"ndis"]),c(x[,,"tot"]))
+          SE <- with(bb,sqrt(proportion*(1-proportion)/n))
+          lower.N <- bb$proportion-1.96*SE
+          upper.N <- bb$proportion+1.96*SE
+          data.frame(r=rank(bb$proportion),subset(bb,select=-conf.level),SE,lower.N,upper.N,
+                     pop=factor(rep(1:10,each=10)))
+      })
+ggplot(sum.comb,aes(x=r,ymin=lower,ymax=upper,
+              colour=pop))+geom_linerange()+
+       geom_hline(yintercept=0.5,lty=2)+
+       scale_colour_discrete(name="population")+
+       facet_wrap(~.id)
+with(bb,mean(lower<true & true<upper))  ## coverage
+```
+So what's going on here?  Is it the spatial variation?
+
+## Sampling across population parameters
+
+* proportions ill: 0.01 to 0.5
+* mean household size 4 to 6
+* population density 400 (*100 tiles)
+* samplers (3)
+* 10-hour run
+
+* 10000 samples = 3000
+
+
+## Notes from proposal/moving forward
+
+* complexifying
+    * spatial
+        * high-res images, quantifying spatial point processes
+        * buildings and intersections, sampling grid squares
+	* household structure: age and sex distribution
+* multi-cluster sampling
+* pocketing
+
+
+## Sampling: to do
+
+* check simple random sampling case
+* check spatially homogeneous case (set *all* spatial variation parameters to zero)
+* check Normal approximation CIs (should be v. close to exact binomial CIs)
+* migrate to SHARCnet
+* figure out best scheme for locating binaries (currently symbolically linked to `../../testBuild`)
+* which population parameters do we want to loop over? Right now we have household population, spatial trends, mean household disease (0.5), population density, weights
+* on my laptop 
+    * about 3 minutes to do 10x10 sample; 
+	* 15-20 seconds to generate population
+	* 3-4 seconds per sample
+	* 300 + 10*15 = 450 seconds (doesn't match up??)
+	* let's say we allow 30 minutes per set of population parameters
+	* = 48 sets of population parameters/day/processor
+	* 20 processors = 1000 sets of population parameters
+* fix `import_results` to allow for longer numeric strings
+* how important is it to distinguish populations vs samples within populations?
