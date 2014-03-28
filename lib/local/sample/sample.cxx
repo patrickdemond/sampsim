@@ -271,7 +271,7 @@ namespace sample
     }
 
     this->seed = json["seed"].asString();
-    this->size = json["size"].asInt();
+    this->size = json["size"].asUInt();
     this->one_per_household = json["one_per_household"].asBool();
     this->age = sampsim::get_age_type( json["age"].asString() );
     this->sex = sampsim::get_sex_type( json["sex"].asString() );

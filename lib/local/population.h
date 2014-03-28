@@ -11,7 +11,6 @@
 
 #include "model_object.h"
 
-#include "distribution.h"
 #include "utilities.h"
 
 namespace Json{ class Value; }
@@ -23,24 +22,25 @@ namespace Json{ class Value; }
 
 namespace sampsim
 {
-  class tile;
+  class town;
   class trend;
 
   /**
    * @class population
    * @author Patrick Emond <emondpd@mcmaster.ca>
-   * @brief A population which contains X by Y tiles
+   * @brief A population which contains one or more towns
    * @details
    * Populations are organized into a tree such that all nodes are responsible for creating,
    * generating and deleting their children.  The structure is as follows:
    * - population
-   *   + list of n by m tiles
-   *     - list of buildings in tile
-   *       + list of households in building
-   *         - list of individuals belonging to household
+   *   + list of towns in population
+   *     - list of n by m tiles
+   *       + list of buildings in tile
+   *         - list of households in building
+   *           + list of individuals belonging to household
    * 
-   * Generating a population will cause a cascade effect which will generate all tiles, all
-   * buildings, all households and all individuals.
+   * Generating a population will cause a cascade effect which will generate all towns, all tiles,
+   * all buildings, all households and all individuals.
    */
   class population : public model_object
   {
@@ -56,70 +56,41 @@ namespace sampsim
     ~population();
 
     /**
-     * Iterator access to child tiles
+     * Iterator access to child towns
      * 
-     * These methods provide iterator access to the list of tiles belonging to the population.
+     * These methods provide iterator access to the list of towns belonging to the population.
      */
-    tile_list_type::iterator get_tile_list_begin()
-    { return this->tile_list.begin(); }
+    town_list_type::iterator get_town_list_begin()
+    { return this->town_list.begin(); }
 
     /**
-     * Iterator access to child tiles
+     * Iterator access to child towns
      * 
-     * These methods provide iterator access to the list of tiles belonging to the population.
+     * These methods provide iterator access to the list of towns belonging to the population.
      */
-    tile_list_type::iterator get_tile_list_end()
-    { return this->tile_list.end(); }
+    town_list_type::iterator get_town_list_end()
+    { return this->town_list.end(); }
 
     /**
-     * Constant iterator access to child tiles
+     * Constant iterator access to child towns
      * 
-     * These methods provide constant iterator access to the list of tiles belonging to the population.
+     * These methods provide constant iterator access to the list of towns belonging to the population.
      */
-    tile_list_type::const_iterator get_tile_list_cbegin() const
-    { return this->tile_list.cbegin(); }
+    town_list_type::const_iterator get_town_list_cbegin() const
+    { return this->town_list.cbegin(); }
 
     /**
-     * Constant iterator access to child tiles
+     * Constant iterator access to child towns
      * 
-     * These methods provide constant iterator access to the list of tiles belonging to the population.
+     * These methods provide constant iterator access to the list of towns belonging to the population.
      */
-    tile_list_type::const_iterator get_tile_list_cend() const
-    { return this->tile_list.cend(); }
+    town_list_type::const_iterator get_town_list_cend() const
+    { return this->town_list.cend(); }
 
     /**
-     * Constant iterator access to disease pocket coordinates
+     * Generate the population and create all towns belonging to it
      * 
-     * These methods provide constant iterator access to the list of disease pocket coordinates
-     */
-    coordinate_list_type::const_iterator get_disease_pocket_list_cbegin() const
-    { return this->disease_pocket_list.cbegin(); }
-
-    /**
-     * Constant iterator access to disease pocket coordinates
-     * 
-     * These methods provide constant iterator access to the list of disease pocket coordinates
-     */
-    coordinate_list_type::const_iterator get_disease_pocket_list_cend() const
-    { return this->disease_pocket_list.cend(); }
-
-    /**
-     * Returns the disease pocket kernel type.
-     */
-    const std::string get_pocket_kernel_type() const
-    { return this->pocket_kernel_type; }
-
-    /**
-     * Returns the disease pocket scaling.
-     */
-    const double get_pocket_scaling() const
-    { return this->pocket_scaling; }
-
-    /**
-     * Generate the population and create all tiles belonging to it
-     * 
-     * This method will generate the population according to its internal parameters.  A grid of N by M
-     * tiles will be created forming a tesselation of squares all of equal size.
+     * This method will generate the population according to its internal parameters.
      */
     void generate();
 
@@ -145,7 +116,7 @@ namespace sampsim
      * Returns whether the population is in sample mode or not
      * 
      * When a population is in sample mode then only selected buildings, households and individuals are
-     * included in all count_population(), to_json() and to_csv() methods (including this class' write()
+     * included in all count_individuals(), to_json() and to_csv() methods (including this class' write()
      * method).
      */
     bool get_sample_mode() { return this->sample_mode; }
@@ -154,7 +125,7 @@ namespace sampsim
      * Sets the sample mode
      * 
      * When a population is in sample mode then only selected buildings, households and individuals are
-     * included in all count_population(), to_json() and to_csv() methods (including this class' write()
+     * included in all count_individuals(), to_json() and to_csv() methods (including this class' write()
      * method).
      */
     void set_sample_mode( bool sample_mode ) { this->sample_mode = sample_mode; }
@@ -165,24 +136,88 @@ namespace sampsim
     void set_seed( const std::string seed );
 
     /**
-     * Sets the number of tiles in the longitudinal (X) direction
+     * Sets the number of tiles in a town in the longitudinal (X) direction
      */
-    void set_number_tiles_x( const int );
+    void set_number_of_tiles_x( const unsigned int );
 
     /**
-     * Sets the number of tiles in the latitudinal (Y) direction
+     * Sets the number of tiles in a town in the latitudinal (Y) direction
      */
-    void set_number_tiles_y( const int );
+    void set_number_of_tiles_y( const unsigned int );
 
     /**
-     * Gets the width of the population's tiles
+     * Gets the width of the tiles in a town
      */
     double get_tile_width() const { return this->tile_width; }
 
     /**
-     * Sets the width of the population's tiles
+     * Sets the width of the tiles in a town
      */
     void set_tile_width( const double );
+
+    /**
+     * Creates the provided number of disease pockets.
+     * 
+     * Disease pockets affect the overall chance that an individual has a disease.  The factor is
+     * determined as a sum of the inverse square distance of an individual from each pocket.
+     */
+    void set_number_of_disease_pockets( const unsigned int );
+
+    /**
+     * Gets which type of kernel disease pockets use.
+     * 
+     * The effect a disease pocket has on disease is based on the distance between an individual
+     * and the disease pocket.  The pocket kernel type determines how that effect varies with
+     * distance.
+     */
+    std::string get_pocket_kernel_type() const { return this->pocket_kernel_type; }
+    
+    /**
+     * Determines which type of kernel disease pockets use.
+     * 
+     * The effect a disease pocket has on disease is based on the distance between an individual
+     * and the disease pocket.  The pocket kernel type determines how that effect varies with
+     * distance.
+     */
+    void set_pocket_kernel_type( const std::string );
+    
+    /**
+     * Gets the scaling factor to use for disease pockets.
+     * 
+     * The distance an individual is from a pocket is divided by this factor.
+     */
+    double get_pocket_scaling() const { return this->pocket_scaling; }
+
+    /**
+     * Sets the scaling factor to use for disease pockets.
+     * 
+     * The distance an individual is from a pocket is divided by this factor.
+     */
+    void set_pocket_scaling( const double );
+
+    /**
+     * Gets the total number of disease weights used for determining disease status
+     */
+    unsigned int get_number_of_disease_weights()
+    { return NUMBER_OF_DISEASE_WEIGHTS; }
+
+    /**
+     * Gets a disease weight by index
+     * 
+     * Disease status is assigned in a standard generalized-linear-model way: that is, a linear function
+     * of the various contributing factors (income, spatial disease effect, household disease effect,
+     * individual disease effect, age/adult vs. child) is constructed.  In order to make this into a
+     * probability the linear disease score is logistic-transformed (called a linear predictor in
+     * statistical contexts), and a Bernoulli random variable is chosen based on this score.
+     * 
+     * This is done in the following manner:
+     * 
+     * - standardize all of the predictors (income, household latent variable, etc.) to have mean zero
+     *   and standard deviation 1 (the latent variables are already scaled this way)
+     * - scale each variable by an “importance parameter” and add them together
+     * - add an intercept to set the desired median prevalence
+     */
+    double get_disease_weight_by_index( unsigned int );
 
     /**
      * Sets the disease weights
@@ -215,30 +250,6 @@ namespace sampsim
       this->disease_weights[4] = sex;
       this->disease_weights[5] = pocket;
     }
-
-    /**
-     * Creates the provided number of disease pockets.
-     * 
-     * Disease pockets affect the overall chance that an individual has a disease.  The factor is
-     * determined as a sum of the inverse square distance of an individual from each pocket.
-     */
-    void set_disease_pockets( const int );
-
-    /**
-     * Determines which type of kernel disease pockets use.
-     * 
-     * The effect a disease pocket has on disease is based on the distance between an individual
-     * and the disease pocket.  The pocket kernel type determines how that effect varies with
-     * distance.
-     */
-    void set_pocket_kernel_type( const std::string );
-
-    /**
-     * Sets the scaling factor to use for disease pockets.
-     * 
-     * The distance an individual is from a pocket is divided by this factor.
-     */
-    void set_pocket_scaling( const double );
 
     /**
      * Returns the population's mean household population
@@ -294,27 +305,12 @@ namespace sampsim
     /**
      * Get the number of individuals in the population
      * 
-     * Returns a sum of all individuals in all households in all buildings in all tiles in the population.
-     * This method iterates over all tiles (and all buildings in those tiles, etc) every time it is called,
-     * so it should only be used when re-counting is necessary.  A population contains no tiles (so no
-     * population) until its generate() method is called.
+     * Returns a sum of all individuals in all households in all buildings in all tiles in all towns in the
+     * population.  This method iterates over all towns (and all tiles in those towns, etc) every time it is
+     * called, so it should only be used when re-counting is necessary.  A population contains no towns (so
+     * no individuals) until its generate() method is called.
      */
-    int count_population() const;
-
-    /**
-     * Returns a coordinate at the centre of the population
-     * 
-     * This coordinate is based on the number of tiles in the X and Y directions as well as tile width.
-     */
-    coordinate get_centroid() const;
-
-    /**
-     * Returns the surface area of the population
-     * 
-     * The surface area is determined by the area of each tile multiplied by the number of tiles
-     * in the X and Y directions.
-     */
-    double get_area() const;
+    unsigned int count_individuals() const;
 
     /**
      * Deserialize the population
@@ -340,18 +336,13 @@ namespace sampsim
      */
     virtual void to_csv( std::ostream&, std::ostream& ) const;
 
-    /**
-     * 
-     */
-    distribution* get_population_distribution() { return &( this->population_distribution ); }
-
   private:
     /**
      * The number of weights included in determining disease status
      * 
      * See the set_disease_weights() method for more details.
      */
-    static const unsigned int NUMBER_OF_WEIGHTS = 6;
+    static const unsigned int NUMBER_OF_DISEASE_WEIGHTS = 6;
 
     /**
      * Whether the population is in sample mode or not
@@ -364,17 +355,37 @@ namespace sampsim
     std::string seed;
 
     /**
-     * The number of tiles to generate in the longitudinal (X) direction
+     * The total number of towns in the population
      */
-    int number_tiles_x;
+    unsigned int number_of_towns;
 
     /**
-     * The number of tiles to generate in the latitudinal (Y) direction
+     * The number of tiles in a town to generate in the longitudinal (X) direction
      */
-    int number_tiles_y;
+    unsigned int number_of_tiles_x;
 
     /**
-     * The width of all (square) tiles
+     * The number of tiles in a town to generate in the latitudinal (Y) direction
+     */
+    unsigned int number_of_tiles_y;
+
+    /**
+     * The number of disease pockets in each town
+     */
+    unsigned int number_of_disease_pockets;
+
+    /**
+     * The type of kernel to use when determining the effect of disease pockets
+     */
+    std::string pocket_kernel_type;
+
+    /**
+     * The amount to scale the effect of disease pocketing
+     */
+    double pocket_scaling;
+
+    /**
+     * The width of all (square) tiles in a town
      */
     double tile_width;
 
@@ -383,7 +394,7 @@ namespace sampsim
      * 
      * See the set_disease_weights() method for more details.
      */
-    double disease_weights[NUMBER_OF_WEIGHTS];
+    double disease_weights[NUMBER_OF_DISEASE_WEIGHTS];
 
     /**
      * The population's mean household population (size)
@@ -426,30 +437,10 @@ namespace sampsim
     trend *population_density;
 
     /**
-     * A container holding all tiles belonging to the population.  The population is responsible
-     * for managing the memory needed for all of its child tiles.
+     * A container holding all towns belonging to the population.  The population is responsible
+     * for managing the memory needed for all of its child towns.
      */
-    tile_list_type tile_list;
-
-    /**
-     * The population distribution to use when creating individuals within households
-     */
-    distribution population_distribution;
-
-    /**
-     * A list of the coordinates of all disease pockets affecting the population
-     */
-    coordinate_list_type disease_pocket_list;
-
-    /**
-     * The type of kernel to use for disease pocketing
-     */
-    std::string pocket_kernel_type;
-
-    /**
-     * The scaling factor to use for disease pocketing
-     */
-    double pocket_scaling;
+    town_list_type town_list;
   };
 }
 

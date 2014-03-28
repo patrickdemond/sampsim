@@ -24,6 +24,7 @@ namespace sampsim
 {
   class household;
   class population;
+  class town;
   class tile;
 
   /**
@@ -34,15 +35,17 @@ namespace sampsim
    * Populations are organized into a tree such that all nodes are responsible for creating,
    * generating and deleting their children.  The structure is as follows:
    * - population
-   *   + list of n by m tiles
-   *     - list of buildings in tile
-   *       + list of households in building
-   *         - list of individuals belonging to household
+   *   + list of towns in population
+   *     - list of n by m tiles
+   *       + list of buildings in tile
+   *         - list of households in building
+   *           + list of individuals belonging to household
    * 
    * Buildings belong to one and only one tile based on its position.  They contain a list of
    * households which are in the building.  When a building is selected the selection state of
-   * its households are unchanged.  When unselecting a building all households contained within
-   * the building are also unselected.
+   * its households are unchanged but its parent town is also selected.  When unselecting a
+   * building all households contained within the building are also unselected but its parent
+   * town is NOT unselected.
    */
   class building : public model_object
   {
@@ -99,6 +102,11 @@ namespace sampsim
     tile* get_tile() const { return this->parent; }
 
     /**
+     * Returns the building's parent tile
+     */
+    town* get_town() const;
+
+    /**
      * Returns the population that the building belongs to
      */
     population* get_population() const;
@@ -142,9 +150,9 @@ namespace sampsim
      * 
      * Returns a sum of all individuals in all households in the building.  This method iterates over
      * all households every time it is called, so it should only be used when re-counting is necessary.
-     * A building contains no households (so no population) until its generate() method is called.
+     * A building contains no households (so no individuals) until its generate() method is called.
      */
-    int count_population() const;
+    unsigned int count_individuals() const;
 
     /**
      * Get the position of the building
@@ -168,15 +176,17 @@ namespace sampsim
      * Selection works in the following manner: selecting an object also selects its parent but not its
      * children.  Unselecting an object also unselects its children but not its parent.  This mechanism
      * therefore defines "selection" as true if any of its children are selected, and allows for
-     * unselecting all children by unselecting the object.  Only buildings, households and individuals
-     * may be selected/unselected.
+     * unselecting all children by unselecting the object.  Only towns, buildings, households and
+     * individuals may be selected/unselected.
      */
     bool is_selected() const { return this->selected; }
 
     /**
      * Selects the building
+     * 
+     * This will also select the parent town.
      */
-    void select() { this->selected = true; }
+    void select();
 
     /**
      * Unselectes the building

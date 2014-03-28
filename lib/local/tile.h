@@ -25,23 +25,25 @@ namespace sampsim
 {
   class building;
   class population;
+  class town;
 
   /**
    * @class tile
    * @author Patrick Emond <emondpd@mcmaster.ca>
-   * @brief A tile which belongs to a population and contains buildings
+   * @brief A tile which belongs to a town and contains buildings
    * @details
    * Populations are organized into a tree such that all nodes are responsible for creating,
    * generating and deleting their children.  The structure is as follows:
    * - population
-   *   + list of n by m tiles
-   *     - list of buildings in tile
-   *       + list of households in building
-   *         - list of individuals belonging to household
+   *   + list of towns in population
+   *     - list of n by m tiles
+   *       + list of buildings in tile
+   *         - list of households in building
+   *           + list of individuals belonging to household
    * 
-   * Populations are divided into a grid of n by m square tiles of equal width.  They are indexed
-   * by their longitudinal and latitudinal position (X and Y 0-based index).  The number of tiles
-   * in both directions and the width of all tiles is defined by the population.
+   * Tiles are divided into a grid of n by m square tiles of equal width.  They are indexed by their
+   * longitudinal and latitudinal position (X and Y 0-based index).  The number of tiles in both
+   * directions and the width of all tiles is defined by the population.
    */
     class tile : public model_object
   {
@@ -49,9 +51,9 @@ namespace sampsim
     /**
      * Constructor
      * 
-     * When a tile is created its parent population and X-Y index must be defined.
+     * When a tile is created its parent town and X-Y index must be defined.
      */
-    tile( population *parent, const std::pair< int, int > index );
+    tile( town *parent, const std::pair< unsigned int, unsigned int > index );
 
     /**
      * Destructor
@@ -93,9 +95,14 @@ namespace sampsim
     { return this->building_list.cend(); }
 
     /**
+     * Returns the town that the tile belongs to
+     */
+    town* get_town() const { return this->parent; }
+
+    /**
      * Returns the population that the tile belongs to
      */
-    population* get_population() const { return this->parent; }
+    population* get_population() const;
 
     /**
      * Generate the tile and create all buildings belonging to it
@@ -196,15 +203,15 @@ namespace sampsim
      * Returns a sum of all individuals in all households in all buildings in the tile.  This method
      * iterates over all buildings (and all households in those buildings) every time it is called,
      * so it should only be used when re-counting is necessary.  A tile contains no buildings (so no
-     * population) until its generate() method is called.
+     * individuals) until its generate() method is called.
      */
-    int count_population() const;
+    unsigned int count_individuals() const;
 
     /**
      * Returns the surface area of the tile
      * 
-     * The surface area is determined by the square of the tile's width.  All tiles in a population
-     * are the same size and so have the same surface area.
+     * The surface area is determined by the square of the tile's width.  All tiles in a town are the
+     * same size and so have the same surface area.
      */
     double get_area() const;
 
@@ -220,22 +227,22 @@ namespace sampsim
 
   private:
     /**
-     * Sets the tile's 2D index within the population
+     * Sets the tile's 2D index within the town
      * 
      * This method will also set the tile's extent and centroid.  It's called by the constructor
      * using the passed index.
      */
-    void set_index( const std::pair< int, int > index );
+    void set_index( const std::pair< unsigned int, unsigned int > index );
 
     /**
-     * A reference to the population that the tile belongs to (not reference counted)
+     * A reference to the town that the tile belongs to (not reference counted)
      */
-    population *parent;
+    town *parent;
 
     /**
-     * The tile's X-Y coordinate within its parent population
+     * The tile's X-Y coordinate within its parent town
      */
-    std::pair< int, int > index;
+    std::pair< unsigned int, unsigned int > index;
 
     /**
      * The tile's mean income

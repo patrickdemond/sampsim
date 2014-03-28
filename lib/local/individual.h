@@ -25,6 +25,7 @@ namespace sampsim
   class building;
   class household;
   class population;
+  class town;
   class tile;
 
   /**
@@ -35,10 +36,11 @@ namespace sampsim
    * Populations are organized into a tree such that all nodes are responsible for creating,
    * generating and deleting their children.  The structure is as follows:
    * - population
-   *   + list of n by m tiles
-   *     - list of buildings in tile
-   *       + list of households in building
-   *         - list of individuals belonging to household
+   *   + list of towns in population
+   *     - list of n by m tiles
+   *       + list of buildings in tile
+   *         - list of households in building
+   *           + list of individuals belonging to household
    * 
    * Individuals belong to one and only one building.  When an individual is selected its household
    * is also selected.  When unselecting an individual households are NOT unselected.
@@ -72,6 +74,11 @@ namespace sampsim
      * Returns the tile that the individual belongs to
      */
     tile* get_tile() const;
+
+    /**
+     * Returns the town that the individual belongs to
+     */
+    town* get_town() const;
 
     /**
      * Returns the population that the individual belongs to
@@ -138,8 +145,8 @@ namespace sampsim
      * Selection works in the following manner: selecting an object also selects its parent but not its
      * children.  Unselecting an object also unselects its children but not its parent.  This mechanism
      * therefore defines "selection" as true if any of its children are selected, and allows for
-     * unselecting all children by unselecting the object.  Only buildings, households and individuals
-     * may be selected/unselected.
+     * unselecting all children by unselecting the object.  Only towns, buildings, households and
+     * individuals may be selected/unselected.
      */
     bool is_selected() const { return this->selected; }
 

@@ -2,8 +2,8 @@
 # -----------------------------------------------------------------------
 # version: 0.1.0
 # seed: 1
-# number_tiles_x: 10
-# number_tiles_y: 10
+# number_of_tiles_x: 10
+# number_of_tiles_y: 10
 # tile_width: 0.35
 #
 # dweight_population: 1

@@ -18,6 +18,7 @@ SET( SAMPSIM_LIB_SOURCE
   options.cxx
   population.cxx
   tile.cxx
+  town.cxx
   trend.cxx
   utilities.cxx
 )

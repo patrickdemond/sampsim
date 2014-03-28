@@ -12,6 +12,7 @@
 #include "household.h"
 #include "individual.h"
 #include "population.h"
+#include "town.h"
 #include "tile.h"
 #include "utilities.h"
 
@@ -32,6 +33,7 @@ namespace sampsim
   {
     // delete all individuals
     std::for_each( this->individual_list.begin(), this->individual_list.end(), utilities::safe_delete_type() );
+    this->individual_list.empty();
 
     // we're holding a light reference to the parent, don't delete it
     this->parent = NULL;
@@ -41,6 +43,12 @@ namespace sampsim
   tile* household::get_tile() const
   {
     return NULL == this->parent ? NULL : this->parent->get_tile();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  town* household::get_town() const
+  {
+    return NULL == this->parent ? NULL : this->parent->get_town();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -59,14 +67,14 @@ namespace sampsim
     std::poisson_distribution<int> poisson;
 
     tile *tile = this->get_tile();
-    population *population = this->get_population();
+    town * town = this->get_town();
 
     // income and disease are Normal deviates from the tile average
     this->income = tile->get_income_distribution()->generate_value();
     this->disease_risk = tile->get_disease_risk_distribution()->generate_value();
 
     // We'll use 1 + distribution so that there are no empty households
-    int size = population->get_population_distribution()->generate_value() + 1;
+    int size = town->get_population_distribution()->generate_value() + 1;
     
     // make the first individual an adult of random sex
     bool male = 0 == utilities::random( 0, 1 );
@@ -136,11 +144,12 @@ namespace sampsim
   void household::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
   {
     population *population = this->get_population();
+    unsigned int town_index = this->get_town()->get_index();
 
     // write the household index and position to the household stream
-    household_stream << utilities::household_index << ",";
+    household_stream << town_index << "," << utilities::household_index << ",";
     this->get_building()->get_position().to_csv( household_stream, individual_stream );
-    household_stream << "," << this->count_population()
+    household_stream << "," << this->count_individuals()
                      << "," << this->income << ","
                      << this->disease_risk << std::endl;
 
@@ -151,7 +160,7 @@ namespace sampsim
       individual *i = *it;
       if( !sample_mode || i->is_selected() )
       {
-        individual_stream << utilities::household_index << ",";
+        individual_stream << town_index << "," << utilities::household_index << ",";
         i->to_csv( household_stream, individual_stream );
         individual_stream << std::endl;
       }
@@ -161,9 +170,9 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  int household::count_population() const
+  unsigned int household::count_individuals() const
   {
-    int count = 0;
+    unsigned int count = 0;
 
     if( this->get_population()->get_sample_mode() )
     {

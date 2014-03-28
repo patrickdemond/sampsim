@@ -24,6 +24,7 @@ namespace sampsim
   class building;
   class individual;
   class population;
+  class town;
   class tile;
 
   /**
@@ -34,10 +35,11 @@ namespace sampsim
    * Populations are organized into a tree such that all nodes are responsible for creating,
    * generating and deleting their children.  The structure is as follows:
    * - population
-   *   + list of n by m tiles
-   *     - list of buildings in tile
-   *       + list of households in building
-   *         - list of individuals belonging to household
+   *   + list of towns in population
+   *     - list of n by m tiles
+   *       + list of buildings in tile
+   *         - list of households in building
+   *           + list of individuals belonging to household
    * 
    * Households belong to one and only one building.  They contain a list of individuals which live
    * in the household.  When a household is selected the selection state of its individuals are
@@ -105,6 +107,11 @@ namespace sampsim
     tile* get_tile() const;
 
     /**
+     * Returns the town that the household belongs to
+     */
+    town* get_town() const;
+
+    /**
      * Returns the population that the household belongs to
      */
     population* get_population() const;
@@ -160,8 +167,8 @@ namespace sampsim
      * Selection works in the following manner: selecting an object also selects its parent but not its
      * children.  Unselecting an object also unselects its children but not its parent.  This mechanism
      * therefore defines "selection" as true if any of its children are selected, and allows for
-     * unselecting all children by unselecting the object.  Only buildings, households and individuals
-     * may be selected/unselected.
+     * unselecting all children by unselecting the object.  Only towns, buildings, households and
+     * individuals may be selected/unselected.
      */
     bool is_selected() const { return this->selected; }
 
@@ -184,9 +191,9 @@ namespace sampsim
      * 
      * Returns a sum of all individuals in the household.  This method counts the number of individuals
      * every time it is called, so it should only be used when re-counting is necessary.
-     * A household contains no individuals (so no population) until its generate() method is called.
+     * A household contains no individuals (so no individuals) until its generate() method is called.
      */
-    int count_population() const;
+    unsigned int count_individuals() const;
 
   private:
     /**

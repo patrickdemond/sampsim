@@ -36,8 +36,8 @@ TEST( test_tile )
     sampsim::building *building = *tile->get_building_list_begin();
     sampsim::household *household = *building->get_household_list_begin();
     sampsim::individual *individual = *household->get_individual_list_begin();
-    int x = tile_it->first.first;
-    int y = tile_it->first.second;
+    unsigned int x = tile_it->first.first;
+    unsigned int y = tile_it->first.second;
     double width = population->get_tile_width();
     sampsim::coordinate centroid = tile->get_centroid();
     std::pair< sampsim::coordinate, sampsim::coordinate > extent = tile->get_extent();
@@ -53,27 +53,27 @@ TEST( test_tile )
     CHECK_EQUAL( ( y + 1 ) * width, extent.second.y );
 
     cout << "Testing tile population..." << endl;
-    CHECK( 0 != tile->count_population() );
+    CHECK( 0 != tile->count_individuals() );
 
     cout << "Turning on sample mode" << endl;
     population->set_sample_mode( true );
     
     cout << "Testing that tile now has no population..." << endl;
-    CHECK_EQUAL( 0, tile->count_population() );
+    CHECK_EQUAL( 0, tile->count_individuals() );
 
     cout << "Testing that tile with selected individual has population..." << endl;
     individual->select();
-    CHECK( 0 != tile->count_population() );
+    CHECK( 0 != tile->count_individuals() );
 
     cout << "Testing that tile with unselected individual has no population..." << endl;
     individual->unselect();
-    CHECK_EQUAL( 0, tile->count_population() );
+    CHECK_EQUAL( 0, tile->count_individuals() );
 
     cout << "Turning off sample mode" << endl;
     population->set_sample_mode( false );
 
     cout << "Testing tile population..." << endl;
-    CHECK( 0 != tile->count_population() );
+    CHECK( 0 != tile->count_individuals() );
   }
 
   // clean up

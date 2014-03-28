@@ -76,7 +76,7 @@ int main( const int argc, const char** argv )
   opts.add_option( "tile_x", "1", "Number of tiles in the horizontal direction" );
   opts.add_option( "tile_y", "1", "Number of tiles in the vertical direction" );
   opts.add_option( "tile_width", "1", "Width of a tile in kilometers" );
-  opts.add_option( "disease_pockets", "0", "Number of disease pockets to generate" );
+  opts.add_option( "number_of_disease_pockets", "0", "Number of disease pockets to generate" );
   opts.add_option( "pocket_kernel_type", "exponential", "Number of disease pockets to generate" );
   opts.add_option( "pocket_scaling", "1", "Number of disease pockets to generate" );
 
@@ -194,8 +194,8 @@ int main( const int argc, const char** argv )
 
           population->set_seed( opts.get_option( "seed" ) );
           population->set_mean_household_population( opts.get_option_as_double( "mean_household_pop" ) );
-          population->set_number_tiles_x( opts.get_option_as_int( "tile_x" ) );
-          population->set_number_tiles_y( opts.get_option_as_int( "tile_y" ) );
+          population->set_number_of_tiles_x( opts.get_option_as_int( "tile_x" ) );
+          population->set_number_of_tiles_y( opts.get_option_as_int( "tile_y" ) );
           population->set_tile_width( opts.get_option_as_double( "tile_width" ) );
           population->set_disease_weights(
             opts.get_option_as_double( "dweight_population" ),
@@ -204,7 +204,7 @@ int main( const int argc, const char** argv )
             opts.get_option_as_double( "dweight_age" ),
             opts.get_option_as_double( "dweight_sex" ),
             opts.get_option_as_double( "dweight_pocket" ) );
-          population->set_disease_pockets( opts.get_option_as_int( "disease_pockets" ) );
+          population->set_number_of_disease_pockets( opts.get_option_as_int( "number_of_disease_pockets" ) );
           population->set_pocket_kernel_type( opts.get_option( "pocket_kernel_type" ) );
           population->set_pocket_scaling( opts.get_option_as_double( "pocket_scaling" ) );
 

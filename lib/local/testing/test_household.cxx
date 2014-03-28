@@ -48,32 +48,32 @@ TEST( test_household )
         sampsim::individual *individual = *household->get_individual_list_begin();
 
         cout << "Testing household population..." << endl;
-        CHECK( 0 != household->count_population() );
+        CHECK( 0 != household->count_individuals() );
 
         cout << "Turning on sample mode" << endl;
         population->set_sample_mode( true );
         
         cout << "Testing that household now has no population..." << endl;
-        CHECK_EQUAL( 0, household->count_population() );
+        CHECK_EQUAL( 0, household->count_individuals() );
 
         cout << "Testing that household with selected individual has population..." << endl;
         individual->select();
-        CHECK( 0 != household->count_population() );
+        CHECK( 0 != household->count_individuals() );
 
         cout << "Testing that household with unselected individual has no population..." << endl;
         individual->unselect();
-        CHECK_EQUAL( 0, household->count_population() );
+        CHECK_EQUAL( 0, household->count_individuals() );
 
         cout << "Testing that unselected household has no population..." << endl;
         individual->select();
         household->unselect();
-        CHECK_EQUAL( 0, household->count_population() );
+        CHECK_EQUAL( 0, household->count_individuals() );
 
         cout << "Turning off sample mode" << endl;
         population->set_sample_mode( false );
 
         cout << "Testing household population..." << endl;
-        CHECK( 0 != household->count_population() );
+        CHECK( 0 != household->count_individuals() );
       }
     }
   }

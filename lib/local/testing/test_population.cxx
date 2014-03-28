@@ -32,27 +32,27 @@ TEST( test_population )
   sampsim::individual *individual = *household->get_individual_list_begin();
 
   cout << "Testing population size..." << endl;
-  CHECK( 0 != population->count_population() );
+  CHECK( 0 != population->count_individuals() );
 
   cout << "Turning on sample mode" << endl;
   population->set_sample_mode( true );
   
   cout << "Testing that population now has a count of zero..." << endl;
-  CHECK_EQUAL( 0, population->count_population() );
+  CHECK_EQUAL( 0, population->count_individuals() );
 
   cout << "Testing that population with selected individual has non-zero count..." << endl;
   individual->select();
-  CHECK( 0 != population->count_population() );
+  CHECK( 0 != population->count_individuals() );
 
   cout << "Testing that population with unselected individual has a count of zero..." << endl;
   individual->unselect();
-  CHECK_EQUAL( 0, population->count_population() );
+  CHECK_EQUAL( 0, population->count_individuals() );
 
   cout << "Turning off sample mode" << endl;
   population->set_sample_mode( false );
 
   cout << "Testing population size..." << endl;
-  CHECK( 0 != population->count_population() );
+  CHECK( 0 != population->count_individuals() );
 
   cout << "Testing population centroid..." << endl;
   sampsim::coordinate centroid = population->get_centroid();
@@ -89,7 +89,7 @@ TEST( test_population )
   temp_filename << ".json";
   sampsim::population *population_read = new sampsim::population;
   CHECK( population_read->read( temp_filename.str() ) );
-  CHECK_EQUAL( population->count_population(), population_read->count_population() );
+  CHECK_EQUAL( population->count_individuals(), population_read->count_individuals() );
 
   // clean up
   remove( temp_filename.str().c_str() );
