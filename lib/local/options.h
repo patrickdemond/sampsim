@@ -30,14 +30,19 @@ namespace sampsim
    * based command.  Additionally, configuration files can also be provided which may include values
    * for flags and options.  No more than one parameter may be included per line.  Options with no
    * values (flags) are set to true if found on a line alone.  For example:
-   *
+   * 
    * verbose
-   *
+   * 
    * Options with values must be separated by a ":" character.  For example:
-   *
+   * 
    * seed: 1234
-   *
-   * All lines beginning with a # are ignored as comments.
+   * 
+   * If an option includes only numbers, periods and commas (no other characters or spaces)
+   * then it will be inturpreted as an array.  For instance:
+   * 
+   * coordinate: 1.2,2.4,3.6
+   * 
+   * Anything proceeding a # is ignored as a comment.
    */
   class options
   {

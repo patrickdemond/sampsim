@@ -56,7 +56,9 @@ namespace sampsim
     if( flag.has_short_name() ) stream << "-" << flag.short_name << "  ";
     if( flag.has_long_name() ) stream << "--" << flag.long_name;
     std::string spacing;
-    spacing.assign( 25 - stream.str().length(), ' ' );
+    int spacing_length = 30 - stream.str().length();
+    if( 2 > spacing_length ) spacing_length = 2;
+    spacing.assign( spacing_length, ' ' );
     stream << spacing << flag.description;
     this->add_heading( stream.str() );
   }
@@ -81,7 +83,9 @@ namespace sampsim
     if( option.has_short_name() ) stream << "-" << option.short_name << "  ";
     if( option.has_long_name() ) stream << "--" << option.long_name;
     std::string spacing;
-    spacing.assign( 25 - stream.str().length(), ' ' );
+    int spacing_length = 30 - stream.str().length();
+    if( 2 > spacing_length ) spacing_length = 2;
+    spacing.assign( spacing_length, ' ' );
     stream << spacing << option.description;
     this->add_heading( stream.str() );
   }

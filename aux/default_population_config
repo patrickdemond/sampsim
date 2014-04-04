@@ -1,18 +1,23 @@
 #########################################################################################
-#
+# 
 # This is a sample configuration file used to set up population parameters for sampsim
-#
+# 
 # No more than one parameter may be included per line.  Options with no values (flags)
 # are set to true if found on a line alone.  For example:
-#
+# 
 # verbose
-#
+# 
 # Options with values must be separated by a ":" character.  For example:
-#
+# 
 # seed: 1234
-#
-# All lines beginning with a # are ignored as comments.
-#
+# 
+# If an option includes only numbers, periods and commas (no other characters or spaces)
+# then it will be inturpreted as an array.  For instance:
+# 
+# coordinate: 1.2,2.4,3.6
+# 
+# Anything proceeding a # is ignored as a comment.
+# 
 #########################################################################################
 
 #
@@ -102,7 +107,7 @@ sd_disease_b00: 0.25
 #   P(x,y) = b00 + b01*x + b10*y + b02*x^2 + b20*y^2 + b11*x*y
 # The default values for b00 is 1 and 0 for all other coefficients
 #
-popdens_b00: 400
+popdens_b00: 400,50,50
 
 #
 # The weights used to determine disease status including:
