@@ -55,7 +55,7 @@ namespace sampsim
     std::pair< unsigned int, unsigned int > index;
 
     std::stringstream stream;
-    stream << "generating town " << this->index;
+    stream << "generating town #" << ( this->index + 1 );
     utilities::output( stream.str() );
 
     population *pop = this->get_population();

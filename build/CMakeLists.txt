@@ -37,10 +37,10 @@ CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_strip_epi_config
 
 SET( SAMPSIM_EXECUTABLES
   generate
-  arc_epi_sample
-  gps_sample
-  random_sample
-  strip_epi_sample
+#  arc_epi_sample
+#  gps_sample
+#  random_sample
+#  strip_epi_sample
 )
 
 # Include library paths
@@ -48,7 +48,7 @@ INCLUDE_DIRECTORIES(
   ${SAMPSIM_SRC_DIR}
   ${SAMPSIM_LIB_DIR}/local
   ${PROJECT_BINARY_DIR}/lib/local
-  ${PROJECT_BINARY_DIR}/lib/local/sample
+#  ${PROJECT_BINARY_DIR}/lib/local/sample
 )
 
 # We're using <random>, the auto keyword, constant iterators, etc, so we need c++11
@@ -59,7 +59,7 @@ FOREACH( EXECUTABLE ${SAMPSIM_EXECUTABLES} )
   ADD_EXECUTABLE( ${EXECUTABLE} ${SAMPSIM_SRC_DIR}/${EXECUTABLE}.cxx )
   TARGET_LINK_LIBRARIES( ${EXECUTABLE}
     ${PROJECT_NAME}
-    ${PROJECT_NAME}_sample
+#    ${PROJECT_NAME}_sample
   )
 ENDFOREACH( EXECUTABLE IN ${SAMPSIM_EXECUTABLES} )
 
@@ -98,7 +98,7 @@ IF( BUILD_DOCUMENTATION )
 
   SET( DOXY_INPUT_SOURCE 
     ${SAMPSIM_LIB_DIR}/local
-    ${SAMPSIM_LIB_DIR}/local/sample
+#    ${SAMPSIM_LIB_DIR}/local/sample
     ${SAMPSIM_DOXY_DIR}/doc_mainpage.dox )
 
   string( REPLACE ";" "\" \"" SAMPSIM_DOXY_LIST "${DOXY_INPUT_SOURCE}" )

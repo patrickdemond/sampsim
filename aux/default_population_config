@@ -37,7 +37,7 @@ tile_width: 3.5
 # will have a disease (based on the selected picket kernel type).
 # Disease pockets are randomly placed within the bounds of the population
 #
-number_of_disease_pockets: 0
+disease_pockets: 0
 
 #
 # The influence function used by disease pockets

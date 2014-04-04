@@ -75,7 +75,7 @@ namespace sampsim
     this->set_sample_mode( false );
 
     // create towns
-    for( unsigned int i = 0; i <= this->number_of_towns; i++ )
+    for( unsigned int i = 0; i < this->number_of_towns; i++ )
     {
       town *t = new town( this, i );
       t->set_number_of_tiles_x( this->number_of_tiles_x );

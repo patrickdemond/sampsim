@@ -10,10 +10,11 @@
 // An executable which generates a population
 //
 
-#include "arc_epi_sample.h"
-#include "random_sample.h"
-#include "strip_epi_sample.h"
+//#include "arc_epi_sample.h"
+//#include "random_sample.h"
+//#include "strip_epi_sample.h"
 
+#include "options.h"
 #include "population.h"
 #include "trend.h"
 #include "utilities.h"
@@ -26,9 +27,9 @@ int main( const int argc, const char** argv )
   int status = EXIT_FAILURE;
   sampsim::options opts( argv[0] );
   sampsim::population *population = new sampsim::population;
-  sampsim::sample::arc_epi *arc_epi_sample = new sampsim::sample::arc_epi;
-  sampsim::sample::random *random_sample = new sampsim::sample::random;
-  sampsim::sample::strip_epi *strip_epi_sample = new sampsim::sample::strip_epi;
+//  sampsim::sample::arc_epi *arc_epi_sample = new sampsim::sample::arc_epi;
+//  sampsim::sample::random *random_sample = new sampsim::sample::random;
+//  sampsim::sample::strip_epi *strip_epi_sample = new sampsim::sample::strip_epi;
 
   // define inputs
   opts.add_input( "output" );
@@ -76,7 +77,7 @@ int main( const int argc, const char** argv )
   opts.add_option( "tile_x", "1", "Number of tiles in the horizontal direction" );
   opts.add_option( "tile_y", "1", "Number of tiles in the vertical direction" );
   opts.add_option( "tile_width", "1", "Width of a tile in kilometers" );
-  opts.add_option( "number_of_disease_pockets", "0", "Number of disease pockets to generate" );
+  opts.add_option( "disease_pockets", "0", "Number of disease pockets to generate" );
   opts.add_option( "pocket_kernel_type", "exponential", "Number of disease pockets to generate" );
   opts.add_option( "pocket_scaling", "1", "Number of disease pockets to generate" );
 
@@ -204,7 +205,7 @@ int main( const int argc, const char** argv )
             opts.get_option_as_double( "dweight_age" ),
             opts.get_option_as_double( "dweight_sex" ),
             opts.get_option_as_double( "dweight_pocket" ) );
-          population->set_number_of_disease_pockets( opts.get_option_as_int( "number_of_disease_pockets" ) );
+          population->set_number_of_disease_pockets( opts.get_option_as_int( "disease_pockets" ) );
           population->set_pocket_kernel_type( opts.get_option( "pocket_kernel_type" ) );
           population->set_pocket_scaling( opts.get_option_as_double( "pocket_scaling" ) );
 
@@ -231,6 +232,7 @@ int main( const int argc, const char** argv )
             }
             else
             {
+              /*
               // determine which sampler to use and set up the options for it
               const char* sampler_argv[3];
               sampler_argv[0] = batch_sampler.c_str();
@@ -302,6 +304,7 @@ int main( const int argc, const char** argv )
                 sample->generate();
                 sample->write( sample_filename, opts.get_flag( "flat_file" ) );
               }
+              */
             }
           }
         }
@@ -316,8 +319,8 @@ int main( const int argc, const char** argv )
   }
 
   sampsim::utilities::safe_delete( population );
-  sampsim::utilities::safe_delete( arc_epi_sample );
-  sampsim::utilities::safe_delete( random_sample );
-  sampsim::utilities::safe_delete( strip_epi_sample );
+//  sampsim::utilities::safe_delete( arc_epi_sample );
+//  sampsim::utilities::safe_delete( random_sample );
+//  sampsim::utilities::safe_delete( strip_epi_sample );
   return status;
 }
