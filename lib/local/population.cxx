@@ -165,7 +165,11 @@ namespace sampsim
       sd[c] = sqrt( sd[c] / ( population_size - 1 ) );
 
       for( unsigned int i = 0; i < population_size; i++ )
+      {
         matrix[c][i] = ( matrix[c][i] - mean[c] ) / sd[c];
+        // if the sd is 0 then we set the matrix value to 0
+        if( isnan( matrix[c][i] ) ) matrix[c][i] = 0.0;
+      }
     }
 
     // factor in weights, compute disease probability then set disease status for all individuals
