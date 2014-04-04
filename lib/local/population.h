@@ -136,6 +136,11 @@ namespace sampsim
     void set_seed( const std::string seed );
 
     /**
+     * Sets the number of towns to generate
+     */
+    void set_number_of_towns( const unsigned int );
+
+    /**
      * Sets the number of tiles in a town in the longitudinal (X) direction
      */
     void set_number_of_tiles_x( const unsigned int );

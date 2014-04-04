@@ -248,35 +248,35 @@ namespace sampsim
 
     // put in the parameters
     std::stringstream stream;
-    stream << "# population parameters" << std::endl;
-    stream << "# -----------------------------------------------------------------------" << std::endl;
-    stream << "# version: " << utilities::get_version() << std::endl;
-    stream << "# seed: " << this->seed << std::endl;
-    stream << "# number_of_tiles_x: " << this->number_of_tiles_x << std::endl;
-    stream << "# number_of_tiles_y: " << this->number_of_tiles_y << std::endl;
-    stream << "# tile_width: " << this->tile_width << std::endl;
-    stream << "#" << std::endl;
-    stream << "# dweight_population: " << this->disease_weights[0] << std::endl;
-    stream << "# dweight_income: " << this->disease_weights[1] << std::endl;
-    stream << "# dweight_risk: " << this->disease_weights[2] << std::endl;
-    stream << "# dweight_age: " << this->disease_weights[3] << std::endl;
-    stream << "# dweight_sex: " << this->disease_weights[4] << std::endl;
-    stream << "# dweight_pocket: " << this->disease_weights[5] << std::endl;
-    stream << "#" << std::endl;
-    stream << "# mean_household_pop" << this->mean_household_population << std::endl;
-    stream << "# mean_income trend: " << this->mean_income->to_string() << std::endl;
-    stream << "# sd_income trend: " << this->sd_income->to_string() << std::endl;
-    stream << "# mean_disease trend: " << this->mean_disease->to_string() << std::endl;
-    stream << "# sd_disease trend: " << this->sd_disease->to_string() << std::endl;
-    stream << "# popdens trend: " << this->population_density->to_string() << std::endl;
-    stream << std::endl;
+    stream << "#" << std::endl
+           << "# population parameters" << std::endl
+           << "# ---------------------" << std::endl
+           << "# version: " << utilities::get_version() << std::endl
+           << "# seed: " << this->seed << std::endl
+           << "# towns: " << this->number_of_towns << std::endl
+           << "# tile_width: " << this->tile_width << std::endl
+           << "#" << std::endl
+           << "# dweight_population: " << this->disease_weights[0] << std::endl
+           << "# dweight_income: " << this->disease_weights[1] << std::endl
+           << "# dweight_risk: " << this->disease_weights[2] << std::endl
+           << "# dweight_age: " << this->disease_weights[3] << std::endl
+           << "# dweight_sex: " << this->disease_weights[4] << std::endl
+           << "# dweight_pocket: " << this->disease_weights[5] << std::endl
+           << "#" << std::endl
+           << "# mean_household_pop" << this->mean_household_population << std::endl
+           << "# mean_income trend: " << this->mean_income->to_string() << std::endl
+           << "# sd_income trend: " << this->sd_income->to_string() << std::endl
+           << "# mean_disease trend: " << this->mean_disease->to_string() << std::endl
+           << "# sd_disease trend: " << this->sd_disease->to_string() << std::endl
+           << "# popdens trend: " << this->population_density->to_string() << std::endl
+           << "#" << std::endl << std::endl;
     
     household_stream << stream.str();
     individual_stream << stream.str();
 
     // put in the csv headers
-    household_stream << "index,x,y,r,a,individuals,income,disease_risk" << std::endl;
-    individual_stream << "household_index,sex,age,disease" << std::endl;
+    household_stream << "town_index,household_index,x,y,r,a,individuals,income,disease_risk" << std::endl;
+    individual_stream << "town_index,household_index,sex,age,disease" << std::endl;
 
     for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
       ( *it )->to_csv( household_stream, individual_stream );
@@ -288,6 +288,13 @@ namespace sampsim
     if( utilities::verbose ) utilities::output( "setting seed to %s", seed.c_str() );
     this->seed = seed;
     utilities::random_engine.seed( atoi( this->seed.c_str() ) );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::set_number_of_towns( const unsigned int number_of_towns )
+  {
+    if( utilities::verbose ) utilities::output( "setting number_of_towns to %d", number_of_towns );
+    this->number_of_towns = number_of_towns;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

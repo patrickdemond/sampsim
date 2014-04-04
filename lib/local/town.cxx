@@ -172,7 +172,9 @@ namespace sampsim
       individual_list[i]->set_disease( utilities::random() < probability );
     }
 
-    utilities::output( "finished generating population" );
+    stream.str( "" );
+    stream << "finished generating town #" << ( this->index + 1 );
+    utilities::output( stream.str() );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -231,22 +233,21 @@ namespace sampsim
 
     // put in the parameters
     std::stringstream stream;
-    stream << "# population parameters" << std::endl;
-    stream << "# -----------------------------------------------------------------------" << std::endl;
-    stream << "# version: " << utilities::get_version() << std::endl;
-    stream << "# number_of_tiles_x: " << this->number_of_tiles_x << std::endl;
-    stream << "# number_of_tiles_y: " << this->number_of_tiles_y << std::endl;
-    stream << "#" << std::endl;
+    stream << "#" << std::endl
+           << "# town parameters (index " << this->index << ")" << std::endl
+           << "# --------------------------" << std::endl
+           << "# number_of_tiles_x: " << this->number_of_tiles_x << std::endl
+           << "# number_of_tiles_y: " << this->number_of_tiles_y << std::endl
+           << "#" << std::endl;
     
     household_stream << stream.str();
     individual_stream << stream.str();
 
-    // put in the csv headers
-    household_stream << "index,x,y,r,a,individuals,income,disease_risk" << std::endl;
-    individual_stream << "household_index,sex,age,disease" << std::endl;
-
     for( auto it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it )
       it->second->to_csv( household_stream, individual_stream );
+
+    household_stream << std::endl;
+    individual_stream << std::endl;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

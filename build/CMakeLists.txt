@@ -3,7 +3,7 @@ PROJECT( sampsim )
 
 # Set the version
 SET( SAMPSIM_VERSION_MAJOR 0 )
-SET( SAMPSIM_VERSION_MINOR 1 )
+SET( SAMPSIM_VERSION_MINOR 2 )
 SET( SAMPSIM_VERSION_PATCH 0 )
 
 # Look in the build directory for cmake modules

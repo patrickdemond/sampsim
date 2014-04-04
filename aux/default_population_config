@@ -21,6 +21,11 @@
 seed: 1
 
 #
+# The number of towns to generate
+#
+towns: 1
+
+#
 # The number of tiles in the x (horizontal) and y (vertical) directions
 #
 tile_x: 10

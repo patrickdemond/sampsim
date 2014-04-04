@@ -43,7 +43,14 @@ int main( const int argc, const char** argv )
   opts.add_heading( "Population parameters (overrides config files):" );
   opts.add_heading( "" );
   opts.add_option( "seed", "", "Seed used by the random generator" );
+  opts.add_option( "towns", "1", "Number of towns to generate" );
+  opts.add_option( "tile_x", "1", "Number of tiles in the horizontal direction" );
+  opts.add_option( "tile_y", "1", "Number of tiles in the vertical direction" );
+  opts.add_option( "tile_width", "1", "Width of a tile in kilometers" );
   opts.add_option( "mean_household_pop", "4", "Mean number of individuals per household" );
+  opts.add_option( "disease_pockets", "0", "Number of disease pockets to generate" );
+  opts.add_option( "pocket_kernel_type", "exponential", "Number of disease pockets to generate" );
+  opts.add_option( "pocket_scaling", "1", "Number of disease pockets to generate" );
   opts.add_option( "mean_income_b00", "1", "Mean income trend's independent coefficient" );
   opts.add_option( "mean_income_b01", "0", "Mean income trend's X coefficient" );
   opts.add_option( "mean_income_b10", "0", "Mean income trend's Y coefficient" );
@@ -74,12 +81,6 @@ int main( const int argc, const char** argv )
   opts.add_option( "popdens_b02", "0", "Population density trend's X^2 coefficient" );
   opts.add_option( "popdens_b20", "0", "Population density trend's Y^2 coefficient" );
   opts.add_option( "popdens_b11", "0", "Population density trend's XY coefficient" );
-  opts.add_option( "tile_x", "1", "Number of tiles in the horizontal direction" );
-  opts.add_option( "tile_y", "1", "Number of tiles in the vertical direction" );
-  opts.add_option( "tile_width", "1", "Width of a tile in kilometers" );
-  opts.add_option( "disease_pockets", "0", "Number of disease pockets to generate" );
-  opts.add_option( "pocket_kernel_type", "exponential", "Number of disease pockets to generate" );
-  opts.add_option( "pocket_scaling", "1", "Number of disease pockets to generate" );
 
   // define disease parameters
   opts.add_heading( "" );
@@ -194,6 +195,7 @@ int main( const int argc, const char** argv )
           popdens->set_b11( opts.get_option_as_double( "popdens_b11" ) );
 
           population->set_seed( opts.get_option( "seed" ) );
+          population->set_number_of_towns( opts.get_option_as_int( "towns" ) );
           population->set_mean_household_population( opts.get_option_as_double( "mean_household_pop" ) );
           population->set_number_of_tiles_x( opts.get_option_as_int( "tile_x" ) );
           population->set_number_of_tiles_y( opts.get_option_as_int( "tile_y" ) );
