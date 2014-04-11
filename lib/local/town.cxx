@@ -34,7 +34,11 @@ namespace sampsim
     this->index = index;
     this->number_of_tiles_x = 0;
     this->number_of_tiles_y = 0;
-
+    this->mean_income = new trend;
+    this->sd_income = new trend;
+    this->mean_disease = new trend;
+    this->sd_disease = new trend;
+    this->population_density = new trend;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -44,6 +48,13 @@ namespace sampsim
     for( auto it = this->tile_list.begin(); it != this->tile_list.end(); ++it )
       utilities::safe_delete( it->second );
     this->tile_list.clear();
+
+    // delete all trends
+    delete this->mean_income;
+    delete this->sd_income;
+    delete this->mean_disease;
+    delete this->sd_disease;
+    delete this->population_density;
 
     // we're holding a light reference to the parent, don't delete it
     this->parent = NULL;
@@ -196,6 +207,13 @@ namespace sampsim
     this->number_of_tiles_x = json["number_of_tiles_x"].asUInt();
     this->number_of_tiles_y = json["number_of_tiles_y"].asUInt();
 
+    this->mean_household_population = json["mean_household_population"].asDouble();
+    this->mean_income->from_json( json["mean_income"] );
+    this->sd_income->from_json( json["sd_income"] );
+    this->mean_disease->from_json( json["mean_disease"] );
+    this->sd_disease->from_json( json["sd_disease"] );
+    this->population_density->from_json( json["population_density"] );
+
     std::pair< unsigned int, unsigned int > index;
     for( unsigned int c = 0; c < json["tile_list"].size(); c++ )
     {
@@ -218,6 +236,11 @@ namespace sampsim
     json["number_of_tiles_y"] = this->number_of_tiles_y;
     json["tile_list"] = Json::Value( Json::arrayValue );
     json["tile_list"].resize( this->tile_list.size() );
+    this->mean_income->to_json( json["mean_income"] );
+    this->sd_income->to_json( json["sd_income"] );
+    this->mean_disease->to_json( json["mean_disease"] );
+    this->sd_disease->to_json( json["sd_disease"] );
+    this->population_density->to_json( json["population_density"] );
 
     unsigned int index = 0;
     for( auto it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it, ++index )
@@ -238,6 +261,11 @@ namespace sampsim
            << "# --------------------------" << std::endl
            << "# number_of_tiles_x: " << this->number_of_tiles_x << std::endl
            << "# number_of_tiles_y: " << this->number_of_tiles_y << std::endl
+           << "# mean_income trend: " << this->mean_income->to_string() << std::endl
+           << "# sd_income trend: " << this->sd_income->to_string() << std::endl
+           << "# mean_disease trend: " << this->mean_disease->to_string() << std::endl
+           << "# sd_disease trend: " << this->sd_disease->to_string() << std::endl
+           << "# popdens trend: " << this->population_density->to_string() << std::endl
            << "#" << std::endl;
     
     household_stream << stream.str();
@@ -265,6 +293,50 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void town::set_mean_household_population( const double mean_household_population )
+  {
+    if( utilities::verbose )
+      utilities::output( "setting mean_household_population to %f", mean_household_population );
+    this->mean_household_population = mean_household_population;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void town::set_income( trend *mean, trend *sd )
+  {
+    if( utilities::verbose )
+    {   
+      utilities::output( "setting income trend mean to %s", mean->to_string().c_str() );
+      utilities::output( "setting income trend sd to %s", sd->to_string().c_str() );
+      utilities::output( "setting income trend mean to %s", mean->to_string().c_str() );
+      utilities::output( "setting income trend sd to %s", sd->to_string().c_str() );
+    }   
+    this->mean_income->copy( mean );
+    this->sd_income->copy( sd );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void town::set_disease( trend *mean, trend *sd )
+  {
+    if( utilities::verbose )
+    {   
+      utilities::output( "setting disease trend mean to %s", mean->to_string().c_str() );
+      utilities::output( "setting disease trend sd to %s", sd->to_string().c_str() );
+      utilities::output( "setting disease trend mean to %s", mean->to_string().c_str() );
+      utilities::output( "setting disease trend sd to %s", sd->to_string().c_str() );
+    }
+    this->mean_disease->copy( mean );
+    this->sd_disease->copy( sd );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void town::set_population_density( trend *population_density )
+  {
+    if( utilities::verbose )
+      utilities::output( "setting population density trend to %s", population_density->to_string().c_str() );
+    this->population_density->copy( population_density );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void town::set_number_of_disease_pockets( const unsigned int count )
   {
     if( utilities::verbose ) utilities::output( "setting number of disease pockets to %d", count );
@@ -273,14 +345,6 @@ namespace sampsim
     for( unsigned int i = 0; i < count; i++ )
       this->disease_pocket_list.push_back(
         coordinate( 2 * c.x * utilities::random(), 2 * c.y * utilities::random() ) );
-  }
-
-  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void town::set_mean_household_population( const double mean_household_population )
-  {
-    if( utilities::verbose )
-      utilities::output( "setting mean_household_population to %f", mean_household_population );
-    this->mean_household_population = mean_household_population;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

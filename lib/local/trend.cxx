@@ -22,82 +22,182 @@ namespace sampsim
     const double b20,
     const double b11 )
   {
-    this->b00 = b00;
-    this->b01 = b01;
-    this->b10 = b10;
-    this->b02 = b02;
-    this->b20 = b20;
-    this->b11 = b11;
+    this->b[0][0] = b00;
+    this->b[1][0] = b01;
+    this->b[2][0] = b10;
+    this->b[3][0] = b02;
+    this->b[4][0] = b20;
+    this->b[5][0] = b11;
+
+    for( unsigned int index = 0; index < 6; index++ )
+    {
+      this->b[index][1] = 0.0;
+      this->b[index][2] = 0.0;
+      this->b[index][3] = std::numeric_limits<double>::quiet_NaN();
+    }
+
+    // now set the regression factor to 0 (no regression)
+    this->set_regression_factor( 0.0 );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void trend::copy( const trend* t )
   {
-    this->b00 = t->b00;
-    this->b01 = t->b01;
-    this->b10 = t->b10;
-    this->b02 = t->b02;
-    this->b20 = t->b20;
-    this->b11 = t->b11;
+    for( unsigned int index = 0; index < 6; index++ )
+      std::copy( std::begin( t->b[index] ), std::end( t->b[index] ), std::begin( this->b[index] ) );
+    this->set_regression_factor( t->regression_factor );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void trend::set_regression_factor( const double factor )
+  {
+    this->regression_factor = factor;
+
+    for( unsigned int index = 0; index < 6; index++ )
+    {
+      this->dist[index].set_normal( this->b[index][0] + this->b[index][1] * factor, this->b[index][2] );
+      this->b[index][3] = std::numeric_limits<double>::quiet_NaN();
+    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   double trend::get_value( const coordinate c )
   {
-    return this->b00 +
-           this->b01 * c.x +
-           this->b10 * c.y +
-           this->b02 * c.x * c.x +
-           this->b20 * c.y * c.y +
-           this->b11 * c.x * c.y;
+    return this->get_b00() +
+           this->get_b01() * c.x +
+           this->get_b10() * c.y +
+           this->get_b02() * c.x * c.x +
+           this->get_b20() * c.y * c.y +
+           this->get_b11() * c.x * c.y;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  std::string trend::to_string() const
+  double trend::get_constant( const unsigned int index )
+  {
+    if( 6 <= index )
+    {
+      std::stringstream stream;
+      stream << "ERROR: trend coefficient index \"" << index << "\" is out of bounds";
+      throw std::runtime_error( stream.str() );
+    }
+
+    // cache the value of the constant
+    if( std::numeric_limits<double>::quiet_NaN() == this->b[index][4] )
+      this->b[index][4] = this->dist[index].generate_value();
+    return this->b[index][4];
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  double trend::get_base( const unsigned int index ) const
+  {
+    if( 6 <= index )
+    {
+      std::stringstream stream;
+      stream << "ERROR: trend coefficient index \"" << index << "\" is out of bounds";
+      throw std::runtime_error( stream.str() );
+    }
+
+    return this->b[index][0];
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  double trend::get_regression( const unsigned int index ) const
+  {
+    if( 6 <= index )
+    {
+      std::stringstream stream;
+      stream << "ERROR: trend coefficient index \"" << index << "\" is out of bounds";
+      throw std::runtime_error( stream.str() );
+    }
+
+    return this->b[index][1];
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  double trend::get_variance( const unsigned int index ) const
+  {
+    if( 6 <= index )
+    {
+      std::stringstream stream;
+      stream << "ERROR: trend coefficient index \"" << index << "\" is out of bounds";
+      throw std::runtime_error( stream.str() );
+    }
+
+    return this->b[index][2];
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void trend::set_coefficient(
+     const unsigned int index,
+     const double value,
+     const double regression,
+     const double variance )
+  {
+    if( 6 <= index )
+    {
+      std::stringstream stream;
+      stream << "ERROR: trend coefficient index \"" << index << "\" is out of bounds";
+      throw std::runtime_error( stream.str() );
+    }
+
+    this->b[index][0] = value;
+    this->b[index][1] = regression;
+    this->b[index][2] = variance;
+    this->b[index][3] = std::numeric_limits<double>::quiet_NaN();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  std::string trend::to_string()
   {
     bool first = true;
     std::stringstream stream;
 
-    if( 0 != this->b00 )
+    double b00 = this->get_b00();
+    if( 0 != b00 )
     {
       if( first ) first = false;
       else stream << " + ";
-      stream << this->b00;
+      stream << b00;
     }
 
-    if( 0 != this->b01 )
+    double b01 = this->get_b01();
+    if( 0 != b01 )
     {
       if( first ) first = false;
       else stream << " + ";
-      stream << this->b01 << "x";
+      stream << b01 << "x";
     }
 
-    if( 0 != this->b10 )
+    double b10 = this->get_b10();
+    if( 0 != b10 )
     {
       if( first ) first = false;
       else stream << " + ";
-      stream << this->b10 << "y";
+      stream << b10 << "y";
     }
 
-    if( 0 != this->b02 )
+    double b02 = this->get_b02();
+    if( 0 != b02 )
     {
       if( first ) first = false;
       else stream << " + ";
-      stream << this->b02 << "x^2";
+      stream << b02 << "x^2";
     }
 
-    if( 0 != this->b20 )
+    double b20 = this->get_b20();
+    if( 0 != b20 )
     {
       if( first ) first = false;
       else stream << " + ";
-      stream << this->b20 << "y^2";
+      stream << b20 << "y^2";
     }
 
-    if( 0 != this->b11 )
+    double b11 = this->get_b11();
+    if( 0 != b11 )
     {
       if( first ) first = false;
       else stream << " + ";
-      stream << this->b11 << "xy";
+      stream << b11 << "xy";
     }
 
     return 0 == stream.str().length() ? "0" : stream.str();
@@ -106,24 +206,60 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void trend::from_json( const Json::Value &json )
   {
-    this->b00 = json["b00"].asDouble();
-    this->b01 = json["b01"].asDouble();
-    this->b10 = json["b10"].asDouble();
-    this->b02 = json["b02"].asDouble();
-    this->b20 = json["b20"].asDouble();
-    this->b11 = json["b11"].asDouble();
+    this->b[0][0] = json["b00"][0].asDouble();
+    this->b[0][1] = json["b00"][1].asDouble();
+    this->b[0][2] = json["b00"][2].asDouble();
+    this->b[1][0] = json["b01"][0].asDouble();
+    this->b[1][1] = json["b01"][1].asDouble();
+    this->b[1][2] = json["b01"][2].asDouble();
+    this->b[2][0] = json["b10"][0].asDouble();
+    this->b[2][1] = json["b10"][1].asDouble();
+    this->b[2][2] = json["b10"][2].asDouble();
+    this->b[3][0] = json["b02"][0].asDouble();
+    this->b[3][1] = json["b02"][1].asDouble();
+    this->b[3][2] = json["b02"][2].asDouble();
+    this->b[4][0] = json["b20"][0].asDouble();
+    this->b[4][1] = json["b20"][1].asDouble();
+    this->b[4][2] = json["b20"][2].asDouble();
+    this->b[5][0] = json["b11"][0].asDouble();
+    this->b[5][1] = json["b11"][1].asDouble();
+    this->b[5][2] = json["b11"][2].asDouble();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void trend::to_json( Json::Value &json ) const
   {
     json = Json::Value( Json::objectValue );
-    json["b00"] = this->b00;
-    json["b01"] = this->b01;
-    json["b10"] = this->b10;
-    json["b02"] = this->b02;
-    json["b20"] = this->b20;
-    json["b11"] = this->b11;
+    json["b00"] = Json::Value( Json::arrayValue );
+    json["b00"].resize( 3 );
+    json["b00"][0] = this->b[0][0];
+    json["b00"][1] = this->b[0][1];
+    json["b00"][2] = this->b[0][2];
+    json["b01"] = Json::Value( Json::arrayValue );
+    json["b01"].resize( 3 );
+    json["b01"][0] = this->b[1][0];
+    json["b01"][1] = this->b[1][1];
+    json["b01"][2] = this->b[1][2];
+    json["b10"] = Json::Value( Json::arrayValue );
+    json["b10"].resize( 3 );
+    json["b10"][0] = this->b[2][0];
+    json["b10"][1] = this->b[2][1];
+    json["b10"][2] = this->b[2][2];
+    json["b02"] = Json::Value( Json::arrayValue );
+    json["b02"].resize( 3 );
+    json["b02"][0] = this->b[3][0];
+    json["b02"][1] = this->b[3][1];
+    json["b02"][2] = this->b[3][2];
+    json["b20"] = Json::Value( Json::arrayValue );
+    json["b20"].resize( 3 );
+    json["b20"][0] = this->b[4][0];
+    json["b20"][1] = this->b[4][1];
+    json["b20"][2] = this->b[4][2];
+    json["b11"] = Json::Value( Json::arrayValue );
+    json["b11"].resize( 3 );
+    json["b11"][0] = this->b[5][0];
+    json["b11"][1] = this->b[5][1];
+    json["b11"][2] = this->b[5][2];
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

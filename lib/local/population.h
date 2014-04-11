@@ -279,7 +279,7 @@ namespace sampsim
     /**
      * Sets the trends defining the population's mean and standard deviation income
      */
-    void set_income( const trend *mean, const trend *sd );
+    void set_income( trend *mean, trend *sd );
 
     /**
      * Returns a reference to the trend defining the population's mean disease risk factor
@@ -295,7 +295,7 @@ namespace sampsim
     /**
      * Sets the trends defining the population's mean and standard deviation disease risk factor
      */
-    void set_disease( const trend *mean, const trend *sd );
+    void set_disease( trend *mean, trend *sd );
 
     /**
      * Returns a reference to the trend defining the population's population density
@@ -305,7 +305,7 @@ namespace sampsim
     /**
      * Sets the trend defining the population's population density
      */
-    void set_population_density( const trend *population_density );
+    void set_population_density( trend *population_density );
 
     /**
      * Get the number of individuals in the population

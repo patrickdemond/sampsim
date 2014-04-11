@@ -25,6 +25,7 @@ namespace sampsim
 {
   class population;
   class tile;
+  class trend;
 
   /**
    * @class town
@@ -159,6 +160,47 @@ namespace sampsim
     void set_number_of_disease_pockets( const unsigned int );
 
     /**
+     * Returns a reference to the trend defining the town's mean income
+     */
+    trend* get_mean_income() { return this->mean_income; }
+
+    /**
+     * Returns a reference to the trend defining the standard deviation of the town's income
+     */
+    trend* get_sd_income() { return this->sd_income; }
+
+    /**
+     * Sets the trends defining the town's mean and standard deviation income
+     */
+    void set_income( trend *mean, trend *sd );
+
+    /**
+     * Returns a reference to the trend defining the town's mean disease risk factor
+     */
+    trend* get_mean_disease() { return this->mean_disease; }
+
+    /**
+     * Returns a reference to the trend defining the standard deviation of the town's
+     * disease risk factor
+     */
+    trend* get_sd_disease() { return this->sd_disease; }
+
+    /**
+     * Sets the trends defining the town's mean and standard deviation disease risk factor
+     */
+    void set_disease( trend *mean, trend *sd );
+
+    /**
+     * Returns a reference to the trend defining the town's population density
+     */
+    trend* get_population_density() { return this->population_density; }
+
+    /**
+     * Sets the trend defining the town's population density
+     */
+    void set_population_density( trend *population_density );
+
+    /**
      * Get the number of individuals in:the town
      * 
      * Returns a sum of all individuals in all households in all buildings in all tiles in the town.
@@ -260,6 +302,41 @@ namespace sampsim
      * The population distribution to use when creating individuals within households
      */
     distribution population_distribution;
+
+    /**
+     * The trend defining the town's mean income
+     * 
+     * Mean income is determined by tile position according to this trend.
+     */
+    trend *mean_income;
+
+    /**
+     * The trend defining the standard deviation of the town's income
+     * 
+     * Standard deviation of income is determined by tile position according to this trend.
+     */
+    trend *sd_income;
+
+    /**
+     * The trend defining the town's mean disease risk factor
+     * 
+     * Mean disease risk factor is determined by tile position according to this trend.
+     */
+    trend *mean_disease;
+
+    /**
+     * The trend defining the standard deviation of the town's disease risk factor
+     * 
+     * Standard deviation of disease risk factor is determined by tile position according to this trend.
+     */
+    trend *sd_disease;
+
+    /**
+     * The trend defining the town's population density
+     * 
+     * Population density is determined by tile position according to this trend.
+     */
+    trend *population_density;
 
     /**
      * Whether the town is selected

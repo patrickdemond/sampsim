@@ -98,7 +98,10 @@ namespace sampsim
       /**
        * Constructor
        */
-      option() : short_name( ' ' ), long_name( "" ), initial( "" ), value( "" ), description( "" ) {};
+      option() :
+        short_name( ' ' ),
+        long_name( "" ),
+        description( "" ) {};
 
       /**
        * The option's short (single character) name
@@ -111,14 +114,14 @@ namespace sampsim
       std::string long_name;
 
       /**
-       * The options default value
+       * The option's default array values
        */
-      std::string initial;
+      std::vector< std::string > initial_values;
 
       /**
-       * The option's value (an empty string if none has been set)
+       * The option's comma-deliniated set of values
        */
-      std::string value;
+      std::vector< std::string > values;
 
       /**
        * The option's description
@@ -137,8 +140,10 @@ namespace sampsim
 
       /**
        * Returns the value of the option (returns the default value if no value has been set)
+       * 
+       * If the index is outside the range of values in the initial_values an exception is thrown.
        */
-      std::string get_value() const { return 0 == this->value.length() ? this->initial : this->value; }
+      std::string get_value( const unsigned int index = 0 ) const;
     };
 
   public:
@@ -191,27 +196,71 @@ namespace sampsim
     /**
      * Adds an optional parameter to the command line arguments
      * 
-     * Options are optional parameters which, if included, sets the parameter to a particular value.
-     * If the option is not provided the the initial value will be used.
-     * For example: ./command --method simple (where the option "method" is set to "simple").
+     * Options are optional parameters which, if included, sets the parameter to a particular set of
+     * values.  The maximum number of comma-deliniated values that an option may accept is defined by
+     * the initial_values option.  If the option for a particular index is not provided then the initial
+     * array option will be used.  If more options are provided than there are initial options then the
+     * class will report an error.
+     * For example: ./command --method simple (where the first and only element for the option "method"
+     *                                         is set to "simple")
+     *              ./command --multi a,3,test (where the first, second and third elements for the
+     *                                          option "multi" is set to "a", "3" and "test"
      */
     void add_option(
       const char short_name,
       const std::string long_name,
-      const std::string initial,
+      const std::vector< std::string > initial_values,
       const std::string description );
+
+    /**
+     * Convenience method for an option with a single element allowed
+     */
+    void add_option(
+      const char short_name,
+      const std::string long_name,
+      const std::string initial_value,
+      const std::string description )
+    {
+      std::vector< std::string > initial_values;
+      initial_values.push_back( initial_value );
+      this->add_option( short_name, long_name, initial_values, description );
+    }
 
     /**
      * Convenience method for an option without a long name
      */
-    void add_option( const char short_name, const std::string initial, const std::string description )
-    { this->add_option( short_name, "", initial, description ); }
+    void add_option(
+      const char short_name,
+      const std::vector< std::string > initial_values,
+      const std::string description )
+    { this->add_option( short_name, "", initial_values, description ); }
 
     /**
      * Convenience method for an option without a short name
      */
-    void add_option( const std::string long_name, const std::string initial, const std::string description )
-    { this->add_option( ' ', long_name, initial, description ); }
+    void add_option(
+      const std::string long_name,
+      const std::vector< std::string > initial_values,
+      const std::string description )
+    { this->add_option( ' ', long_name, initial_values, description ); }
+
+    /**
+     * Convenience method for an option with a single element without a long name
+     */
+    void add_option(
+      const char short_name,
+      const std::string initial_value,
+      const std::string description )
+    { this->add_option( short_name, "", initial_value, description ); }
+
+    /**
+     * Convenience method for an option with a single element without a short name
+     */
+    void add_option(
+      const std::string long_name,
+      const std::string initial_value,
+      const std::string description )
+    { this->add_option( ' ', long_name, initial_value, description ); }
 
     /**
      * Sets the command line arguments
@@ -255,40 +304,104 @@ namespace sampsim
     { return this->get_flag( short_name, "" ); }
 
     /**
-     * Returns the value of an option, or the default value if none is provided
+     * Returns the list of values of an option, and the default value where none is provided
      */
-    std::string get_option( const std::string long_name ) const
-    { return this->get_option( ' ', long_name ); }
+    std::vector< std::string > get_option_list( const char short_name ) const
+    { return this->get_option_list( short_name, "" ); }
+
+    /**
+     * Returns the list of values of an option, and the default value where none is provided
+     */
+    std::vector< std::string > get_option_list( const std::string long_name ) const
+    { return this->get_option_list( ' ', long_name ); }
 
     /**
      * Returns the value of an option, or the default value if none is provided
      */
-    std::string get_option( const char short_name ) const
-    { return this->get_option( short_name, "" ); }
+    std::string get_option( const char short_name, const unsigned int index = 0 ) const
+    { return this->get_option( short_name, "", index ); }
+
+    /**
+     * Returns the value of an option, or the default value if none is provided
+     */
+    std::string get_option( const std::string long_name, const unsigned int index = 0 ) const
+    { return this->get_option( ' ', long_name, index ); }
+
+    /**
+     * Convenience method to return options as a list of integers
+     */
+    std::vector< int > get_option_as_int_list(
+      const char short_name, const unsigned int index = 0 ) const
+    {
+      std::vector< std::string > option_list = this->get_option_list( short_name );
+      std::vector< int > int_option_list;
+      for( auto it = option_list.cbegin(); it != option_list.cend(); ++it )
+        int_option_list.push_back( atoi( it->c_str() ) );
+      return int_option_list;
+    }
+
+    /**
+     * Convenience method to return options as a list of integers
+     */
+    std::vector< int > get_option_as_int_list(
+      const std::string long_name, const unsigned int index = 0 ) const
+    {
+      std::vector< std::string > option_list = this->get_option_list( long_name );
+      std::vector< int > int_option_list;
+      for( auto it = option_list.cbegin(); it != option_list.cend(); ++it )
+        int_option_list.push_back( atoi( it->c_str() ) );
+      return int_option_list;
+    }
 
     /**
      * Convenience method to return an option as an integer
      */
-    int get_option_as_int( const std::string long_name ) const
-    { return atoi( this->get_option( long_name ).c_str() ); }
-
-    /**
-     * Convenience method to return an option as a double
-     */
-    double get_option_as_double( const std::string long_name ) const
-    { return atof( this->get_option( long_name ).c_str() ); }
+    int get_option_as_int( const char short_name, const unsigned int index = 0 ) const
+    { return atoi( this->get_option( short_name, index ).c_str() ); }
 
     /**
      * Convenience method to return an option as an integer
      */
-    int get_option_as_int( const char short_name ) const
-    { return atoi( this->get_option( short_name ).c_str() ); }
+    int get_option_as_int( const std::string long_name, const unsigned int index = 0 ) const
+    { return atoi( this->get_option( long_name, index ).c_str() ); }
+
+    /**
+     * Convenience method to return options as a list of doubles
+     */
+    std::vector< double > get_option_as_double_list(
+      const char short_name, const double index = 0 ) const
+    {
+      std::vector< std::string > option_list = this->get_option_list( short_name );
+      std::vector< double > double_option_list;
+      for( auto it = option_list.cbegin(); it != option_list.cend(); ++it )
+        double_option_list.push_back( atoi( it->c_str() ) );
+      return double_option_list;
+    }
+
+    /**
+     * Convenience method to return options as a list of doubles
+     */
+    std::vector< double > get_option_as_double_list(
+      const std::string long_name, const double index = 0 ) const
+    {
+      std::vector< std::string > option_list = this->get_option_list( long_name );
+      std::vector< double > double_option_list;
+      for( auto it = option_list.cbegin(); it != option_list.cend(); ++it )
+        double_option_list.push_back( atof( it->c_str() ) );
+      return double_option_list;
+    }
 
     /**
      * Convenience method to return an option as a double
      */
-    double get_option_as_double( const char short_name ) const
-    { return atof( this->get_option( short_name ).c_str() ); }
+    double get_option_as_double( const char short_name, const unsigned int index = 0 ) const
+    { return atof( this->get_option( short_name, index ).c_str() ); }
+
+    /**
+     * Convenience method to return an option as a double
+     */
+    double get_option_as_double( const std::string long_name, const unsigned int index = 0 ) const
+    { return atof( this->get_option( long_name, index ).c_str() ); }
 
   private:
     /**
@@ -304,7 +417,17 @@ namespace sampsim
     /**
      * Internal method for returning the value of an option
      */
-    std::string get_option( const char short_name, const std::string long_name ) const;
+    std::vector< std::string > get_option_list(
+      const char short_name,
+      const std::string long_name ) const;
+
+    /**
+     * Internal method for returning the value of an option
+     */
+    std::string get_option(
+      const char short_name,
+      const std::string long_name,
+      const unsigned int index = 0 ) const;
 
     /**
      * Returns a reference to a flag struct or NULL if it is not found

@@ -87,6 +87,28 @@ namespace sampsim
       this->town_list.push_back( t );
     }
 
+    // now set the regression factor for all trends in each town
+    double mean_population = this->count_individuals() / this->number_of_towns;
+
+    for( unsigned int i = 0; i < this->number_of_towns; i++ )
+    {
+      town *t = this->town_list[i];
+      double factor = log( t->count_individuals() ) - log( mean_population );
+      t->get_mean_income()->copy( this->mean_income );
+      t->get_mean_income()->set_regression_factor( factor );
+      t->get_sd_income()->copy( this->sd_income );
+      t->get_sd_income()->set_regression_factor( factor );
+      t->get_mean_disease()->copy( this->mean_disease );
+      t->get_mean_disease()->set_regression_factor( factor );
+      t->get_sd_disease()->copy( this->sd_disease );
+      t->get_sd_disease()->set_regression_factor( factor );
+      t->get_population_density()->copy( this->population_density );
+      t->get_population_density()->set_regression_factor( factor );
+
+      TODONEXT: need make sure trends are incorperated AFTER generate method
+                code as-is is segfaulting
+    }
+
     utilities::output( "finished generating population" );
   }
 
@@ -368,7 +390,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void population::set_income( const trend *mean, const trend *sd )
+  void population::set_income( trend *mean, trend *sd )
   {
     if( utilities::verbose )
     {
@@ -382,7 +404,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void population::set_disease( const trend *mean, const trend *sd )
+  void population::set_disease( trend *mean, trend *sd )
   {
     if( utilities::verbose )
     {
@@ -396,7 +418,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void population::set_population_density( const trend *population_density )
+  void population::set_population_density( trend *population_density )
   {
     if( utilities::verbose )
       utilities::output( "setting population density trend to %s", population_density->to_string().c_str() );

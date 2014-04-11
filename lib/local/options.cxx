@@ -18,6 +18,22 @@
 namespace sampsim
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  std::string options::option::get_value( const unsigned int index ) const
+  {
+    if( index >= this->initial_values.size() )
+    {
+      std::stringstream stream;
+      stream << "ERROR: Option ";
+      if( 0 < this->long_name.length() ) stream << "\"" << this->long_name << "\"";
+      else if( ' ' != short_name ) stream << "\"" << this->short_name << "\"";
+      stream << " index " << index << " is out of range";
+      throw std::runtime_error( stream.str() );
+    }
+
+    return index < this->values.size() ? this->values[index] : this->initial_values[index];
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   options::options( const std::string executable_name )
   {
     this->usage_printed = false;
@@ -67,13 +83,13 @@ namespace sampsim
   void options::add_option(
     const char short_name,
     const std::string long_name,
-    const std::string initial,
+    const std::vector< std::string > initial_values,
     const std::string description )
   {
     option option;
     option.short_name = short_name;
     option.long_name = long_name;
-    option.initial = initial;
+    option.initial_values = initial_values;
     option.description = description;
     this->option_list.push_back( option );
 
@@ -108,7 +124,7 @@ namespace sampsim
       std::string config_file = this->get_option( "config" );
       while( 0 < config_file.length() )
       {
-        this->find_option( "config" )->value = "";
+        this->find_option( "config" )->values.clear();
         if( !this->process_config_file( config_file ) )
         {
           config_file_processed = false;
@@ -129,7 +145,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   bool options::process_arguments()
   {
-    bool invalid = false;
+    bool invalid = false, out_of_range = false, missing_value = false;
     char short_name = ' ';
     std::string long_name = "";
     std::string error = "";
@@ -147,34 +163,42 @@ namespace sampsim
       std::string arg = (*it);
       if( "--" == arg.substr( 0, 2 ) )
       { // defining a long name
-        if( 0 < long_name.length() ) invalid = true; // already defining an option
-        else if( 3 >= arg.length() ) invalid = true; // options must be more than one character long
+        if( 3 >= arg.length() ) invalid = true; // options must be more than one character long
+        else if( ' ' != short_name ) missing_value = true; // already defining an option
+        else if( 0 < long_name.length() ) missing_value = true; // already defining an option
         else
         {
           long_name = arg.substr( 2, std::string::npos );
 
-          // see if this is a flag
           if( NULL != ( flag = this->find_flag( long_name ) ) )
-          {
+          { // defining a flag
             flag->value = true;
             long_name = "";
+          }
+          else if( NULL == ( option = this->find_option( long_name ) ) )
+          { // not defining an option either
+            invalid = true;
           }
         }
       }
       else if( '-' == arg[0] )
       { // defning a short name
-        if( ' ' != short_name ) invalid = true; // already defining an option
-        else if( 1 >= arg.length() ) invalid = true; // no option character provided
+        if( 2 != arg.length() ) invalid = true; // short options must be one character only
+        else if( ' ' != short_name ) missing_value = true; // already defining an option
+        else if( 0 < long_name.length() ) missing_value = true; // already defining an option
         else
         {
           short_name = arg[1];
 
           // see if this is a flag
-          flag = this->find_flag( short_name );
           if( NULL != ( flag = this->find_flag( short_name ) ) )
-          {
+          { // defining a flag
             flag->value = true;
             short_name = ' ';
+          }
+          else if( NULL == ( option = this->find_option( short_name ) ) )
+          { // not defining an option either
+            invalid = true;
           }
         }
       }
@@ -182,21 +206,23 @@ namespace sampsim
       { // defining a value
         if( 0 < long_name.length() )
         { // expecting a value for an option identified by its long name
-          if( NULL != ( option = this->find_option( long_name ) ) )
+          std::vector< std::string > values = utilities::explode( arg, "," );
+          if( values.size() <= option->initial_values.size() )
           {
-            option->value = arg;
+            option->values = values;
             long_name = "";
           }
-          else invalid = true;
+          else out_of_range = true;
         }
         else if( ' ' != short_name )
         { // expecting a value for an option identified by its short name
-          if( NULL != ( option = this->find_option( short_name ) ) )
+          std::vector< std::string > values = utilities::explode( arg, "," );
+          if( values.size() <= option->initial_values.size() )
           {
-            option->value = arg;
+            option->values = values;
             short_name = ' ';
           }
-          else invalid = true;
+          else out_of_range = true;
         }
         else
         {
@@ -213,10 +239,27 @@ namespace sampsim
         std::cout << std::endl;
         break;
       }
+      else if( out_of_range )
+      {
+        std::cout << "ERROR: Number of values for option ";
+        if( 0 < long_name.length() ) std::cout << "\"" << long_name << "\"";
+        else if( ' ' != short_name ) std::cout << "\"" << short_name << "\"";
+        std::cout << " is out of range (expecting up to " << option->initial_values.size() << " value)"
+                  << std::endl;
+        break;
+      }
+      else if( missing_value )
+      {
+        std::cout << "ERROR: Expecting value for option ";
+        if( 0 < long_name.length() ) std::cout << "\"" << long_name << "\"";
+        else if( ' ' != short_name ) std::cout << "\"" << short_name << "\"";
+        std::cout << " but none provided" << std::endl;
+        break;
+      }
     }
 
     // make sure there are no left over options
-    if( !invalid )
+    if( !( invalid || out_of_range || missing_value ) )
     {
       if( 0 < long_name.length() )
       {
@@ -251,13 +294,10 @@ namespace sampsim
       }
     }
 
-    if( invalid )
-    {
-      std::cout << std::endl;
-      this->print_usage();
-    }
+    if( invalid || out_of_range || missing_value )
+      std::cout << "Try '" << this->executable_name << " --help' for more information." << std::endl;
 
-    return !invalid;
+    return !( invalid || out_of_range || missing_value );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -296,7 +336,7 @@ namespace sampsim
         if( 1 == key.length() ) option = this->find_option( key[0] );
         else option = this->find_option( key );
 
-        if( NULL != option ) option->value = value;
+        if( NULL != option ) option->values = utilities::explode( value, "," );
         else invalid = true;
       }
       else if( 2 < parts.size() ) invalid = true;
@@ -370,11 +410,32 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  std::string options::get_option( const char short_name, const std::string long_name ) const
+  std::vector< std::string > options::get_option_list(
+    const char short_name, const std::string long_name ) const
+  {
+    std::vector< std::string > list;
+
+    // first get the option
+    option* o;
+    for( auto it = this->option_list.cbegin(); it != this->option_list.cend(); ++it )
+      if( ( 0 < long_name.length() && it->long_name == long_name ) ||
+          ( ' ' != short_name && it->short_name == short_name ) )
+    {
+      unsigned int size = it->initial_values.size();
+      std::vector< std::string > list( size, "" );
+      for( unsigned int index = 0; index < size; index++ ) list[index] = it->get_value( index );
+    }
+
+    return list;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  std::string options::get_option(
+    const char short_name, const std::string long_name, const unsigned int index ) const
   {
     for( auto it = this->option_list.cbegin(); it != this->option_list.cend(); ++it )
       if( ( 0 < long_name.length() && it->long_name == long_name ) ||
-          ( ' ' != short_name && it->short_name == short_name ) ) return it->get_value();
+          ( ' ' != short_name && it->short_name == short_name ) ) return it->get_value( index );
 
     // if we got here then the option isn't in the option list
     std::stringstream stream;
