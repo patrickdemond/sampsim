@@ -105,13 +105,23 @@ namespace sampsim
     population* get_population() const;
 
     /**
-     * Generate the tile and create all buildings belonging to it
+     * Create all buildings belonging to the tile
      * 
-     * This method will generate the tile according to its population's parameters.  Position-based
-     * distributions are initialized and buildings are created within the tile until the predefined
-     * population density has been met.
+     * This method will create the tile according to its internal parameters.  The method
+     * creates buildings but does not define their properties.  After calling this function all individuals
+     * belonging to the tile will exist but without parameters such as income, disease status,
+     * disease risk, etc.
      */
-    void generate();
+    void create();
+
+    /**
+     * Define all parameters for all buildings belonging to the tile
+     * 
+     * This method will determine all factors such as income, disease status, disease risk, etc for
+     * all individuals belonging to the tile.  If this method is called before the individuals
+     * have been created nothing will happen.
+     */
+    void define();
 
     /**
      * Deserialize the tile
@@ -203,7 +213,7 @@ namespace sampsim
      * Returns a sum of all individuals in all households in all buildings in the tile.  This method
      * iterates over all buildings (and all households in those buildings) every time it is called,
      * so it should only be used when re-counting is necessary.  A tile contains no buildings (so no
-     * individuals) until its generate() method is called.
+     * individuals) until its create() method is called.
      */
     unsigned int count_individuals() const;
 

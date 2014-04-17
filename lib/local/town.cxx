@@ -61,12 +61,12 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void town::generate()
+  void town::create()
   {
     std::pair< unsigned int, unsigned int > index;
 
     std::stringstream stream;
-    stream << "generating town #" << ( this->index + 1 );
+    stream << "creating town #" << ( this->index + 1 );
     utilities::output( stream.str() );
 
     population *pop = this->get_population();
@@ -84,25 +84,37 @@ namespace sampsim
     {
       for( unsigned int x = 0; x < this->number_of_tiles_x; x++ )
       {
-        // create the tile
         index = std::pair< unsigned int, unsigned int >( x, y );
         tile *t = new tile( this, index );
-        t->set_mean_income( pop->get_mean_income()->get_value( t->get_centroid() ) );
-        t->set_sd_income( pop->get_sd_income()->get_value( t->get_centroid() ) );
-        t->set_mean_disease( pop->get_mean_disease()->get_value( t->get_centroid() ) );
-        t->set_sd_disease( pop->get_sd_disease()->get_value( t->get_centroid() ) );
-        t->set_population_density( pop->get_population_density()->get_value( t->get_centroid() ) );
-        t->generate();
+        t->set_population_density( this->population_density->get_value( t->get_centroid() ) );
 
-        // store it at the specified index
+        t->create();
         this->tile_list[index] = t;
       }
     }
 
-    // now that the town has been generated we can determine disease status
+    stream.str( "" );
+    stream << "finished creating town #" << ( this->index + 1 );
+    utilities::output( stream.str() );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void town::define()
+  {
+    std::pair< unsigned int, unsigned int > index;
+
+    std::stringstream stream;
+    stream << "defining town #" << ( this->index + 1 );
+    utilities::output( stream.str() );
+
+    population *pop = this->get_population();
+
+    // define all tiles
+    for( auto it = this->tile_list.begin(); it != this->tile_list.end(); ++it ) it->second->define();
+
+    // now that the town has been created and all tiles defined we can determine disease status
     // we are going to do this in a standard generalized-linear-model way, by constructing a linear
     // function of the various contributing factors
-    utilities::output( "determining disease status" );
 
     // create a matrix of all participants (rows) and their various disease predictor factors
     const unsigned int number_of_individuals = this->count_individuals();
@@ -184,7 +196,7 @@ namespace sampsim
     }
 
     stream.str( "" );
-    stream << "finished generating town #" << ( this->index + 1 );
+    stream << "finished defining town #" << ( this->index + 1 );
     utilities::output( stream.str() );
   }
 
@@ -265,7 +277,7 @@ namespace sampsim
            << "# sd_income trend: " << this->sd_income->to_string() << std::endl
            << "# mean_disease trend: " << this->mean_disease->to_string() << std::endl
            << "# sd_disease trend: " << this->sd_disease->to_string() << std::endl
-           << "# popdens trend: " << this->population_density->to_string() << std::endl
+           << "# population density trend: " << this->population_density->to_string() << std::endl
            << "#" << std::endl;
     
     household_stream << stream.str();
@@ -326,14 +338,6 @@ namespace sampsim
     }
     this->mean_disease->copy( mean );
     this->sd_disease->copy( sd );
-  }
-
-  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void town::set_population_density( trend *population_density )
-  {
-    if( utilities::verbose )
-      utilities::output( "setting population density trend to %s", population_density->to_string().c_str() );
-    this->population_density->copy( population_density );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

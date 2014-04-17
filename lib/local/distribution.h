@@ -107,7 +107,8 @@ namespace sampsim
     /**
      * Sets the distribution type to a pareto distribution
      * 
-     * TODO: describe the input parameters
+     * The input parameters relate to the pareto minimum value (b), shape parameter (a) and
+     * maximum (truncated) value (max).
      * See http://en.wikipedia.org/wiki/Pareto_distribution for more details.
      */
     virtual void set_pareto( const double b = 1.0, const double a = 1.0, const double max = 0 );

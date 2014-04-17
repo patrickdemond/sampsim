@@ -415,15 +415,14 @@ namespace sampsim
   {
     std::vector< std::string > list;
 
-    // first get the option
-    option* o;
     for( auto it = this->option_list.cbegin(); it != this->option_list.cend(); ++it )
       if( ( 0 < long_name.length() && it->long_name == long_name ) ||
           ( ' ' != short_name && it->short_name == short_name ) )
     {
       unsigned int size = it->initial_values.size();
-      std::vector< std::string > list( size, "" );
+      list.resize( size );
       for( unsigned int index = 0; index < size; index++ ) list[index] = it->get_value( index );
+      break;
     }
 
     return list;

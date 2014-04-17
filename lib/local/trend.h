@@ -110,7 +110,7 @@ namespace sampsim
      */
     void set_coefficient( const unsigned int index, const double arr[3] )
     { this->set_coefficient( arr[0], arr[1], arr[2] ); }
-    void set_vec( const unsigned int index, const std::vector< double > vec )
+    void set_coefficient( const unsigned int index, const std::vector< double > vec )
     { this->set_coefficient( vec[0], vec[1], vec[2] ); }
 
     /**

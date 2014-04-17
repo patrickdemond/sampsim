@@ -330,8 +330,7 @@ namespace sampsim
     /**
      * Convenience method to return options as a list of integers
      */
-    std::vector< int > get_option_as_int_list(
-      const char short_name, const unsigned int index = 0 ) const
+    std::vector< int > get_option_as_int_list( const char short_name ) const
     {
       std::vector< std::string > option_list = this->get_option_list( short_name );
       std::vector< int > int_option_list;
@@ -343,8 +342,7 @@ namespace sampsim
     /**
      * Convenience method to return options as a list of integers
      */
-    std::vector< int > get_option_as_int_list(
-      const std::string long_name, const unsigned int index = 0 ) const
+    std::vector< int > get_option_as_int_list( const std::string long_name ) const
     {
       std::vector< std::string > option_list = this->get_option_list( long_name );
       std::vector< int > int_option_list;
@@ -368,8 +366,7 @@ namespace sampsim
     /**
      * Convenience method to return options as a list of doubles
      */
-    std::vector< double > get_option_as_double_list(
-      const char short_name, const double index = 0 ) const
+    std::vector< double > get_option_as_double_list( const char short_name ) const
     {
       std::vector< std::string > option_list = this->get_option_list( short_name );
       std::vector< double > double_option_list;
@@ -381,8 +378,7 @@ namespace sampsim
     /**
      * Convenience method to return options as a list of doubles
      */
-    std::vector< double > get_option_as_double_list(
-      const std::string long_name, const double index = 0 ) const
+    std::vector< double > get_option_as_double_list( const std::string long_name ) const
     {
       std::vector< std::string > option_list = this->get_option_list( long_name );
       std::vector< double > double_option_list;

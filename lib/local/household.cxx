@@ -58,25 +58,15 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void household::generate()
+  void household::create()
   {
     // make sure the household has a parent
-    if( NULL == this->parent ) throw std::runtime_error( "Tried to generate an orphaned household" );
-
-    std::normal_distribution<double> normal;
-    std::poisson_distribution<int> poisson;
-
-    tile *tile = this->get_tile();
-    town * town = this->get_town();
-
-    // income and disease are Normal deviates from the tile average
-    this->income = tile->get_income_distribution()->generate_value();
-    this->disease_risk = tile->get_disease_risk_distribution()->generate_value();
+    if( NULL == this->parent ) throw std::runtime_error( "Tried to create an orphaned household" );
 
     // We'll use 1 + distribution so that there are no empty households
-    int size = town->get_population_distribution()->generate_value() + 1;
+    int size = this->get_town()->get_population_distribution()->generate_value() + 1;
     
-    // make the first individual an adult of random sex
+    // create the first individual an adult of random sex
     bool male = 0 == utilities::random( 0, 1 );
     individual *i = new individual( this );
     i->set_age( ADULT );
@@ -101,6 +91,15 @@ namespace sampsim
 
       this->individual_list.push_back( i );
     }
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void household::define()
+  {
+    // income and disease are Normal deviates from the tile average
+    tile *tile = this->get_tile();
+    this->income = tile->get_income_distribution()->generate_value();
+    this->disease_risk = tile->get_disease_risk_distribution()->generate_value();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

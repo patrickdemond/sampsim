@@ -33,8 +33,10 @@ namespace sampsim
     this->number_of_towns = 1;
     this->number_of_tiles_x = 0;
     this->number_of_tiles_y = 0;
-    this->number_of_disease_pockets = 0;
     this->tile_width = 0;
+    this->population_density_slope[0] = 0.0;
+    this->population_density_slope[1] = 0.0;
+    this->number_of_disease_pockets = 0;
     for( unsigned int c = 0; c < population::NUMBER_OF_DISEASE_WEIGHTS; c++ )
       this->disease_weights[c] = 1.0;
     this->mean_household_population = 0;
@@ -42,7 +44,6 @@ namespace sampsim
     this->sd_income = new trend;
     this->mean_disease = new trend;
     this->sd_disease = new trend;
-    this->population_density = new trend;
     this->pocket_kernel_type = "exponential";
     this->pocket_scaling = 1.0;
   }
@@ -59,20 +60,23 @@ namespace sampsim
     delete this->sd_income;
     delete this->mean_disease;
     delete this->sd_disease;
-    delete this->population_density;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void population::generate()
+  void population::create()
   {
     std::pair< unsigned int, unsigned int > index;
 
-    utilities::output( "generating population" );
+    utilities::output( "creating population" );
 
     // delete all towns and turn off sample mode (in case it is on)
     std::for_each( this->town_list.begin(), this->town_list.end(), utilities::safe_delete_type() );
     this->town_list.clear();
     this->set_sample_mode( false );
+
+    // create a distribution to determine town size
+    this->town_size_distribution.set_pareto(
+      this->town_size_min, this->town_size_shape, this->town_size_max );
 
     // create towns
     for( unsigned int i = 0; i < this->number_of_towns; i++ )
@@ -80,20 +84,54 @@ namespace sampsim
       town *t = new town( this, i );
       t->set_number_of_tiles_x( this->number_of_tiles_x );
       t->set_number_of_tiles_y( this->number_of_tiles_y );
-      t->set_number_of_disease_pockets( this->number_of_disease_pockets );
       t->set_mean_household_population( this->mean_household_population );
-      t->generate();
 
+      // determine the base population density for this town
+      double b00 = this->town_size_distribution.generate_value() / this->tile_width / this->tile_width;
+      double b01 = this->population_density_slope[0];
+      double b10 = this->population_density_slope[1];
+
+      // now make sure this is the value at the centre of the town
+      b00 -= b01 * this->tile_width * this->number_of_tiles_x / 2 +
+             b10 * this->tile_width * this->number_of_tiles_y / 2;
+
+      trend* population_density = t->get_population_density();
+      population_density->set_b00( b00 );
+      population_density->set_b01( b01 );
+      population_density->set_b10( b10 );
+      population_density->set_b02( 0.0 );
+      population_density->set_b20( 0.0 );
+      population_density->set_b11( 0.0 );
+
+      t->create();
       this->town_list.push_back( t );
     }
 
-    // now set the regression factor for all trends in each town
-    double mean_population = this->count_individuals() / this->number_of_towns;
+    utilities::output( "finished creating population" );
+  }
 
-    for( unsigned int i = 0; i < this->number_of_towns; i++ )
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::define()
+  {
+    std::pair< unsigned int, unsigned int > index;
+
+    utilities::output( "defining population" );
+
+    // calculate the mean( log(individuals) ) from all towns
+    double sum_log_individual_count = 0;
+    for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
+      sum_log_individual_count = log( (*it)->count_individuals() );
+    double mean_log_individual_count = sum_log_individual_count / this->number_of_towns;
+
+    // now set the regression factor for all trends in each town
+    for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
     {
-      town *t = this->town_list[i];
-      double factor = log( t->count_individuals() ) - log( mean_population );
+      town *t = *it;
+      double factor = log( t->count_individuals() ) - mean_log_individual_count;
+
+      // here we set the regression factor for all trends
+      // Note: the regression factor shouldn't be confused with the coefficient's regression coefficient.
+      // This parameter is set when defining the trend, not here.
       t->get_mean_income()->copy( this->mean_income );
       t->get_mean_income()->set_regression_factor( factor );
       t->get_sd_income()->copy( this->sd_income );
@@ -102,14 +140,12 @@ namespace sampsim
       t->get_mean_disease()->set_regression_factor( factor );
       t->get_sd_disease()->copy( this->sd_disease );
       t->get_sd_disease()->set_regression_factor( factor );
-      t->get_population_density()->copy( this->population_density );
-      t->get_population_density()->set_regression_factor( factor );
 
-      TODONEXT: need make sure trends are incorperated AFTER generate method
-                code as-is is segfaulting
+      t->set_number_of_disease_pockets( this->number_of_disease_pockets );
+      t->define();
     }
 
-    utilities::output( "finished generating population" );
+    utilities::output( "finished defining population" );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -205,9 +241,15 @@ namespace sampsim
     }
 
     this->seed = json["seed"].asString();
+    this->number_of_towns = json["number_of_towns"].asUInt();
+    this->town_size_min = json["town_size_min"].asDouble();
+    this->town_size_max = json["town_size_max"].asDouble();
+    this->town_size_shape = json["town_size_shape"].asDouble();
     this->number_of_tiles_x = json["number_of_tiles_x"].asUInt();
     this->number_of_tiles_y = json["number_of_tiles_y"].asUInt();
     this->tile_width = json["tile_width"].asDouble();
+    this->population_density_slope[0] = json["population_density_slope"][0].asDouble();
+    this->population_density_slope[1] = json["population_density_slope"][1].asDouble();
     for( unsigned int c = 0; c < population::NUMBER_OF_DISEASE_WEIGHTS; c++ )
       this->disease_weights[c] = json["disease_weights"][c].asDouble();
 
@@ -216,7 +258,6 @@ namespace sampsim
     this->sd_income->from_json( json["sd_income"] );
     this->mean_disease->from_json( json["mean_disease"] );
     this->sd_disease->from_json( json["sd_disease"] );
-    this->population_density->from_json( json["population_density"] );
 
     for( unsigned int c = 0; c < json["town_list"].size(); c++ )
     {
@@ -233,9 +274,17 @@ namespace sampsim
     json = Json::Value( Json::objectValue );
     json["version"] = utilities::get_version();
     json["seed"] = this->seed;
+    json["number_of_towns"] = this->number_of_towns;
+    json["town_size_min"] = this->town_size_min;
+    json["town_size_max"] = this->town_size_max;
+    json["town_size_shape"] = this->town_size_shape;
     json["number_of_tiles_x"] = this->number_of_tiles_x;
     json["number_of_tiles_y"] = this->number_of_tiles_y;
     json["tile_width"] = this->tile_width;
+    json["population_density_slope"] = Json::Value( Json::arrayValue );
+    json["population_density_slope"].resize( 2 );
+    json["population_density_slope"][0] = this->population_density_slope[0];
+    json["population_density_slope"][1] = this->population_density_slope[1];
     json["disease_weights"] = Json::Value( Json::arrayValue );
     json["disease_weights"].resize( population::NUMBER_OF_DISEASE_WEIGHTS );
     for( unsigned int c = 0; c < population::NUMBER_OF_DISEASE_WEIGHTS; c++ )
@@ -245,7 +294,6 @@ namespace sampsim
     this->sd_income->to_json( json["sd_income"] );
     this->mean_disease->to_json( json["mean_disease"] );
     this->sd_disease->to_json( json["sd_disease"] );
-    this->population_density->to_json( json["population_density"] );
     json["town_list"] = Json::Value( Json::arrayValue );
 
     unsigned int index = 0;
@@ -276,7 +324,12 @@ namespace sampsim
            << "# version: " << utilities::get_version() << std::endl
            << "# seed: " << this->seed << std::endl
            << "# towns: " << this->number_of_towns << std::endl
+           << "# town_size_min: " << this->town_size_min << std::endl
+           << "# town_size_max: " << this->town_size_max << std::endl
+           << "# town_size_shape: " << this->town_size_shape << std::endl
            << "# tile_width: " << this->tile_width << std::endl
+           << "# population_density_slope: " << this->population_density_slope << ", "
+                                             << this->population_density_slope << std::endl
            << "#" << std::endl
            << "# dweight_population: " << this->disease_weights[0] << std::endl
            << "# dweight_income: " << this->disease_weights[1] << std::endl
@@ -290,7 +343,6 @@ namespace sampsim
            << "# sd_income trend: " << this->sd_income->to_string() << std::endl
            << "# mean_disease trend: " << this->mean_disease->to_string() << std::endl
            << "# sd_disease trend: " << this->sd_disease->to_string() << std::endl
-           << "# popdens trend: " << this->population_density->to_string() << std::endl
            << "#" << std::endl << std::endl;
     
     household_stream << stream.str();
@@ -320,6 +372,27 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::set_town_size_min( const double town_size_min )
+  {
+    if( utilities::verbose ) utilities::output( "setting town_size_min to %f", town_size_min );
+    this->town_size_min = town_size_min;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::set_town_size_max( const double town_size_max )
+  {
+    if( utilities::verbose ) utilities::output( "setting town_size_max to %f", town_size_max );
+    this->town_size_max = town_size_max;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::set_town_size_shape( const double town_size_shape )
+  {
+    if( utilities::verbose ) utilities::output( "setting town_size_shape to %f", town_size_shape );
+    this->town_size_shape = town_size_shape;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::set_number_of_tiles_x( const unsigned int number_of_tiles_x )
   {
     if( utilities::verbose ) utilities::output( "setting number_of_tiles_x to %d", number_of_tiles_x );
@@ -331,6 +404,14 @@ namespace sampsim
   {
     if( utilities::verbose ) utilities::output( "setting number_of_tiles_y to %d", number_of_tiles_y );
     this->number_of_tiles_y = number_of_tiles_y;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::set_population_density_slope( const double mx, const double my )
+  {
+    if( utilities::verbose ) utilities::output( "setting population density slope to %f, %f", mx, my );
+    this->population_density_slope[0] = mx;
+    this->population_density_slope[0] = my;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -415,14 +496,6 @@ namespace sampsim
     }
     this->mean_disease->copy( mean );
     this->sd_disease->copy( sd );
-  }
-
-  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void population::set_population_density( trend *population_density )
-  {
-    if( utilities::verbose )
-      utilities::output( "setting population density trend to %s", population_density->to_string().c_str() );
-    this->population_density->copy( population_density );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

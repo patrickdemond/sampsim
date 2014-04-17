@@ -112,14 +112,23 @@ namespace sampsim
     population* get_population() const;
 
     /**
-     * Generate the building and create all households belonging to it
+     * Create all households belonging to the building
      * 
-     * This method will generate the building according to its population's parameters.  A position within
-     * the parent tile's bounds (including the lower bounds and up but not including the upper bounds) is
-     * randomly determined and a list of households within the building are generated.  Currently the
-     * simulation defines exactly one household per building, but this may change in future development.
+     * This method will create the building according to its internal parameters.  The method
+     * creates households but does not define their properties.  After calling this function all individuals
+     * belonging to the building will exist but without parameters such as income, disease status,
+     * disease risk, etc.
      */
-    void generate();
+    void create();
+
+    /**
+     * Define all parameters for all households belonging to the building
+     * 
+     * This method will determine all factors such as income, disease status, disease risk, etc for
+     * all individuals belonging to the building.  If this method is called before the individuals
+     * have been created nothing will happen.
+     */
+    void define();
 
     /**
      * Deserialize the building
@@ -150,14 +159,14 @@ namespace sampsim
      * 
      * Returns a sum of all individuals in all households in the building.  This method iterates over
      * all households every time it is called, so it should only be used when re-counting is necessary.
-     * A building contains no households (so no individuals) until its generate() method is called.
+     * A building contains no households (so no individuals) until its create() method is called.
      */
     unsigned int count_individuals() const;
 
     /**
      * Get the position of the building
      * 
-     * The building's position is determined by the generate() method and always falls inside its
+     * The building's position is determined by the create() method and always falls inside its
      * parent tile's bounds.
      */
     coordinate get_position() const { return this->position; }

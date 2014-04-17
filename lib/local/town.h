@@ -119,13 +119,24 @@ namespace sampsim
     unsigned int get_index() const { return this->index; }
 
     /**
-     * Generate the town and create all tiles belonging to it
+     * Create all tiles belonging to the town
      * 
-     * This method will generate the town according to its population's parameters.  A grid of N by M
-     * tiles will be created forming a tesselation of squares all of equal size.
+     * This method will create the town according to its internal parameters.  The method
+     * creates tiles but does not define their properties.  After calling this function all individuals
+     * belonging to the town will exist but without parameters such as income, disease status,
+     * disease risk, etc.
      */
-    void generate();
+    void create();
 
+    /**
+     * Define all parameters for all tiles belonging to the tile
+     * 
+     * This method will determine all factors such as income, disease status, disease risk, etc for
+     * all individuals belonging to the town.  If this method is called before the individuals
+     * have been created nothing will happen.
+     */
+    void define();
+    
     /**
      * Sets the number of tiles in the longitudinal (X) direction
      */
@@ -196,17 +207,12 @@ namespace sampsim
     trend* get_population_density() { return this->population_density; }
 
     /**
-     * Sets the trend defining the town's population density
-     */
-    void set_population_density( trend *population_density );
-
-    /**
      * Get the number of individuals in:the town
      * 
      * Returns a sum of all individuals in all households in all buildings in all tiles in the town.
      * This method iterates over all tiles (and all buildings in those tiles, etc) every time it is called,
      * so it should only be used when re-counting is necessary.  A town contains no tiles (so no
-     * individuals) until its generate() method is called.
+     * individuals) until its create() method is called.
      */
     unsigned int count_individuals() const;
 
@@ -284,12 +290,12 @@ namespace sampsim
     unsigned int index;
 
     /**
-     * The number of tiles to generate in the longitudinal (X) direction
+     * The number of tiles to create in the longitudinal (X) direction
      */
     unsigned int number_of_tiles_x;
 
     /**
-     * The number of tiles to generate in the latitudinal (Y) direction
+     * The number of tiles to create in the latitudinal (Y) direction
      */
     unsigned int number_of_tiles_y;
 

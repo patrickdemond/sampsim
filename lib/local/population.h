@@ -11,6 +11,7 @@
 
 #include "model_object.h"
 
+#include "distribution.h"
 #include "utilities.h"
 
 namespace Json{ class Value; }
@@ -39,7 +40,7 @@ namespace sampsim
    *         - list of households in building
    *           + list of individuals belonging to household
    * 
-   * Generating a population will cause a cascade effect which will generate all towns, all tiles,
+   * Creating a population will cause a cascade effect which will create all towns, all tiles,
    * all buildings, all households and all individuals.
    */
   class population : public model_object
@@ -88,11 +89,23 @@ namespace sampsim
     { return this->town_list.cend(); }
 
     /**
-     * Generate the population and create all towns belonging to it
+     * Create all towns belonging to the population
      * 
-     * This method will generate the population according to its internal parameters.
+     * This method will create the population according to its internal parameters.  The method
+     * creates towns but does not define their properties.  After calling this function all individuals
+     * belonging to the population will exist but without parameters such as income, disease status,
+     * disease risk, etc.
      */
-    void generate();
+    void create();
+
+    /**
+     * Define all parameters for all towns belonging to the population
+     * 
+     * This method will determine all factors such as income, disease status, disease risk, etc for
+     * all individuals belonging to the population.  If this method is called before the individuals
+     * have been created nothing will happen.
+     */
+    void define();
 
     /**
      * Reads a population from disk
@@ -136,9 +149,24 @@ namespace sampsim
     void set_seed( const std::string seed );
 
     /**
-     * Sets the number of towns to generate
+     * Sets the number of towns to create
      */
     void set_number_of_towns( const unsigned int );
+
+    /**
+     * Set the minimum town size
+     */
+    void set_town_size_min( const double );
+
+    /**
+     * Set the maximum town size
+     */
+    void set_town_size_max( const double );
+
+    /**
+     * Set the town size pareto distribution's shape factor
+     */
+    void set_town_size_shape( const double );
 
     /**
      * Sets the number of tiles in a town in the longitudinal (X) direction
@@ -159,6 +187,11 @@ namespace sampsim
      * Sets the width of the tiles in a town
      */
     void set_tile_width( const double );
+
+    /**
+     * Sets the x and y slopes of the population density
+     */
+    void set_population_density_slope( const double mx, const double my );
 
     /**
      * Creates the provided number of disease pockets.
@@ -298,22 +331,12 @@ namespace sampsim
     void set_disease( trend *mean, trend *sd );
 
     /**
-     * Returns a reference to the trend defining the population's population density
-     */
-    trend* get_population_density() { return this->population_density; }
-
-    /**
-     * Sets the trend defining the population's population density
-     */
-    void set_population_density( trend *population_density );
-
-    /**
      * Get the number of individuals in the population
      * 
      * Returns a sum of all individuals in all households in all buildings in all tiles in all towns in the
      * population.  This method iterates over all towns (and all tiles in those towns, etc) every time it is
      * called, so it should only be used when re-counting is necessary.  A population contains no towns (so
-     * no individuals) until its generate() method is called.
+     * no individuals) until its create() method is called.
      */
     unsigned int count_individuals() const;
 
@@ -365,14 +388,44 @@ namespace sampsim
     unsigned int number_of_towns;
 
     /**
-     * The number of tiles in a town to generate in the longitudinal (X) direction
+     * The town size distribution to use when creating towns
+     */
+    distribution town_size_distribution;
+
+    /**
+     * The minimum town size
+     */
+    double town_size_min;
+
+    /**
+     * The maximum town size
+     */
+    double town_size_max;
+
+    /**
+     * The town size pareto distribution's shape factor
+     */
+    double town_size_shape;
+
+    /**
+     * The number of tiles in a town to create in the longitudinal (X) direction
      */
     unsigned int number_of_tiles_x;
 
     /**
-     * The number of tiles in a town to generate in the latitudinal (Y) direction
+     * The number of tiles in a town to create in the latitudinal (Y) direction
      */
     unsigned int number_of_tiles_y;
+
+    /**
+     * The width of all (square) tiles in a town
+     */
+    double tile_width;
+
+    /**
+     * The x and y slope of the population density
+     */
+    double population_density_slope[2];
 
     /**
      * The number of disease pockets in each town
@@ -388,11 +441,6 @@ namespace sampsim
      * The amount to scale the effect of disease pocketing
      */
     double pocket_scaling;
-
-    /**
-     * The width of all (square) tiles in a town
-     */
-    double tile_width;
 
     /**
      * The disease weights used to determine disease status
@@ -433,13 +481,6 @@ namespace sampsim
      * Standard deviation of disease risk factor is determined by tile position according to this trend.
      */
     trend *sd_disease;
-
-    /**
-     * The trend defining the population's population density
-     * 
-     * Population density is determined by tile position according to this trend.
-     */
-    trend *population_density;
 
     /**
      * A container holding all towns belonging to the population.  The population is responsible

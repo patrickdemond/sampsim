@@ -24,7 +24,9 @@ namespace sampsim
    * @brief A class which provides random numbers from a Paredo distribution
    * @details
    * The Paredo distribution returns values using the following formula:
-   * b / ( 1-p )^( 1/a )
+   *   b / ( 1-p )^( 1/a )
+   * where b is the minimum value in the distribution, p is a random number in [0,1) and
+   * a is the shape parameter which defines the shape of the distribution's tail.
    */
   class pareto
   {
@@ -50,29 +52,29 @@ namespace sampsim
     }
 
     /**
-     * Returns the b parameter
+     * Returns the b parameter (minimum value in the distribution)
      */
     double b() const { return this->b_val; }
 
     /**
-     * Returns the a parameter
+     * Returns the a parameter (shape parameter which defines the shape of the tail)
      */
     double a() const { return this->a_val; }
 
     /**
-     * Returns the max parameter
+     * Returns the max parameter (maximum cut-off value in the distribution)
      */
     double max() const { return this->max_val; }
 
   protected:
 
     /**
-     * TODO: describe parameter
+     * The minimum value in the distribution.
      */
     double b_val;
     
     /**
-     * TODO: describe parameter
+     * The shape parameter which defines the shape of the distribution's tail.
      */
     double a_val;
     

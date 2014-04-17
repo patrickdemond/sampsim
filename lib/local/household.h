@@ -117,15 +117,23 @@ namespace sampsim
     population* get_population() const;
 
     /**
-     * Generate the household and create all individuals belonging to it
+     * Create all individuals belonging to the household
      * 
-     * This method will generate the household according to its population's parameters.  The
-     * household's position is not explicitely set since all households are located at their
-     * parent building's position.  The number of individuals generated is based on the
-     * population's population density.  Income and disease risk of the household are determined
-     * by the parent building's parent tile's income and disease risk distributions.
+     * This method will create the household according to its internal parameters.  The method
+     * creates individuals but does not define their properties.  After calling this function all individuals
+     * belonging to the household will exist but without parameters such as income, disease status,
+     * disease risk, etc.
      */
-    void generate();
+    void create();
+
+    /**
+     * Define all parameters for all individuals belonging to the household
+     * 
+     * This method will determine all factors such as income, disease status, disease risk, etc for
+     * all individuals belonging to the household.  If this method is called before the individuals
+     * have been created nothing will happen.
+     */
+    void define();
 
     /**
      * Deserialize the household
@@ -191,7 +199,7 @@ namespace sampsim
      * 
      * Returns a sum of all individuals in the household.  This method counts the number of individuals
      * every time it is called, so it should only be used when re-counting is necessary.
-     * A household contains no individuals (so no individuals) until its generate() method is called.
+     * A household contains no individuals (so no individuals) until its create() method is called.
      */
     unsigned int count_individuals() const;
 

@@ -44,14 +44,10 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void tile::generate()
+  void tile::create()
   {
     if( utilities::verbose )
-      utilities::output( "generating tile at %d, %d", this->index.first , this->index.second );
-
-    // create the needed distributions
-    this->income_distribution.set_lognormal( this->mean_income, this->sd_income );
-    this->disease_risk_distribution.set_normal( this->mean_disease, this->sd_disease );
+      utilities::output( "creating tile at %d, %d", this->index.first , this->index.second );
 
     // need to keep creating buildings until the population density is met
     unsigned int count = 0;
@@ -60,7 +56,7 @@ namespace sampsim
     {
       // create the building
       building *b = new building( this );
-      b->generate();
+      b->create();
       total_individuals += b->count_individuals();
       
       // store it in the building list
@@ -68,9 +64,24 @@ namespace sampsim
     }
 
     if( utilities::verbose )
-      utilities::output( "finished generating tile: population %d in %d buildings",
+      utilities::output( "finished creating tile: population %d in %d buildings",
                          this->count_individuals(),
                          this->building_list.size() );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void tile::define()
+  {
+    if( utilities::verbose )
+      utilities::output( "defining tile at %d, %d", this->index.first , this->index.second );
+
+    // create the needed distributions
+    this->income_distribution.set_lognormal( this->mean_income, this->sd_income );
+    this->disease_risk_distribution.set_normal( this->mean_disease, this->sd_disease );
+    
+    for( auto it = this->building_list.begin(); it != this->building_list.end(); ++it ) (*it)->define();
+
+    if( utilities::verbose ) utilities::output( "finished defining tile" );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

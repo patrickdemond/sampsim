@@ -44,9 +44,14 @@ int main( const int argc, const char** argv )
   opts.add_heading( "" );
   opts.add_option( "seed", "", "Seed used by the random generator" );
   opts.add_option( "towns", "1", "Number of towns to generate" );
+  opts.add_option( "town_size_min", "10000", "The minimum number of individuals in a town" );
+  opts.add_option( "town_size_max", "1000000", "The maximum number of individuals in a town" );
+  opts.add_option( "town_size_shape", "1.0", "The shape parameter used by the town size Parato distribution" );
   opts.add_option( "tile_x", "1", "Number of tiles in the horizontal direction" );
   opts.add_option( "tile_y", "1", "Number of tiles in the vertical direction" );
   opts.add_option( "tile_width", "1", "Width of a tile in kilometers" );
+  opts.add_option( "popdens_mx", "0", "Population density trend's X coefficient" );
+  opts.add_option( "popdens_my", "0", "Population density trend's Y coefficient" );
   opts.add_option( "mean_household_pop", "4", "Mean number of individuals per household" );
   opts.add_option( "disease_pockets", "0", "Number of disease pockets to generate" );
   opts.add_option( "pocket_kernel_type", "exponential", "Number of disease pockets to generate" );
@@ -102,12 +107,6 @@ int main( const int argc, const char** argv )
   opts.add_option( "sd_disease_b02", vector_xx, "SD disease trend's X^2 coefficient base value" );
   opts.add_option( "sd_disease_b20", vector_xx, "SD disease trend's Y^2 coefficient base value" );
   opts.add_option( "sd_disease_b11", vector_xx, "SD disease trend's XY coefficient base value" );
-  opts.add_option( "popdens_b00", vector_00, "Population density trend's independent coefficient base value" );
-  opts.add_option( "popdens_b01", vector_xx, "Population density trend's X coefficient base value" );
-  opts.add_option( "popdens_b10", vector_xx, "Population density trend's Y coefficient base value" );
-  opts.add_option( "popdens_b02", vector_xx, "Population density trend's X^2 coefficient base value" );
-  opts.add_option( "popdens_b20", vector_xx, "Population density trend's Y^2 coefficient base value" );
-  opts.add_option( "popdens_b11", vector_xx, "Population density trend's XY coefficient base value" );
 
   // define disease parameters
   opts.add_heading( "" );
@@ -144,37 +143,6 @@ int main( const int argc, const char** argv )
       {
         std::string filename = opts.get_input( "output" );
         sampsim::utilities::verbose = opts.get_flag( "verbose" );
-
-        // build trends
-        sampsim::trend *mean_income = population->get_mean_income();
-        mean_income->set_b00( opts.get_option_as_double_list( "mean_income_b00" ) );
-        mean_income->set_b01( opts.get_option_as_double_list( "mean_income_b01" ) );
-        mean_income->set_b10( opts.get_option_as_double_list( "mean_income_b10" ) );
-        mean_income->set_b02( opts.get_option_as_double_list( "mean_income_b02" ) );
-        mean_income->set_b20( opts.get_option_as_double_list( "mean_income_b20" ) );
-        mean_income->set_b11( opts.get_option_as_double_list( "mean_income_b11" ) );
-        sampsim::trend *sd_income = population->get_sd_income();
-        sd_income->set_b00( opts.get_option_as_double_list( "sd_income_b00" ) );
-        sd_income->set_b01( opts.get_option_as_double_list( "sd_income_b01" ) );
-        sd_income->set_b10( opts.get_option_as_double_list( "sd_income_b10" ) );
-        sd_income->set_b02( opts.get_option_as_double_list( "sd_income_b02" ) );
-        sd_income->set_b20( opts.get_option_as_double_list( "sd_income_b20" ) );
-        sd_income->set_b11( opts.get_option_as_double_list( "sd_income_b11" ) );
-
-        sampsim::trend *mean_disease = population->get_mean_disease();
-        mean_disease->set_b00( opts.get_option_as_double_list( "mean_disease_b00" ) );
-        mean_disease->set_b01( opts.get_option_as_double_list( "mean_disease_b01" ) );
-        mean_disease->set_b10( opts.get_option_as_double_list( "mean_disease_b10" ) );
-        mean_disease->set_b02( opts.get_option_as_double_list( "mean_disease_b02" ) );
-        mean_disease->set_b20( opts.get_option_as_double_list( "mean_disease_b20" ) );
-        mean_disease->set_b11( opts.get_option_as_double_list( "mean_disease_b11" ) );
-        sampsim::trend *sd_disease = population->get_sd_disease();
-        sd_disease->set_b00( opts.get_option_as_double_list( "sd_disease_b00" ) );
-        sd_disease->set_b01( opts.get_option_as_double_list( "sd_disease_b01" ) );
-        sd_disease->set_b10( opts.get_option_as_double_list( "sd_disease_b10" ) );
-        sd_disease->set_b02( opts.get_option_as_double_list( "sd_disease_b02" ) );
-        sd_disease->set_b20( opts.get_option_as_double_list( "sd_disease_b20" ) );
-        sd_disease->set_b11( opts.get_option_as_double_list( "sd_disease_b11" ) );
 
         // work out the batch job details, if requested
         std::string batch_sampler = opts.get_option( "batch_sampler" );
@@ -213,20 +181,19 @@ int main( const int argc, const char** argv )
         else
         {
           std::cout << "sampsim generate version " << sampsim::utilities::get_version() << std::endl;
-          sampsim::trend *popdens = population->get_population_density();
-          popdens->set_b00( opts.get_option_as_double_list( "popdens_b00" ) );
-          popdens->set_b01( opts.get_option_as_double_list( "popdens_b01" ) );
-          popdens->set_b10( opts.get_option_as_double_list( "popdens_b10" ) );
-          popdens->set_b02( opts.get_option_as_double_list( "popdens_b02" ) );
-          popdens->set_b20( opts.get_option_as_double_list( "popdens_b20" ) );
-          popdens->set_b11( opts.get_option_as_double_list( "popdens_b11" ) );
 
           population->set_seed( opts.get_option( "seed" ) );
           population->set_number_of_towns( opts.get_option_as_int( "towns" ) );
+          population->set_town_size_min( opts.get_option_as_double( "town_size_min" ) );
+          population->set_town_size_max( opts.get_option_as_double( "town_size_max" ) );
+          population->set_town_size_shape( opts.get_option_as_double( "town_size_shape" ) );
           population->set_mean_household_population( opts.get_option_as_double( "mean_household_pop" ) );
           population->set_number_of_tiles_x( opts.get_option_as_int( "tile_x" ) );
           population->set_number_of_tiles_y( opts.get_option_as_int( "tile_y" ) );
           population->set_tile_width( opts.get_option_as_double( "tile_width" ) );
+          population->set_population_density_slope(
+            opts.get_option_as_double( "popdens_mx" ),
+            opts.get_option_as_double( "popdens_my" ) );
           population->set_disease_weights(
             opts.get_option_as_double( "dweight_population" ),
             opts.get_option_as_double( "dweight_income" ),
@@ -237,6 +204,37 @@ int main( const int argc, const char** argv )
           population->set_number_of_disease_pockets( opts.get_option_as_int( "disease_pockets" ) );
           population->set_pocket_kernel_type( opts.get_option( "pocket_kernel_type" ) );
           population->set_pocket_scaling( opts.get_option_as_double( "pocket_scaling" ) );
+
+          // build trends
+          sampsim::trend *mean_income = population->get_mean_income();
+          mean_income->set_b00( opts.get_option_as_double_list( "mean_income_b00" ) );
+          mean_income->set_b01( opts.get_option_as_double_list( "mean_income_b01" ) );
+          mean_income->set_b10( opts.get_option_as_double_list( "mean_income_b10" ) );
+          mean_income->set_b02( opts.get_option_as_double_list( "mean_income_b02" ) );
+          mean_income->set_b20( opts.get_option_as_double_list( "mean_income_b20" ) );
+          mean_income->set_b11( opts.get_option_as_double_list( "mean_income_b11" ) );
+          sampsim::trend *sd_income = population->get_sd_income();
+          sd_income->set_b00( opts.get_option_as_double_list( "sd_income_b00" ) );
+          sd_income->set_b01( opts.get_option_as_double_list( "sd_income_b01" ) );
+          sd_income->set_b10( opts.get_option_as_double_list( "sd_income_b10" ) );
+          sd_income->set_b02( opts.get_option_as_double_list( "sd_income_b02" ) );
+          sd_income->set_b20( opts.get_option_as_double_list( "sd_income_b20" ) );
+          sd_income->set_b11( opts.get_option_as_double_list( "sd_income_b11" ) );
+
+          sampsim::trend *mean_disease = population->get_mean_disease();
+          mean_disease->set_b00( opts.get_option_as_double_list( "mean_disease_b00" ) );
+          mean_disease->set_b01( opts.get_option_as_double_list( "mean_disease_b01" ) );
+          mean_disease->set_b10( opts.get_option_as_double_list( "mean_disease_b10" ) );
+          mean_disease->set_b02( opts.get_option_as_double_list( "mean_disease_b02" ) );
+          mean_disease->set_b20( opts.get_option_as_double_list( "mean_disease_b20" ) );
+          mean_disease->set_b11( opts.get_option_as_double_list( "mean_disease_b11" ) );
+          sampsim::trend *sd_disease = population->get_sd_disease();
+          sd_disease->set_b00( opts.get_option_as_double_list( "sd_disease_b00" ) );
+          sd_disease->set_b01( opts.get_option_as_double_list( "sd_disease_b01" ) );
+          sd_disease->set_b10( opts.get_option_as_double_list( "sd_disease_b10" ) );
+          sd_disease->set_b02( opts.get_option_as_double_list( "sd_disease_b02" ) );
+          sd_disease->set_b20( opts.get_option_as_double_list( "sd_disease_b20" ) );
+          sd_disease->set_b11( opts.get_option_as_double_list( "sd_disease_b11" ) );
 
           std::string population_filename;
           for( int p = 1; p <= batch_npop; p++ )
@@ -252,7 +250,8 @@ int main( const int argc, const char** argv )
             }
             else population_filename = filename;
 
-            population->generate();
+            population->create();
+            population->define();
 
             // only write the population to a file if we are not sampling
             if( 0 >= batch_nsamp )
