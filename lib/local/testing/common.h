@@ -29,7 +29,7 @@ inline void create_test_population( sampsim::population *population )
   stringstream stream;
   stream << time( NULL );
   population->set_seed( stream.str() );
-  population->set_number_of_towns( 4 );
+  population->set_number_of_towns( 16 );
   population->set_town_size_min( 10000 );
   population->set_town_size_max( 1000000 );
   population->set_town_size_shape( 1.0 );

@@ -18,6 +18,7 @@
 #include "individual.h"
 #include "population.h"
 #include "tile.h"
+#include "town.h"
 
 int main( const int argc, const char** argv ) { return UnitTest::RunAllTests(); }
 
@@ -26,7 +27,8 @@ TEST( test_population )
   // create a population
   sampsim::population *population = new sampsim::population;
   create_test_population( population );
-  sampsim::tile *tile = population->get_tile_list_begin()->second;
+  sampsim::town *town = *population->get_town_list_begin();
+  sampsim::tile *tile = town->get_tile_list_begin()->second;
   sampsim::building *building = *tile->get_building_list_begin();
   sampsim::household *household = *building->get_household_list_begin();
   sampsim::individual *individual = *household->get_individual_list_begin();
@@ -36,7 +38,7 @@ TEST( test_population )
 
   cout << "Turning on sample mode" << endl;
   population->set_sample_mode( true );
-  
+
   cout << "Testing that population now has a count of zero..." << endl;
   CHECK_EQUAL( 0, population->count_individuals() );
 
@@ -54,14 +56,6 @@ TEST( test_population )
   cout << "Testing population size..." << endl;
   CHECK( 0 != population->count_individuals() );
 
-  cout << "Testing population centroid..." << endl;
-  sampsim::coordinate centroid = population->get_centroid();
-  CHECK_EQUAL( 5, centroid.x );
-  CHECK_EQUAL( 5, centroid.y );
-
-  cout << "Testing population area..." << endl;
-  CHECK_EQUAL( 100, population->get_area() );
-
   stringstream temp_filename;
   temp_filename << "/tmp/sampsim" << sampsim::utilities::random( 1000000, 9999999 );
 
@@ -73,13 +67,13 @@ TEST( test_population )
   string individual_filename = temp_filename.str() + ".individual.csv";
   command << "wc -l " << individual_filename;
   parts = sampsim::utilities::explode( sampsim::utilities::exec( command.str() ), " " );
-  CHECK( 10000 < atoi( parts[0].c_str() ) ); // at least 10000 lines
+  CHECK( 5000 < atoi( parts[0].c_str() ) ); // at least 10000 lines
   command.str( "" );
   command.clear();
   string household_filename = temp_filename.str() + ".household.csv";
   command << "wc -l " << household_filename;
   parts = sampsim::utilities::explode( sampsim::utilities::exec( command.str() ), " " );
-  CHECK( 2500 < atoi( parts[0].c_str() ) ); // at least 2500 lines
+  CHECK( 1000 < atoi( parts[0].c_str() ) ); // at least 2500 lines
 
   cout << "Testing writing population to disk in json format..." << endl;
   try { population->write( temp_filename.str(), false ); }

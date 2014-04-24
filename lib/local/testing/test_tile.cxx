@@ -18,6 +18,7 @@
 #include "individual.h"
 #include "population.h"
 #include "tile.h"
+#include "town.h"
 #include "utilities.h"
 
 int main( const int argc, const char** argv ) { return UnitTest::RunAllTests(); }
@@ -28,52 +29,58 @@ TEST( test_tile )
   sampsim::population *population = new sampsim::population;
   create_test_population( population );
 
-  for( auto tile_it = population->get_tile_list_begin();
-       tile_it != population->get_tile_list_end();
-       ++tile_it )
+  for( auto town_it = population->get_town_list_begin();
+       town_it != population->get_town_list_end();
+       ++town_it )
   {
-    sampsim::tile *tile = tile_it->second;
-    sampsim::building *building = *tile->get_building_list_begin();
-    sampsim::household *household = *building->get_household_list_begin();
-    sampsim::individual *individual = *household->get_individual_list_begin();
-    unsigned int x = tile_it->first.first;
-    unsigned int y = tile_it->first.second;
-    double width = population->get_tile_width();
-    sampsim::coordinate centroid = tile->get_centroid();
-    std::pair< sampsim::coordinate, sampsim::coordinate > extent = tile->get_extent();
+    sampsim::town *town = *town_it;
+    for( auto tile_it = town->get_tile_list_begin();
+         tile_it != town->get_tile_list_end();
+         ++tile_it )
+    {
+      sampsim::tile *tile = tile_it->second;
+      sampsim::building *building = *tile->get_building_list_begin();
+      sampsim::household *household = *building->get_household_list_begin();
+      sampsim::individual *individual = *household->get_individual_list_begin();
+      unsigned int x = tile_it->first.first;
+      unsigned int y = tile_it->first.second;
+      double width = population->get_tile_width();
+      sampsim::coordinate centroid = tile->get_centroid();
+      std::pair< sampsim::coordinate, sampsim::coordinate > extent = tile->get_extent();
 
-    cout << "Testing the tile's centroid at index (" << x << ", " << y << ")..." << endl;
-    CHECK_EQUAL( ( x + 0.5 ) * width, centroid.x );
-    CHECK_EQUAL( ( y + 0.5 ) * width, centroid.y );
+      cout << "Testing the tile's centroid at index (" << x << ", " << y << ")..." << endl;
+      CHECK_EQUAL( ( x + 0.5 ) * width, centroid.x );
+      CHECK_EQUAL( ( y + 0.5 ) * width, centroid.y );
 
-    cout << "Testing the tile's extent..." << endl;
-    CHECK_EQUAL( x * width, extent.first.x );
-    CHECK_EQUAL( y * width, extent.first.y );
-    CHECK_EQUAL( ( x + 1 ) * width, extent.second.x );
-    CHECK_EQUAL( ( y + 1 ) * width, extent.second.y );
+      cout << "Testing the tile's extent..." << endl;
+      CHECK_EQUAL( x * width, extent.first.x );
+      CHECK_EQUAL( y * width, extent.first.y );
+      CHECK_EQUAL( ( x + 1 ) * width, extent.second.x );
+      CHECK_EQUAL( ( y + 1 ) * width, extent.second.y );
 
-    cout << "Testing tile population..." << endl;
-    CHECK( 0 != tile->count_individuals() );
+      cout << "Testing tile population..." << endl;
+      CHECK( 0 != tile->count_individuals() );
 
-    cout << "Turning on sample mode" << endl;
-    population->set_sample_mode( true );
-    
-    cout << "Testing that tile now has no population..." << endl;
-    CHECK_EQUAL( 0, tile->count_individuals() );
+      cout << "Turning on sample mode" << endl;
+      population->set_sample_mode( true );
 
-    cout << "Testing that tile with selected individual has population..." << endl;
-    individual->select();
-    CHECK( 0 != tile->count_individuals() );
+      cout << "Testing that tile now has no population..." << endl;
+      CHECK_EQUAL( 0, tile->count_individuals() );
 
-    cout << "Testing that tile with unselected individual has no population..." << endl;
-    individual->unselect();
-    CHECK_EQUAL( 0, tile->count_individuals() );
+      cout << "Testing that tile with selected individual has population..." << endl;
+      individual->select();
+      CHECK( 0 != tile->count_individuals() );
 
-    cout << "Turning off sample mode" << endl;
-    population->set_sample_mode( false );
+      cout << "Testing that tile with unselected individual has no population..." << endl;
+      individual->unselect();
+      CHECK_EQUAL( 0, tile->count_individuals() );
 
-    cout << "Testing tile population..." << endl;
-    CHECK( 0 != tile->count_individuals() );
+      cout << "Turning off sample mode" << endl;
+      population->set_sample_mode( false );
+
+      cout << "Testing tile population..." << endl;
+      CHECK( 0 != tile->count_individuals() );
+    }
   }
 
   // clean up
