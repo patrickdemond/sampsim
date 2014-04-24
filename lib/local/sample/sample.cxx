@@ -14,6 +14,7 @@
 #include "individual.h"
 #include "population.h"
 #include "tile.h"
+#include "town.h"
 
 #include <fstream>
 #include <json/value.h>
@@ -73,11 +74,34 @@ namespace sample
     if( UNKNOWN_SEX_TYPE == this->get_sex() )
       throw std::runtime_error( "Cannot generate sample, sex type is unknown" );
 
-    // create a list of all buildings
+    // select a town to sample
+    this->population->set_sample_mode( false );
+    sampsim::town *town = NULL;
+    int running_count = 0;
+    int target = utilities::random( 1, this->population->count_individuals() );
+    for( auto town_it = this->population->get_town_list_cbegin();
+         town_it != this->population->get_town_list_cend();
+         ++town_it )
+    {
+      running_count += (*town_it)->count_individuals();
+      if( running_count <= target )
+      {
+        town = *town_it;
+        break;
+      }
+    }
+    this->population->set_sample_mode( true );
+
+    // if we get here and we haven't selected a town then the total number of individuals in all towns
+    // in the population doesn't appear to be the same as the population's count of individuals
+    if( !town )
+      throw std::runtime_error( "Cannot generate sample, mismatch in town/population individual count" );
+
+    // create a list of all buildings in the selected town
     building_list_type building_list;
 
-    for( auto tile_it = this->population->get_tile_list_cbegin();
-         tile_it != this->population->get_tile_list_cend();
+    for( auto tile_it = town->get_tile_list_cbegin();
+         tile_it != town->get_tile_list_cend();
          ++tile_it )
     {
       for( auto building_it = tile_it->second->get_building_list_cbegin();

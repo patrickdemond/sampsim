@@ -10,7 +10,7 @@
 
 #include "building.h"
 #include "building_tree.h"
-#include "population.h"
+#include "town.h"
 
 #include <json/value.h>
 #include <stdexcept>
@@ -32,11 +32,12 @@ namespace sample
     if( NULL == this->current_building )
     {   
       building_list_type building_list = tree.get_building_list();
+      coordinate centroid = ( *building_list.cbegin() )->get_town()->get_centroid();
 
       // 1. get list of all buildings in rectangle formed by drawing a line from the centre
-      //    of the population to the edge following the random angle, then widening that
-      //    line into a rectangle the width of the input parameter "strip width" such that
-      //    the original line runs along the centre of the rectagle
+      //    of the town to the edge following the random angle, then widening that line into
+      //    a rectangle the width of the input parameter "strip width" such that the original
+      //    line runs along the centre of the rectagle
       building_list_type initial_buildings;
 
       // 2. keep repeating step 2 until the list produced is not empty
@@ -53,8 +54,7 @@ namespace sample
         double sin_min_angle = sin( -this->start_angle );
         double cos_min_angle = cos( -this->start_angle );
         double tan_angle = tan( this->start_angle );
-        coordinate c = this->population->get_centroid();
-        double coef = c.y - c.x * tan_angle;
+        double coef = centroid.y - centroid.x * tan_angle;
         double offset = this->strip_width / 2;
         double coef1 = coef - offset;
         double coef2 = coef + offset;
@@ -70,8 +70,10 @@ namespace sample
           if( coef1 <= house_coef && house_coef < coef2 ) 
           {
             // now rotate the point by -angle to see if is in the strip or on the opposite side
-            double rotated_x = ( p.x - c.x ) * cos_min_angle - ( p.y - c.y ) * sin_min_angle + c.x;
-            if( c.x <= rotated_x ) initial_buildings.push_back( *it );
+            double rotated_x = ( p.x - centroid.x ) * cos_min_angle -
+                               ( p.y - centroid.y ) * sin_min_angle +
+                               centroid.x;
+            if( centroid.x <= rotated_x ) initial_buildings.push_back( *it );
           }
         }
 

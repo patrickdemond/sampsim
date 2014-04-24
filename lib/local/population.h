@@ -330,7 +330,6 @@ namespace sampsim
      */
     unsigned int count_individuals() const;
 
-  protected:
     /**
      * Deserialize the population
      * 
@@ -355,6 +354,7 @@ namespace sampsim
      */
     virtual void to_csv( std::ostream&, std::ostream& ) const;
 
+  protected:
     /**
      * Create all towns belonging to the population
      * 

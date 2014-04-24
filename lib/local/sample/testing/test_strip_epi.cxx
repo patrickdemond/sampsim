@@ -19,6 +19,7 @@
 #include "individual.h"
 #include "population.h"
 #include "tile.h"
+#include "town.h"
 #include "utilities.h"
 
 #include <stdexcept>
@@ -76,6 +77,8 @@ TEST( test_sample_strip_epi )
   catch(...) { CHECK( false ); }
   temp_sample_filename << ".json";
 
+  sampsim::coordinate centroid = sample1->get_first_building()->get_town()->get_centroid();
+  sampsim::coordinate first_building_pos = sample1->get_first_building()->get_position();
   for( double start_angle = -M_PI; start_angle <= M_PI; start_angle += M_PI / 18 )
   {
     sample1->set_start_angle( start_angle );
@@ -95,18 +98,17 @@ TEST( test_sample_strip_epi )
 
     // determine the slope and intercepts for the two lines defining the strip
     double m = tan( start_angle );
-    sampsim::coordinate p0 = population->get_centroid();
+    sampsim::coordinate p0 = centroid;
     p0.x += sample1->get_strip_width() * sin( start_angle ) / 2;
     p0.y -= sample1->get_strip_width() * cos( start_angle ) / 2;
-    sampsim::coordinate p1 = population->get_centroid();
+    sampsim::coordinate p1 = centroid;
     p1.x -= sample1->get_strip_width() * sin( start_angle ) / 2;
     p1.y += sample1->get_strip_width() * cos( start_angle ) / 2;
     double b0 = p0.y - m * p0.x;
     double b1 = p1.y - m * p1.x;
 
     // confirm that the intercept is between the strip line's intercepts
-    sampsim::coordinate p = sample1->get_first_building()->get_position();
-    double b = p.y - m * p.x;
+    double b = first_building_pos.y - m * first_building_pos.x;
 
     cout << b0 << ", " << b << ", " << b1 << endl;
     if( b0 < b1 )
@@ -130,36 +132,42 @@ TEST( test_sample_strip_epi )
 
     int individual_count = 0;
     int household_count = 0;
-    for( auto tile_it = population->get_tile_list_begin();
-         tile_it != population->get_tile_list_end();
-         ++tile_it )
+    for( auto town_it = population->get_town_list_begin();
+         town_it != population->get_town_list_end();
+         ++town_it )
     {
-      sampsim::tile *tile = tile_it->second;
-      for( auto building_it = tile->get_building_list_cbegin();
-           building_it != tile->get_building_list_cend();
-           ++building_it )
+      sampsim::town *town = *town_it;
+      for( auto tile_it = town->get_tile_list_begin();
+           tile_it != town->get_tile_list_end();
+           ++tile_it )
       {
-        sampsim::building *building = *building_it;
-        if( building->is_selected() )
+        sampsim::tile *tile = tile_it->second;
+        for( auto building_it = tile->get_building_list_cbegin();
+             building_it != tile->get_building_list_cend();
+             ++building_it )
         {
-          for( auto household_it = building->get_household_list_cbegin();
-               household_it != building->get_household_list_cend();
-               ++household_it )
+          sampsim::building *building = *building_it;
+          if( building->is_selected() )
           {
-            sampsim::household *household = *household_it;
-            if( household->is_selected() )
+            for( auto household_it = building->get_household_list_cbegin();
+                 household_it != building->get_household_list_cend();
+                 ++household_it )
             {
-              household_count++;
-              for( auto individual_it = household->get_individual_list_cbegin();
-                   individual_it != household->get_individual_list_cend();
-                   ++individual_it )
+              sampsim::household *household = *household_it;
+              if( household->is_selected() )
               {
-                sampsim::individual *individual = *individual_it;
-                if( individual->is_selected() )
+                household_count++;
+                for( auto individual_it = household->get_individual_list_cbegin();
+                     individual_it != household->get_individual_list_cend();
+                     ++individual_it )
                 {
-                  CHECK_EQUAL( age, individual->get_age() );
-                  CHECK_EQUAL( sex, individual->get_sex() );
-                  individual_count++;
+                  sampsim::individual *individual = *individual_it;
+                  if( individual->is_selected() )
+                  {
+                    CHECK_EQUAL( age, individual->get_age() );
+                    CHECK_EQUAL( sex, individual->get_sex() );
+                    individual_count++;
+                  }
                 }
               }
             }
@@ -181,36 +189,42 @@ TEST( test_sample_strip_epi )
 
     individual_count = 0;
     household_count = 0;
-    for( auto tile_it = population->get_tile_list_begin();
-         tile_it != population->get_tile_list_end();
-         ++tile_it )
+    for( auto town_it = population->get_town_list_begin();
+         town_it != population->get_town_list_end();
+         ++town_it )
     {
-      sampsim::tile *tile = tile_it->second;
-      for( auto building_it = tile->get_building_list_cbegin();
-           building_it != tile->get_building_list_cend();
-           ++building_it )
+      sampsim::town *town = *town_it;
+      for( auto tile_it = town->get_tile_list_begin();
+           tile_it != town->get_tile_list_end();
+           ++tile_it )
       {
-        sampsim::building *building = *building_it;
-        if( building->is_selected() )
+        sampsim::tile *tile = tile_it->second;
+        for( auto building_it = tile->get_building_list_cbegin();
+             building_it != tile->get_building_list_cend();
+             ++building_it )
         {
-          for( auto household_it = building->get_household_list_cbegin();
-               household_it != building->get_household_list_cend();
-               ++household_it )
+          sampsim::building *building = *building_it;
+          if( building->is_selected() )
           {
-            sampsim::household *household = *household_it;
-            if( household->is_selected() )
+            for( auto household_it = building->get_household_list_cbegin();
+                 household_it != building->get_household_list_cend();
+                 ++household_it )
             {
-              household_count++;
-              for( auto individual_it = household->get_individual_list_cbegin();
-                   individual_it != household->get_individual_list_cend();
-                   ++individual_it )
+              sampsim::household *household = *household_it;
+              if( household->is_selected() )
               {
-                sampsim::individual *individual = *individual_it;
-                if( individual->is_selected() )
+                household_count++;
+                for( auto individual_it = household->get_individual_list_cbegin();
+                     individual_it != household->get_individual_list_cend();
+                     ++individual_it )
                 {
-                  CHECK_EQUAL( age, individual->get_age() );
-                  CHECK_EQUAL( sex, individual->get_sex() );
-                  individual_count++;
+                  sampsim::individual *individual = *individual_it;
+                  if( individual->is_selected() )
+                  {
+                    CHECK_EQUAL( age, individual->get_age() );
+                    CHECK_EQUAL( sex, individual->get_sex() );
+                    individual_count++;
+                  }
                 }
               }
             }
@@ -230,39 +244,45 @@ TEST( test_sample_strip_epi )
 
     individual_count = 0;
     household_count = 0;
-    for( auto tile_it = population->get_tile_list_begin();
-         tile_it != population->get_tile_list_end();
-         ++tile_it )
+    for( auto town_it = population->get_town_list_begin();
+         town_it != population->get_town_list_end();
+         ++town_it )
     {
-      sampsim::tile *tile = tile_it->second;
-      for( auto building_it = tile->get_building_list_cbegin();
-           building_it != tile->get_building_list_cend();
-           ++building_it )
+      sampsim::town *town = *town_it;
+      for( auto tile_it = town->get_tile_list_begin();
+           tile_it != town->get_tile_list_end();
+           ++tile_it )
       {
-        sampsim::building *building = *building_it;
-        if( building->is_selected() )
+        sampsim::tile *tile = tile_it->second;
+        for( auto building_it = tile->get_building_list_cbegin();
+             building_it != tile->get_building_list_cend();
+             ++building_it )
         {
-          for( auto household_it = building->get_household_list_cbegin();
-               household_it != building->get_household_list_cend();
-               ++household_it )
+          sampsim::building *building = *building_it;
+          if( building->is_selected() )
           {
-            sampsim::household *household = *household_it;
-            if( household->is_selected() )
+            for( auto household_it = building->get_household_list_cbegin();
+                 household_it != building->get_household_list_cend();
+                 ++household_it )
             {
-              household_count++;
-              int household_individual_count = 0;
-              for( auto individual_it = household->get_individual_list_cbegin();
-                   individual_it != household->get_individual_list_cend();
-                   ++individual_it )
+              sampsim::household *household = *household_it;
+              if( household->is_selected() )
               {
-                sampsim::individual *individual = *individual_it;
-                if( individual->is_selected() )
+                household_count++;
+                int household_individual_count = 0;
+                for( auto individual_it = household->get_individual_list_cbegin();
+                     individual_it != household->get_individual_list_cend();
+                     ++individual_it )
                 {
-                  individual_count++;
-                  household_individual_count++;
+                  sampsim::individual *individual = *individual_it;
+                  if( individual->is_selected() )
+                  {
+                    individual_count++;
+                    household_individual_count++;
+                  }
                 }
+                CHECK_EQUAL( 1, household_individual_count );
               }
-              CHECK_EQUAL( 1, household_individual_count );
             }
           }
         }

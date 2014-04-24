@@ -85,9 +85,12 @@ namespace sampsim
       t->set_number_of_tiles_x( this->number_of_tiles_x );
       t->set_number_of_tiles_y( this->number_of_tiles_y );
       t->set_mean_household_population( this->mean_household_population );
+      int individuals = this->town_size_distribution.generate_value();
+      if( utilities::verbose )
+        utilities::output( "creating town with target size of %d individuals", individuals );
 
       // determine the base population density for this town
-      double b00 = this->town_size_distribution.generate_value() / this->tile_width / this->tile_width;
+      double b00 = individuals / this->tile_width / this->tile_width;
       double b01 = this->population_density_slope[0];
       double b10 = this->population_density_slope[1];
 

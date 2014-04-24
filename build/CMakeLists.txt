@@ -48,7 +48,7 @@ INCLUDE_DIRECTORIES(
   ${SAMPSIM_SRC_DIR}
   ${SAMPSIM_LIB_DIR}/local
   ${PROJECT_BINARY_DIR}/lib/local
-#  ${PROJECT_BINARY_DIR}/lib/local/sample
+  ${PROJECT_BINARY_DIR}/lib/local/sample
 )
 
 # We're using <random>, the auto keyword, constant iterators, etc, so we need c++11
@@ -98,7 +98,7 @@ IF( BUILD_DOCUMENTATION )
 
   SET( DOXY_INPUT_SOURCE 
     ${SAMPSIM_LIB_DIR}/local
-#    ${SAMPSIM_LIB_DIR}/local/sample
+    ${SAMPSIM_LIB_DIR}/local/sample
     ${SAMPSIM_DOXY_DIR}/doc_mainpage.dox )
 
   string( REPLACE ";" "\" \"" SAMPSIM_DOXY_LIST "${DOXY_INPUT_SOURCE}" )
