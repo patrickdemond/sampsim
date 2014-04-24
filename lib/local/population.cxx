@@ -259,12 +259,13 @@ namespace sampsim
     this->mean_disease->from_json( json["mean_disease"] );
     this->sd_disease->from_json( json["sd_disease"] );
 
+    if( utilities::verbose ) utilities::output( "reading %d towns", json["town_list"].size() );
+    this->town_list.reserve( json["town_list"].size() );
     for( unsigned int c = 0; c < json["town_list"].size(); c++ )
     {
-      Json::Value town_json = json["town_list"][c];
       town *t = new town( this, c );
-      t->from_json( town_json );
-      this->town_list[t->get_index()] = t;
+      t->from_json( json["town_list"][c] );
+      this->town_list.push_back( t );
     }
   }
 
