@@ -21,7 +21,7 @@ int main( const int argc, const char** argv )
   std::string filename;
   sampsim::options opts( argv[0] );
   sampsim::sample::random *sample = new sampsim::sample::random;
-  
+
   // define inputs
   opts.add_input( "population_file" );
   opts.add_input( "output_file" );

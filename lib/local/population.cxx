@@ -152,7 +152,7 @@ namespace sampsim
   bool population::read( const std::string filename )
   {
     utilities::output( "reading population from %s", filename.c_str() );
-    
+
     std::ifstream stream( filename, std::ifstream::in );
 
     Json::Value root;
@@ -193,7 +193,7 @@ namespace sampsim
         stream << "Unable to open \"" << filename << ".household.csv\" for writing";
         throw std::runtime_error( stream.str() );
       }
-      
+
       std::ofstream individual_stream( filename + ".individual.csv", std::ofstream::out );
       if( !individual_stream.is_open() )
       {
@@ -345,7 +345,7 @@ namespace sampsim
            << "# mean_disease trend: " << this->mean_disease->to_string() << std::endl
            << "# sd_disease trend: " << this->sd_disease->to_string() << std::endl
            << "#" << std::endl << std::endl;
-    
+
     household_stream << stream.str();
     individual_stream << stream.str();
 
@@ -442,7 +442,7 @@ namespace sampsim
     }
     else this->pocket_kernel_type = type;
   }
-  
+
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::set_pocket_scaling( const double scale )
   {

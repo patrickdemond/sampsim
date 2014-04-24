@@ -58,7 +58,7 @@ namespace sampsim
       building *b = new building( this );
       b->create();
       total_individuals += b->count_individuals();
-      
+
       // store it in the building list
       this->building_list.push_back( b );
     }
@@ -78,7 +78,7 @@ namespace sampsim
     // create the needed distributions
     this->income_distribution.set_lognormal( this->mean_income, this->sd_income );
     this->disease_risk_distribution.set_normal( this->mean_disease, this->sd_disease );
-    
+
     for( auto it = this->building_list.begin(); it != this->building_list.end(); ++it ) (*it)->define();
 
     if( utilities::verbose ) utilities::output( "finished defining tile" );

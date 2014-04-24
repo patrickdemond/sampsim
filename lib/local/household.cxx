@@ -65,7 +65,7 @@ namespace sampsim
 
     // We'll use 1 + distribution so that there are no empty households
     int size = this->get_town()->get_population_distribution()->generate_value() + 1;
-    
+
     // create the first individual an adult of random sex
     bool male = 0 == utilities::random( 0, 1 );
     individual *i = new individual( this );

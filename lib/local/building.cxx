@@ -108,7 +108,7 @@ namespace sampsim
   {
     this->position.from_json( json["position"] );
     this->position.set_centroid( this->get_town()->get_centroid() );
-    
+
     this->household_list.reserve( json["household_list"].size() );
     for( unsigned int c = 0; c < json["household_list"].size(); c++ )
     {

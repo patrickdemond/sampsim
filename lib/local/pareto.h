@@ -72,12 +72,12 @@ namespace sampsim
      * The minimum value in the distribution.
      */
     double b_val;
-    
+
     /**
      * The shape parameter which defines the shape of the distribution's tail.
      */
     double a_val;
-    
+
     /**
      * The maximum value that the distribution should return.  If set to 0 then no maximum value
      * will be applied.

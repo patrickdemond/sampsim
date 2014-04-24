@@ -256,7 +256,7 @@ namespace sampsim
      * have been created nothing will happen.
      */
     void define();
-    
+
     /**
      * Deserialize the town
      * 

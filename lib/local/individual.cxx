@@ -48,7 +48,7 @@ namespace sampsim
   {
     return NULL == this->parent ? NULL : this->parent->get_town();
   }
-  
+
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   population* individual::get_population() const
   {

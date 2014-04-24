@@ -199,7 +199,7 @@ namespace sampsim
      * distance.
      */
     std::string get_pocket_kernel_type() const { return this->pocket_kernel_type; }
-    
+
     /**
      * Determines which type of kernel disease pockets use.
      * 
@@ -208,7 +208,7 @@ namespace sampsim
      * distance.
      */
     void set_pocket_kernel_type( const std::string );
-    
+
     /**
      * Gets the scaling factor to use for disease pockets.
      * 

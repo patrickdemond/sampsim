@@ -47,7 +47,7 @@ namespace sampsim
   {
     this->usage_list.push_back( description );
   }
-  
+
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void options::add_input( const std::string name )
   {
@@ -78,7 +78,7 @@ namespace sampsim
     stream << spacing << flag.description;
     this->add_heading( stream.str() );
   }
-  
+
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void options::add_option(
     const char short_name,
@@ -312,7 +312,7 @@ namespace sampsim
     while( !file.eof() )
     {
       std::getline( file, line );
-      
+
       // anything after a # is ignored, option and value is deliminated by :
       std::vector< std::string > parts = utilities::explode( line.substr( 0, line.find( '#' ) ), ":" );
 
@@ -378,7 +378,7 @@ namespace sampsim
       stream << (*usage_it) << std::endl;
     return stream.str();
   }
-  
+
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   std::string options::get_input( const std::string name ) const
   {

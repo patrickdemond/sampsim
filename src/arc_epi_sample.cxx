@@ -22,7 +22,7 @@ int main( const int argc, const char** argv )
   std::string filename;
   sampsim::options opts( argv[0] );
   sampsim::sample::arc_epi *sample = new sampsim::sample::arc_epi;
-  
+
   // define inputs
   opts.add_input( "population_file" );
   opts.add_input( "output_file" );

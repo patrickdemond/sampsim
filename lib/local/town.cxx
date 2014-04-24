@@ -121,13 +121,13 @@ namespace sampsim
     const unsigned int number_of_disease_weights = pop->get_number_of_disease_weights();
     double value[number_of_disease_weights], total[number_of_disease_weights];
     for( unsigned int c = 0; c < number_of_disease_weights; c++ ) total[c] = 0;
-    
+
     std::vector< double > matrix[number_of_disease_weights];
     for( unsigned int c = 0; c < number_of_disease_weights; c++ )
       matrix[c].resize( number_of_individuals );
     individual_list_type individual_list;
     individual_list.resize( number_of_individuals );
-    
+
     unsigned int individual_index = 0;
 
     for( auto tile_it = this->tile_list.begin();
@@ -162,7 +162,7 @@ namespace sampsim
 
             // keep a reference to the individual for writing to later
             individual_list[individual_index] = ( *individual_it );
-            
+
             individual_index++;
           }
         }
@@ -279,7 +279,7 @@ namespace sampsim
            << "# sd_disease trend: " << this->sd_disease->to_string() << std::endl
            << "# population density trend: " << this->population_density->to_string() << std::endl
            << "#" << std::endl;
-    
+
     household_stream << stream.str();
     individual_stream << stream.str();
 
@@ -316,12 +316,12 @@ namespace sampsim
   void town::set_income( trend *mean, trend *sd )
   {
     if( utilities::verbose )
-    {   
+    {
       utilities::output( "setting income trend mean to %s", mean->to_string().c_str() );
       utilities::output( "setting income trend sd to %s", sd->to_string().c_str() );
       utilities::output( "setting income trend mean to %s", mean->to_string().c_str() );
       utilities::output( "setting income trend sd to %s", sd->to_string().c_str() );
-    }   
+    }
     this->mean_income->copy( mean );
     this->sd_income->copy( sd );
   }
@@ -330,7 +330,7 @@ namespace sampsim
   void town::set_disease( trend *mean, trend *sd )
   {
     if( utilities::verbose )
-    {   
+    {
       utilities::output( "setting disease trend mean to %s", mean->to_string().c_str() );
       utilities::output( "setting disease trend sd to %s", sd->to_string().c_str() );
       utilities::output( "setting disease trend mean to %s", mean->to_string().c_str() );
