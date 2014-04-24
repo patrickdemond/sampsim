@@ -49,6 +49,8 @@ namespace sampsim
    */
   class household : public model_object
   {
+    friend class building;
+
   public:
     /**
      * Constructor
@@ -117,49 +119,6 @@ namespace sampsim
     population* get_population() const;
 
     /**
-     * Create all individuals belonging to the household
-     * 
-     * This method will create the household according to its internal parameters.  The method
-     * creates individuals but does not define their properties.  After calling this function all individuals
-     * belonging to the household will exist but without parameters such as income, disease status,
-     * disease risk, etc.
-     */
-    void create();
-
-    /**
-     * Define all parameters for all individuals belonging to the household
-     * 
-     * This method will determine all factors such as income, disease status, disease risk, etc for
-     * all individuals belonging to the household.  If this method is called before the individuals
-     * have been created nothing will happen.
-     */
-    void define();
-
-    /**
-     * Deserialize the household
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void from_json( const Json::Value& );
-
-    /**
-     * Serialize the household
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void to_json( Json::Value& ) const;
-
-    /**
-     * Output the household to two CSV files (households and individuals)
-     * 
-     * All objects must provide an implementation for printing to a CSV (comma separated value) format.
-     * Two streams are expected, the first is for household data and the second for individual data.
-     */
-    virtual void to_csv( std::ostream&, std::ostream& ) const;
-
-    /**
      * Returns the household's income
      */
     double get_income() const { return this->income; }
@@ -202,6 +161,50 @@ namespace sampsim
      * A household contains no individuals (so no individuals) until its create() method is called.
      */
     unsigned int count_individuals() const;
+
+  protected:
+    /**
+     * Create all individuals belonging to the household
+     * 
+     * This method will create the household according to its internal parameters.  The method
+     * creates individuals but does not define their properties.  After calling this function all individuals
+     * belonging to the household will exist but without parameters such as income, disease status,
+     * disease risk, etc.
+     */
+    void create();
+
+    /**
+     * Define all parameters for all individuals belonging to the household
+     * 
+     * This method will determine all factors such as income, disease status, disease risk, etc for
+     * all individuals belonging to the household.  If this method is called before the individuals
+     * have been created nothing will happen.
+     */
+    void define();
+
+    /**
+     * Deserialize the household
+     * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
+     */
+    virtual void from_json( const Json::Value& );
+
+    /**
+     * Serialize the household
+     * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
+     */
+    virtual void to_json( Json::Value& ) const;
+
+    /**
+     * Output the household to two CSV files (households and individuals)
+     * 
+     * All objects must provide an implementation for printing to a CSV (comma separated value) format.
+     * Two streams are expected, the first is for household data and the second for individual data.
+     */
+    virtual void to_csv( std::ostream&, std::ostream& ) const;
 
   private:
     /**

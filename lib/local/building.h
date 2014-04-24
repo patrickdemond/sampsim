@@ -49,6 +49,8 @@ namespace sampsim
    */
   class building : public model_object
   {
+    friend class tile;
+
   public:
     /**
      * Constructor
@@ -110,49 +112,6 @@ namespace sampsim
      * Returns the population that the building belongs to
      */
     population* get_population() const;
-
-    /**
-     * Create all households belonging to the building
-     * 
-     * This method will create the building according to its internal parameters.  The method
-     * creates households but does not define their properties.  After calling this function all individuals
-     * belonging to the building will exist but without parameters such as income, disease status,
-     * disease risk, etc.
-     */
-    void create();
-
-    /**
-     * Define all parameters for all households belonging to the building
-     * 
-     * This method will determine all factors such as income, disease status, disease risk, etc for
-     * all individuals belonging to the building.  If this method is called before the individuals
-     * have been created nothing will happen.
-     */
-    void define();
-
-    /**
-     * Deserialize the building
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void from_json( const Json::Value& );
-
-    /**
-     * Serialize the building
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void to_json( Json::Value& ) const;
-
-    /**
-     * Output the building to two CSV files (households and individuals)
-     * 
-     * All objects must provide an implementation for printing to a CSV (comma separated value) format.
-     * Two streams are expected, the first is for household data and the second for individual data.
-     */
-    virtual void to_csv( std::ostream&, std::ostream& ) const;
 
     /**
      * Get the number of individuals in the building
@@ -217,6 +176,50 @@ namespace sampsim
      * This function is used by the building_tree class in order to sort buildings by their position.
      */
     static bool sort_by_y( building* a, building* b ) { return a->get_position().y < b->get_position().y; }
+
+  protected:
+    /**
+     * Create all households belonging to the building
+     * 
+     * This method will create the building according to its internal parameters.  The method
+     * creates households but does not define their properties.  After calling this function all individuals
+     * belonging to the building will exist but without parameters such as income, disease status,
+     * disease risk, etc.
+     */
+    void create();
+
+    /**
+     * Define all parameters for all households belonging to the building
+     * 
+     * This method will determine all factors such as income, disease status, disease risk, etc for
+     * all individuals belonging to the building.  If this method is called before the individuals
+     * have been created nothing will happen.
+     */
+    void define();
+
+    /**
+     * Deserialize the building
+     * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
+     */
+    virtual void from_json( const Json::Value& );
+
+    /**
+     * Serialize the building
+     * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
+     */
+    virtual void to_json( Json::Value& ) const;
+
+    /**
+     * Output the building to two CSV files (households and individuals)
+     * 
+     * All objects must provide an implementation for printing to a CSV (comma separated value) format.
+     * Two streams are expected, the first is for household data and the second for individual data.
+     */
+    virtual void to_csv( std::ostream&, std::ostream& ) const;
 
   private:
     /**

@@ -27,7 +27,7 @@ namespace sampsim
    */
   class base_object
   {
-  public:
+  protected:
     /**
      * Deserialize object
      * 

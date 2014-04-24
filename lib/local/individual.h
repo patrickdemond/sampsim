@@ -47,6 +47,8 @@ namespace sampsim
    */
   class individual : public model_object
   {
+    friend class household;
+
   public:
     /**
      * Constructor
@@ -84,30 +86,6 @@ namespace sampsim
      * Returns the population that the individual belongs to
      */
     population* get_population() const;
-
-    /**
-     * Deserialize the individual
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void from_json( const Json::Value& );
-
-    /**
-     * Serialize the individual
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void to_json( Json::Value& ) const;
-
-    /**
-     * Output the individual to two CSV files (households and individuals)
-     * 
-     * All objects must provide an implementation for printing to a CSV (comma separated value) format.
-     * Two streams are expected, the first is for household data and the second for individual data.
-     */
-    virtual void to_csv( std::ostream&, std::ostream& ) const;
 
     /**
      * Returns the individual's sex
@@ -161,6 +139,31 @@ namespace sampsim
      * Unselects the individual
      */
     void unselect() { this->selected = false; }
+
+  protected:
+    /**
+     * Deserialize the individual
+     * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
+     */
+    virtual void from_json( const Json::Value& );
+
+    /**
+     * Serialize the individual
+     * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
+     */
+    virtual void to_json( Json::Value& ) const;
+
+    /**
+     * Output the individual to two CSV files (households and individuals)
+     * 
+     * All objects must provide an implementation for printing to a CSV (comma separated value) format.
+     * Two streams are expected, the first is for household data and the second for individual data.
+     */
+    virtual void to_csv( std::ostream&, std::ostream& ) const;
 
   private:
     /**

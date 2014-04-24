@@ -250,8 +250,7 @@ int main( const int argc, const char** argv )
             }
             else population_filename = filename;
 
-            population->create();
-            population->define();
+            population->generate();
 
             // only write the population to a file if we are not sampling
             if( 0 >= batch_nsamp )

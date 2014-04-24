@@ -89,23 +89,13 @@ namespace sampsim
     { return this->town_list.cend(); }
 
     /**
-     * Create all towns belonging to the population
-     * 
-     * This method will create the population according to its internal parameters.  The method
-     * creates towns but does not define their properties.  After calling this function all individuals
-     * belonging to the population will exist but without parameters such as income, disease status,
-     * disease risk, etc.
+     * Generates the population.
      */
-    void create();
-
-    /**
-     * Define all parameters for all towns belonging to the population
-     * 
-     * This method will determine all factors such as income, disease status, disease risk, etc for
-     * all individuals belonging to the population.  If this method is called before the individuals
-     * have been created nothing will happen.
-     */
-    void define();
+    void generate()
+    {
+      this->create();
+      this->define();
+    }
 
     /**
      * Reads a population from disk
@@ -340,6 +330,7 @@ namespace sampsim
      */
     unsigned int count_individuals() const;
 
+  protected:
     /**
      * Deserialize the population
      * 
@@ -363,6 +354,25 @@ namespace sampsim
      * Two streams are expected, the first is for household data and the second for individual data.
      */
     virtual void to_csv( std::ostream&, std::ostream& ) const;
+
+    /**
+     * Create all towns belonging to the population
+     * 
+     * This method will create the population according to its internal parameters.  The method
+     * creates towns but does not define their properties.  After calling this function all individuals
+     * belonging to the population will exist but without parameters such as income, disease status,
+     * disease risk, etc.
+     */
+    void create();
+
+    /**
+     * Define all parameters for all towns belonging to the population
+     * 
+     * This method will determine all factors such as income, disease status, disease risk, etc for
+     * all individuals belonging to the population.  If this method is called before the individuals
+     * have been created nothing will happen.
+     */
+    void define();
 
   private:
     /**

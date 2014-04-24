@@ -47,6 +47,8 @@ namespace sampsim
    */
     class tile : public model_object
   {
+    friend class town;
+
   public:
     /**
      * Constructor
@@ -103,49 +105,6 @@ namespace sampsim
      * Returns the population that the tile belongs to
      */
     population* get_population() const;
-
-    /**
-     * Create all buildings belonging to the tile
-     * 
-     * This method will create the tile according to its internal parameters.  The method
-     * creates buildings but does not define their properties.  After calling this function all individuals
-     * belonging to the tile will exist but without parameters such as income, disease status,
-     * disease risk, etc.
-     */
-    void create();
-
-    /**
-     * Define all parameters for all buildings belonging to the tile
-     * 
-     * This method will determine all factors such as income, disease status, disease risk, etc for
-     * all individuals belonging to the tile.  If this method is called before the individuals
-     * have been created nothing will happen.
-     */
-    void define();
-
-    /**
-     * Deserialize the tile
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void from_json( const Json::Value& );
-
-    /**
-     * Serialize the tile
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void to_json( Json::Value& ) const;
-
-    /**
-     * Output the tile to two CSV files (households and individuals)
-     * 
-     * All objects must provide an implementation for printing to a CSV (comma separated value) format.
-     * Two streams are expected, the first is for household data and the second for individual data.
-     */
-    virtual void to_csv( std::ostream&, std::ostream& ) const;
 
     /**
      * Returns the tile's mean income
@@ -234,6 +193,50 @@ namespace sampsim
      * Returns a reference to the tile's disease risk distribution
      */
     distribution* get_disease_risk_distribution() { return &( this->disease_risk_distribution ); }
+
+  protected:
+    /**
+     * Create all buildings belonging to the tile
+     * 
+     * This method will create the tile according to its internal parameters.  The method
+     * creates buildings but does not define their properties.  After calling this function all individuals
+     * belonging to the tile will exist but without parameters such as income, disease status,
+     * disease risk, etc.
+     */
+    void create();
+
+    /**
+     * Define all parameters for all buildings belonging to the tile
+     * 
+     * This method will determine all factors such as income, disease status, disease risk, etc for
+     * all individuals belonging to the tile.  If this method is called before the individuals
+     * have been created nothing will happen.
+     */
+    void define();
+
+    /**
+     * Deserialize the tile
+     * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
+     */
+    virtual void from_json( const Json::Value& );
+
+    /**
+     * Serialize the tile
+     * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
+     */
+    virtual void to_json( Json::Value& ) const;
+
+    /**
+     * Output the tile to two CSV files (households and individuals)
+     * 
+     * All objects must provide an implementation for printing to a CSV (comma separated value) format.
+     * Two streams are expected, the first is for household data and the second for individual data.
+     */
+    virtual void to_csv( std::ostream&, std::ostream& ) const;
 
   private:
     /**

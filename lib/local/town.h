@@ -47,6 +47,8 @@ namespace sampsim
    */
   class town : public model_object
   {
+    friend class population;
+
   public:
     /**
      * Constructor
@@ -118,25 +120,6 @@ namespace sampsim
      */
     unsigned int get_index() const { return this->index; }
 
-    /**
-     * Create all tiles belonging to the town
-     * 
-     * This method will create the town according to its internal parameters.  The method
-     * creates tiles but does not define their properties.  After calling this function all individuals
-     * belonging to the town will exist but without parameters such as income, disease status,
-     * disease risk, etc.
-     */
-    void create();
-
-    /**
-     * Define all parameters for all tiles belonging to the tile
-     * 
-     * This method will determine all factors such as income, disease status, disease risk, etc for
-     * all individuals belonging to the town.  If this method is called before the individuals
-     * have been created nothing will happen.
-     */
-    void define();
-    
     /**
      * Sets the number of tiles in the longitudinal (X) direction
      */
@@ -232,6 +215,49 @@ namespace sampsim
     double get_area() const;
 
     /**
+     * Returns whether the town is selected or not
+     * 
+     * Selection works in the following manner: selecting an object also selects its parent but not its
+     * children.  Unselecting an object also unselects its children but not its parent.  This mechanism
+     * therefore defines "selection" as true if any of its children are selected, and allows for
+     * unselecting all children by unselecting the object.  Only towns, buildings, households and
+     * individuals may be selected/unselected.
+     */
+    bool is_selected() const { return this->selected; }
+
+    /**
+     * Selects the household
+     */
+    void select() { this->selected = true; }
+
+    /**
+     * Unselects the household
+     * 
+     * This will also unselect all children living in this household
+     */
+    void unselect();
+
+  protected:
+    /**
+     * Create all tiles belonging to the town
+     * 
+     * This method will create the town according to its internal parameters.  The method
+     * creates tiles but does not define their properties.  After calling this function all individuals
+     * belonging to the town will exist but without parameters such as income, disease status,
+     * disease risk, etc.
+     */
+    void create();
+
+    /**
+     * Define all parameters for all tiles belonging to the tile
+     * 
+     * This method will determine all factors such as income, disease status, disease risk, etc for
+     * all individuals belonging to the town.  If this method is called before the individuals
+     * have been created nothing will happen.
+     */
+    void define();
+    
+    /**
      * Deserialize the town
      * 
      * All objects must provide an implementation for converting themselves to and from a
@@ -254,29 +280,6 @@ namespace sampsim
      * Two streams are expected, the first is for household data and the second for individual data.
      */
     virtual void to_csv( std::ostream&, std::ostream& ) const;
-
-    /**
-     * Returns whether the town is selected or not
-     * 
-     * Selection works in the following manner: selecting an object also selects its parent but not its
-     * children.  Unselecting an object also unselects its children but not its parent.  This mechanism
-     * therefore defines "selection" as true if any of its children are selected, and allows for
-     * unselecting all children by unselecting the object.  Only towns, buildings, households and
-     * individuals may be selected/unselected.
-     */
-    bool is_selected() const { return this->selected; }
-
-    /**
-     * Selects the household
-     */
-    void select() { this->selected = true; }
-
-    /**
-     * Unselects the household
-     * 
-     * This will also unselect all children living in this household
-     */
-    void unselect();
 
   private:
     /**
