@@ -33,7 +33,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void distribution::set_pareto( const double b, const double a, const double max )
   {
-    this->distribution_type = distribution::POISSON;
+    this->distribution_type = distribution::PARETO;
     this->pareto = sampsim::pareto( b, a, max );
   }
 
@@ -58,7 +58,7 @@ namespace sampsim
       return this->lognormal( utilities::random_engine );
     else if( distribution::NORMAL == this->distribution_type )
       return this->normal( utilities::random_engine );
-    else if( distribution::PAREDO == this->distribution_type )
+    else if( distribution::PARETO == this->distribution_type )
       return this->pareto( utilities::random_engine );
     else if( distribution::POISSON == this->distribution_type )
       return static_cast<double>( this->poisson( utilities::random_engine ) );
@@ -81,7 +81,7 @@ namespace sampsim
     {
       this->set_normal( json["mean"].asDouble(), json["stddev"].asDouble() );
     }
-    else if( distribution::PAREDO == type )
+    else if( distribution::PARETO == type )
     {
       this->set_pareto( json["b"].asDouble(), json["a"].asDouble(), json["max"].asDouble() );
     }
@@ -111,7 +111,7 @@ namespace sampsim
       json["mean"] = this->normal.mean();
       json["stddev"] = this->normal.stddev();
     }
-    else if( distribution::PAREDO == this->distribution_type )
+    else if( distribution::PARETO == this->distribution_type )
     {
       json["b"] = this->pareto.b();
       json["a"] = this->pareto.a();

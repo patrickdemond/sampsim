@@ -42,7 +42,7 @@ namespace sampsim
       UNKNOWN = 0,
       LOGNORMAL,
       NORMAL,
-      PAREDO,
+      PARETO,
       POISSON,
       WEIBULL
     };
@@ -54,7 +54,7 @@ namespace sampsim
     {
       if( "lognormal" == name ) return LOGNORMAL;
       else if( "normal" == name ) return NORMAL;
-      else if( "pareto" == name ) return PAREDO;
+      else if( "pareto" == name ) return PARETO;
       else if( "poisson" == name ) return POISSON;
       else if( "weibull" == name ) return WEIBULL;
       return UNKNOWN;
@@ -67,7 +67,7 @@ namespace sampsim
     {
       if( LOGNORMAL == distribution_type ) return "lognormal";
       else if( NORMAL == distribution_type ) return "normal";
-      else if( PAREDO == distribution_type ) return "pareto";
+      else if( PARETO == distribution_type ) return "pareto";
       else if( POISSON == distribution_type ) return "poisson";
       else if( WEIBULL == distribution_type ) return "weibull";
       return "unknown";
