@@ -45,7 +45,7 @@ TEST( test_sample_arc_epi )
   sampsim::sample::arc_epi *sample2 = new sampsim::sample::arc_epi;
   CHECK( sample2->set_population( temp_population_filename.str() ) );
 
-  int sample_size = 100;
+  int sample_size = 50;
   sample1->set_size( sample_size );
   sample1->set_arc_angle( M_PI / 30 );
   sample1->set_one_per_household( true );

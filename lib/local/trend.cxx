@@ -82,10 +82,9 @@ namespace sampsim
     }
 
     // cache the value of the constant
-    TODONEXT: the following isn't working as expected for regression = 0
-    if( std::numeric_limits<double>::quiet_NaN() == this->b[index][4] )
-      this->b[index][4] = this->dist[index].generate_value();
-    return this->b[index][4];
+    if( isnan( this->b[index][3] ) )
+      this->b[index][3] = this->dist[index].generate_value();
+    return this->b[index][3];
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
