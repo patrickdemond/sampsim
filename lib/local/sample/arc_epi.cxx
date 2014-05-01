@@ -38,14 +38,17 @@ namespace sample
       building_list_type initial_building_list;
 
       // 2. keep repeating step 2 until the list produced is not empty
-      int iterations = 0;
-      while( 0 == initial_building_list.size() && iterations < 100 )
+      int iteration = 0;
+      while( 0 == initial_building_list.size() && iteration < 100 )
       {
         // if a start angle hasn't been defined then pick a random start angle in [-PI, PI]
         if( !this->start_angle_defined )
           this->start_angle = utilities::random() * 2 * M_PI - M_PI;
         if( utilities::verbose )
-          utilities::output( "selecting starting angle of %0.3f radians", this->start_angle );
+          utilities::output(
+            "iteration #%d: selecting starting angle of %0.3f radians",
+            iteration + 1,
+            this->start_angle );
 
         for( auto it = building_list.begin(); it != building_list.end(); ++it )
         {
@@ -82,7 +85,7 @@ namespace sample
         if( 0 == initial_building_list.size() && utilities::verbose ) 
           utilities::output( "no buildings found in strip" );
 
-        iterations++;
+        iteration++;
       }
 
       if( 0 == initial_building_list.size() )

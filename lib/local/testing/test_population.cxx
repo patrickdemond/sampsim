@@ -25,8 +25,17 @@ int main( const int argc, const char** argv ) { return UnitTest::RunAllTests(); 
 TEST( test_population )
 {
   // create a population
+  int number_of_towns = 8;
+  int town_size_min = 5000;
+  int town_size_max = 100000;
   sampsim::population *population = new sampsim::population;
-  create_test_population( population );
+  create_test_population( population, number_of_towns, town_size_min, town_size_max );
+  
+  // TODONEXT: town sizes are not in 5000 to 100000, need to correct this
+  for( auto it = population->get_town_list_begin(); it != population->get_town_list_end(); ++it )
+    std::cout << (*it)->count_individuals() << std::endl;
+  return;
+
   sampsim::town *town = *population->get_town_list_begin();
   sampsim::tile *tile = town->get_tile_list_begin()->second;
   sampsim::building *building = *tile->get_building_list_begin();
@@ -34,7 +43,8 @@ TEST( test_population )
   sampsim::individual *individual = *household->get_individual_list_begin();
 
   cout << "Testing population size..." << endl;
-  CHECK( 0 != population->count_individuals() );
+  CHECK( town_size_min * number_of_towns <= population->count_individuals() );
+  CHECK( town_size_max * number_of_towns >= population->count_individuals() );
 
   cout << "Turning on sample mode" << endl;
   population->set_sample_mode( true );

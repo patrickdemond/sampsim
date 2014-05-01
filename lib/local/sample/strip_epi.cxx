@@ -40,15 +40,19 @@ namespace sample
       //    line runs along the centre of the rectagle
       building_list_type initial_buildings;
 
-      // 2. keep repeating step 2 until the list produced is not empty
-      int iterations = 0;
-      while( 0 == initial_buildings.size() && iterations < 100 )
+      // 2. if the start angle is not explicitly set then keep repeating step 2 until the list
+      //    produced is not empty
+      int iteration = 0;
+      do
       {
         // if a start angle hasn't been defined then pick a random start angle in [-PI, PI]
         if( !this->start_angle_defined )
           this->start_angle = utilities::random() * 2 * M_PI - M_PI;
         if( utilities::verbose )
-          utilities::output( "selecting starting angle of %0.3f radians", this->start_angle );
+          utilities::output(
+            "iteration #%d: selecting starting angle of %0.3f radians",
+            iteration + 1,
+            this->start_angle );
 
         // determine the line coefficient (for lines making strip of the appropriate width)
         double sin_min_angle = sin( -this->start_angle );
@@ -80,8 +84,9 @@ namespace sample
         if( 0 == initial_buildings.size() && utilities::verbose )
           utilities::output( "no buildings found in strip" );
 
-        iterations++;
+        iteration++;
       }
+      while( !this->start_angle_defined && 0 == initial_buildings.size() && iteration < 100 );
 
       if( 0 == initial_buildings.size() )
         throw std::runtime_error(
@@ -92,6 +97,7 @@ namespace sample
       auto initial_it = initial_buildings.begin();
       std::advance( initial_it, this->first_building_index );
       b = *initial_it;
+
       if( utilities::verbose )
         utilities::output(
           "selecting building %d of %d in strip",

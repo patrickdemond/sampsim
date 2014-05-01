@@ -195,6 +195,15 @@ namespace sampsim
     virtual void to_csv( std::ostream&, std::ostream& ) const;
 
   private:
+    /**
+     * Sets up the distributions used for each of the 6 constants based on the current base value,
+     * regression coefficient, residual variance and regression factor
+     */
+    void initialize_distributions();
+
+    /**
+     * The regression factor defining how much the regression affects each coefficient
+     */
     double regression_factor;
 
     /**

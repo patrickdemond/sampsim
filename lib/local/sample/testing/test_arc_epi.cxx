@@ -45,7 +45,7 @@ TEST( test_sample_arc_epi )
   sampsim::sample::arc_epi *sample2 = new sampsim::sample::arc_epi;
   CHECK( sample2->set_population( temp_population_filename.str() ) );
 
-  int sample_size = 50;
+  int sample_size = 100;
   sample1->set_size( sample_size );
   sample1->set_arc_angle( M_PI / 30 );
   sample1->set_one_per_household( true );
@@ -156,6 +156,7 @@ TEST( test_sample_arc_epi )
         }
       }
     }
+
     cout << "Result: " << individual_count << " individuals in " << household_count << " households" << endl;
     CHECK_EQUAL( sample_size, individual_count );
     CHECK_EQUAL( sample_size, household_count );

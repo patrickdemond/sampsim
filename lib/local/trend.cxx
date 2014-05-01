@@ -52,10 +52,17 @@ namespace sampsim
   void trend::set_regression_factor( const double factor )
   {
     this->regression_factor = factor;
+    this->initialize_distributions();
+  }
 
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void trend::initialize_distributions()
+  {
     for( unsigned int index = 0; index < 6; index++ )
     {
-      this->dist[index].set_normal( this->b[index][0] + this->b[index][1] * factor, this->b[index][2] );
+      this->dist[index].set_normal(
+        this->b[index][0] + this->b[index][1] * this->regression_factor,
+        this->b[index][2] );
       this->b[index][3] = std::numeric_limits<double>::quiet_NaN();
     }
   }
@@ -143,7 +150,7 @@ namespace sampsim
     this->b[index][0] = value;
     this->b[index][1] = regression;
     this->b[index][2] = variance;
-    this->b[index][3] = std::numeric_limits<double>::quiet_NaN();
+    this->initialize_distributions();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

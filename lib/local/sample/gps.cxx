@@ -27,14 +27,18 @@ namespace sample
     building_list_type circle_building_list;
     coordinate centroid = ( *building_list.cbegin() )->get_town()->get_centroid();
 
-    int iterations = 0;
+    int iteration = 0;
     // keep selecting a random point until there is at least one building found in the resulting circle
-    while( 0 == circle_building_list.size() && iterations < 100 )
+    while( 0 == circle_building_list.size() && iteration < 100 )
     {
       // select a random point within the population's bounds
       coordinate p( 2 * centroid.x * utilities::random(), 2 * centroid.y * utilities::random() );
       if( utilities::verbose )
-        utilities::output( "searching circle at %0.3f, %0.3f with radius %0.3f", p.x, p.y, this->radius );
+        utilities::output(
+          "iteration #%d: searching circle at %0.3f, %0.3f with radius %0.3f",
+          iteration + 1,
+          p.x, p.y,
+          this->radius );
 
       // make a list of all buildings inside the GPS circle
       for( auto it = building_list.cbegin(); it != building_list.cend(); ++it )
@@ -46,7 +50,7 @@ namespace sample
       if( 0 == circle_building_list.size() && utilities::verbose )
         utilities::output( "no buildings found in GPS circle" );
 
-      iterations++;
+      iteration++;
     }
 
     if( 0 == circle_building_list.size() )

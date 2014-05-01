@@ -49,7 +49,7 @@ TEST( test_sample_strip_epi )
 
   int sample_size = 100;
   sample1->set_size( sample_size );
-  sample1->set_strip_width( 0.5 );
+  sample1->set_strip_width( 0.25 );
   sample1->set_one_per_household( true );
   sample1->generate();
 
@@ -77,8 +77,6 @@ TEST( test_sample_strip_epi )
   catch(...) { CHECK( false ); }
   temp_sample_filename << ".json";
 
-  sampsim::coordinate centroid = sample1->get_first_building()->get_town()->get_centroid();
-  sampsim::coordinate first_building_pos = sample1->get_first_building()->get_position();
   for( double start_angle = -M_PI; start_angle <= M_PI; start_angle += M_PI / 18 )
   {
     sample1->set_start_angle( start_angle );
@@ -97,6 +95,8 @@ TEST( test_sample_strip_epi )
          << sample1->get_start_angle() << " radians..." << endl;
 
     // determine the slope and intercepts for the two lines defining the strip
+    sampsim::coordinate centroid = sample1->get_first_building()->get_town()->get_centroid();
+    sampsim::coordinate first_building_pos = sample1->get_first_building()->get_position();
     double m = tan( start_angle );
     sampsim::coordinate p0 = centroid;
     p0.x += sample1->get_strip_width() * sin( start_angle ) / 2;
