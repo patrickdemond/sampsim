@@ -177,12 +177,9 @@ namespace sampsim
      * 
      * This function will prefix the output with the application's running time
      */
-    inline static void output( std::string message, ... )
+    inline static void output( std::string message, va_list args )
     {
-      va_list args;  // Pointer to optional arguments
-      va_start( args, message );
-      
-      char buffer[256];
+      char buffer[512];
       vsprintf( buffer, message.c_str(), args );
 
       double elapsed = (float)( clock() - utilities::start_time ) / CLOCKS_PER_SEC;
@@ -193,6 +190,18 @@ namespace sampsim
       sprintf( time, "[%d:%02d:%05.2f]", hours, minutes, seconds );
 
       std::cout << time << " " << buffer << std::endl;
+    }
+
+    /**
+     * Outputs text to the standard output
+     * 
+     * This function will prefix the output with the application's running time
+     */
+    inline static void output( std::string message, ... )
+    {
+      va_list args;  // Pointer to optional arguments
+      va_start( args, message );
+      utilities::output( message, args );
     }
 
     /**

@@ -19,20 +19,23 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void distribution::set_lognormal( const double mean, const double sd )
   {
+    this->debug( "set_lognormal( mean = %f, sd = %f )", mean, sd );
     this->distribution_type = distribution::LOGNORMAL;
     this->lognormal = std::lognormal_distribution<double>( mean, sd );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void distribution::set_normal( const double m, const double s )
+  void distribution::set_normal( const double mean, const double sd )
   {
+    this->debug( "set_normal( mean = %f, sd = %f )", mean, sd );
     this->distribution_type = distribution::NORMAL;
-    this->normal = std::normal_distribution<double>( m, s );
+    this->normal = std::normal_distribution<double>( mean, sd );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void distribution::set_pareto( const double b, const double a, const double max )
   {
+    this->debug( "set_pareto( b = %f, a = %f, max = %f )", b, a, max );
     this->distribution_type = distribution::PARETO;
     this->pareto = sampsim::pareto( b, a, max );
   }
@@ -40,6 +43,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void distribution::set_poisson( const double mean )
   {
+    this->debug( "set_poisson( mean = %f )", mean );
     this->distribution_type = distribution::POISSON;
     this->poisson = std::poisson_distribution<int>( mean );
   }
@@ -47,6 +51,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void distribution::set_weibull( const double a, const double b )
   {
+    this->debug( "set_weibull( a = %f, b = %f )", a, b );
     this->distribution_type = distribution::WEIBULL;
     this->weibull = std::weibull_distribution<double>( a, b );
   }

@@ -65,6 +65,11 @@ namespace sampsim
     ~tile();
 
     /**
+     * Returns the name of the object's class
+     */
+    std::string get_name() const { return "tile"; }
+
+    /**
      * Iterator access to child buildings
      * 
      * These methods provide iterator access to the list of buildings belonging to this tile.

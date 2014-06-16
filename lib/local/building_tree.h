@@ -9,8 +9,6 @@
 #ifndef __sampsim_building_tree_h
 #define __sampsim_building_tree_h
 
-#include "base_object.h"
-
 #include "building.h"
 #include "utilities.h"
 

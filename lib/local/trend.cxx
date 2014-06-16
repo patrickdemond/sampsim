@@ -70,12 +70,14 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   double trend::get_value( const coordinate c )
   {
-    return this->get_b00() +
-           this->get_b01() * c.x +
-           this->get_b10() * c.y +
-           this->get_b02() * c.x * c.x +
-           this->get_b20() * c.y * c.y +
-           this->get_b11() * c.x * c.y;
+    double value = this->get_b00() +
+                   this->get_b01() * c.x +
+                   this->get_b10() * c.y +
+                   this->get_b02() * c.x * c.x +
+                   this->get_b20() * c.y * c.y +
+                   this->get_b11() * c.x * c.y;
+    this->debug( "get_value( coordinate = (%f,%f) ) = %f", c.x, c.y, value );
+    return value;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -90,7 +92,11 @@ namespace sampsim
 
     // cache the value of the constant
     if( isnan( this->b[index][3] ) )
+    {
       this->b[index][3] = this->dist[index].generate_value();
+      this->debug( "get_constant( index = %d ) caching value of %f", index, this->b[index][3] );
+    }
+
     return this->b[index][3];
   }
 

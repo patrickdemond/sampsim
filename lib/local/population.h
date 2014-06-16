@@ -57,6 +57,11 @@ namespace sampsim
     ~population();
 
     /**
+     * Returns the name of the object's class
+     */
+    std::string get_name() const { return "population"; }
+
+    /**
      * Iterator access to child towns
      * 
      * These methods provide iterator access to the list of towns belonging to the population.

@@ -36,6 +36,11 @@ namespace sampsim
      * Constructor
      */
     coordinate( const double x = 0, const double y = 0 ) : x(x), y(y), cx(0), cy(0) {}
+    
+    /**
+     * Returns the name of the object's class
+     */
+    std::string get_name() const { return "coordinate"; }
 
     /**
      * Comparison operator

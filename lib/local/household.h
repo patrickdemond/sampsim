@@ -67,6 +67,11 @@ namespace sampsim
     ~household();
 
     /**
+     * Returns the name of the object's class
+     */
+    std::string get_name() const { return "household"; }
+
+    /**
      * Iterator access to child individuals
      * 
      * These methods provide iterator access to the list of individuals belonging to this household.

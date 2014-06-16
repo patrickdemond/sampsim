@@ -79,6 +79,11 @@ namespace sampsim
     distribution() : distribution_type( distribution::UNKNOWN ) {}
 
     /**
+     * Returns the name of the object's class
+     */
+    std::string get_name() const { return "distribution"; }
+
+    /**
      * Returns the distribution's type code
      */
     distribution::type get_type() const { return this->distribution_type; }

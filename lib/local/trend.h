@@ -57,6 +57,11 @@ namespace sampsim
       const double b11 = 0 );
 
     /**
+     * Returns the name of the object's class
+     */
+    std::string get_name() const { return "trend"; }
+
+    /**
      * Copies another trend's values into the current object
      */
     void copy( const trend* );

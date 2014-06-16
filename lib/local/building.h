@@ -67,6 +67,11 @@ namespace sampsim
     ~building();
 
     /**
+     * Returns the name of the object's class
+     */
+    std::string get_name() const { return "building"; }
+
+    /**
      * Iterator access to child households
      * 
      * These methods provide iterator access to the list of households belonging to this building.

@@ -63,6 +63,11 @@ namespace sampsim
     ~individual();
 
     /**
+     * Returns the name of the object's class
+     */
+    std::string get_name() const { return "individual"; }
+
+    /**
      * Returns the individual's parent household
      */
     household* get_household() const { return this->parent; }

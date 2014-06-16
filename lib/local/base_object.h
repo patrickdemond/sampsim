@@ -27,7 +27,30 @@ namespace sampsim
    */
   class base_object
   {
+  public:
+    /**
+     * Constructor
+     */
+    base_object() : debug_mode( false ) {}
+
+    /**
+     * Determines whether to output debug information for this object
+     */
+    bool debug_mode;
+
+    /**
+     * Returns the name of the object's class
+     */
+    virtual std::string get_name() const = 0;
+
   protected:
+    /**
+     * Used to display debug messages to the standard output.
+     * 
+     * This method will only display messages if the "debug_mode" member is true.
+     */
+    void debug( std::string message, ... ) const;
+
     /**
      * Deserialize object
      * 

@@ -63,6 +63,11 @@ namespace sampsim
     ~town();
 
     /**
+     * Returns the name of the object's class
+     */
+    std::string get_name() const { return "town"; }
+
+    /**
      * Iterator access to child tiles
      * 
      * These methods provide iterator access to the list of tiles belonging to the town.
