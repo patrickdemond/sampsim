@@ -90,7 +90,8 @@ namespace sampsim
         utilities::output( "creating town with target size of %d individuals", individuals );
 
       // determine the base population density for this town
-      double b00 = individuals / this->tile_width / this->tile_width;
+      double b00 = individuals / this->tile_width / this->tile_width
+                               / this->number_of_tiles_x / this->number_of_tiles_y;
       double b01 = this->population_density_slope[0];
       double b10 = this->population_density_slope[1];
 
