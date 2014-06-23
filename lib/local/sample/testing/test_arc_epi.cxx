@@ -75,7 +75,7 @@ TEST( test_sample_arc_epi )
   catch(...) { CHECK( false ); }
   temp_sample_filename << ".json";
 
-  for( double start_angle = -M_PI; start_angle <= M_PI; start_angle += M_PI / 18 )
+  for( double start_angle = -M_PI; start_angle <= M_PI; start_angle += M_PI / 9 )
   {
     sample1->set_start_angle( start_angle );
     double angle1 = sample1->get_start_angle() - sample1->get_arc_angle() / 2.0;

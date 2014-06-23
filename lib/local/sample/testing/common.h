@@ -25,7 +25,7 @@ using namespace std;
 
 inline void create_test_population(
   sampsim::population *population,
-  int number_of_towns = 8,
+  int number_of_towns = 4,
   int town_size_min = 5000,
   int town_size_max = 100000 )
 {

@@ -77,7 +77,7 @@ TEST( test_sample_strip_epi )
   catch(...) { CHECK( false ); }
   temp_sample_filename << ".json";
 
-  for( double start_angle = -M_PI; start_angle <= M_PI; start_angle += M_PI / 18 )
+  for( double start_angle = -M_PI; start_angle <= M_PI; start_angle += M_PI / 9 )
   {
     sample1->set_start_angle( start_angle );
     cout << "Testing strip at " << start_angle << " radians..." << endl;
