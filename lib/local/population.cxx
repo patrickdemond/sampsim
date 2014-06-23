@@ -111,7 +111,7 @@ namespace sampsim
       this->town_list.push_back( t );
     }
 
-    utilities::output( "finished creating population" );
+    utilities::output( "finished creating population, %d individuals generated", this->count_individuals() );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
