@@ -31,7 +31,6 @@ TEST( test_population )
   sampsim::population *population = new sampsim::population;
   create_test_population( population, number_of_towns, town_size_min, town_size_max );
   
-  // TODONEXT: town sizes are not in 5000 to 100000, need to correct this
   for( auto it = population->get_town_list_begin(); it != population->get_town_list_end(); ++it )
     std::cout << (*it)->count_individuals() << std::endl;
   return;
