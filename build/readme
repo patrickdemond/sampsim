@@ -52,10 +52,25 @@ Building documentation
 
 2. Edit the CMakeCache.txt file, setting BUILD_DOCUMENTATION to ON
 
-3. Re-run cmake in the root of the build directory, this will create a new directory named
-   doxygen.
+3. Re-run cmake in the root of the build directory, this will create a new directory in your
+   build directory named doxygen.
 
-4. In the doxygen directory run cmake -P doc_makeall.cmake
+4. If after running the cmake command you get the following message then you will need to
+   install the doxygen and gnuplot packages for your operating system:
+
+   Could NOT find Doxygen (missing:  DOXYGEN_EXECUTABLE) 
+   Could NOT find Gnuplot (missing:  GNUPLOT_EXECUTABLE)
+
+5. In the doxygen directory run cmake -P doc_makeall.cmake  If after running this command you
+   get the following error then you will also need to install the graphviz package for your
+   operating system:
+
+   CMake Error at doc_makeall.cmake:18 (message):
+     error: cannot build sampsim documentation without dot
+
+   Then re-run cmake in the root of the build directory once more before trying step 5 again.
+   If successful you will now have a doc/html directory in your doxygen directory.  Point a
+   web browser to the index.html file in this directory to browse the API documentation.
 
 Building unit testing
 =====================
