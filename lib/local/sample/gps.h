@@ -47,9 +47,14 @@ namespace sample
      gps() : radius( 0 ) {}
 
     /**
+     * Returns the name of the object's class
+     */
+    std::string get_name() const { return "gps"; }
+
+    /**
      * Returns the name of the sampling method
      */
-    virtual std::string get_type() const { return "gps"; }
+    virtual std::string get_type() const { return "GPS"; }
 
     /** 
      * Sets the width of the strip (in meters) used to determine the initial building list

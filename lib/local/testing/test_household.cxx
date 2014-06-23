@@ -18,6 +18,7 @@
 #include "individual.h"
 #include "population.h"
 #include "tile.h"
+#include "town.h"
 #include "utilities.h"
 
 using namespace std;
@@ -30,50 +31,56 @@ TEST( test_household )
   sampsim::population *population = new sampsim::population;
   create_test_population( population );
 
-  for( auto tile_it = population->get_tile_list_begin();
-       tile_it != population->get_tile_list_end();
-       ++tile_it )
+  for( auto town_it = population->get_town_list_begin();
+       town_it != population->get_town_list_end();
+       ++town_it )
   {
-    sampsim::tile *tile = tile_it->second;
-    for( auto building_it = tile->get_building_list_cbegin();
-         building_it != tile->get_building_list_cend();
-         ++building_it )
+    sampsim::town *town = *town_it;
+    for( auto tile_it = town->get_tile_list_begin();
+         tile_it != town->get_tile_list_end();
+         ++tile_it )
     {
-      sampsim::building *building = *building_it;
-      for( auto household_it = building->get_household_list_cbegin();
-           household_it != building->get_household_list_cend();
-           ++household_it )
+      sampsim::tile *tile = tile_it->second;
+      for( auto building_it = tile->get_building_list_cbegin();
+           building_it != tile->get_building_list_cend();
+           ++building_it )
       {
-        sampsim::household *household = *household_it;
-        sampsim::individual *individual = *household->get_individual_list_begin();
+        sampsim::building *building = *building_it;
+        for( auto household_it = building->get_household_list_cbegin();
+             household_it != building->get_household_list_cend();
+             ++household_it )
+        {
+          sampsim::household *household = *household_it;
+          sampsim::individual *individual = *household->get_individual_list_begin();
 
-        cout << "Testing household population..." << endl;
-        CHECK( 0 != household->count_population() );
+          cout << "Testing household population..." << endl;
+          CHECK( 0 != household->count_individuals() );
 
-        cout << "Turning on sample mode" << endl;
-        population->set_sample_mode( true );
-        
-        cout << "Testing that household now has no population..." << endl;
-        CHECK_EQUAL( 0, household->count_population() );
+          cout << "Turning on sample mode" << endl;
+          population->set_sample_mode( true );
 
-        cout << "Testing that household with selected individual has population..." << endl;
-        individual->select();
-        CHECK( 0 != household->count_population() );
+          cout << "Testing that household now has no population..." << endl;
+          CHECK_EQUAL( 0, household->count_individuals() );
 
-        cout << "Testing that household with unselected individual has no population..." << endl;
-        individual->unselect();
-        CHECK_EQUAL( 0, household->count_population() );
+          cout << "Testing that household with selected individual has population..." << endl;
+          individual->select();
+          CHECK( 0 != household->count_individuals() );
 
-        cout << "Testing that unselected household has no population..." << endl;
-        individual->select();
-        household->unselect();
-        CHECK_EQUAL( 0, household->count_population() );
+          cout << "Testing that household with unselected individual has no population..." << endl;
+          individual->unselect();
+          CHECK_EQUAL( 0, household->count_individuals() );
 
-        cout << "Turning off sample mode" << endl;
-        population->set_sample_mode( false );
+          cout << "Testing that unselected household has no population..." << endl;
+          individual->select();
+          household->unselect();
+          CHECK_EQUAL( 0, household->count_individuals() );
 
-        cout << "Testing household population..." << endl;
-        CHECK( 0 != household->count_population() );
+          cout << "Turning off sample mode" << endl;
+          population->set_sample_mode( false );
+
+          cout << "Testing household population..." << endl;
+          CHECK( 0 != household->count_individuals() );
+        }
       }
     }
   }

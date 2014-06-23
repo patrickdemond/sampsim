@@ -9,8 +9,6 @@
 #ifndef __sampsim_building_tree_h
 #define __sampsim_building_tree_h
 
-#include "base_object.h"
-
 #include "building.h"
 #include "utilities.h"
 
@@ -58,7 +56,7 @@ namespace sampsim
         this->left = NULL;
         this->right = NULL;
       }
-      
+
       void copy( node* n )
       {
         this->parent = parent;
@@ -103,17 +101,17 @@ namespace sampsim
        * The node's parent node (null for the root node)
        */
       node* parent;
-      
+
       /**
        * The node's depth
        */
       long long int depth;
-      
+
       /**
        * The building found at the node's position
        */
       sampsim::building* building;
-      
+
       /**
        * The node's left (negative axis direction) child node
        */
@@ -137,7 +135,7 @@ namespace sampsim
      * Copies an existing building_tree
      */
     building_tree( const building_tree& );
-    
+
     /**
      * Destructor
      */
@@ -184,7 +182,7 @@ namespace sampsim
      * A recursive function that deletes the node an all of its children.
      */
     static void destroy( node* );
-    
+
     /**
      * A recursive function that returns all buildings who are decendants of the given node
      * 

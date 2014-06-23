@@ -11,7 +11,7 @@
 #include "building.h"
 #include "household.h"
 #include "individual.h"
-#include "tile.h"
+#include "town.h"
 #include "trend.h"
 #include "utilities.h"
 
@@ -30,16 +30,20 @@ namespace sampsim
   {
     this->sample_mode = false;
     this->seed = "";
-    this->number_tiles_x = 0;
-    this->number_tiles_y = 0;
+    this->number_of_towns = 1;
+    this->number_of_tiles_x = 0;
+    this->number_of_tiles_y = 0;
     this->tile_width = 0;
-    for( unsigned int c = 0; c < population::NUMBER_OF_WEIGHTS; c++ ) this->disease_weights[c] = 1.0;
+    this->population_density_slope[0] = 0.0;
+    this->population_density_slope[1] = 0.0;
+    this->number_of_disease_pockets = 0;
+    for( unsigned int c = 0; c < population::NUMBER_OF_DISEASE_WEIGHTS; c++ )
+      this->disease_weights[c] = 1.0;
     this->mean_household_population = 0;
     this->mean_income = new trend;
     this->sd_income = new trend;
     this->mean_disease = new trend;
     this->sd_disease = new trend;
-    this->population_density = new trend;
     this->pocket_kernel_type = "exponential";
     this->pocket_scaling = 1.0;
   }
@@ -47,149 +51,112 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   population::~population()
   {
-    // delete all tiles
-    for( auto it = this->tile_list.begin(); it != this->tile_list.end(); ++it )
-      utilities::safe_delete( it->second );
-    this->tile_list.clear();
+    // delete all towns
+    std::for_each( this->town_list.begin(), this->town_list.end(), utilities::safe_delete_type() );
+    this->town_list.clear();
 
     // delete all trends
     delete this->mean_income;
     delete this->sd_income;
     delete this->mean_disease;
     delete this->sd_disease;
-    delete this->population_density;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void population::generate()
+  void population::create()
   {
-    std::pair< int, int > index;
+    std::pair< unsigned int, unsigned int > index;
 
-    utilities::output( "generating population" );
+    utilities::output( "creating population" );
 
-    // create the needed distributions
-    this->population_distribution.set_poisson( this->mean_household_population - 1 );
-
-    // delete all tiles and turn off sample mode (in case it is on)
-    for( auto it = this->tile_list.begin(); it != this->tile_list.end(); ++it )
-      utilities::safe_delete( it->second );
-    this->tile_list.clear();
+    // delete all towns and turn off sample mode (in case it is on)
+    std::for_each( this->town_list.begin(), this->town_list.end(), utilities::safe_delete_type() );
+    this->town_list.clear();
     this->set_sample_mode( false );
 
-    // create tiles
-    for( int y = 0; y < this->number_tiles_y; y++ )
-    {
-      for( int x = 0; x < this->number_tiles_x; x++ )
-      {
-        // create the tile
-        index = std::pair< int, int >( x, y );
-        tile *t = new tile( this, index );
-        t->set_mean_income( this->mean_income->get_value( t->get_centroid() ) );
-        t->set_sd_income( this->sd_income->get_value( t->get_centroid() ) );
-        t->set_mean_disease( this->mean_disease->get_value( t->get_centroid() ) );
-        t->set_sd_disease( this->sd_disease->get_value( t->get_centroid() ) );
-        t->set_population_density( this->population_density->get_value( t->get_centroid() ) );
-        t->generate();
+    // create a distribution to determine town size
+    this->town_size_distribution.set_pareto(
+      this->town_size_min, this->town_size_shape, this->town_size_max );
 
-        // store it at the specified index
-        this->tile_list[index] = t;
-      }
+    // create towns
+    for( unsigned int i = 0; i < this->number_of_towns; i++ )
+    {
+      town *t = new town( this, i );
+      t->set_number_of_tiles_x( this->number_of_tiles_x );
+      t->set_number_of_tiles_y( this->number_of_tiles_y );
+      t->set_mean_household_population( this->mean_household_population );
+      int individuals = this->town_size_distribution.generate_value();
+      if( utilities::verbose )
+        utilities::output( "creating town with target size of %d individuals", individuals );
+
+      // determine the base population density for this town
+      double b00 = individuals / this->tile_width / this->tile_width
+                               / this->number_of_tiles_x / this->number_of_tiles_y;
+      double b01 = this->population_density_slope[0];
+      double b10 = this->population_density_slope[1];
+
+      // now make sure this is the value at the centre of the town
+      b00 -= b01 * this->tile_width * this->number_of_tiles_x / 2 +
+             b10 * this->tile_width * this->number_of_tiles_y / 2;
+
+      trend* population_density = t->get_population_density();
+      population_density->set_b00( b00 );
+      population_density->set_b01( b01 );
+      population_density->set_b10( b10 );
+      population_density->set_b02( 0.0 );
+      population_density->set_b20( 0.0 );
+      population_density->set_b11( 0.0 );
+
+      t->create();
+      this->town_list.push_back( t );
     }
 
-    // now that the population has been generated we can determine disease status
-    // we are going to do this in a standard generalized-linear-model way, by constructing a linear
-    // function of the various contributing factors
-    utilities::output( "determining disease status" );
+    utilities::output( "finished creating population" );
+  }
 
-    // create a matrix of all participants (rows) and their various disease predictor factors
-    const int population_size = this->count_population();
-    double value[population::NUMBER_OF_WEIGHTS], total[population::NUMBER_OF_WEIGHTS];
-    for( unsigned int c = 0; c < population::NUMBER_OF_WEIGHTS; c++ ) total[c] = 0;
-    
-    std::vector< double > matrix[population::NUMBER_OF_WEIGHTS];
-    for( unsigned int c = 0; c < population::NUMBER_OF_WEIGHTS; c++ )
-      matrix[c].resize( population_size );
-    individual_list_type individual_list;
-    individual_list.resize( population_size );
-    
-    int individual_index = 0;
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::define()
+  {
+    std::pair< unsigned int, unsigned int > index;
 
-    for( auto tile_it = this->tile_list.begin();
-         tile_it != this->tile_list.end();
-         ++tile_it )
+    utilities::output( "defining population" );
+
+    // calculate the mean( log(individuals) ) from all towns
+    double sum_log_individual_count = 0;
+    for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
+      sum_log_individual_count = log( (*it)->count_individuals() );
+    double mean_log_individual_count = sum_log_individual_count / this->number_of_towns;
+
+    // now set the regression factor for all trends in each town
+    for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
     {
-      for( auto building_it = tile_it->second->get_building_list_cbegin();
-           building_it != tile_it->second->get_building_list_cend();
-           ++building_it )
-      {
-        value[5] = ( *building_it )->get_pocket_factor();
-        for( auto household_it = ( *building_it )->get_household_list_cbegin();
-             household_it != ( *building_it )->get_household_list_cend();
-             ++household_it )
-        {
-          value[0] = ( *household_it )->count_population();
-          value[1] = ( *household_it )->get_income();
-          value[2] = ( *household_it )->get_disease_risk();
+      town *t = *it;
+      double factor = log( t->count_individuals() ) - mean_log_individual_count;
 
-          for( auto individual_it = ( *household_it )->get_individual_list_cbegin();
-               individual_it != ( *household_it )->get_individual_list_cend();
-               ++individual_it )
-          {
-            value[3] = ADULT == ( *individual_it )->get_age() ? 1 : 0;
-            value[4] = MALE == ( *individual_it )->get_sex() ? 1 : 0;
+      // here we set the regression factor for all trends
+      // Note: the regression factor shouldn't be confused with the coefficient's regression coefficient.
+      // This parameter is set when defining the trend, not here.
+      t->get_mean_income()->copy( this->mean_income );
+      t->get_mean_income()->set_regression_factor( factor );
+      t->get_sd_income()->copy( this->sd_income );
+      t->get_sd_income()->set_regression_factor( factor );
+      t->get_mean_disease()->copy( this->mean_disease );
+      t->get_mean_disease()->set_regression_factor( factor );
+      t->get_sd_disease()->copy( this->sd_disease );
+      t->get_sd_disease()->set_regression_factor( factor );
 
-            for( unsigned int c = 0; c < population::NUMBER_OF_WEIGHTS; c++ )
-            {
-              total[c] += value[c];
-              matrix[c][individual_index] = value[c];
-            }
-
-            // keep a reference to the individual for writing to later
-            individual_list[individual_index] = ( *individual_it );
-            
-            individual_index++;
-          }
-        }
-      }
+      t->set_number_of_disease_pockets( this->number_of_disease_pockets );
+      t->define();
     }
 
-    // subtract the mean of a column from each of its values and divide by the column's sd
-    double mean[population::NUMBER_OF_WEIGHTS], sd[population::NUMBER_OF_WEIGHTS];
-
-    for( unsigned int c = 0; c < population::NUMBER_OF_WEIGHTS; c++ )
-    {
-      mean[c] = total[c] / population_size;
-      sd[c] = 0;
-      for( unsigned int i = 0; i < population_size; i++ )
-        sd[c] += ( matrix[c][i] - mean[c] ) * ( matrix[c][i] - mean[c] );
-      sd[c] = sqrt( sd[c] / ( population_size - 1 ) );
-
-      for( unsigned int i = 0; i < population_size; i++ )
-      {
-        matrix[c][i] = ( matrix[c][i] - mean[c] ) / sd[c];
-        // if the sd is 0 then we set the matrix value to 0
-        if( isnan( matrix[c][i] ) ) matrix[c][i] = 0.0;
-      }
-    }
-
-    // factor in weights, compute disease probability then set disease status for all individuals
-    for( unsigned int i = 0; i < population_size; i++ )
-    {
-      double eta = 0, probability;
-      for( unsigned int c = 0; c < population::NUMBER_OF_WEIGHTS; c++ )
-        eta += matrix[c][i] * this->disease_weights[c];
-      probability = 1 / ( 1 + exp( -eta ) );
-      individual_list[i]->set_disease( utilities::random() < probability );
-    }
-
-    utilities::output( "finished generating population" );
+    utilities::output( "finished defining population" );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   bool population::read( const std::string filename )
   {
     utilities::output( "reading population from %s", filename.c_str() );
-    
+
     std::ifstream stream( filename, std::ifstream::in );
 
     Json::Value root;
@@ -230,7 +197,7 @@ namespace sampsim
         stream << "Unable to open \"" << filename << ".household.csv\" for writing";
         throw std::runtime_error( stream.str() );
       }
-      
+
       std::ofstream individual_stream( filename + ".individual.csv", std::ofstream::out );
       if( !individual_stream.is_open() )
       {
@@ -278,27 +245,31 @@ namespace sampsim
     }
 
     this->seed = json["seed"].asString();
-    this->number_tiles_x = json["number_tiles_x"].asInt();
-    this->number_tiles_y = json["number_tiles_y"].asInt();
+    this->number_of_towns = json["number_of_towns"].asUInt();
+    this->town_size_min = json["town_size_min"].asDouble();
+    this->town_size_max = json["town_size_max"].asDouble();
+    this->town_size_shape = json["town_size_shape"].asDouble();
+    this->number_of_tiles_x = json["number_of_tiles_x"].asUInt();
+    this->number_of_tiles_y = json["number_of_tiles_y"].asUInt();
     this->tile_width = json["tile_width"].asDouble();
-    for( unsigned int c = 0; c < population::NUMBER_OF_WEIGHTS; c++ )
+    this->population_density_slope[0] = json["population_density_slope"][0].asDouble();
+    this->population_density_slope[1] = json["population_density_slope"][1].asDouble();
+    for( unsigned int c = 0; c < population::NUMBER_OF_DISEASE_WEIGHTS; c++ )
       this->disease_weights[c] = json["disease_weights"][c].asDouble();
 
-    this->mean_household_population = json["mean_household_population"].asInt();
+    this->mean_household_population = json["mean_household_population"].asDouble();
     this->mean_income->from_json( json["mean_income"] );
     this->sd_income->from_json( json["sd_income"] );
     this->mean_disease->from_json( json["mean_disease"] );
     this->sd_disease->from_json( json["sd_disease"] );
-    this->population_density->from_json( json["population_density"] );
 
-    std::pair< int, int > index;
-    for( unsigned int c = 0; c < json["tile_list"].size(); c++ )
+    if( utilities::verbose ) utilities::output( "reading %d towns", json["town_list"].size() );
+    this->town_list.reserve( json["town_list"].size() );
+    for( unsigned int c = 0; c < json["town_list"].size(); c++ )
     {
-      Json::Value tile_json = json["tile_list"][c];
-      index = std::pair< int, int >( tile_json["x_index"].asInt(), tile_json["y_index"].asInt() );
-      tile *t = new tile( this, index );
-      t->from_json( tile_json );
-      this->tile_list[index] = t;
+      town *t = new town( this, c );
+      t->from_json( json["town_list"][c] );
+      this->town_list.push_back( t );
     }
   }
 
@@ -308,25 +279,39 @@ namespace sampsim
     json = Json::Value( Json::objectValue );
     json["version"] = utilities::get_version();
     json["seed"] = this->seed;
-    json["number_tiles_x"] = this->number_tiles_x;
-    json["number_tiles_y"] = this->number_tiles_y;
+    json["number_of_towns"] = this->number_of_towns;
+    json["town_size_min"] = this->town_size_min;
+    json["town_size_max"] = this->town_size_max;
+    json["town_size_shape"] = this->town_size_shape;
+    json["number_of_tiles_x"] = this->number_of_tiles_x;
+    json["number_of_tiles_y"] = this->number_of_tiles_y;
     json["tile_width"] = this->tile_width;
+    json["population_density_slope"] = Json::Value( Json::arrayValue );
+    json["population_density_slope"].resize( 2 );
+    json["population_density_slope"][0] = this->population_density_slope[0];
+    json["population_density_slope"][1] = this->population_density_slope[1];
     json["disease_weights"] = Json::Value( Json::arrayValue );
-    json["disease_weights"].resize( population::NUMBER_OF_WEIGHTS );
-    for( unsigned int c = 0; c < population::NUMBER_OF_WEIGHTS; c++ )
+    json["disease_weights"].resize( population::NUMBER_OF_DISEASE_WEIGHTS );
+    for( unsigned int c = 0; c < population::NUMBER_OF_DISEASE_WEIGHTS; c++ )
       json["disease_weights"][c] = this->disease_weights[c];
     json["mean_household_population"] = this->mean_household_population;
     this->mean_income->to_json( json["mean_income"] );
     this->sd_income->to_json( json["sd_income"] );
     this->mean_disease->to_json( json["mean_disease"] );
     this->sd_disease->to_json( json["sd_disease"] );
-    this->population_density->to_json( json["population_density"] );
-    json["tile_list"] = Json::Value( Json::arrayValue );
-    json["tile_list"].resize( this->tile_list.size() );
+    json["town_list"] = Json::Value( Json::arrayValue );
 
-    int index = 0;
-    for( auto it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it, ++index )
-      it->second->to_json( json["tile_list"][index] );
+    unsigned int index = 0;
+    for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it, ++index )
+    {
+      town *t = *it;
+      if( !sample_mode || t->is_selected() )
+      {
+        Json::Value child;
+        t->to_json( child );
+        json["town_list"].append( child );
+      }
+    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -338,38 +323,42 @@ namespace sampsim
 
     // put in the parameters
     std::stringstream stream;
-    stream << "# population parameters" << std::endl;
-    stream << "# -----------------------------------------------------------------------" << std::endl;
-    stream << "# version: " << utilities::get_version() << std::endl;
-    stream << "# seed: " << this->seed << std::endl;
-    stream << "# number_tiles_x: " << this->number_tiles_x << std::endl;
-    stream << "# number_tiles_y: " << this->number_tiles_y << std::endl;
-    stream << "# tile_width: " << this->tile_width << std::endl;
-    stream << "#" << std::endl;
-    stream << "# dweight_population: " << this->disease_weights[0] << std::endl;
-    stream << "# dweight_income: " << this->disease_weights[1] << std::endl;
-    stream << "# dweight_risk: " << this->disease_weights[2] << std::endl;
-    stream << "# dweight_age: " << this->disease_weights[3] << std::endl;
-    stream << "# dweight_sex: " << this->disease_weights[4] << std::endl;
-    stream << "# dweight_pocket: " << this->disease_weights[5] << std::endl;
-    stream << "#" << std::endl;
-    stream << "# mean_household_pop" << this->mean_household_population << std::endl;
-    stream << "# mean_income trend: " << this->mean_income->to_string() << std::endl;
-    stream << "# sd_income trend: " << this->sd_income->to_string() << std::endl;
-    stream << "# mean_disease trend: " << this->mean_disease->to_string() << std::endl;
-    stream << "# sd_disease trend: " << this->sd_disease->to_string() << std::endl;
-    stream << "# popdens trend: " << this->population_density->to_string() << std::endl;
-    stream << std::endl;
-    
+    stream << "#" << std::endl
+           << "# population parameters" << std::endl
+           << "# ---------------------" << std::endl
+           << "# version: " << utilities::get_version() << std::endl
+           << "# seed: " << this->seed << std::endl
+           << "# towns: " << this->number_of_towns << std::endl
+           << "# town_size_min: " << this->town_size_min << std::endl
+           << "# town_size_max: " << this->town_size_max << std::endl
+           << "# town_size_shape: " << this->town_size_shape << std::endl
+           << "# tile_width: " << this->tile_width << std::endl
+           << "# population_density_slope: " << this->population_density_slope << ", "
+                                             << this->population_density_slope << std::endl
+           << "#" << std::endl
+           << "# dweight_population: " << this->disease_weights[0] << std::endl
+           << "# dweight_income: " << this->disease_weights[1] << std::endl
+           << "# dweight_risk: " << this->disease_weights[2] << std::endl
+           << "# dweight_age: " << this->disease_weights[3] << std::endl
+           << "# dweight_sex: " << this->disease_weights[4] << std::endl
+           << "# dweight_pocket: " << this->disease_weights[5] << std::endl
+           << "#" << std::endl
+           << "# mean_household_pop" << this->mean_household_population << std::endl
+           << "# mean_income trend: " << this->mean_income->to_string() << std::endl
+           << "# sd_income trend: " << this->sd_income->to_string() << std::endl
+           << "# mean_disease trend: " << this->mean_disease->to_string() << std::endl
+           << "# sd_disease trend: " << this->sd_disease->to_string() << std::endl
+           << "#" << std::endl << std::endl;
+
     household_stream << stream.str();
     individual_stream << stream.str();
 
     // put in the csv headers
-    household_stream << "index,x,y,r,a,individuals,income,disease_risk" << std::endl;
-    individual_stream << "household_index,sex,age,disease" << std::endl;
+    household_stream << "town_index,household_index,x,y,r,a,individuals,income,disease_risk" << std::endl;
+    individual_stream << "town_index,household_index,sex,age,disease" << std::endl;
 
-    for( auto it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it )
-      it->second->to_csv( household_stream, individual_stream );
+    for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
+      ( *it )->to_csv( household_stream, individual_stream );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -381,17 +370,53 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void population::set_number_tiles_x( const int number_tiles_x )
+  void population::set_number_of_towns( const unsigned int number_of_towns )
   {
-    if( utilities::verbose ) utilities::output( "setting number_tiles_x to %d", number_tiles_x );
-    this->number_tiles_x = number_tiles_x;
+    if( utilities::verbose ) utilities::output( "setting number_of_towns to %d", number_of_towns );
+    this->number_of_towns = number_of_towns;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void population::set_number_tiles_y( const int number_tiles_y )
+  void population::set_town_size_min( const double town_size_min )
   {
-    if( utilities::verbose ) utilities::output( "setting number_tiles_y to %d", number_tiles_y );
-    this->number_tiles_y = number_tiles_y;
+    if( utilities::verbose ) utilities::output( "setting town_size_min to %f", town_size_min );
+    this->town_size_min = town_size_min;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::set_town_size_max( const double town_size_max )
+  {
+    if( utilities::verbose ) utilities::output( "setting town_size_max to %f", town_size_max );
+    this->town_size_max = town_size_max;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::set_town_size_shape( const double town_size_shape )
+  {
+    if( utilities::verbose ) utilities::output( "setting town_size_shape to %f", town_size_shape );
+    this->town_size_shape = town_size_shape;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::set_number_of_tiles_x( const unsigned int number_of_tiles_x )
+  {
+    if( utilities::verbose ) utilities::output( "setting number_of_tiles_x to %d", number_of_tiles_x );
+    this->number_of_tiles_x = number_of_tiles_x;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::set_number_of_tiles_y( const unsigned int number_of_tiles_y )
+  {
+    if( utilities::verbose ) utilities::output( "setting number_of_tiles_y to %d", number_of_tiles_y );
+    this->number_of_tiles_y = number_of_tiles_y;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::set_population_density_slope( const double mx, const double my )
+  {
+    if( utilities::verbose ) utilities::output( "setting population density slope to %f, %f", mx, my );
+    this->population_density_slope[0] = mx;
+    this->population_density_slope[0] = my;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -402,14 +427,10 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void population::set_disease_pockets( const int count )
+  void population::set_number_of_disease_pockets( const unsigned int count )
   {
     if( utilities::verbose ) utilities::output( "setting number of disease pockets to %d", count );
-    this->disease_pocket_list.clear();
-    coordinate c = this->get_centroid();
-    for( int i = 0; i < count; i++ )
-      this->disease_pocket_list.push_back(
-        coordinate( 2 * c.x * utilities::random(), 2 * c.y * utilities::random() ) );
+    this->number_of_disease_pockets = count;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -425,12 +446,25 @@ namespace sampsim
     }
     else this->pocket_kernel_type = type;
   }
-  
+
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::set_pocket_scaling( const double scale )
   {
     if( utilities::verbose ) utilities::output( "setting pocket_scaling to %f", scale );
     this->pocket_scaling = scale;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  double population::get_disease_weight_by_index( unsigned int index )
+  {
+    if( NUMBER_OF_DISEASE_WEIGHTS <= index )
+    {
+      std::stringstream stream;
+      stream << "Tried to reference disease weight index " << index << " which is out of bounds";
+      throw std::runtime_error( stream.str() );
+    }
+
+    return this->disease_weights[index];
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -442,7 +476,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void population::set_income( const trend *mean, const trend *sd )
+  void population::set_income( trend *mean, trend *sd )
   {
     if( utilities::verbose )
     {
@@ -456,7 +490,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void population::set_disease( const trend *mean, const trend *sd )
+  void population::set_disease( trend *mean, trend *sd )
   {
     if( utilities::verbose )
     {
@@ -470,34 +504,12 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void population::set_population_density( const trend *population_density )
+  unsigned int population::count_individuals() const
   {
-    if( utilities::verbose )
-      utilities::output( "setting population density trend to %s", population_density->to_string().c_str() );
-    this->population_density->copy( population_density );
-  }
-
-  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  int population::count_population() const
-  {
-    int count = 0;
-    for( auto it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it )
-      count += it->second->count_population();
+    unsigned int count = 0;
+    for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
+      count += ( *it )->count_individuals();
 
     return count;
-  }
-
-  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  coordinate population::get_centroid() const
-  {
-    coordinate centroid( this->number_tiles_x, this->number_tiles_y );
-    centroid *= this->tile_width / 2;
-    return centroid;
-  }
-
-  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  double population::get_area() const
-  {
-    return this->tile_width * this->tile_width * this->number_tiles_x * this->number_tiles_y;
   }
 }

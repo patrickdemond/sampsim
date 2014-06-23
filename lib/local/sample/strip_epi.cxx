@@ -10,7 +10,7 @@
 
 #include "building.h"
 #include "building_tree.h"
-#include "population.h"
+#include "town.h"
 
 #include <json/value.h>
 #include <stdexcept>
@@ -32,29 +32,33 @@ namespace sample
     if( NULL == this->current_building )
     {   
       building_list_type building_list = tree.get_building_list();
+      coordinate centroid = ( *building_list.cbegin() )->get_town()->get_centroid();
 
       // 1. get list of all buildings in rectangle formed by drawing a line from the centre
-      //    of the population to the edge following the random angle, then widening that
-      //    line into a rectangle the width of the input parameter "strip width" such that
-      //    the original line runs along the centre of the rectagle
+      //    of the town to the edge following the random angle, then widening that line into
+      //    a rectangle the width of the input parameter "strip width" such that the original
+      //    line runs along the centre of the rectagle
       building_list_type initial_buildings;
 
-      // 2. keep repeating step 2 until the list produced is not empty
-      int iterations = 0;
-      while( 0 == initial_buildings.size() && iterations < 100 )
+      // 2. if the start angle is not explicitly set then keep repeating step 2 until the list
+      //    produced is not empty
+      int iteration = 0;
+      do
       {
         // if a start angle hasn't been defined then pick a random start angle in [-PI, PI]
         if( !this->start_angle_defined )
           this->start_angle = utilities::random() * 2 * M_PI - M_PI;
         if( utilities::verbose )
-          utilities::output( "selecting starting angle of %0.3f radians", this->start_angle );
+          utilities::output(
+            "iteration #%d: selecting starting angle of %0.3f radians",
+            iteration + 1,
+            this->start_angle );
 
         // determine the line coefficient (for lines making strip of the appropriate width)
         double sin_min_angle = sin( -this->start_angle );
         double cos_min_angle = cos( -this->start_angle );
         double tan_angle = tan( this->start_angle );
-        coordinate c = this->population->get_centroid();
-        double coef = c.y - c.x * tan_angle;
+        double coef = centroid.y - centroid.x * tan_angle;
         double offset = this->strip_width / 2;
         double coef1 = coef - offset;
         double coef2 = coef + offset;
@@ -70,16 +74,19 @@ namespace sample
           if( coef1 <= house_coef && house_coef < coef2 ) 
           {
             // now rotate the point by -angle to see if is in the strip or on the opposite side
-            double rotated_x = ( p.x - c.x ) * cos_min_angle - ( p.y - c.y ) * sin_min_angle + c.x;
-            if( c.x <= rotated_x ) initial_buildings.push_back( *it );
+            double rotated_x = ( p.x - centroid.x ) * cos_min_angle -
+                               ( p.y - centroid.y ) * sin_min_angle +
+                               centroid.x;
+            if( centroid.x <= rotated_x ) initial_buildings.push_back( *it );
           }
         }
 
         if( 0 == initial_buildings.size() && utilities::verbose )
           utilities::output( "no buildings found in strip" );
 
-        iterations++;
+        iteration++;
       }
+      while( !this->start_angle_defined && 0 == initial_buildings.size() && iteration < 100 );
 
       if( 0 == initial_buildings.size() )
         throw std::runtime_error(
@@ -90,6 +97,7 @@ namespace sample
       auto initial_it = initial_buildings.begin();
       std::advance( initial_it, this->first_building_index );
       b = *initial_it;
+
       if( utilities::verbose )
         utilities::output(
           "selecting building %d of %d in strip",

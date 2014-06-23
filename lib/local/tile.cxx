@@ -10,6 +10,7 @@
 
 #include "building.h"
 #include "population.h"
+#include "town.h"
 #include "utilities.h"
 
 #include <algorithm>
@@ -19,7 +20,7 @@
 namespace sampsim
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  tile::tile( population *parent, const std::pair< int, int > index )
+  tile::tile( town *parent, const std::pair< unsigned int, unsigned int > index )
   {
     this->parent = parent;
     this->set_index( index );
@@ -37,38 +38,57 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void tile::generate()
+  population* tile::get_population() const
+  {
+    return NULL == this->parent ? NULL : this->parent->get_population();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void tile::create()
   {
     if( utilities::verbose )
-      utilities::output( "generating tile at %d, %d", this->index.first , this->index.second );
-
-    // create the needed distributions
-    this->income_distribution.set_lognormal( this->mean_income, this->sd_income );
-    this->disease_risk_distribution.set_normal( this->mean_disease, this->sd_disease );
+      utilities::output( "creating tile at %d, %d", this->index.first , this->index.second );
 
     // need to keep creating buildings until the population density is met
-    int count = 0;
-    while( static_cast< double >( this->count_population() ) / this->get_area() < this->population_density )
+    unsigned int count = 0;
+    unsigned int total_individuals = 0;
+    while( static_cast< double >( total_individuals ) / this->get_area() < this->population_density )
     {
       // create the building
       building *b = new building( this );
-      b->generate();
-      
+      b->create();
+      total_individuals += b->count_individuals();
+
       // store it in the building list
       this->building_list.push_back( b );
     }
 
     if( utilities::verbose )
-      utilities::output( "finished generating tile: population %d in %d buildings",
-                         this->count_population(),
+      utilities::output( "finished creating tile: population %d in %d buildings",
+                         this->count_individuals(),
                          this->building_list.size() );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void tile::define()
+  {
+    if( utilities::verbose )
+      utilities::output( "defining tile at %d, %d", this->index.first , this->index.second );
+
+    // create the needed distributions
+    this->income_distribution.set_lognormal( this->mean_income, this->sd_income );
+    this->disease_risk_distribution.set_normal( this->mean_disease, this->sd_disease );
+
+    for( auto it = this->building_list.begin(); it != this->building_list.end(); ++it ) (*it)->define();
+
+    if( utilities::verbose ) utilities::output( "finished defining tile" );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void tile::from_json( const Json::Value &json )
   {
-    this->index.first = json["x_index"].asInt();
-    this->index.second = json["y_index"].asInt();
+    this->index.first = json["x_index"].asUInt();
+    this->index.second = json["y_index"].asUInt();
     this->mean_income = json["mean_income"].asDouble();
     this->sd_income = json["sd_income"].asDouble();
     this->mean_disease = json["mean_disease"].asDouble();
@@ -98,7 +118,7 @@ namespace sampsim
     json["building_list"] = Json::Value( Json::arrayValue );
 
     bool sample_mode = this->get_population()->get_sample_mode();
-    int index = 0;
+    unsigned int index = 0;
     for( auto it = this->building_list.cbegin(); it != this->building_list.cend(); ++it )
     {
       building *b = *it;
@@ -123,7 +143,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void tile::set_index( const std::pair< int, int > index )
+  void tile::set_index( const std::pair< unsigned int, unsigned int > index )
   {
     // make sure the tile has a parent
     if( NULL == this->parent ) throw std::runtime_error( "Tried to set the index of an orphaned tile" );
@@ -142,12 +162,12 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  int tile::count_population() const
+  unsigned int tile::count_individuals() const
   {
     bool sample_mode = this->get_population()->get_sample_mode();
-    int count = 0;
+    unsigned int count = 0;
     for( auto it = this->building_list.begin(); it != this->building_list.end(); ++it )
-      if( !sample_mode || (*it)->is_selected() ) count += (*it)->count_population();
+      if( !sample_mode || (*it)->is_selected() ) count += (*it)->count_individuals();
 
     return count;
   }

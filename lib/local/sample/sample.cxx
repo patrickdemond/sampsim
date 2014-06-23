@@ -14,6 +14,7 @@
 #include "individual.h"
 #include "population.h"
 #include "tile.h"
+#include "town.h"
 
 #include <fstream>
 #include <json/value.h>
@@ -73,18 +74,38 @@ namespace sample
     if( UNKNOWN_SEX_TYPE == this->get_sex() )
       throw std::runtime_error( "Cannot generate sample, sex type is unknown" );
 
-    // create a list of all buildings
+    // select a town to sample (and unselect all towns as we go)
+    this->population->set_sample_mode( false );
+    sampsim::town *use_town = NULL;
+    int running_count = 0;
+    int target = utilities::random( 1, this->population->count_individuals() );
+    for( auto town_it = this->population->get_town_list_cbegin();
+         town_it != this->population->get_town_list_cend();
+         ++town_it )
+    {
+      sampsim::town *town = *town_it;
+      running_count += town->count_individuals();
+      if( running_count >= target ) use_town = town;
+      town->unselect();
+    }
+    this->population->set_sample_mode( true );
+
+    // if we get here and we haven't selected a town then the total number of individuals in all towns
+    // in the population doesn't appear to be the same as the population's count of individuals
+    if( !use_town )
+      throw std::runtime_error( "Cannot generate sample, mismatch in town/population individual count" );
+
+    // create a list of all buildings in the selected town
     building_list_type building_list;
 
-    for( auto tile_it = this->population->get_tile_list_cbegin();
-         tile_it != this->population->get_tile_list_cend();
+    for( auto tile_it = use_town->get_tile_list_cbegin();
+         tile_it != use_town->get_tile_list_cend();
          ++tile_it )
     {
       for( auto building_it = tile_it->second->get_building_list_cbegin();
            building_it != tile_it->second->get_building_list_cend();
            ++building_it )
       {
-        (*building_it)->unselect(); // unselect the building
         building_list.push_back( *building_it );
       }
     }
@@ -271,7 +292,7 @@ namespace sample
     }
 
     this->seed = json["seed"].asString();
-    this->size = json["size"].asInt();
+    this->size = json["size"].asUInt();
     this->one_per_household = json["one_per_household"].asBool();
     this->age = sampsim::get_age_type( json["age"].asString() );
     this->sex = sampsim::get_sex_type( json["sex"].asString() );

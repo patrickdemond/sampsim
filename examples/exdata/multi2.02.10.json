@@ -22,8 +22,8 @@
          "b11" : 0.0,
          "b20" : 0.0
       },
-      "number_tiles_x" : 10,
-      "number_tiles_y" : 10,
+      "number_of_tiles_x" : 10,
+      "number_of_tiles_y" : 10,
       "population_density" : {
          "b00" : 400.0,
          "b01" : 0.0,

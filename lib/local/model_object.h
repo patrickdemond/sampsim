@@ -28,11 +28,11 @@ namespace sampsim
    * Populations are organized into a tree such that all nodes are responsible for creating,
    * generating and deleting their children.  The structure is as follows:
    * - population
-   * - population
-   *   + list of n by m tiles
-   *     - list of buildings in tile
-   *       + list of households in building
-   *         - list of individuals belonging to household
+   *   + list of towns in population
+   *     - list of n by m tiles
+   *       + list of buildings in tile
+   *         - list of households in building
+   *           + list of individuals belonging to household
    * 
    * This class contains all functionality common to all model classes.
    */

@@ -1,24 +1,44 @@
 #########################################################################################
-#
+# 
 # This is a sample configuration file used to set up population parameters for sampsim
-#
+# 
 # No more than one parameter may be included per line.  Options with no values (flags)
 # are set to true if found on a line alone.  For example:
-#
+# 
 # verbose
-#
+# 
 # Options with values must be separated by a ":" character.  For example:
-#
+# 
 # seed: 1234
-#
-# All lines beginning with a # are ignored as comments.
-#
+# 
+# If an option includes only numbers, periods and commas (no other characters or spaces)
+# then it will be inturpreted as an array.  For instance:
+# 
+# coordinate: 1.2,2.4,3.6
+# 
+# Anything proceeding a # is ignored as a comment.
+# 
 #########################################################################################
 
 #
 # The seed to use when generating random numbers
 #
 seed: 1
+
+#
+# The number of towns to generate
+#
+towns: 1
+
+#
+# The Pareto distribution parameters defining the number of individuals in each town of the
+# population.  The parameters min will define the minimum value, max will define the maximum
+# (truncated) value and shape will define the shape of the distribution's tail.
+# The larger the shape parameter the closer to the minimum value populations will be.
+#
+town_size_min: 10000
+town_size_max: 1000000
+town_size_shape: 1.0
 
 #
 # The number of tiles in the x (horizontal) and y (vertical) directions
@@ -30,6 +50,16 @@ tile_y: 10
 # The width of each tile in kilometers
 #
 tile_width: 3.5
+
+#
+# The trend coefficients used to determine mean population density of each tile
+# Mean population density is a function of tile centroid position and is determined as follows:
+#   P(x,y) = b + mx( x - wx/2 ) + my( y - my/2 )
+# Where b is the base population density defined by the town's target population, and wx and wy
+# is width and depth of of the town.
+#
+popdens_mx: 1
+popdens_my: 1
 
 #
 # The number of disease pockets to generate
@@ -90,14 +120,6 @@ mean_disease_b00: 0.5
 # The default values for b00 is 1 and 0 for all other coefficients
 #
 sd_disease_b00: 0.25
-
-#
-# The trend coefficients used to determine mean population density of each tile
-# Mean population density is a function of tile centroid position and is determined as follows:
-#   P(x,y) = b00 + b01*x + b10*y + b02*x^2 + b20*y^2 + b11*x*y
-# The default values for b00 is 1 and 0 for all other coefficients
-#
-popdens_b00: 400
 
 #
 # The weights used to determine disease status including:

@@ -42,6 +42,11 @@ namespace sample
   {
   public:
     /**
+     * Returns the name of the object's class
+     */
+    std::string get_name() const { return "random"; }
+
+    /**
      * Returns the name of the sampling method
      */
     virtual std::string get_type() const { return "random"; }

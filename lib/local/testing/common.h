@@ -23,18 +23,25 @@
 
 using namespace std;
 
-inline void create_test_population( sampsim::population *population )
+inline void create_test_population(
+  sampsim::population *population,
+  int number_of_towns = 8,
+  int town_size_min = 5000,
+  int town_size_max = 100000 )
 {
-  sampsim::utilities::verbose = true;
+  sampsim::utilities::verbose = false;
   stringstream stream;
   stream << time( NULL );
   population->set_seed( stream.str() );
+  population->set_number_of_towns( number_of_towns );
+  population->set_town_size_min( town_size_min );
+  population->set_town_size_max( town_size_max );
+  population->set_town_size_shape( 1.0 );
   population->set_mean_household_population( 4 );
   population->set_tile_width( 1 );
-  population->set_number_tiles_x( 10 );
-  population->set_number_tiles_y( 10 );
-  population->get_population_density()->set_b00( 100 );
-  population->set_disease_pockets( 3 );
+  population->set_number_of_tiles_x( 10 );
+  population->set_number_of_tiles_y( 10 );
+  population->set_number_of_disease_pockets( 3 );
   population->generate();
 }
 

@@ -50,15 +50,21 @@
  */
 namespace sampsim
 {
+  class town;
   class tile;
   class building;
   class household;
   class individual;
 
   /**
+   * @typedef town_list_type
+   */
+  typedef std::vector< town* > town_list_type;
+
+  /**
    * @typedef tile_list_type
    */
-  typedef std::map< std::pair< int, int >, tile* > tile_list_type;
+  typedef std::map< std::pair< unsigned int, unsigned int >, tile* > tile_list_type;
 
   /**
    * @typedef building_list_type
@@ -171,12 +177,9 @@ namespace sampsim
      * 
      * This function will prefix the output with the application's running time
      */
-    inline static void output( std::string message, ... )
+    inline static void output( std::string message, va_list args )
     {
-      va_list args;  // Pointer to optional arguments
-      va_start( args, message );
-      
-      char buffer[256];
+      char buffer[512];
       vsprintf( buffer, message.c_str(), args );
 
       double elapsed = (float)( clock() - utilities::start_time ) / CLOCKS_PER_SEC;
@@ -187,6 +190,18 @@ namespace sampsim
       sprintf( time, "[%d:%02d:%05.2f]", hours, minutes, seconds );
 
       std::cout << time << " " << buffer << std::endl;
+    }
+
+    /**
+     * Outputs text to the standard output
+     * 
+     * This function will prefix the output with the application's running time
+     */
+    inline static void output( std::string message, ... )
+    {
+      va_list args;  // Pointer to optional arguments
+      va_start( args, message );
+      utilities::output( message, args );
     }
 
     /**
@@ -321,12 +336,12 @@ namespace sampsim
     }
 
     /**
-     * Returns a random value between 0.0 and 1.0, inclusive
+     * Returns a random value in [0, 1)
      */
     inline static double random()
     {
       return static_cast< double >( random_engine() - random_engine.min() ) /
-             static_cast< double >( random_engine.max() - random_engine.min() );
+             static_cast< double >( random_engine.max() - random_engine.min() + 1 );
     }
 
     /**
@@ -361,7 +376,7 @@ namespace sampsim
     /**
      * A running household count used to identify households in CSV output files
      */
-    static int household_index;
+    static unsigned int household_index;
 
     /**
      * A clock used to track execution time

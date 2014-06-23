@@ -42,7 +42,13 @@ namespace sampsim
   {
     return NULL == this->parent ? NULL : this->parent->get_tile();
   }
-  
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  town* individual::get_town() const
+  {
+    return NULL == this->parent ? NULL : this->parent->get_town();
+  }
+
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   population* individual::get_population() const
   {
@@ -54,7 +60,7 @@ namespace sampsim
   {
     this->age = sampsim::get_age_type( json["age"].asString() );
     this->sex = sampsim::get_sex_type( json["sex"].asString() );
-    this->disease = 1 == json["disease"].asInt();
+    this->disease = 1 == json["disease"].asUInt();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

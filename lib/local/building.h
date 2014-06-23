@@ -24,6 +24,7 @@ namespace sampsim
 {
   class household;
   class population;
+  class town;
   class tile;
 
   /**
@@ -34,18 +35,22 @@ namespace sampsim
    * Populations are organized into a tree such that all nodes are responsible for creating,
    * generating and deleting their children.  The structure is as follows:
    * - population
-   *   + list of n by m tiles
-   *     - list of buildings in tile
-   *       + list of households in building
-   *         - list of individuals belonging to household
+   *   + list of towns in population
+   *     - list of n by m tiles
+   *       + list of buildings in tile
+   *         - list of households in building
+   *           + list of individuals belonging to household
    * 
    * Buildings belong to one and only one tile based on its position.  They contain a list of
    * households which are in the building.  When a building is selected the selection state of
-   * its households are unchanged.  When unselecting a building all households contained within
-   * the building are also unselected.
+   * its households are unchanged but its parent town is also selected.  When unselecting a
+   * building all households contained within the building are also unselected but its parent
+   * town is NOT unselected.
    */
   class building : public model_object
   {
+    friend class tile;
+
   public:
     /**
      * Constructor
@@ -60,6 +65,11 @@ namespace sampsim
     * Deletes all households belonging to this building.
     */
     ~building();
+
+    /**
+     * Returns the name of the object's class
+     */
+    std::string get_name() const { return "building"; }
 
     /**
      * Iterator access to child households
@@ -99,19 +109,98 @@ namespace sampsim
     tile* get_tile() const { return this->parent; }
 
     /**
+     * Returns the building's parent tile
+     */
+    town* get_town() const;
+
+    /**
      * Returns the population that the building belongs to
      */
     population* get_population() const;
 
     /**
-     * Generate the building and create all households belonging to it
+     * Get the number of individuals in the building
      * 
-     * This method will generate the building according to its population's parameters.  A position within
-     * the parent tile's bounds (including the lower bounds and up but not including the upper bounds) is
-     * randomly determined and a list of households within the building are generated.  Currently the
-     * simulation defines exactly one household per building, but this may change in future development.
+     * Returns a sum of all individuals in all households in the building.  This method iterates over
+     * all households every time it is called, so it should only be used when re-counting is necessary.
+     * A building contains no households (so no individuals) until its create() method is called.
      */
-    void generate();
+    unsigned int count_individuals() const;
+
+    /**
+     * Get the position of the building
+     * 
+     * The building's position is determined by the create() method and always falls inside its
+     * parent tile's bounds.
+     */
+    coordinate get_position() const { return this->position; }
+
+    /**
+     * Returns the building's pocket factor
+     * 
+     * This parameter is calculated based on the building's location relative to all pockets in the
+     * simulation.
+     */
+    double get_pocket_factor() const { return this->pocket_factor; }
+
+    /**
+     * Returns whether the building is selected or not
+     * 
+     * Selection works in the following manner: selecting an object also selects its parent but not its
+     * children.  Unselecting an object also unselects its children but not its parent.  This mechanism
+     * therefore defines "selection" as true if any of its children are selected, and allows for
+     * unselecting all children by unselecting the object.  Only towns, buildings, households and
+     * individuals may be selected/unselected.
+     */
+    bool is_selected() const { return this->selected; }
+
+    /**
+     * Selects the building
+     * 
+     * This will also select the parent town.
+     */
+    void select();
+
+    /**
+     * Unselectes the building
+     * 
+     * This will also unselect all households contained within this building.
+     */
+    void unselect();
+
+    /**
+     * A static function which describes how to sort buildings by their x position.
+     * 
+     * This function is used by the building_tree class in order to sort buildings by their position.
+     */
+    static bool sort_by_x( building* a, building* b ) { return a->get_position().x < b->get_position().x; }
+
+    /**
+     * A static function which describes how to sort buildings by their y position.
+     * 
+     * This function is used by the building_tree class in order to sort buildings by their position.
+     */
+    static bool sort_by_y( building* a, building* b ) { return a->get_position().y < b->get_position().y; }
+
+  protected:
+    /**
+     * Create all households belonging to the building
+     * 
+     * This method will create the building according to its internal parameters.  The method
+     * creates households but does not define their properties.  After calling this function all individuals
+     * belonging to the building will exist but without parameters such as income, disease status,
+     * disease risk, etc.
+     */
+    void create();
+
+    /**
+     * Define all parameters for all households belonging to the building
+     * 
+     * This method will determine all factors such as income, disease status, disease risk, etc for
+     * all individuals belonging to the building.  If this method is called before the individuals
+     * have been created nothing will happen.
+     */
+    void define();
 
     /**
      * Deserialize the building
@@ -136,68 +225,6 @@ namespace sampsim
      * Two streams are expected, the first is for household data and the second for individual data.
      */
     virtual void to_csv( std::ostream&, std::ostream& ) const;
-
-    /**
-     * Get the number of individuals in the building
-     * 
-     * Returns a sum of all individuals in all households in the building.  This method iterates over
-     * all households every time it is called, so it should only be used when re-counting is necessary.
-     * A building contains no households (so no population) until its generate() method is called.
-     */
-    int count_population() const;
-
-    /**
-     * Get the position of the building
-     * 
-     * The building's position is determined by the generate() method and always falls inside its
-     * parent tile's bounds.
-     */
-    coordinate get_position() const { return this->position; }
-
-    /**
-     * Returns the building's pocket factor
-     * 
-     * This parameter is calculated based on the building's location relative to all pockets in the
-     * simulation.
-     */
-    double get_pocket_factor() const { return this->pocket_factor; }
-
-    /**
-     * Returns whether the building is selected or not
-     * 
-     * Selection works in the following manner: selecting an object also selects its parent but not its
-     * children.  Unselecting an object also unselects its children but not its parent.  This mechanism
-     * therefore defines "selection" as true if any of its children are selected, and allows for
-     * unselecting all children by unselecting the object.  Only buildings, households and individuals
-     * may be selected/unselected.
-     */
-    bool is_selected() const { return this->selected; }
-
-    /**
-     * Selects the building
-     */
-    void select() { this->selected = true; }
-
-    /**
-     * Unselectes the building
-     * 
-     * This will also unselect all households contained within this building.
-     */
-    void unselect();
-
-    /**
-     * A static function which describes how to sort buildings by their x position.
-     * 
-     * This function is used by the building_tree class in order to sort buildings by their position.
-     */
-    static bool sort_by_x( building* a, building* b ) { return a->get_position().x < b->get_position().x; }
-
-    /**
-     * A static function which describes how to sort buildings by their y position.
-     * 
-     * This function is used by the building_tree class in order to sort buildings by their position.
-     */
-    static bool sort_by_y( building* a, building* b ) { return a->get_position().y < b->get_position().y; }
 
   private:
     /**

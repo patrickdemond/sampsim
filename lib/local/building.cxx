@@ -10,6 +10,7 @@
 
 #include "household.h"
 #include "population.h"
+#include "town.h"
 #include "tile.h"
 #include "utilities.h"
 
@@ -27,38 +28,57 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  population* building::get_population() const
-  {
-    return NULL == this->parent ? NULL : this->parent->get_population();
-  }
-
-  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   building::~building()
   {
     // delete all households
     std::for_each( this->household_list.begin(), this->household_list.end(), utilities::safe_delete_type() );
+    this->household_list.empty();
 
     // we're holding a light reference to the parent, don't delete it
     this->parent = NULL;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void building::generate()
+  town* building::get_town() const
+  { 
+    return NULL == this->parent ? NULL : this->parent->get_town();
+  } 
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  population* building::get_population() const
+  {
+    return NULL == this->parent ? NULL : this->parent->get_population();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void building::create()
   {
     // make sure the building has a parent
-    if( NULL == this->parent ) throw std::runtime_error( "Tried to generate an orphaned building" );
+    if( NULL == this->parent ) throw std::runtime_error( "Tried to create an orphaned building" );
 
     // determine the building's position
-    population* pop = this->get_population();
-    coordinate centroid = pop->get_centroid();
+    town* town = this->get_town();
     std::pair< coordinate, coordinate > extent = this->get_tile()->get_extent();
     this->position.x = utilities::random() * ( extent.second.x - extent.first.x ) + extent.first.x;
     this->position.y = utilities::random() * ( extent.second.y - extent.first.y ) + extent.first.y;
-    this->position.set_centroid( pop->get_centroid() );
+    this->position.set_centroid( town->get_centroid() );
+
+    // for now we're only allowing one household per building
+    household *h = new household( this );
+    h->create();
+    this->household_list.push_back( h );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void building::define()
+  {
+    for( auto it = this->household_list.begin(); it != this->household_list.end(); ++it ) (*it)->define();
 
     // determine the pocket factor
+    population* pop = this->get_population();
+    town* town = this->get_town();
     this->pocket_factor = 0.0;
-    for( auto it = pop->get_disease_pocket_list_cbegin(); it != pop->get_disease_pocket_list_cend(); ++it )
+    for( auto it = town->get_disease_pocket_list_cbegin(); it != town->get_disease_pocket_list_cend(); ++it )
     {
       double distance = this->position.distance( *it ) / pop->get_pocket_scaling();
       std::string type = pop->get_pocket_kernel_type();
@@ -81,19 +101,14 @@ namespace sampsim
         throw std::runtime_error( stream.str() );
       }
     }
-
-    // for now we're only allowing one household per building
-    household *h = new household( this );
-    h->generate();
-    this->household_list.push_back( h );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void building::from_json( const Json::Value &json )
   {
     this->position.from_json( json["position"] );
-    this->position.set_centroid( this->get_population()->get_centroid() );
-    
+    this->position.set_centroid( this->get_town()->get_centroid() );
+
     this->household_list.reserve( json["household_list"].size() );
     for( unsigned int c = 0; c < json["household_list"].size(); c++ )
     {
@@ -136,14 +151,21 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  int building::count_population() const
+  unsigned int building::count_individuals() const
   {
     bool sample_mode = this->get_population()->get_sample_mode();
-    int count = 0;
+    unsigned int count = 0;
     for( auto it = this->household_list.begin(); it != this->household_list.end(); ++it )
-      if( !sample_mode || (*it)->is_selected() ) count += (*it)->count_population();
+      if( !sample_mode || (*it)->is_selected() ) count += (*it)->count_individuals();
 
     return count;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void building::select()
+  {
+    this->selected = true;
+    this->get_town()->select();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

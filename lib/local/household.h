@@ -24,6 +24,7 @@ namespace sampsim
   class building;
   class individual;
   class population;
+  class town;
   class tile;
 
   /**
@@ -34,10 +35,11 @@ namespace sampsim
    * Populations are organized into a tree such that all nodes are responsible for creating,
    * generating and deleting their children.  The structure is as follows:
    * - population
-   *   + list of n by m tiles
-   *     - list of buildings in tile
-   *       + list of households in building
-   *         - list of individuals belonging to household
+   *   + list of towns in population
+   *     - list of n by m tiles
+   *       + list of buildings in tile
+   *         - list of households in building
+   *           + list of individuals belonging to household
    * 
    * Households belong to one and only one building.  They contain a list of individuals which live
    * in the household.  When a household is selected the selection state of its individuals are
@@ -47,6 +49,8 @@ namespace sampsim
    */
   class household : public model_object
   {
+    friend class building;
+
   public:
     /**
      * Constructor
@@ -61,6 +65,11 @@ namespace sampsim
     * Deletes all individuals belonging to this household.
     */
     ~household();
+
+    /**
+     * Returns the name of the object's class
+     */
+    std::string get_name() const { return "household"; }
 
     /**
      * Iterator access to child individuals
@@ -105,20 +114,78 @@ namespace sampsim
     tile* get_tile() const;
 
     /**
+     * Returns the town that the household belongs to
+     */
+    town* get_town() const;
+
+    /**
      * Returns the population that the household belongs to
      */
     population* get_population() const;
 
     /**
-     * Generate the household and create all individuals belonging to it
-     * 
-     * This method will generate the household according to its population's parameters.  The
-     * household's position is not explicitely set since all households are located at their
-     * parent building's position.  The number of individuals generated is based on the
-     * population's population density.  Income and disease risk of the household are determined
-     * by the parent building's parent tile's income and disease risk distributions.
+     * Returns the household's income
      */
-    void generate();
+    double get_income() const { return this->income; }
+
+    /**
+     * Returns the household's disease risk factor
+     */
+    double get_disease_risk() const { return this->disease_risk; }
+
+    /**
+     * Returns whether the household is selected or not
+     * 
+     * Selection works in the following manner: selecting an object also selects its parent but not its
+     * children.  Unselecting an object also unselects its children but not its parent.  This mechanism
+     * therefore defines "selection" as true if any of its children are selected, and allows for
+     * unselecting all children by unselecting the object.  Only towns, buildings, households and
+     * individuals may be selected/unselected.
+     */
+    bool is_selected() const { return this->selected; }
+
+    /**
+     * Selects the household
+     * 
+     * This will also select the parent building.
+     */
+    void select();
+
+    /**
+     * Unselects the household
+     * 
+     * This will also unselect all children living in this household
+     */
+    void unselect();
+
+    /**
+     * Get the number of individuals in the household
+     * 
+     * Returns a sum of all individuals in the household.  This method counts the number of individuals
+     * every time it is called, so it should only be used when re-counting is necessary.
+     * A household contains no individuals (so no individuals) until its create() method is called.
+     */
+    unsigned int count_individuals() const;
+
+  protected:
+    /**
+     * Create all individuals belonging to the household
+     * 
+     * This method will create the household according to its internal parameters.  The method
+     * creates individuals but does not define their properties.  After calling this function all individuals
+     * belonging to the household will exist but without parameters such as income, disease status,
+     * disease risk, etc.
+     */
+    void create();
+
+    /**
+     * Define all parameters for all individuals belonging to the household
+     * 
+     * This method will determine all factors such as income, disease status, disease risk, etc for
+     * all individuals belonging to the household.  If this method is called before the individuals
+     * have been created nothing will happen.
+     */
+    void define();
 
     /**
      * Deserialize the household
@@ -143,50 +210,6 @@ namespace sampsim
      * Two streams are expected, the first is for household data and the second for individual data.
      */
     virtual void to_csv( std::ostream&, std::ostream& ) const;
-
-    /**
-     * Returns the household's income
-     */
-    double get_income() const { return this->income; }
-
-    /**
-     * Returns the household's disease risk factor
-     */
-    double get_disease_risk() const { return this->disease_risk; }
-
-    /**
-     * Returns whether the household is selected or not
-     * 
-     * Selection works in the following manner: selecting an object also selects its parent but not its
-     * children.  Unselecting an object also unselects its children but not its parent.  This mechanism
-     * therefore defines "selection" as true if any of its children are selected, and allows for
-     * unselecting all children by unselecting the object.  Only buildings, households and individuals
-     * may be selected/unselected.
-     */
-    bool is_selected() const { return this->selected; }
-
-    /**
-     * Selects the household
-     * 
-     * This will also select the parent building.
-     */
-    void select();
-
-    /**
-     * Unselects the household
-     * 
-     * This will also unselect all children living in this household
-     */
-    void unselect();
-
-    /**
-     * Get the number of individuals in the household
-     * 
-     * Returns a sum of all individuals in the household.  This method counts the number of individuals
-     * every time it is called, so it should only be used when re-counting is necessary.
-     * A household contains no individuals (so no population) until its generate() method is called.
-     */
-    int count_population() const;
 
   private:
     /**

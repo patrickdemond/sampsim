@@ -67,4 +67,13 @@ TEST( test_sample_gps )
   try { sample1->write( temp_sample_filename.str(), false ); }
   catch(...) { CHECK( false ); }
   temp_sample_filename << ".json";
+
+  // clean up
+  remove( temp_population_filename.str().c_str() );
+  remove( temp_sample_filename.str().c_str() );
+  remove( individual_filename.c_str() );
+  remove( household_filename.c_str() );
+  sampsim::utilities::safe_delete( population );
+  sampsim::utilities::safe_delete( sample1 );
+  sampsim::utilities::safe_delete( sample2 );
 }

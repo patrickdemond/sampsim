@@ -3,7 +3,7 @@ PROJECT( sampsim )
 
 # Set the version
 SET( SAMPSIM_VERSION_MAJOR 0 )
-SET( SAMPSIM_VERSION_MINOR 1 )
+SET( SAMPSIM_VERSION_MINOR 2 )
 SET( SAMPSIM_VERSION_PATCH 0 )
 
 # Look in the build directory for cmake modules
@@ -37,10 +37,10 @@ CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_strip_epi_config
 
 SET( SAMPSIM_EXECUTABLES
   generate
-  arc_epi_sample
-  gps_sample
-  random_sample
-  strip_epi_sample
+#  arc_epi_sample
+#  gps_sample
+#  random_sample
+#  strip_epi_sample
 )
 
 # Include library paths
@@ -59,7 +59,7 @@ FOREACH( EXECUTABLE ${SAMPSIM_EXECUTABLES} )
   ADD_EXECUTABLE( ${EXECUTABLE} ${SAMPSIM_SRC_DIR}/${EXECUTABLE}.cxx )
   TARGET_LINK_LIBRARIES( ${EXECUTABLE}
     ${PROJECT_NAME}
-    ${PROJECT_NAME}_sample
+#    ${PROJECT_NAME}_sample
   )
 ENDFOREACH( EXECUTABLE IN ${SAMPSIM_EXECUTABLES} )
 

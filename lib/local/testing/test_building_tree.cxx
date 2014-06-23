@@ -19,6 +19,7 @@
 #include "building_tree.h"
 #include "population.h"
 #include "tile.h"
+#include "town.h"
 #include "utilities.h"
 
 using namespace std;
@@ -32,21 +33,27 @@ TEST( test_building_tree )
   create_test_population( population );
 
   vector< sampsim::building* > building_list;
-  for( auto tile_it = population->get_tile_list_begin();
-       tile_it != population->get_tile_list_end();
-       ++tile_it )
+  for( auto town_it = population->get_town_list_begin();
+       town_it != population->get_town_list_end();
+       ++town_it )
   {
-    sampsim::tile *tile = tile_it->second;
-    building_list.insert(
-      building_list.begin(),
-      tile->get_building_list_begin(),
-      tile->get_building_list_end() );
+    sampsim::town *town = *town_it;
+    for( auto tile_it = town->get_tile_list_begin();
+         tile_it != town->get_tile_list_end();
+         ++tile_it )
+    {
+      sampsim::tile *tile = tile_it->second;
+      building_list.insert(
+        building_list.begin(),
+        tile->get_building_list_begin(),
+        tile->get_building_list_end() );
 
+    }
   }
 
   sampsim::building *b;
   sampsim::building_tree tree = sampsim::building_tree( building_list );
-  
+
   sampsim::coordinate test_coords[] =
   {
     sampsim::coordinate( 7.5, 0.0 ),

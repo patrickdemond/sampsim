@@ -61,7 +61,7 @@ namespace sampsim
     node* parent_node = remove_node->parent;
     building_list_type building_list;
     building_tree::get_building_list( remove_node, building_list );
-    
+
     // special case: if the parent node is the root node and the building list is empty then
     // rebuild the entire tree (for balancing purposes)
     if( parent_node == this->root_node && 0 == building_list.size() )
@@ -98,7 +98,7 @@ namespace sampsim
       stream << spacer << "left: " << building_tree::to_string( current_node->left );
     if( NULL != current_node->right )
       stream << spacer << "right: " << building_tree::to_string( current_node->right );
-    
+
     return stream.str();
   }
 

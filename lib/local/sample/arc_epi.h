@@ -49,6 +49,11 @@ namespace sample
     arc_epi() : arc_angle( 0 ) {}
 
     /**
+     * Returns the name of the object's class
+     */
+    std::string get_name() const { return "arc_epi"; }
+
+    /**
      * Returns the name of the sampling method
      */
     virtual std::string get_type() const { return "arc EPI"; }

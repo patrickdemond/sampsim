@@ -11,6 +11,8 @@
 
 #include "base_object.h"
 
+#include "pareto.h"
+
 #include <random>
 
 /**
@@ -26,7 +28,7 @@ namespace sampsim
    * @brief A distribution object which encapsulates multiple statistical distributions
    * @details
    * Distribution objects provide random values which conform to a particular distribution such
-   * as normal, log-normal, poisson and weibull distributions.
+   * as normal, log-normal, pareto, poisson and weibull distributions.
    */
   class distribution : public base_object
   {
@@ -40,6 +42,7 @@ namespace sampsim
       UNKNOWN = 0,
       LOGNORMAL,
       NORMAL,
+      PARETO,
       POISSON,
       WEIBULL
     };
@@ -51,6 +54,7 @@ namespace sampsim
     {
       if( "lognormal" == name ) return LOGNORMAL;
       else if( "normal" == name ) return NORMAL;
+      else if( "pareto" == name ) return PARETO;
       else if( "poisson" == name ) return POISSON;
       else if( "weibull" == name ) return WEIBULL;
       return UNKNOWN;
@@ -63,6 +67,7 @@ namespace sampsim
     {
       if( LOGNORMAL == distribution_type ) return "lognormal";
       else if( NORMAL == distribution_type ) return "normal";
+      else if( PARETO == distribution_type ) return "pareto";
       else if( POISSON == distribution_type ) return "poisson";
       else if( WEIBULL == distribution_type ) return "weibull";
       return "unknown";
@@ -72,6 +77,11 @@ namespace sampsim
      * Constructor
      */
     distribution() : distribution_type( distribution::UNKNOWN ) {}
+
+    /**
+     * Returns the name of the object's class
+     */
+    std::string get_name() const { return "distribution"; }
 
     /**
      * Returns the distribution's type code
@@ -98,6 +108,15 @@ namespace sampsim
      * See http://www.cplusplus.com/reference/random/normal_distribution/ for more details.
      */
     virtual void set_normal( const double m = 0.0, const double s = 1.0 );
+
+    /**
+     * Sets the distribution type to a pareto distribution
+     * 
+     * The input parameters relate to the pareto minimum value (b), shape parameter (a) and
+     * maximum (truncated) value (max).
+     * See http://en.wikipedia.org/wiki/Pareto_distribution for more details.
+     */
+    virtual void set_pareto( const double b = 1.0, const double a = 1.0, const double max = 0 );
 
     /**
      * Sets the distribution type to a poisson distribution
@@ -160,6 +179,11 @@ namespace sampsim
      * A reference to the internal object which provides random values from a normal distribution
      */
     std::normal_distribution<double> normal;
+
+    /**
+     * A function which returns random values from a pareto distribution
+     */
+    sampsim::pareto pareto;
 
     /**
      * A reference to the internal object which provides random values from a poisson distribution
