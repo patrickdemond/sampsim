@@ -416,7 +416,7 @@ namespace sampsim
   {
     if( utilities::verbose ) utilities::output( "setting population density slope to %f, %f", mx, my );
     this->population_density_slope[0] = mx;
-    this->population_density_slope[0] = my;
+    this->population_density_slope[1] = my;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
