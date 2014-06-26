@@ -50,8 +50,8 @@ int main( const int argc, const char** argv )
   opts.add_option( "tile_x", "1", "Number of tiles in the horizontal direction" );
   opts.add_option( "tile_y", "1", "Number of tiles in the vertical direction" );
   opts.add_option( "tile_width", "1", "Width of a tile in kilometers" );
-  opts.add_option( "popdens_mx", "0", "Population density trend's X coefficient" );
-  opts.add_option( "popdens_my", "0", "Population density trend's Y coefficient" );
+  opts.add_option( "popdens_mx", "0", "Population density trend's X coefficient (must be [-1,1])" );
+  opts.add_option( "popdens_my", "0", "Population density trend's Y coefficient (must be [-1,1])" );
   opts.add_option( "mean_household_pop", "4", "Mean number of individuals per household" );
   opts.add_option( "disease_pockets", "0", "Number of disease pockets to generate" );
   opts.add_option( "pocket_kernel_type", "exponential", "Number of disease pockets to generate" );

@@ -52,14 +52,16 @@ tile_y: 10
 tile_width: 3.5
 
 #
-# The trend coefficients used to determine mean population density of each tile
+# The normalized trend coefficients used to determine mean population density of each tile
 # Mean population density is a function of tile centroid position and is determined as follows:
-#   P(x,y) = b + mx( x - wx/2 ) + my( y - my/2 )
-# Where b is the base population density defined by the town's target population, and wx and wy
-# is width and depth of of the town.
+#   P(x,y) = (b*mx/wx)*x + (b*my/wx)*y + b
+# Where mx and my are the normalized population density trend coefficients, b is the base population
+# density defined by the town's target population, wx and wy are the width and depth of of the town
+# and x, y is defined such that the centre of the town is at # (0, 0).
+# Slopes must be in [-1,1] and any values outside that range will result in an error.
 #
-popdens_mx: 1
-popdens_my: 1
+popdens_mx: 0
+popdens_my: 0
 
 #
 # The number of disease pockets to generate
@@ -67,7 +69,7 @@ popdens_my: 1
 # will have a disease (based on the selected picket kernel type).
 # Disease pockets are randomly placed within the bounds of the population
 #
-disease_pockets: 0
+disease_pockets: 4
 
 #
 # The influence function used by disease pockets

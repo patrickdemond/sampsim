@@ -90,14 +90,15 @@ namespace sampsim
         utilities::output( "creating town with target size of %d individuals", individuals );
 
       // determine the base population density for this town
-      double b00 = individuals / this->tile_width / this->tile_width
-                               / this->number_of_tiles_x / this->number_of_tiles_y;
-      double b01 = this->population_density_slope[0];
-      double b10 = this->population_density_slope[1];
+      double town_x_width = this->tile_width * this->number_of_tiles_x;
+      double town_y_width = this->tile_width * this->number_of_tiles_y;
+
+      double b00 = individuals / town_x_width / town_y_width;
+      double b01 = b00 * this->population_density_slope[0] / town_x_width;
+      double b10 = b00 * this->population_density_slope[1] / town_y_width;
 
       // now make sure this is the value at the centre of the town
-      b00 -= b01 * this->tile_width * this->number_of_tiles_x / 2 +
-             b10 * this->tile_width * this->number_of_tiles_y / 2;
+      b00 -= b01 * town_x_width / 2 + b10 * town_y_width / 2;
 
       trend* population_density = t->get_population_density();
       population_density->set_b00( b00 );
@@ -412,8 +413,30 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void population::set_population_density_slope( const double mx, const double my )
+  void population::set_population_density_slope( double mx, double my )
   {
+    if( -1 > mx )
+    {
+      utilities::output( "warning: tried to set popdens_mx to %f, forcing minimum value of -1", mx );
+      mx = -1;
+    }
+    else if( 1 < mx )
+    {
+      utilities::output( "warning: tried to set popdens_mx to %f, forcing maximum value of 1", mx );
+      mx = 1;
+    }
+
+    if( -1 > my )
+    {
+      utilities::output( "warning: tried to set popdens_my to %f, forcing minimum value of -1", my );
+      my = -1;
+    }
+    else if( 1 < my )
+    {
+      utilities::output( "warning: tried to set popdens_my to %f, forcing maximum value of 1", my );
+      my = 1;
+    }
+
     if( utilities::verbose ) utilities::output( "setting population density slope to %f, %f", mx, my );
     this->population_density_slope[0] = mx;
     this->population_density_slope[1] = my;

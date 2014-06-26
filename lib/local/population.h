@@ -185,8 +185,11 @@ namespace sampsim
 
     /**
      * Sets the x and y slopes of the population density
+     * 
+     * Note that both values must be in the range [-1, 1].  Trying to set values outside of this
+     * range will show a warning and constrain the value to within the valid range.
      */
-    void set_population_density_slope( const double mx, const double my );
+    void set_population_density_slope( double mx, double my );
 
     /**
      * Creates the provided number of disease pockets.
