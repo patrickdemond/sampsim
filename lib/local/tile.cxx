@@ -50,17 +50,33 @@ namespace sampsim
       utilities::output( "creating tile at %d, %d", this->index.first , this->index.second );
 
     // need to keep creating buildings until the population density is met
+    // to avoid over-populating a town we want half of the tile to stop adding buildings just after
+    // they meet the density and the other half to stop adding buildings just before they meet the
+    // density
     unsigned int count = 0;
     unsigned int total_individuals = 0;
-    while( static_cast< double >( total_individuals ) / this->get_area() < this->population_density )
+    double current_density = 0;
+    double area = this->get_area();
+    bool stop_after = 0 != ( this->index.first + this->index.second ) % 2;
+
+    while( current_density < this->population_density )
     {
       // create the building
       building *b = new building( this );
       b->create();
       total_individuals += b->count_individuals();
+      current_density = static_cast< double >( total_individuals ) / area;
 
-      // store it in the building list
-      this->building_list.push_back( b );
+      // store it in the building list, but not if we are not stopping after the density is met
+      // and this is the last building to be added
+      if( !stop_after && current_density >= this->population_density )
+      {
+        utilities::safe_delete( b );
+      }
+      else
+      {
+        this->building_list.push_back( b );
+      }
     }
 
     if( utilities::verbose )
