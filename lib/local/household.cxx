@@ -99,7 +99,9 @@ namespace sampsim
     // income and disease are Normal deviates from the tile average
     tile *tile = this->get_tile();
     this->income = tile->get_income_distribution()->generate_value();
+    this->debug( "setting income to %f", this->income );
     this->disease_risk = tile->get_disease_risk_distribution()->generate_value();
+    this->debug( "setting disease risk to %f", this->disease_risk );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
