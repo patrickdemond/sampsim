@@ -110,7 +110,17 @@ namespace sampsim
     population *pop = this->get_population();
 
     // define all tiles
-    for( auto it = this->tile_list.begin(); it != this->tile_list.end(); ++it ) it->second->define();
+    for( auto it = this->tile_list.begin(); it != this->tile_list.end(); ++it )
+    {
+      // set the income and disease risk then define the tile
+      tile *t = it->second;
+      coordinate centroid = t->get_centroid();
+      t->set_mean_income( this->mean_income->get_value( centroid ) );
+      t->set_sd_income( this->sd_income->get_value( centroid ) );
+      t->set_mean_disease( this->mean_disease->get_value( centroid ) );
+      t->set_sd_disease( this->sd_disease->get_value( centroid ) );
+      t->define();
+    }
 
     // now that the town has been created and all tiles defined we can determine disease status
     // we are going to do this in a standard generalized-linear-model way, by constructing a linear
@@ -134,14 +144,6 @@ namespace sampsim
          tile_it != this->tile_list.end();
          ++tile_it )
     {
-      // create and define the income and disease risk
-      tile *t = tile_it->second;
-      coordinate centroid = t->get_centroid();
-      t->set_mean_income( this->mean_income->get_value( centroid ) );
-      t->set_sd_income( this->sd_income->get_value( centroid ) );
-      t->set_mean_disease( this->mean_disease->get_value( centroid ) );
-      t->set_sd_disease( this->sd_disease->get_value( centroid ) );
-
       for( auto building_it = tile_it->second->get_building_list_cbegin();
            building_it != tile_it->second->get_building_list_cend();
            ++building_it )
