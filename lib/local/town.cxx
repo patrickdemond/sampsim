@@ -134,6 +134,14 @@ namespace sampsim
          tile_it != this->tile_list.end();
          ++tile_it )
     {
+      // create and define the income and disease risk
+      tile *t = tile_it->second;
+      coordinate centroid = t->get_centroid();
+      t->set_mean_income( this->mean_income->get_value( centroid ) );
+      t->set_sd_income( this->sd_income->get_value( centroid ) );
+      t->set_mean_disease( this->mean_disease->get_value( centroid ) );
+      t->set_sd_disease( this->sd_disease->get_value( centroid ) );
+
       for( auto building_it = tile_it->second->get_building_list_cbegin();
            building_it != tile_it->second->get_building_list_cend();
            ++building_it )
