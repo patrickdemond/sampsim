@@ -23,6 +23,17 @@ You will need the jsoncpp development libraries.  You can download these from th
 website or install them using your distro's package manager (try package libjsoncpp-dev)
 
 
+Optional Libraries
+==================
+
+Gnuplot (gnuplot.info)
+----------------------
+By installing this package you will be provided with an additional option (--plot) which will
+plot populations and samples and write them to disk.  You can download this package from the
+Gnuplot website or install it using your distro's package manager (try packages gnuplot and
+gnuplot-qt).
+
+
 Building sampsim
 ================
 

@@ -16,6 +16,9 @@ SET( SAMPSIM_LIB_DIR     ${SAMPSIM_ROOT_DIR}/lib )
 SET( SAMPSIM_DOC_DIR     ${SAMPSIM_ROOT_DIR}/doc )
 SET( SAMPSIM_DOXY_DIR    ${PROJECT_BINARY_DIR}/doxygen )
 
+# See if gnuplot is installed
+FIND_PACKAGE( Gnuplot QUIET )
+
 # Build libs
 SUBDIRS( ${SAMPSIM_LIB_DIR} )
 

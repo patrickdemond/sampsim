@@ -23,6 +23,8 @@
 #define SAMPSIM_AUX_DIR "@SAMPSIM_AUX_DIR@"
 #define SAMPSIM_SRC_DIR "@SAMPSIM_SRC_DIR@"
 
+#define GNUPLOT_AVAILABLE @GNUPLOT_AVAILABLE@
+
 #include <algorithm>
 #include <ctime>
 #include <cctype>

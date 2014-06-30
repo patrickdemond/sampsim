@@ -3,6 +3,12 @@ SET( SAMPSIM_LIB_NAME "${PROJECT_NAME}" )
 # Find required packages
 FIND_PACKAGE( JSONCpp REQUIRED )
 
+IF( GNUPLOT_FOUND )
+  SET( GNUPLOT_AVAILABLE "true" )
+ELSE( GNUPLOT_FOUND )
+  SET( GNUPLOT_AVAILABLE "false" )
+ENDIF( GNUPLOT_FOUND )
+
 # Configure the utitlities header
 CONFIGURE_FILE( utilities.h.in
                 ${CMAKE_CURRENT_BINARY_DIR}/utilities.h @ONLY IMMEDIATE )

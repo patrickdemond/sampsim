@@ -38,6 +38,8 @@ int main( const int argc, const char** argv )
 
   // define general parameters
   opts.add_flag( 'f', "flat_file", "Whether to output data in two CSV files instead of JSON data" );
+  if( GNUPLOT_AVAILABLE )
+    opts.add_flag( 'p', "plot", "Whether to create a plot of the population (will create a flat-file)" );
   opts.add_flag( 'v', "verbose", "Be verbose when generating population" );
 
   // define population parameters
@@ -254,13 +256,51 @@ int main( const int argc, const char** argv )
 
             population->generate();
 
-            // only write the population to a file if we are not sampling
+            bool flat = opts.get_flag( "flat_file" );
+            bool plot = opts.get_flag( "plot" );
+
             if( 0 >= batch_nsamp )
             {
-              population->write( population_filename, opts.get_flag( "flat_file" ) );
+              // create a json file no flat file was requested
+              if( !flat ) population->write( population_filename, false );
+              
+              // create a flat file if a flat file or plot was requested
+              if( flat || plot ) population->write( population_filename, true );
+
+              // plot the flat file if requested to
+              if( plot )
+              {
+                std::stringstream stream;
+                stream
+                   << "gnuplot -p -e "
+                   <<   "'set title \"Household plot of \\\"" << population_filename << "\\\"\" "
+                   <<      "font \"sans, 18\"; "
+                   <<    "set xlabel \"Position (km)\"; "
+                   <<    "set ylabel \"Position (km)\"; "
+                   <<    "set datafile separator \",\"; "
+                   <<    "set key at 35.5, 36.5; "
+                   <<    "unset colorbox; "
+                   <<    "set palette model RGB defined ( 0 0 0 1, 1 1 0 0 ); "
+                   <<    "set term pngcairo size 1200,1230; "
+                   <<    "set output \"" << population_filename << ".png\"; "
+                   <<    "plot \"" << population_filename << ".household.csv\" "
+                   <<      "using 3:4:($8/2):10 palette pt 6 ps variable title \"household\"'";
+
+                std::string result = sampsim::utilities::exec( stream.str() );
+
+                stream.str( "" );
+                if( "ERROR" == result )
+                  stream << "warning: failed to create plot";
+                else
+                  stream << "creating plot file \"" << population_filename << ".png\"";
+                sampsim::utilities::output( stream.str() );
+              }
             }
             else
             {
+              // only create a flat file is a plot was requested
+              if( plot ) population->write( population_filename, true );
+
               // determine which sampler to use and set up the options for it
               const char* sampler_argv[3];
               sampler_argv[0] = batch_sampler.c_str();
@@ -343,7 +383,43 @@ int main( const int argc, const char** argv )
                 else sample_filename = population_filename;
 
                 sample->generate();
-                sample->write( sample_filename, opts.get_flag( "flat_file" ) );
+
+                // create a json file no flat file was requested
+                if( !flat ) sample->write( sample_filename, false );
+
+                // create a flat file if a flat file or plot was requested
+                if( flat || plot ) sample->write( sample_filename, true );
+
+                // plot the flat file if requested to
+                if( plot )
+                {
+                  std::stringstream stream;
+                  stream
+                     << "gnuplot -p -e "
+                     <<   "'set title \"Household plot of \\\"" << sample_filename << "\\\"\" "
+                     <<      "font \"sans, 18\"; "
+                     <<    "set xlabel \"Position (km)\"; "
+                     <<    "set ylabel \"Position (km)\"; "
+                     <<    "set datafile separator \",\"; "
+                     <<    "set key at 35.5, 36.5; "
+                     <<    "unset colorbox; "
+                     <<    "set palette model RGB defined ( 0 0 0 1, 1 1 0 0 ); "
+                     <<    "set term pngcairo size 1200,1230; "
+                     <<    "set output \"" << sample_filename << ".png\"; "
+                     <<    "plot \"" << population_filename << ".household.csv\" using 3:4:($8/2):10 "
+                     <<      "palette pt 6 ps variable title \"household\", "
+                     <<    "\"" << sample_filename << ".household.csv\" using 3:4 "
+                     <<      "lc rgb \"black\" pt 3 ps 1.5 title \"sampled\"'";
+
+                  std::string result = sampsim::utilities::exec( stream.str() );
+
+                  stream.str( "" );
+                  if( "ERROR" == result )
+                    stream << "warning: failed to create plot";
+                  else
+                    stream << "creating plot file \"" << sample_filename << ".png\"";
+                  sampsim::utilities::output( stream.str() );
+                }
               }
             }
           }
