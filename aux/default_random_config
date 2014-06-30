@@ -29,7 +29,7 @@ size: 100
 #
 # Whether to restrict sampling to adult, child or either
 #
-age: children
+age: child
 
 #
 # Whether to restrict sampling to male, female or either
