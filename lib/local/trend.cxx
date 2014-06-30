@@ -58,6 +58,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void trend::initialize_distributions()
   {
+    this->debug( "initialize_distributions()" );
     for( unsigned int index = 0; index < 6; index++ )
     {
       this->dist[index].set_normal(
@@ -76,7 +77,7 @@ namespace sampsim
                    this->get_b02() * c.x * c.x +
                    this->get_b20() * c.y * c.y +
                    this->get_b11() * c.x * c.y;
-    this->debug( "get_value( coordinate = (%f,%f) ) = %f", c.x, c.y, value );
+    this->debug( "get_value( coordinate = (%f,%f) ) = %s = %f", c.x, c.y, this->to_string().c_str(), value );
     return value;
   }
 
@@ -153,6 +154,9 @@ namespace sampsim
       throw std::runtime_error( stream.str() );
     }
 
+    this->debug(
+      "set_coefficient( index=%d, value=%f, regression=%f, variance=%f )",
+      index, value, regression, variance );
     this->b[index][0] = value;
     this->b[index][1] = regression;
     this->b[index][2] = variance;
