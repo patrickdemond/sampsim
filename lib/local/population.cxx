@@ -355,7 +355,8 @@ namespace sampsim
     individual_stream << stream.str();
 
     // put in the csv headers
-    household_stream << "town_index,household_index,x,y,r,a,individuals,income,disease_risk" << std::endl;
+    household_stream << "town_index,household_index,x,y,r,a,individuals,income,disease_risk,disease"
+                     << std::endl;
     individual_stream << "town_index,household_index,sex,age,disease" << std::endl;
 
     for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )

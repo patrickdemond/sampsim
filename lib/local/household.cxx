@@ -152,9 +152,10 @@ namespace sampsim
     this->get_building()->get_position().to_csv( household_stream, individual_stream );
     household_stream << "," << this->count_individuals()
                      << "," << this->income << ","
-                     << this->disease_risk << std::endl;
+                     << this->disease_risk;
 
     // write all individuals in this household to the individual stream
+    bool disease = false;
     bool sample_mode = this->get_population()->get_sample_mode();
     for( auto it = this->individual_list.begin(); it != this->individual_list.end(); ++it )
     {
@@ -162,10 +163,14 @@ namespace sampsim
       if( !sample_mode || i->is_selected() )
       {
         individual_stream << town_index << "," << utilities::household_index << ",";
+        if( !disease ) disease = i->is_disease();
         i->to_csv( household_stream, individual_stream );
         individual_stream << std::endl;
       }
     }
+
+    // finish writing the household stream
+    household_stream << "," << ( disease ? "1" : "0" ) << std::endl;
 
     utilities::household_index++;
   }
