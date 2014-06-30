@@ -126,7 +126,7 @@ namespace sampsim
     // we are going to do this in a standard generalized-linear-model way, by constructing a linear
     // function of the various contributing factors
 
-    // create a matrix of all participants (rows) and their various disease predictor factors
+    // create a matrix of all individuals (rows) and their various disease predictor factors
     const unsigned int number_of_individuals = this->count_individuals();
     const unsigned int number_of_disease_weights = pop->get_number_of_disease_weights();
     double value[number_of_disease_weights], total[number_of_disease_weights];
