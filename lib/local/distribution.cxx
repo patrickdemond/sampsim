@@ -74,6 +74,41 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  std::string distribution::to_string()
+  {
+    std::stringstream stream;
+    stream << this->get_type_name();
+
+    if( distribution::LOGNORMAL == this->distribution_type )
+    {
+      stream << "( mean=" << this->lognormal.m()
+             << ", sd=" << this->lognormal.s() << " )";
+    }
+    else if( distribution::NORMAL == this->distribution_type )
+    {
+      stream << "( mean=" << this->normal.mean()
+             << ", stddev=" << this->normal.stddev() << " )";
+    }
+    else if( distribution::PARETO == this->distribution_type )
+    {
+      stream << "( b=" << this->pareto.b()
+             << ", a=" << this->pareto.a()
+             << ", max=" << this->pareto.max() << " )";
+    }
+    else if( distribution::POISSON == this->distribution_type )
+    {
+      stream << "( mean=" << this->poisson.mean() << " )";
+    }
+    else if( distribution::WEIBULL == this->distribution_type )
+    {
+      stream << "( a=" << this->weibull.a()
+             << ", b=" << this->weibull.b() << " )";
+    }
+
+    return stream.str();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void distribution::from_json( const Json::Value &json )
   {
     distribution::type type = distribution::get_type( json["type"].asString() );

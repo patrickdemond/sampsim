@@ -140,6 +140,11 @@ namespace sampsim
     double generate_value();
 
     /**
+     * Returns the trend as a string representation
+     */
+    std::string to_string();
+
+    /**
      * Deserialize the distribution
      * 
      * All objects must provide an implementation for converting themselves to and from a
