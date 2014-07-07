@@ -1,3 +1,2 @@
-Uncomment batch mode operations in src/generate
 Use a polynomial function to allow for multiple clusters to be included in a single sample (set number of towns in sample as a parameter)
 Test nested config files
