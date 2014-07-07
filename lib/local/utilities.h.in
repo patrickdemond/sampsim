@@ -23,6 +23,10 @@
 #define SAMPSIM_AUX_DIR "@SAMPSIM_AUX_DIR@"
 #define SAMPSIM_SRC_DIR "@SAMPSIM_SRC_DIR@"
 
+#if __cplusplus <= 199711L
+  #error This library needs at least a C++11 compliant compiler
+#endif
+
 #define GNUPLOT_AVAILABLE @GNUPLOT_AVAILABLE@
 
 #include <algorithm>
