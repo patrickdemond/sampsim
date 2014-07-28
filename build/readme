@@ -83,8 +83,8 @@ Building documentation
    If successful you will now have a doc/html directory in your doxygen directory.  Point a
    web browser to the index.html file in this directory to browse the API documentation.
 
-Building unit testing
-=====================
+Building unit and visualization testing
+=======================================
 
 1. Change the testing boolean in the CMakeCache.txt file:
 
@@ -95,3 +95,9 @@ Building unit testing
    cmake .
    make
    make test
+
+3. To generate visualizations go into the build tree's Testing/visualization directory and run
+   the create command:
+
+   cd Testing/visualization
+   ./create
