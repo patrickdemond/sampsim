@@ -28,6 +28,7 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   sample::sample()
   {
+    this->number_of_samples = 0;
     this->size = 0;
     this->one_per_household = false;
     this->age = ANY_AGE;
@@ -74,103 +75,117 @@ namespace sample
     if( UNKNOWN_SEX_TYPE == this->get_sex() )
       throw std::runtime_error( "Cannot generate sample, sex type is unknown" );
 
-    // select a town to sample (and unselect all towns as we go)
+    // create multinomial function using town populations (and unselect all towns in the process)
     this->population->set_sample_mode( false );
-    sampsim::town *use_town = NULL;
-    int running_count = 0;
-    int target = utilities::random( 1, this->population->count_individuals() );
+    int total_individuals = this->population->count_individuals();
+    std::map< sampsim::town*, double > coefficients;
     for( auto town_it = this->population->get_town_list_cbegin();
          town_it != this->population->get_town_list_cend();
          ++town_it )
     {
       sampsim::town *town = *town_it;
-      running_count += town->count_individuals();
-      if( running_count >= target ) use_town = town;
+      coefficients[town] = town->count_individuals() / total_individuals;
       town->unselect();
     }
     this->population->set_sample_mode( true );
 
-    // if we get here and we haven't selected a town then the total number of individuals in all towns
-    // in the population doesn't appear to be the same as the population's count of individuals
-    if( !use_town )
-      throw std::runtime_error( "Cannot generate sample, mismatch in town/population individual count" );
-
-    // create a list of all buildings in the selected town
-    building_list_type building_list;
-
-    for( auto tile_it = use_town->get_tile_list_cbegin();
-         tile_it != use_town->get_tile_list_cend();
-         ++tile_it )
+    // run selection number_of_samples times
+    for( unsigned int iteration = 0; iteration < this->number_of_samples; iteration++ )
     {
-      for( auto building_it = tile_it->second->get_building_list_cbegin();
-           building_it != tile_it->second->get_building_list_cend();
-           ++building_it )
+      // select a town to sample
+      sampsim::town *use_town = NULL;
+      double lower = 0.0;
+      double target = utilities::random();
+      for( auto it = coefficients.cbegin(); it != coefficients.cend(); ++it )
       {
-        building_list.push_back( *building_it );
-      }
-    }
-
-    // store the building list in a tree
-    sampsim::building_tree tree( building_list );
-
-    utilities::output( "selecting from a list of %d buildings", building_list.size() );
-
-    // keep selecting buildings until we've filled our sample size
-    int individual_count = 0;
-    int household_count = 0;
-    this->first_building = NULL;
-    while( this->get_size() > individual_count )
-    {
-      if( tree.is_empty() )
-      {
-        std::cout << "WARNING: unable to fulfill sample size" << std::endl;
-        break;
+        double upper = lower + it->second;
+        if( lower <= target && target < upper ) use_town = it->first;
+        lower += upper;
       }
 
-      building* b = this->select_next_building( tree );
+      // if we get here and we haven't selected a town then the total number of individuals in all towns
+      // in the population doesn't appear to be the same as the population's count of individuals
+      if( !use_town )
+        throw std::runtime_error( "Cannot generate sample, error in multinomial distribution" );
 
-      // set the first building
-      if( NULL == this->first_building ) this->first_building = b;
+      // create a list of all buildings in the selected town
+      building_list_type building_list;
 
-      int count = 0;
-      // select households within the building (this is step 4 of the algorithm)
-      for( auto household_it = b->get_household_list_begin();
-           household_it != b->get_household_list_end();
-           ++household_it )
+      for( auto tile_it = use_town->get_tile_list_cbegin();
+           tile_it != use_town->get_tile_list_cend();
+           ++tile_it )
       {
-        household *h = *household_it;
-
-        // select individuals within the household
-        for( auto individual_it = h->get_individual_list_begin();
-             individual_it != h->get_individual_list_end();
-             ++individual_it )
+        for( auto building_it = tile_it->second->get_building_list_cbegin();
+             building_it != tile_it->second->get_building_list_cend();
+             ++building_it )
         {
-          individual *i = *individual_it;
-          if( ( ANY_AGE == this->get_age() || this->get_age() == i->get_age() ) &&
-              ( ANY_SEX == this->get_sex() || this->get_sex() == i->get_sex() ) )
+          building_list.push_back( *building_it );
+        }
+      }
+
+      // store the building list in a tree
+      sampsim::building_tree tree( building_list );
+
+      utilities::output( "selecting from a list of %d buildings", building_list.size() );
+
+      // keep selecting buildings until we've filled our sample size
+      int individual_count = 0;
+      int household_count = 0;
+      this->first_building = NULL;
+      while( this->get_size() > individual_count )
+      {
+        if( tree.is_empty() )
+        {
+          std::cout << "WARNING: unable to fulfill sample size" << std::endl;
+          break;
+        }
+
+        building* b = this->select_next_building( tree );
+
+        // set the first building
+        if( NULL == this->first_building ) this->first_building = b;
+
+        int count = 0;
+        // select households within the building (this is step 4 of the algorithm)
+        for( auto household_it = b->get_household_list_begin();
+             household_it != b->get_household_list_end();
+             ++household_it )
+        {
+          household *h = *household_it;
+
+          // select individuals within the household
+          for( auto individual_it = h->get_individual_list_begin();
+               individual_it != h->get_individual_list_end();
+               ++individual_it )
           {
-            i->select();
-            count++;
-            if( this->get_one_per_household() ) break;
+            individual *i = *individual_it;
+            if( ( ANY_AGE == this->get_age() || this->get_age() == i->get_age() ) &&
+                ( ANY_SEX == this->get_sex() || this->get_sex() == i->get_sex() ) )
+            {
+              i->select();
+              count++;
+              if( this->get_one_per_household() ) break;
+            }
+          }
+
+          if( count )
+          {
+            individual_count += count;
+            household_count++;
+
+            // only select another household if we haven't reached our count
+            if( this->get_size() <= individual_count ) break;
           }
         }
-
-        if( count )
-        {
-          individual_count += count;
-          household_count++;
-
-          // only select another household if we haven't reached our count
-          if( this->get_size() <= individual_count ) break;
-        }
+        tree.remove( b );
       }
-      tree.remove( b );
-    }
 
-    utilities::output(
-      "finished generating %s sample, %d households selected",
-      this->get_type().c_str(),
-      household_count );
+      utilities::output(
+        "finished generating %s sample #%d, %d households selected",
+        this->get_type().c_str(),
+        iteration,
+        household_count );
+    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -249,6 +264,13 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void sample::set_number_of_samples( const unsigned int samples )
+  {
+    if( utilities::verbose ) utilities::output( "setting number_of_samples to %d", samples );
+    this->number_of_samples = samples;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sample::set_size( const unsigned int size )
   {
     if( utilities::verbose ) utilities::output( "setting size to %d", size );
@@ -292,6 +314,7 @@ namespace sample
     }
 
     this->seed = json["seed"].asString();
+    this->number_of_samples = json["number_of_samples"].asUInt();
     this->size = json["size"].asUInt();
     this->one_per_household = json["one_per_household"].asBool();
     this->age = sampsim::get_age_type( json["age"].asString() );
@@ -305,6 +328,7 @@ namespace sample
     json = Json::Value( Json::objectValue );
     json["type"] = this->get_type().c_str();
     json["seed"] = this->seed;
+    json["number_of_samples"] = this->number_of_samples;
     json["size"] = this->size;
     json["one_per_household"] = this->one_per_household;
     json["age"] = sampsim::get_age_type_name( this->age );
@@ -323,6 +347,7 @@ namespace sample
            << "." << SAMPSIM_VERSION_PATCH << std::endl;
     stream << "# type: " << this->get_type() << std::endl;
     stream << "# seed: " << this->seed << std::endl;
+    stream << "# number_of_samples: " << this->number_of_samples << std::endl;
     stream << "# size: " << this->size << std::endl;
     stream << "# one_per_household: " << ( this->one_per_household ? "true" : "false" ) << std::endl;
     stream << "# age: " << sampsim::get_age_type_name( this->age ) << std::endl;

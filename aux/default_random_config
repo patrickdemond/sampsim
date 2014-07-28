@@ -22,7 +22,12 @@
 seed: 1
 
 #
-# How many individuals to sample
+# The number of times to sample the population
+#
+samples: 1
+
+#
+# How many individuals to select in each sample
 #
 size: 100
 

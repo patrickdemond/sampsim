@@ -23,7 +23,8 @@ void setup_arc_epi_sample( sampsim::options &opts )
   opts.add_option( "arc_angle", "0.5", "Angle of arc when sampling a line from the centre (in degrees)" );
   opts.add_flag( "one_per_household", "Only sample one individual per household" );
   opts.add_option( "sex", "either", "Restricts sample by sex (\"male\", \"female\" or \"either\")" );
-  opts.add_option( "size", "1000", "The sample's size (in individuals)" );
+  opts.add_option( "samples", "1", "The number of times to sample the population" );
+  opts.add_option( "size", "1000", "How many individuals to select in each sample" );
 }
 
 void parse_arc_epi_sample( sampsim::options &opts, sampsim::sample::arc_epi *sample )
@@ -32,5 +33,6 @@ void parse_arc_epi_sample( sampsim::options &opts, sampsim::sample::arc_epi *sam
   sample->set_arc_angle( opts.get_option_as_double( "arc_angle" ) / 180 * M_PI );
   sample->set_one_per_household( opts.get_flag( "one_per_household" ) );
   sample->set_sex( sampsim::get_sex_type( opts.get_option( "sex" ) ) );
+  sample->set_number_of_samples( opts.get_option_as_int( "samples" ) );
   sample->set_size( opts.get_option_as_int( "size" ) );
 }

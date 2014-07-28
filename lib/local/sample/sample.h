@@ -102,12 +102,22 @@ namespace sample
     std::string get_seed() const { return this->seed; }
 
     /**
-     * Sets the size of the sample (how many individuals to sample)
+     * Sets the number of times to sample the population
+     */
+    void set_number_of_samples( const unsigned int number_of_samples );
+
+    /**
+     * Returns the number of times to sample the population
+     */
+    unsigned int get_number_of_samples() const { return this->number_of_samples; }
+
+    /**
+     * Sets the number of individuals to select per sample
      */
     void set_size( const unsigned int size );
 
     /**
-     * Returns the size of the sample (how many individuals to sample)
+     * Returns the number of individuals to select per sample
      */
     unsigned int get_size() const { return this->size; }
 
@@ -213,7 +223,12 @@ namespace sample
     std::string seed;
 
     /**
-     * The size of the sample (how many individuals to sample)
+     * The number of times to sample the population
+     */
+    unsigned int number_of_samples;
+
+    /**
+     * How many individuals to select in each sample
      */
     unsigned int size;
 

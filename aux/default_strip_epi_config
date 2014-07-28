@@ -22,15 +22,20 @@
 seed: 1
 
 #
+# The number of times to sample the population
+#
+samples: 1
+
+#
+# How many individuals to select in each sample
+#
+size: 100
+
+#
 # The width of the strip (in meters) to use when finding the initial building after selecting
 # a random starting angle
 #
 strip_width: 50
-
-#
-# How many individuals to sample
-#
-size: 100
 
 #
 # Whether to restrict sampling to adult, child or either
