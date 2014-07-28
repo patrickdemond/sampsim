@@ -48,6 +48,7 @@ TEST( test_sample_strip_epi )
   CHECK( sample2->set_population( temp_population_filename.str() ) );
 
   int sample_size = 100;
+  sample1->set_number_of_samples( 1 );
   sample1->set_size( sample_size );
   sample1->set_strip_width( 0.25 );
   sample1->set_one_per_household( true );

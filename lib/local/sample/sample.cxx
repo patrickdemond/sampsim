@@ -84,7 +84,8 @@ namespace sample
          ++town_it )
     {
       sampsim::town *town = *town_it;
-      coefficients[town] = town->count_individuals() / total_individuals;
+      coefficients[town] = static_cast< double >( town->count_individuals() ) /
+                           static_cast< double >( total_individuals );
       town->unselect();
     }
     this->population->set_sample_mode( true );
@@ -100,7 +101,7 @@ namespace sample
       {
         double upper = lower + it->second;
         if( lower <= target && target < upper ) use_town = it->first;
-        lower += upper;
+        lower = upper;
       }
 
       // if we get here and we haven't selected a town then the total number of individuals in all towns
@@ -136,7 +137,7 @@ namespace sample
       {
         if( tree.is_empty() )
         {
-          std::cout << "WARNING: unable to fulfill sample size" << std::endl;
+          std::cout << "WARNING: unable to fulfill number of samples and sample size" << std::endl;
           break;
         }
 
