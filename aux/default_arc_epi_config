@@ -27,6 +27,14 @@ seed: 1
 samples: 1
 
 #
+# How many of the nearest households to skip when selecting the next household.
+# Setting this parameter to 1 will mean that the nearest household to the current household will be
+# included in the sample.  Any other number greater than 1 will skip to the Nth nearest household
+# from the current household.
+#
+skip: 1
+
+#
 # How many individuals to select in each sample
 #
 size: 100
