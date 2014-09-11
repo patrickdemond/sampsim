@@ -13,6 +13,7 @@
 #include "arc_epi_sample.h"
 #include "circle_gps_sample.h"
 #include "random_sample.h"
+#include "square_gps_sample.h"
 #include "strip_epi_sample.h"
 
 #include "options.h"
@@ -31,6 +32,7 @@ int main( const int argc, const char** argv )
   sampsim::sample::arc_epi *arc_epi_sample = new sampsim::sample::arc_epi;
   sampsim::sample::circle_gps *circle_gps_sample = new sampsim::sample::circle_gps;
   sampsim::sample::random *random_sample = new sampsim::sample::random;
+  sampsim::sample::square_gps *square_gps_sample = new sampsim::sample::square_gps;
   sampsim::sample::strip_epi *strip_epi_sample = new sampsim::sample::strip_epi;
 
   // define inputs
@@ -347,6 +349,19 @@ int main( const int argc, const char** argv )
                 random_sample->set_population( population );
                 sample = random_sample;
               }
+              else if( "square_gps" == batch_sampler || "square_gps_sample" == batch_sampler )
+              {
+                setup_square_gps_sample( sampler_opts );
+                if( 0 < batch_config.length() )
+                {
+                  sampler_argv[2] = batch_config.c_str();
+                  sampler_opts.set_arguments( 3, sampler_argv );
+                }
+                if( !sampler_opts.process() ) throw std::runtime_error( "Error while setting up sampler" );
+                parse_square_gps_sample( sampler_opts, square_gps_sample );
+                square_gps_sample->set_population( population );
+                sample = square_gps_sample;
+              }
               else if( "strip_epi" == batch_sampler || "strip_epi_sample" == batch_sampler )
               {
                 setup_strip_epi_sample( sampler_opts );
@@ -438,6 +453,7 @@ int main( const int argc, const char** argv )
   sampsim::utilities::safe_delete( arc_epi_sample );
   sampsim::utilities::safe_delete( circle_gps_sample );
   sampsim::utilities::safe_delete( random_sample );
+  sampsim::utilities::safe_delete( square_gps_sample );
   sampsim::utilities::safe_delete( strip_epi_sample );
   return status;
 }

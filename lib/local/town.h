@@ -126,9 +126,19 @@ namespace sampsim
     unsigned int get_index() const { return this->index; }
 
     /**
+     * Returns the number of tiles in the longitudinal (X) direction
+     */
+    unsigned int get_number_of_tiles_x() const { return this->number_of_tiles_x; }
+
+    /**
      * Sets the number of tiles in the longitudinal (X) direction
      */
     void set_number_of_tiles_x( const unsigned int );
+
+    /**
+     * Returns the number of tiles in the latitudinal (Y) direction
+     */
+    unsigned int get_number_of_tiles_y() const { return this->number_of_tiles_y; }
 
     /**
      * Sets the number of tiles in the latitudinal (Y) direction

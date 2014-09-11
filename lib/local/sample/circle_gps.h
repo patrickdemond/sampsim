@@ -11,8 +11,6 @@
 
 #include "sample/sample.h"
 
-#include <list>
-
 namespace Json{ class Value; }
 
 /**
@@ -59,12 +57,12 @@ namespace sample
     virtual std::string get_type() const { return "GPS"; }
 
     /** 
-     * Sets the width of the strip (in meters) used to determine the initial building list
+     * Sets the radius of the circle used for selecting households from a GPS point
      */
     void set_radius( double radius ) { this->radius = radius; }
 
     /** 
-     * Returns the width of the strip (in meters) used to determine the initial building list
+     * Returns the radius of the circle used for selecting households from a GPS point
      */
     double get_radius() { return this->radius; }
 

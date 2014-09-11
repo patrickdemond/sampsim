@@ -12,6 +12,7 @@ generate="$build_dir/generate"
 arc_epi_sample="$build_dir/arc_epi_sample"
 circle_gps_sample="$build_dir/circle_gps_sample"
 random_sample="$build_dir/random_sample"
+square_gps_sample="$build_dir/square_gps_sample"
 strip_epi_sample="$build_dir/strip_epi_sample"
 
 # first delete all existing csv, json and png files
