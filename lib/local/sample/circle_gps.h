@@ -1,13 +1,13 @@
 /*=========================================================================
 
   Program:  sampsim
-  Module:   gps.h
+  Module:   circle_gps.h
   Language: C++
 
 =========================================================================*/
 
-#ifndef __sampsim_sample_gps_h
-#define __sampsim_sample_gps_h
+#ifndef __sampsim_sample_circle_gps_h
+#define __sampsim_sample_circle_gps_h
 
 #include "sample/sample.h"
 
@@ -31,25 +31,27 @@ namespace sampsim
 namespace sample
 {
   /**
-   * @class gps
+   * @class circle_gps
    * @author Patrick Emond <emondpd@mcmaster.ca>
    * @brief Random sampler
    * @details
-   * A concrete implementation of the sample class.  This is a pure gps sampler.  It gpsly
-   * selects buildings until the sample size has been met.
+   * A concrete implementation of the sample class.  This sampler selects random "GPS"
+   * positions in the town and then randomly selects one of the buildings within a given
+   * distance from that central GPS point.  This proceedure is repeated until the sample
+   * size is met.
    */
-  class gps : public sample
+  class circle_gps : public sample
   {
   public:
     /**
      * Construction
      */
-     gps() : radius( 0 ) {}
+     circle_gps() : radius( 0 ) {}
 
     /**
      * Returns the name of the object's class
      */
-    std::string get_name() const { return "gps"; }
+    std::string get_name() const { return "circle_gps"; }
 
     /**
      * Returns the name of the sampling method

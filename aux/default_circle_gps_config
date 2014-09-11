@@ -1,6 +1,6 @@
 #########################################################################################
 #
-# This is a sample configuration file used to set up gps_sample parameters for
+# This is a sample configuration file used to set up circle_gps_sample parameters for
 # sampsim
 #
 # No more than one parameter may be included per line.  Options with no values (flags)
@@ -17,7 +17,7 @@
 #########################################################################################
 
 #
-# The seed to use when generating gps numbers
+# The seed to use when generating circle_gps numbers
 #
 seed: 1
 

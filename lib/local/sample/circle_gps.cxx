@@ -1,12 +1,12 @@
 /*=========================================================================
 
   Program:  sampsim
-  Module:   gps.cxx
+  Module:   circle_gps.cxx
   Language: C++
 
 =========================================================================*/
 
-#include "gps.h"
+#include "circle_gps.h"
 
 #include "building_tree.h"
 
@@ -17,7 +17,7 @@ namespace sampsim
 namespace sample
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  building* gps::select_next_building( sampsim::building_tree& tree )
+  building* circle_gps::select_next_building( sampsim::building_tree& tree )
   {
     // make sure the strip width has been set
     if( 0 >= this->radius )

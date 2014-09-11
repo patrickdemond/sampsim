@@ -10,7 +10,7 @@ build_dir="../../../../build/sampsim"
 
 generate="$build_dir/generate"
 arc_epi_sample="$build_dir/arc_epi_sample"
-gps_sample="$build_dir/gps_sample"
+circle_gps_sample="$build_dir/circle_gps_sample"
 random_sample="$build_dir/random_sample"
 strip_epi_sample="$build_dir/strip_epi_sample"
 

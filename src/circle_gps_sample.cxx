@@ -1,16 +1,16 @@
 /*=========================================================================
 
   Program:  sampsim
-  Module:   gps_sample.cxx
+  Module:   circle_gps_sample.cxx
   Language: C++
 
 =========================================================================*/
 //
 // .SECTION Description
-// An executable which gpsly samples a population
+// An executable which circle_gpsly samples a population
 //
 
-#include "gps_sample.h"
+#include "circle_gps_sample.h"
 
 #include <stdexcept>
 
@@ -19,7 +19,7 @@ int main( const int argc, const char** argv )
 {
   int status = EXIT_FAILURE;
   sampsim::options opts( argv[0] );
-  sampsim::sample::gps *sample = new sampsim::sample::gps;
+  sampsim::sample::circle_gps *sample = new sampsim::sample::circle_gps;
 
   // define inputs
   opts.add_input( "population_file" );
@@ -28,8 +28,8 @@ int main( const int argc, const char** argv )
   if( GNUPLOT_AVAILABLE )
     opts.add_flag( 'p', "plot", "Whether to create a plot of the sample (will create a flat-file)" );
   opts.add_flag( 'v', "verbose", "Be verbose when generating sample" );
-  setup_gps_sample( opts );
-  opts.add_option( "seed", "", "Seed used by the gps generator" );
+  setup_circle_gps_sample( opts );
+  opts.add_option( "seed", "", "Seed used by the random generator" );
 
   try
   {
@@ -44,12 +44,12 @@ int main( const int argc, const char** argv )
       }
       else
       {
-        std::cout << "sampsim gps_sample version " << sampsim::utilities::get_version() << std::endl;
+        std::cout << "sampsim circle_gps_sample version " << sampsim::utilities::get_version() << std::endl;
         std::string population_filename = opts.get_input( "population_file" );
         std::string sample_filename = opts.get_input( "output_file" );
         sampsim::utilities::verbose = opts.get_flag( "verbose" );
         sample->set_seed( opts.get_option( "seed" ) );
-        parse_gps_sample( opts, sample );
+        parse_circle_gps_sample( opts, sample );
 
         if( sample->set_population( opts.get_input( "population_file" ) ) )
         {

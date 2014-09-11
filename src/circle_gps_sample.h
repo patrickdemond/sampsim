@@ -1,20 +1,20 @@
 /*=========================================================================
 
   Program:  sampsim
-  Module:   gps_sample_setup.cxx
+  Module:   circle_gps_sample_setup.cxx
   Language: C++
 
 =========================================================================*/
 //
 // .SECTION Description
-// Functions used to set up and parse options for a gps sample
+// Functions used to set up and parse options for a circle_gps sample
 //
 
 #include "options.h"
-#include "sample/gps.h"
+#include "sample/circle_gps.h"
 #include "utilities.h"
 
-void setup_gps_sample( sampsim::options &opts )
+void setup_circle_gps_sample( sampsim::options &opts )
 {
   opts.add_heading( "" );
   opts.add_heading( "Sampling parameters (overrides config files):" );
@@ -28,7 +28,7 @@ void setup_gps_sample( sampsim::options &opts )
     "radius", "500", "What distance from a GPS point to include when searching for households (in meters)" );
 }
 
-void parse_gps_sample( sampsim::options &opts, sampsim::sample::gps *sample )
+void parse_circle_gps_sample( sampsim::options &opts, sampsim::sample::circle_gps *sample )
 {
   sample->set_age( sampsim::get_age_type( opts.get_option( "age" ) ) );
   sample->set_one_per_household( opts.get_flag( "one_per_household" ) );

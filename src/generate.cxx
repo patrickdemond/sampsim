@@ -11,7 +11,7 @@
 //
 
 #include "arc_epi_sample.h"
-#include "gps_sample.h"
+#include "circle_gps_sample.h"
 #include "random_sample.h"
 #include "strip_epi_sample.h"
 
@@ -29,7 +29,7 @@ int main( const int argc, const char** argv )
   sampsim::options opts( argv[0] );
   sampsim::population *population = new sampsim::population;
   sampsim::sample::arc_epi *arc_epi_sample = new sampsim::sample::arc_epi;
-  sampsim::sample::gps *gps_sample = new sampsim::sample::gps;
+  sampsim::sample::circle_gps *circle_gps_sample = new sampsim::sample::circle_gps;
   sampsim::sample::random *random_sample = new sampsim::sample::random;
   sampsim::sample::strip_epi *strip_epi_sample = new sampsim::sample::strip_epi;
 
@@ -321,18 +321,18 @@ int main( const int argc, const char** argv )
                 arc_epi_sample->set_population( population );
                 sample = arc_epi_sample;
               }
-              else if( "gps" == batch_sampler || "gps_sample" == batch_sampler )
+              else if( "circle_gps" == batch_sampler || "circle_gps_sample" == batch_sampler )
               {
-                setup_gps_sample( sampler_opts );
+                setup_circle_gps_sample( sampler_opts );
                 if( 0 < batch_config.length() )
                 {
                   sampler_argv[2] = batch_config.c_str();
                   sampler_opts.set_arguments( 3, sampler_argv );
                 }
                 if( !sampler_opts.process() ) throw std::runtime_error( "Error while setting up sampler" );
-                parse_gps_sample( sampler_opts, gps_sample );
-                gps_sample->set_population( population );
-                sample = gps_sample;
+                parse_circle_gps_sample( sampler_opts, circle_gps_sample );
+                circle_gps_sample->set_population( population );
+                sample = circle_gps_sample;
               }
               else if( "random" == batch_sampler || "random_sample" == batch_sampler )
               {
@@ -436,7 +436,7 @@ int main( const int argc, const char** argv )
 
   sampsim::utilities::safe_delete( population );
   sampsim::utilities::safe_delete( arc_epi_sample );
-  sampsim::utilities::safe_delete( gps_sample );
+  sampsim::utilities::safe_delete( circle_gps_sample );
   sampsim::utilities::safe_delete( random_sample );
   sampsim::utilities::safe_delete( strip_epi_sample );
   return status;

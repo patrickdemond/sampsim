@@ -32,8 +32,8 @@ CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_population_config
                 ${PROJECT_BINARY_DIR}/default_population_config COPYONLY )
 CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_arc_epi_config
                 ${PROJECT_BINARY_DIR}/default_arc_epi_config COPYONLY )
-CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_gps_config
-                ${PROJECT_BINARY_DIR}/default_gps_config COPYONLY )
+CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_circle_gps_config
+                ${PROJECT_BINARY_DIR}/default_circle_gps_config COPYONLY )
 CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_random_config
                 ${PROJECT_BINARY_DIR}/default_random_config COPYONLY )
 CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_strip_epi_config
@@ -42,7 +42,7 @@ CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_strip_epi_config
 SET( SAMPSIM_EXECUTABLES
   generate
   arc_epi_sample
-  gps_sample
+  circle_gps_sample
   random_sample
   strip_epi_sample
 )

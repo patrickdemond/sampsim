@@ -1,25 +1,25 @@
 /*=========================================================================
 
   Program:  sampsim
-  Module:   test_sample_gps.cxx
+  Module:   test_sample_circle_gps.cxx
   Language: C++
 
 =========================================================================*/
 //
 // .SECTION Description
-// Unit tests for the sample::gps class
+// Unit tests for the sample::circle_gps class
 //
 
 #include "UnitTest++.h"
 
-#include "gps_sample.h"
+#include "circle_gps_sample.h"
 #include "common.h"
 #include "population.h"
 #include "utilities.h"
 
 int main( const int argc, const char** argv ) { return UnitTest::RunAllTests(); }
 
-TEST( test_sample_gps )
+TEST( test_sample_circle_gps )
 {
   // create a population
   sampsim::population *population = new sampsim::population;
@@ -30,12 +30,12 @@ TEST( test_sample_gps )
   population->write( temp_population_filename.str(), false );
    
   cout << "Testing reading population from memory..." << endl;
-  sampsim::sample::gps *sample1 = new sampsim::sample::gps;
+  sampsim::sample::circle_gps *sample1 = new sampsim::sample::circle_gps;
   CHECK( sample1->set_population( population ) );
 
   cout << "Testing reading population from disk..." << endl;
   temp_population_filename << ".json";
-  sampsim::sample::gps *sample2 = new sampsim::sample::gps;
+  sampsim::sample::circle_gps *sample2 = new sampsim::sample::circle_gps;
   CHECK( sample2->set_population( temp_population_filename.str() ) );
 
   int sample_size = 100;
