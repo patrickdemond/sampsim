@@ -192,6 +192,50 @@ namespace sampsim
     void set_population_density_slope( double mx, double my );
 
     /**
+     * Gets the probability that a town has a river.
+     * 
+     * If a river is added to a town then a random line is drawn across the town and all buildings
+     * that are within half the river's width from that line are moved to the closest "shore" from
+     * their initial position.
+     */
+    double get_river_probability() const { return this->river_probability; }
+
+    /**
+     * Sets the probability that a town has a river.
+     * 
+     * If a river is added to a town then a random line is drawn across the town and all buildings
+     * that are within half the river's width from that line are moved to the closest "shore" from
+     * their initial position.
+     */
+    void set_river_probability( const double );
+
+    /**
+     * Gets the width to make rivers.
+     * 
+     * If a river is added to a town then a random line is drawn across the town and all buildings
+     * that are within half the river's width from that line are moved to the closest "shore" from
+     * their initial position.
+     */
+    double get_river_width() const { return this->river_width; }
+
+    /**
+     * Sets the width to make rivers.
+     * 
+     * If a river is added to a town then a random line is drawn across the town and all buildings
+     * that are within half the river's width from that line are moved to the closest "shore" from
+     * their initial position.
+     */
+    void set_river_width( const double );
+
+    /**
+     * Gets the number of disease pockets.
+     * 
+     * Disease pockets affect the overall chance that an individual has a disease.  The factor is
+     * determined as a sum of the inverse square distance of an individual from each pocket.
+     */
+    unsigned int get_number_of_disease_pockets() const { return this->number_of_disease_pockets; }
+
+    /**
      * Creates the provided number of disease pockets.
      * 
      * Disease pockets affect the overall chance that an individual has a disease.  The factor is
@@ -444,6 +488,16 @@ namespace sampsim
      * The x and y slope of the population density
      */
     double population_density_slope[2];
+
+    /**
+     * The probability that a town has a river.
+     */
+    double river_probability;
+
+    /**
+     * The width to make rivers.
+     */
+    double river_width;
 
     /**
      * The number of disease pockets in each town

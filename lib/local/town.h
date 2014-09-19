@@ -146,6 +146,16 @@ namespace sampsim
     void set_number_of_tiles_y( const unsigned int );
 
     /**
+     * Returns whether the town has a river
+     */
+    bool get_has_river() const { return this->has_river; }
+
+    /**
+     * Sets whether the town has a river
+     */
+    void set_has_river( const bool );
+
+    /**
      * Returns the population's mean household population
      */
     double get_mean_household_population() const { return this->mean_household_population; }
@@ -316,6 +326,11 @@ namespace sampsim
      * The number of tiles to create in the latitudinal (Y) direction
      */
     unsigned int number_of_tiles_y;
+
+    /**
+     * Whether or not the town has a river
+     */
+    bool has_river;
 
     /**
      * The town's mean household population (size)

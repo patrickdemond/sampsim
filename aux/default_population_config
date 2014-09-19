@@ -64,6 +64,17 @@ popdens_mx: 0
 popdens_my: 0
 
 #
+# The likeliness that there is a river which runs through the a town
+# This value should range from 0 (no towns have a river) to 1 (all towns have a river).
+#
+river_probability: 0
+
+#
+# How wide to make rivers, in meters.
+#
+river_width: 0
+
+#
 # The number of disease pockets to generate
 # The closer to a disease pocket a building is the higher the probability its inhabitants
 # will have a disease (based on the selected picket kernel type).

@@ -36,6 +36,8 @@ namespace sampsim
     this->tile_width = 0;
     this->population_density_slope[0] = 0.0;
     this->population_density_slope[1] = 0.0;
+    this->river_probability = 0.0;
+    this->river_width = 0.0;
     this->number_of_disease_pockets = 0;
     for( unsigned int c = 0; c < population::NUMBER_OF_DISEASE_WEIGHTS; c++ )
       this->disease_weights[c] = 1.0;
@@ -85,6 +87,12 @@ namespace sampsim
       t->set_number_of_tiles_x( this->number_of_tiles_x );
       t->set_number_of_tiles_y( this->number_of_tiles_y );
       t->set_mean_household_population( this->mean_household_population );
+      
+      // determine whether to add a river to this town
+      bool has_river = 0 < this->river_width && utilities::random() < this->river_probability;
+      t->set_has_river( has_river );
+      t->set_number_of_disease_pockets( this->number_of_disease_pockets );
+
       int individuals = this->town_size_distribution.generate_value();
       if( utilities::verbose )
         utilities::output( "creating town with target size of %d individuals", individuals );
@@ -448,6 +456,20 @@ namespace sampsim
   {
     if( utilities::verbose ) utilities::output( "setting tile_width to %f meters", tile_width );
     this->tile_width = tile_width;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::set_river_probability( const double probability )
+  {
+    if( utilities::verbose ) utilities::output( "setting probability of a river to %f", probability );
+    this->river_probability = probability;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::set_river_width( const double width )
+  {
+    if( utilities::verbose ) utilities::output( "setting width of a river to %f", width );
+    this->river_width = width;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

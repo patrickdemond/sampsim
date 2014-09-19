@@ -34,6 +34,7 @@ namespace sampsim
     this->index = index;
     this->number_of_tiles_x = 0;
     this->number_of_tiles_y = 0;
+    this->has_river = false;
     this->mean_income = new trend;
     this->sd_income = new trend;
     this->mean_disease = new trend;
@@ -231,6 +232,7 @@ namespace sampsim
     this->index = json["index"].asUInt();
     this->number_of_tiles_x = json["number_of_tiles_x"].asUInt();
     this->number_of_tiles_y = json["number_of_tiles_y"].asUInt();
+    this->has_river = json["has_river"].asBool();
 
     this->mean_household_population = json["mean_household_population"].asDouble();
     this->mean_income->from_json( json["mean_income"] );
@@ -259,6 +261,7 @@ namespace sampsim
     json["index"] = this->index;
     json["number_of_tiles_x"] = this->number_of_tiles_x;
     json["number_of_tiles_y"] = this->number_of_tiles_y;
+    json["has_river"] = this->has_river;
     json["tile_list"] = Json::Value( Json::arrayValue );
     json["tile_list"].resize( this->tile_list.size() );
     this->mean_income->to_json( json["mean_income"] );
@@ -286,6 +289,7 @@ namespace sampsim
            << "# --------------------------" << std::endl
            << "# number_of_tiles_x: " << this->number_of_tiles_x << std::endl
            << "# number_of_tiles_y: " << this->number_of_tiles_y << std::endl
+           << "# has_river: " << this->has_river << std::endl
            << "# mean_income trend: " << this->mean_income->to_string() << std::endl
            << "# sd_income trend: " << this->sd_income->to_string() << std::endl
            << "# mean_disease trend: " << this->mean_disease->to_string() << std::endl
@@ -308,6 +312,13 @@ namespace sampsim
   {
     if( utilities::verbose ) utilities::output( "setting number_of_tiles_x to %d", number_of_tiles_x );
     this->number_of_tiles_x = number_of_tiles_x;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void town::set_has_river( const bool has_river )
+  {
+    if( utilities::verbose ) utilities::output( "setting has_river to %s", has_river ? "true" : "false" );
+    this->has_river = has_river;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

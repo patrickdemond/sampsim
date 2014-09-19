@@ -59,6 +59,8 @@ int main( const int argc, const char** argv )
   opts.add_option( "popdens_mx", "0", "Population density trend's X coefficient (must be [-1,1])" );
   opts.add_option( "popdens_my", "0", "Population density trend's Y coefficient (must be [-1,1])" );
   opts.add_option( "mean_household_pop", "4", "Mean number of individuals per household" );
+  opts.add_option( "river_probability", "0", "The probability that a town has a river" );
+  opts.add_option( "river_width", "0", "How wide to make rivers, in meters" );
   opts.add_option( "disease_pockets", "0", "Number of disease pockets to generate" );
   opts.add_option( "pocket_kernel_type", "exponential", "Number of disease pockets to generate" );
   opts.add_option( "pocket_scaling", "1", "Number of disease pockets to generate" );
@@ -197,6 +199,8 @@ int main( const int argc, const char** argv )
           population->set_number_of_tiles_x( opts.get_option_as_int( "tile_x" ) );
           population->set_number_of_tiles_y( opts.get_option_as_int( "tile_y" ) );
           population->set_tile_width( opts.get_option_as_double( "tile_width" ) );
+          population->set_river_probability( opts.get_option_as_double( "river_probability" ) );
+          population->set_river_width( opts.get_option_as_double( "river_width" ) / 1000 );
           population->set_population_density_slope(
             opts.get_option_as_double( "popdens_mx" ),
             opts.get_option_as_double( "popdens_my" ) );
