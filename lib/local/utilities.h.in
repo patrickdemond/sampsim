@@ -351,6 +351,63 @@ namespace sampsim
     }
 
     /**
+     * Determines whether a line crosses through an extent
+     * 
+     * The line is assumed to be infinite in length, cross through the intercept at a specified angle
+     * and is either one-dimensional (width is 0) or two-dimensional (width > 0).
+     */
+    inline static bool line_inside_bounds(
+      std::pair< coordinate, coordinate > extent,
+      coordinate intercept,
+      double angle,
+      double width = 0.0 )
+    {
+      // though it doesn't matter, let's make sure the width is positive
+      width = abs( width );
+
+      bool inside = false;
+      if( 0 == width )
+      {
+        double m = tan( angle );
+        double b = intercept.y - intercept.x * tan( angle );
+        double y1 = m * extent.first.x + b;
+        double y2 = m * extent.second.x + b;
+        inside = ( y1 > extent.first.y || y2 > extent.first.y ) &&
+                 ( y1 < extent.second.y || y2 < extent.second.y );
+      }
+      else
+      { // run test on other lines which form the band
+        coordinate intercept1 = intercept;
+        intercept1.x += sin( angle ) * width / 2;
+        intercept1.y -= cos( angle ) * width / 2;
+        coordinate intercept2 = intercept;
+        intercept2.x -= sin( angle ) * width / 2;
+        intercept2.y += cos( angle ) * width / 2;
+        inside = line_inside_bounds( extent, intercept1, angle ) &&
+                 line_inside_bounds( extent, intercept2, angle );
+      }
+
+      return inside;
+    }
+
+    /**
+     * Determines whether a point is inside of a line
+     * 
+     * The line is assumed to be infinite in length, cross through the intercept at a specified angle
+     * and two-dimensional (width > 0).
+     */
+    inline static bool point_inside_line(
+      coordinate point,
+      coordinate intercept,
+      double angle,
+      double width )
+    {
+      double tan_angle = tan( angle );
+      double distance = abs( point.x * tan_angle + point.y ) / sqrt( tan_angle*tan_angle + 1 );
+      return distance < ( width / 2 );
+    }
+
+    /**
      * @struct safe_delete_type
      * @brief Used for safely deleting memory
      */

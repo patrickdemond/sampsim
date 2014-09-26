@@ -16,8 +16,10 @@
 #include "square_gps_sample.h"
 #include "strip_epi_sample.h"
 
+#include "common.h"
 #include "options.h"
 #include "population.h"
+#include "town.h"
 #include "trend.h"
 #include "utilities.h"
 
@@ -59,7 +61,7 @@ int main( const int argc, const char** argv )
   opts.add_option( "popdens_mx", "0", "Population density trend's X coefficient (must be [-1,1])" );
   opts.add_option( "popdens_my", "0", "Population density trend's Y coefficient (must be [-1,1])" );
   opts.add_option( "mean_household_pop", "4", "Mean number of individuals per household" );
-  opts.add_option( "river_probability", "0", "The probability that a town has a river" );
+  opts.add_option( "river_probability", "0", "The probability that a town has a river (must be [0,1])" );
   opts.add_option( "river_width", "0", "How wide to make rivers, in meters" );
   opts.add_option( "disease_pockets", "0", "Number of disease pockets to generate" );
   opts.add_option( "pocket_kernel_type", "exponential", "Number of disease pockets to generate" );
@@ -247,14 +249,14 @@ int main( const int argc, const char** argv )
           sd_disease->set_b11( opts.get_option_as_double_list( "sd_disease_b11" ) );
 
           std::string population_filename;
-          for( int p = 1; p <= batch_npop; p++ )
+          for( int p = 0; p < batch_npop; p++ )
           {
             // filename depends on whether we are creating a batch of populations or not
             if( 1 < batch_npop )
             {
               std::stringstream stream;
-              stream << filename << "."
-                     << std::setw( log( batch_npop ) ) << std::setfill( '0' ) << p;
+              stream << filename << ".p"
+                     << std::setw( log( batch_npop+1 ) ) << std::setfill( '0' ) << p;
               population_filename = stream.str();
               std::cout << "generating population " << p << " of " << batch_npop << std::endl;
             }
@@ -277,29 +279,29 @@ int main( const int argc, const char** argv )
               if( plot )
               {
                 std::stringstream stream;
-                stream
-                   << "gnuplot -p -e "
-                   <<   "'set title \"Household plot of \\\"" << population_filename << "\\\"\" "
-                   <<      "font \"sans, 18\"; "
-                   <<    "set xlabel \"Position (km)\"; "
-                   <<    "set ylabel \"Position (km)\"; "
-                   <<    "set datafile separator \",\"; "
-                   <<    "set key at 35.5, 36.5; "
-                   <<    "unset colorbox; "
-                   <<    "set palette model RGB defined ( 0 0 0 1, 1 1 0 0 ); "
-                   <<    "set term pngcairo size 1200,1230; "
-                   <<    "set output \"" << population_filename << ".png\"; "
-                   <<    "plot \"" << population_filename << ".household.csv\" "
-                   <<      "using 3:4:($8/2):10 palette pt 6 ps variable title \"household\"'";
+                unsigned int index = 0;
+                for( auto it = population->get_town_list_cbegin();
+                     it != population->get_town_list_cend();
+                     ++it, ++index )
+                {
+                  sampsim::town *town = *it;
+                  std::string result = sampsim::utilities::exec(
+                    gnuplot( town, population_filename, index ) );
 
-                std::string result = sampsim::utilities::exec( stream.str() );
+                  stream.str( "" );
+                  stream << population_filename << ".t"
+                         << std::setw( log( population->get_number_of_towns()+1 ) ) << std::setfill( '0' )
+                         << index << ".png";
+                  std::string image_filename = stream.str();
 
-                stream.str( "" );
-                if( "ERROR" == result )
-                  stream << "warning: failed to create plot";
-                else
-                  stream << "creating plot file \"" << population_filename << ".png\"";
-                sampsim::utilities::output( stream.str() );
+                  stream.str( "" );
+                  std::stringstream stream;
+                  if( "ERROR" == result )
+                    stream << "warning: failed to create plot";
+                  else
+                    stream << "creating plot file \"" << image_filename << "\"";
+                  sampsim::utilities::output( stream.str() );
+                }
               }
             }
             else
@@ -388,14 +390,14 @@ int main( const int argc, const char** argv )
               }
 
               std::string sample_filename;
-              for( int s = 1; s <= batch_nsamp; s++ )
+              for( int s = 0; s < batch_nsamp; s++ )
               {
                 // filename depends on whether we are creating a batch of samples or not
                 if( 1 < batch_nsamp )
                 {
                   std::stringstream stream;
-                  stream << population_filename << "."
-                         << std::setw( log( batch_nsamp ) ) << std::setfill( '0' ) << s;
+                  stream << population_filename << ".s"
+                         << std::setw( log( batch_nsamp+1 ) ) << std::setfill( '0' ) << s;
                   sample_filename = stream.str();
                   std::cout << "sampling iteration " << s << " of " << batch_nsamp << std::endl;
                 }
@@ -413,31 +415,29 @@ int main( const int argc, const char** argv )
                 if( plot )
                 {
                   std::stringstream stream;
-                  stream
-                     << "gnuplot -p -e "
-                     <<   "'set title \"Household plot of \\\"" << sample_filename << "\\\"\" "
-                     <<      "font \"sans, 18\"; "
-                     <<    "set xlabel \"Position (km)\"; "
-                     <<    "set ylabel \"Position (km)\"; "
-                     <<    "set datafile separator \",\"; "
-                     <<    "set key at 35.5, 36.5; "
-                     <<    "unset colorbox; "
-                     <<    "set palette model RGB defined ( 0 0 0 1, 1 1 0 0 ); "
-                     <<    "set term pngcairo size 1200,1230; "
-                     <<    "set output \"" << sample_filename << ".png\"; "
-                     <<    "plot \"" << population_filename << ".household.csv\" using 3:4:($8/2):10 "
-                     <<      "palette pt 6 ps variable title \"household\", "
-                     <<    "\"" << sample_filename << ".household.csv\" using 3:4 "
-                     <<      "lc rgb \"black\" pt 3 ps 1.5 title \"sampled\"'";
+                  unsigned int index = 0;
+                  for( auto it = population->get_town_list_cbegin();
+                       it != population->get_town_list_cend();
+                       ++it, ++index )
+                  {
+                    sampsim::town *town = *it;
+                    std::string result = sampsim::utilities::exec(
+                      gnuplot( town, population_filename, index, sample_filename ) );
 
-                  std::string result = sampsim::utilities::exec( stream.str() );
+                    stream.str( "" );
+                    stream << sample_filename << ".t"
+                           << std::setw( log( population->get_number_of_towns()+1 ) ) << std::setfill( '0' )
+                           << index << ".png";
+                    std::string image_filename = stream.str();
 
-                  stream.str( "" );
-                  if( "ERROR" == result )
-                    stream << "warning: failed to create plot";
-                  else
-                    stream << "creating plot file \"" << sample_filename << ".png\"";
-                  sampsim::utilities::output( stream.str() );
+                    stream.str( "" );
+                    std::stringstream stream;
+                    if( "ERROR" == result )
+                      stream << "warning: failed to create plot";
+                    else
+                      stream << "creating plot file \"" << image_filename << "\"";
+                    sampsim::utilities::output( stream.str() );
+                  }
                 }
               }
             }

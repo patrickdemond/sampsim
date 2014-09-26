@@ -144,6 +144,11 @@ namespace sampsim
     void set_seed( const std::string seed );
 
     /**
+     * Gets the number of towns to create
+     */
+    unsigned int get_number_of_towns() const { return this->number_of_towns; }
+
+    /**
      * Sets the number of towns to create
      */
     void set_number_of_towns( const unsigned int );

@@ -156,6 +156,16 @@ namespace sampsim
     void set_has_river( const bool );
 
     /**
+     * Get the river's intercept
+     */
+    coordinate get_river_intercept() const { return this->river_intercept; }
+
+    /**
+     * Get the river's angle
+     */
+    double get_river_angle() const { return this->river_angle; }
+
+    /**
      * Returns the population's mean household population
      */
     double get_mean_household_population() const { return this->mean_household_population; }
@@ -231,7 +241,23 @@ namespace sampsim
      */
     coordinate get_centroid() const;
 
-    /**:
+    /**
+     * Returns the width of the town in the X direction
+     * 
+     * The X width of the town is determined by the width of a tile multiplied by the number of tiles
+     * in the X direction.
+     */
+    double get_x_width() const;
+
+    /**
+     * Returns the width of the town in the Y direction
+     * 
+     * The Y width of the town is determined by the width of a tile multiplied by the number of tiles
+     * in the Y direction.
+     */
+    double get_y_width() const;
+
+    /**
      * Returns the surface area of the town
      * 
      * The surface area is determined by the area of each tile multiplied by the number of tiles
@@ -331,6 +357,16 @@ namespace sampsim
      * Whether or not the town has a river
      */
     bool has_river;
+
+    /**
+     * The intercept that the town's river crosses through.  Only used if the town has a river.
+     */
+    coordinate river_intercept;
+
+    /**
+     * The angle of the town's river.  Only used if the town has a river.
+     */
+    double river_angle;
 
     /**
      * The town's mean household population (size)

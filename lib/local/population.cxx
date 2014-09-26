@@ -67,8 +67,6 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::create()
   {
-    std::pair< unsigned int, unsigned int > index;
-
     utilities::output( "creating population" );
 
     // delete all towns and turn off sample mode (in case it is on)
@@ -126,8 +124,6 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::define()
   {
-    std::pair< unsigned int, unsigned int > index;
-
     utilities::output( "defining population" );
 
     // calculate the mean( log(individuals) ) from all towns

@@ -82,6 +82,11 @@ namespace sample
     virtual std::string get_type() const = 0;
 
     /**
+     * Returns a pointer to the population used by this sampler
+     */
+    sampsim::population* get_population() const { return this->population; }
+
+    /**
      * Loads a population from disk to sample from
      */
     bool set_population( const std::string filename );

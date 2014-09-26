@@ -12,6 +12,8 @@
 
 #include "square_gps_sample.h"
 
+#include "common.h"
+
 #include <stdexcept>
 
 // main function
@@ -67,34 +69,31 @@ int main( const int argc, const char** argv )
           // plot the flat file if requested to
           if( plot )
           {
-            std::string population_name =
-              population_filename.substr( 0, population_filename.find_last_of( '.' ) );
+            sampsim::population *population = sample->get_population();
             std::stringstream stream;
-            stream
-               << "gnuplot -p -e "
-               <<   "'set title \"Household plot of \\\"" << sample_filename << "\\\"\" "
-               <<      "font \"sans, 18\"; "
-               <<    "set xlabel \"Position (km)\"; "
-               <<    "set ylabel \"Position (km)\"; "
-               <<    "set datafile separator \",\"; "
-               <<    "set key at 35.5, 36.5; "
-               <<    "unset colorbox; "
-               <<    "set palette model RGB defined ( 0 0 0 1, 1 1 0 0 ); "
-               <<    "set term pngcairo size 1200,1230; "
-               <<    "set output \"" << sample_filename << ".png\"; "
-               <<    "plot \"" << population_name << ".household.csv\" using 3:4:($8/2):10 "
-               <<      "palette pt 6 ps variable title \"household\", "
-               <<    "\"" << sample_filename << ".household.csv\" using 3:4 "
-               <<      "lc rgb \"black\" pt 3 ps 1.5 title \"sampled\"'";
+            unsigned int index = 0;
+            for( auto it = population->get_town_list_cbegin();
+                 it != population->get_town_list_cend();
+                 ++it, ++index )
+            {
+              sampsim::town *town = *it;
+              std::string result = sampsim::utilities::exec(
+                gnuplot( town, population_filename, index, sample_filename ) );
 
-            std::string result = sampsim::utilities::exec( stream.str() );
+              stream.str( "" );
+              stream << sample_filename << ".t"
+                     << std::setw( log( population->get_number_of_towns()+1 ) ) << std::setfill( '0' )
+                     << index << ".png";
+              std::string image_filename = stream.str();
 
-            stream.str( "" );
-            if( "ERROR" == result )
-              stream << "warning: failed to create plot";
-            else
-              stream << "creating plot file \"" << sample_filename << ".png\"";
-            sampsim::utilities::output( stream.str() );
+              stream.str( "" );
+              std::stringstream stream;
+              if( "ERROR" == result )
+                stream << "warning: failed to create plot";
+              else
+                stream << "creating plot file \"" << image_filename << "\"";
+              sampsim::utilities::output( stream.str() );
+            }
           }
         }
       }

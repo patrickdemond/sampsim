@@ -35,6 +35,8 @@ namespace sampsim
     this->number_of_tiles_x = 0;
     this->number_of_tiles_y = 0;
     this->has_river = false;
+    this->river_intercept = coordinate();
+    this->river_angle = 0.0;
     this->mean_income = new trend;
     this->sd_income = new trend;
     this->mean_disease = new trend;
@@ -72,6 +74,20 @@ namespace sampsim
 
     population *pop = this->get_population();
 
+    // define the river's parameters based on whether it has a river or not
+    if( this->has_river )
+    {
+      this->river_intercept = coordinate( utilities::random() * this->get_x_width(),
+                                          utilities::random() * this->get_y_width() );
+      this->river_angle = ( utilities::random() - 0.5 ) * M_PI; // from -pi/2 to pi/2
+    }
+    else
+    {
+      this->river_intercept = coordinate();
+      this->river_angle = 0.0;
+    }
+    this->river_intercept.set_centroid( this->get_centroid() );
+
     // delete all tiles and turn off sample mode (in case it is on)
     for( auto it = this->tile_list.begin(); it != this->tile_list.end(); ++it )
       utilities::safe_delete( it->second );
@@ -80,6 +96,8 @@ namespace sampsim
     // create the needed distributions
     this->population_distribution.set_poisson( this->mean_household_population - 1 );
 
+          std::cout << "river[ (" << this->river_intercept.x << "," << this->river_intercept.y << "), "
+                    << this->river_angle << "ᵒ, " << pop->get_river_width() << " ]" << std::endl;
     // create tiles
     for( unsigned int y = 0; y < this->number_of_tiles_y; y++ )
     {
@@ -91,6 +109,43 @@ namespace sampsim
 
         t->create();
         this->tile_list[index] = t;
+
+        if( this->has_river )
+        {
+          // If the tile has a river running through it then move any building that falls inside the
+          // river to its nearest bank
+          std::cout << "river[ (" << this->river_intercept.x << "," << this->river_intercept.y << "), "
+                    << this->river_angle << "ᵒ, " << pop->get_river_width() << " ]";
+          if( utilities::line_inside_bounds(
+                t->get_extent(),
+                this->river_intercept,
+                this->river_angle,
+                pop->get_river_width() ) )
+          {
+            std::cout << " is inside tile " << x << ", " << y << std::endl;
+            for( auto it = t->get_building_list_begin(); it != t->get_building_list_end(); ++it )
+            {
+              building *b = *it;
+
+              if( utilities::point_inside_line(
+                    b->get_position(), 
+                    this->river_intercept,
+                    this->river_angle,
+                    pop->get_river_width() ) )
+              {
+                std::cout << "( " << b->get_position().x << "," << b->get_position().y << " ) is inside" << std::endl;
+              }
+              else
+              {
+//                std::cout << "( " << b->get_position().x << "," << b->get_position().y << " ) is not inside" << std::endl;
+              }
+            }
+          }
+          else
+          {
+            std::cout << " not is inside tile " << x << ", " << y << std::endl;
+          }
+        }
       }
     }
 
@@ -233,6 +288,9 @@ namespace sampsim
     this->number_of_tiles_x = json["number_of_tiles_x"].asUInt();
     this->number_of_tiles_y = json["number_of_tiles_y"].asUInt();
     this->has_river = json["has_river"].asBool();
+    this->river_intercept.from_json( json["river_intercept"] );
+    this->river_intercept.set_centroid( this->get_centroid() );
+    this->river_angle = json["river_angle"].asDouble();
 
     this->mean_household_population = json["mean_household_population"].asDouble();
     this->mean_income->from_json( json["mean_income"] );
@@ -262,6 +320,8 @@ namespace sampsim
     json["number_of_tiles_x"] = this->number_of_tiles_x;
     json["number_of_tiles_y"] = this->number_of_tiles_y;
     json["has_river"] = this->has_river;
+    this->river_intercept.to_json( json["river_intercept"] );
+    json["river_angle"] = this->river_angle;
     json["tile_list"] = Json::Value( Json::arrayValue );
     json["tile_list"].resize( this->tile_list.size() );
     this->mean_income->to_json( json["mean_income"] );
@@ -290,6 +350,10 @@ namespace sampsim
            << "# number_of_tiles_x: " << this->number_of_tiles_x << std::endl
            << "# number_of_tiles_y: " << this->number_of_tiles_y << std::endl
            << "# has_river: " << this->has_river << std::endl
+           << "# river_intercept: " << this->river_intercept.x << ","
+                                    << this->river_intercept.y << std::endl
+           << "# river_angle: " << this->river_angle << std::endl
+
            << "# mean_income trend: " << this->mean_income->to_string() << std::endl
            << "# sd_income trend: " << this->sd_income->to_string() << std::endl
            << "# mean_disease trend: " << this->mean_disease->to_string() << std::endl
@@ -315,17 +379,17 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void town::set_has_river( const bool has_river )
-  {
-    if( utilities::verbose ) utilities::output( "setting has_river to %s", has_river ? "true" : "false" );
-    this->has_river = has_river;
-  }
-
-  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void town::set_number_of_tiles_y( const unsigned int number_of_tiles_y )
   {
     if( utilities::verbose ) utilities::output( "setting number_of_tiles_y to %d", number_of_tiles_y );
     this->number_of_tiles_y = number_of_tiles_y;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void town::set_has_river( const bool has_river )
+  {
+    if( utilities::verbose ) utilities::output( "setting has_river to %s", has_river ? "true" : "false" );
+    this->has_river = has_river;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -394,10 +458,21 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  double town::get_x_width() const
+  {
+    return this->number_of_tiles_x * this->get_population()->get_tile_width();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  double town::get_y_width() const
+  {
+    return this->number_of_tiles_y * this->get_population()->get_tile_width();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   double town::get_area() const
   {
-    double tile_width = this->get_population()->get_tile_width();
-    return tile_width * tile_width * this->number_of_tiles_x * this->number_of_tiles_y;
+    return this->get_x_width() * this->get_y_width();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
