@@ -35,8 +35,8 @@ namespace sampsim
     this->number_of_tiles_x = 0;
     this->number_of_tiles_y = 0;
     this->has_river = false;
-    this->river_intercept = coordinate();
-    this->river_angle = 0.0;
+    this->river_banks[0] = line();
+    this->river_banks[1] = line();
     this->mean_income = new trend;
     this->sd_income = new trend;
     this->mean_disease = new trend;
@@ -77,16 +77,26 @@ namespace sampsim
     // define the river's parameters based on whether it has a river or not
     if( this->has_river )
     {
-      this->river_intercept = coordinate( utilities::random() * this->get_x_width(),
-                                          utilities::random() * this->get_y_width() );
-      this->river_angle = ( utilities::random() - 0.5 ) * M_PI; // from -pi/2 to pi/2
+      coordinate intercept = coordinate( utilities::random() * this->get_x_width(),
+                                         utilities::random() * this->get_y_width() );
+      intercept.set_centroid( this->get_centroid() );
+      double angle = ( utilities::random() - 0.5 ) * M_PI; // from -pi/2 to pi/2
+      double sin_angle = sin( angle );
+      double cos_angle = cos( angle );
+      double width = this->get_population()->get_river_width();
+
+      this->river_banks[0].angle = angle;
+      this->river_banks[0].intercept = coordinate( intercept.x + sin_angle * width / 2,
+                                                   intercept.y - cos_angle * width / 2 );
+      this->river_banks[1].angle = angle;
+      this->river_banks[1].intercept = coordinate( intercept.x - sin_angle * width / 2,
+                                                   intercept.y + cos_angle * width / 2 );
     }
     else
     {
-      this->river_intercept = coordinate();
-      this->river_angle = 0.0;
+      this->river_banks[0] = line();
+      this->river_banks[1] = line();
     }
-    this->river_intercept.set_centroid( this->get_centroid() );
 
     // delete all tiles and turn off sample mode (in case it is on)
     for( auto it = this->tile_list.begin(); it != this->tile_list.end(); ++it )
@@ -96,8 +106,6 @@ namespace sampsim
     // create the needed distributions
     this->population_distribution.set_poisson( this->mean_household_population - 1 );
 
-          std::cout << "river[ (" << this->river_intercept.x << "," << this->river_intercept.y << "), "
-                    << this->river_angle << "ᵒ, " << pop->get_river_width() << " ]" << std::endl;
     // create tiles
     for( unsigned int y = 0; y < this->number_of_tiles_y; y++ )
     {
@@ -109,43 +117,6 @@ namespace sampsim
 
         t->create();
         this->tile_list[index] = t;
-
-        if( this->has_river )
-        {
-          // If the tile has a river running through it then move any building that falls inside the
-          // river to its nearest bank
-          std::cout << "river[ (" << this->river_intercept.x << "," << this->river_intercept.y << "), "
-                    << this->river_angle << "ᵒ, " << pop->get_river_width() << " ]";
-          if( utilities::line_inside_bounds(
-                t->get_extent(),
-                this->river_intercept,
-                this->river_angle,
-                pop->get_river_width() ) )
-          {
-            std::cout << " is inside tile " << x << ", " << y << std::endl;
-            for( auto it = t->get_building_list_begin(); it != t->get_building_list_end(); ++it )
-            {
-              building *b = *it;
-
-              if( utilities::point_inside_line(
-                    b->get_position(), 
-                    this->river_intercept,
-                    this->river_angle,
-                    pop->get_river_width() ) )
-              {
-                std::cout << "( " << b->get_position().x << "," << b->get_position().y << " ) is inside" << std::endl;
-              }
-              else
-              {
-//                std::cout << "( " << b->get_position().x << "," << b->get_position().y << " ) is not inside" << std::endl;
-              }
-            }
-          }
-          else
-          {
-            std::cout << " not is inside tile " << x << ", " << y << std::endl;
-          }
-        }
       }
     }
 
@@ -288,9 +259,8 @@ namespace sampsim
     this->number_of_tiles_x = json["number_of_tiles_x"].asUInt();
     this->number_of_tiles_y = json["number_of_tiles_y"].asUInt();
     this->has_river = json["has_river"].asBool();
-    this->river_intercept.from_json( json["river_intercept"] );
-    this->river_intercept.set_centroid( this->get_centroid() );
-    this->river_angle = json["river_angle"].asDouble();
+    this->river_banks[0].from_json( json["river_bank_0"] );
+    this->river_banks[1].from_json( json["river_bank_1"] );
 
     this->mean_household_population = json["mean_household_population"].asDouble();
     this->mean_income->from_json( json["mean_income"] );
@@ -320,8 +290,8 @@ namespace sampsim
     json["number_of_tiles_x"] = this->number_of_tiles_x;
     json["number_of_tiles_y"] = this->number_of_tiles_y;
     json["has_river"] = this->has_river;
-    this->river_intercept.to_json( json["river_intercept"] );
-    json["river_angle"] = this->river_angle;
+    this->river_banks[0].to_json( json["river_bank_0"] );
+    this->river_banks[1].to_json( json["river_bank_1"] );
     json["tile_list"] = Json::Value( Json::arrayValue );
     json["tile_list"].resize( this->tile_list.size() );
     this->mean_income->to_json( json["mean_income"] );
@@ -350,9 +320,12 @@ namespace sampsim
            << "# number_of_tiles_x: " << this->number_of_tiles_x << std::endl
            << "# number_of_tiles_y: " << this->number_of_tiles_y << std::endl
            << "# has_river: " << this->has_river << std::endl
-           << "# river_intercept: " << this->river_intercept.x << ","
-                                    << this->river_intercept.y << std::endl
-           << "# river_angle: " << this->river_angle << std::endl
+           << "# river_bank_0 x_intercept: " << this->river_banks[0].intercept.x << std::endl
+           << "# river_bank_0 y_intercept: " << this->river_banks[0].intercept.y << std::endl
+           << "# river_bank_0 angle: " << this->river_banks[0].angle << std::endl
+           << "# river_bank_1 x_intercept: " << this->river_banks[1].intercept.x << std::endl
+           << "# river_bank_1 y_intercept: " << this->river_banks[1].intercept.y << std::endl
+           << "# river_bank_1 angle: " << this->river_banks[1].angle << std::endl
 
            << "# mean_income trend: " << this->mean_income->to_string() << std::endl
            << "# sd_income trend: " << this->sd_income->to_string() << std::endl

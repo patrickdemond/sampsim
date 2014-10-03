@@ -12,6 +12,7 @@
 #include "model_object.h"
 
 #include "distribution.h"
+#include "line.h"
 #include "utilities.h"
 
 namespace Json{ class Value; }
@@ -156,14 +157,9 @@ namespace sampsim
     void set_has_river( const bool );
 
     /**
-     * Get the river's intercept
+     * Get the lines defining the river's banks
      */
-    coordinate get_river_intercept() const { return this->river_intercept; }
-
-    /**
-     * Get the river's angle
-     */
-    double get_river_angle() const { return this->river_angle; }
+    line* get_river_banks() { return this->river_banks; }
 
     /**
      * Returns the population's mean household population
@@ -359,14 +355,9 @@ namespace sampsim
     bool has_river;
 
     /**
-     * The intercept that the town's river crosses through.  Only used if the town has a river.
+     * The lines defining the river's banks
      */
-    coordinate river_intercept;
-
-    /**
-     * The angle of the town's river.  Only used if the town has a river.
-     */
-    double river_angle;
+    line river_banks[2];
 
     /**
      * The town's mean household population (size)

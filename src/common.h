@@ -10,6 +10,7 @@
 // Common functions used by project executables
 //
 
+#include "line.h"
 #include "town.h"
 #include "population.h"
 #include "utilities.h"
@@ -52,14 +53,10 @@ std::string gnuplot(
 
   if( town->get_has_river() )
   { // add the river's bank equations
-    sampsim::coordinate c = town->get_river_intercept();
-    double width = population->get_river_width();
-    double angle = town->get_river_angle();
-    double sin_angle = sin( angle );
-    double cos_angle = cos( angle );
-    double m = tan( angle );
-    double b1 = ( c.x - cos_angle * width / 2 ) - ( c.y + sin_angle * width / 2 ) * m;
-    double b2 = ( c.x + cos_angle * width / 2 ) - ( c.y - sin_angle * width / 2 ) * m;
+    sampsim::line* river_banks = town->get_river_banks();
+    double m = tan( river_banks[0].angle );
+    double b1 = river_banks[0].intercept.y - river_banks[0].intercept.x * m;
+    double b2 = river_banks[1].intercept.y - river_banks[1].intercept.x * m;
     stream << "r1(x) = " << m << "*x + " << b1 << "; "
            << "r2(x) = " << m << "*x + " << b2 << "; ";
   }

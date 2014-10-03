@@ -62,7 +62,7 @@ int main( const int argc, const char** argv )
   opts.add_option( "popdens_my", "0", "Population density trend's Y coefficient (must be [-1,1])" );
   opts.add_option( "mean_household_pop", "4", "Mean number of individuals per household" );
   opts.add_option( "river_probability", "0", "The probability that a town has a river (must be [0,1])" );
-  opts.add_option( "river_width", "0", "How wide to make rivers, in meters" );
+  opts.add_option( "river_width", "0", "How wide to make rivers, in meters (must be smaller than tile width)" );
   opts.add_option( "disease_pockets", "0", "Number of disease pockets to generate" );
   opts.add_option( "pocket_kernel_type", "exponential", "Number of disease pockets to generate" );
   opts.add_option( "pocket_scaling", "1", "Number of disease pockets to generate" );
@@ -159,6 +159,8 @@ int main( const int argc, const char** argv )
         std::string batch_config = opts.get_option( "batch_config" );
         int batch_npop = opts.get_option_as_int( "batch_npop" );
         int batch_nsamp = opts.get_option_as_int( "batch_nsamp" );
+        double river_width = opts.get_option_as_double( "river_width" ) / 1000;
+        double tile_width = opts.get_option_as_double( "tile_width" );
 
         if( 0 < batch_sampler.length() && 0 >= batch_nsamp )
         {
@@ -188,6 +190,20 @@ int main( const int argc, const char** argv )
                     << "       Make sure to set batch_sampler when providing batch_nsamp."
                     << std::endl;
         }
+        else if( 0 >= tile_width )
+        {
+          std::cout << "ERROR: Tile width must be > 0. "
+                    << std::endl
+                    << "       Make sure to set a non-negative value for tile_width."
+                    << std::endl;
+        }
+        else if( river_width >= tile_width )
+        {
+          std::cout << "ERROR: Tile width must be larger than river width. "
+                    << std::endl
+                    << "       Make sure to set tile_width > river_width."
+                    << std::endl;
+        }
         else
         {
           std::cout << "sampsim generate version " << sampsim::utilities::get_version() << std::endl;
@@ -200,9 +216,9 @@ int main( const int argc, const char** argv )
           population->set_mean_household_population( opts.get_option_as_double( "mean_household_pop" ) );
           population->set_number_of_tiles_x( opts.get_option_as_int( "tile_x" ) );
           population->set_number_of_tiles_y( opts.get_option_as_int( "tile_y" ) );
-          population->set_tile_width( opts.get_option_as_double( "tile_width" ) );
+          population->set_tile_width( tile_width );
           population->set_river_probability( opts.get_option_as_double( "river_probability" ) );
-          population->set_river_width( opts.get_option_as_double( "river_width" ) / 1000 );
+          population->set_river_width( river_width );
           population->set_population_density_slope(
             opts.get_option_as_double( "popdens_mx" ),
             opts.get_option_as_double( "popdens_my" ) );

@@ -63,6 +63,26 @@ namespace sampsim
     this->position.y = utilities::random() * ( extent.second.y - extent.first.y ) + extent.first.y;
     this->position.set_centroid( town->get_centroid() );
 
+    // check if the building is in a river and move it to the nearest bank if it is
+    if( this->in_river() )
+    {
+      // see which bank is closest
+      line* river_banks = this->get_town()->get_river_banks();
+      double d1 = river_banks[0].distance_from_point( this->position );
+      double d2 = river_banks[1].distance_from_point( this->position );
+      double tan_angle = tan( river_banks[0].angle );
+      double tan_angle_squared = tan_angle * tan_angle;
+      double x = this->position.x;
+      double y = this->position.y;
+
+      double ix = river_banks[d2 < d1 ? 1 : 0].intercept.x;
+      double iy = river_banks[d2 < d1 ? 1 : 0].intercept.y;
+      this->position.x = ( x + tan_angle * y - tan_angle * iy + tan_angle_squared * ix ) /
+                         ( tan_angle_squared + 1 ) ;
+      this->position.y = ( x * tan_angle + tan_angle_squared * y + iy - tan_angle * ix ) /
+                         ( tan_angle_squared + 1 ) ;
+    }
+
     // for now we're only allowing one household per building
     household *h = new household( this );
     h->create();
@@ -174,5 +194,12 @@ namespace sampsim
     this->selected = false;
     for( auto it = this->household_list.begin(); it != this->household_list.end(); ++it )
       (*it)->unselect();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  bool building::in_river() const
+  {
+    return this->parent->get_has_river() && 
+           line::point_inside_strip( this->position, this->get_town()->get_river_banks() );
   }
 }

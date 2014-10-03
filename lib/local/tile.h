@@ -199,6 +199,11 @@ namespace sampsim
      */
     distribution* get_disease_risk_distribution() { return &( this->disease_risk_distribution ); }
 
+    /**
+     * Determines whether the tile has a river crossing through its boundaries
+     */
+    bool get_has_river();
+
   protected:
     /**
      * Create all buildings belonging to the tile
@@ -312,6 +317,16 @@ namespace sampsim
      * The tile's disease risk distribution
      */
     distribution disease_risk_distribution;
+
+    /**
+     * A cache of whether this tile has a river running through it
+     */
+    bool has_river;
+
+    /**
+     * Whether the has_river cache has been determined yet
+     */
+    bool has_river_cached;
   };
 }
 

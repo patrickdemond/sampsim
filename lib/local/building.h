@@ -182,6 +182,11 @@ namespace sampsim
      */
     static bool sort_by_y( building* a, building* b ) { return a->get_position().y < b->get_position().y; }
 
+    /**
+     * Determines whether the building is in a river or not (banks do not count as "in" a river)
+     */
+    bool in_river() const;
+
   protected:
     /**
      * Create all households belonging to the building

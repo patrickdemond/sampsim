@@ -24,6 +24,8 @@ namespace sampsim
   {
     this->parent = parent;
     this->set_index( index );
+    this->has_river = false;
+    this->has_river_cached = false;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -196,5 +198,24 @@ namespace sampsim
 
     double width = this->get_population()->get_tile_width();
     return width * width;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  bool tile::get_has_river()
+  {
+    if( !this->has_river_cached )
+    {
+      this->has_river = false;
+      if( this->parent->get_has_river() )
+      {
+        line* river_banks = this->parent->get_river_banks();
+        this->has_river =
+          river_banks[0].line_inside_bounds( this->extent ) ||
+          river_banks[1].line_inside_bounds( this->extent );
+      }
+      this->has_river_cached = true;
+    }
+
+    return this->has_river;
   }
 }
