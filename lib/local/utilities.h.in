@@ -377,12 +377,14 @@ namespace sampsim
       }
       else
       { // run test on other lines which form the band
+        double sin_angle = sin( angle );
+        double cos_angle = cos( angle );
         coordinate intercept1 = intercept;
-        intercept1.x += sin( angle ) * width / 2;
-        intercept1.y -= cos( angle ) * width / 2;
+        intercept1.x += sin_angle * width / 2;
+        intercept1.y -= cos_angle * width / 2;
         coordinate intercept2 = intercept;
-        intercept2.x -= sin( angle ) * width / 2;
-        intercept2.y += cos( angle ) * width / 2;
+        intercept2.x -= sin_angle * width / 2;
+        intercept2.y += cos_angle * width / 2;
         inside = line_inside_bounds( extent, intercept1, angle ) &&
                  line_inside_bounds( extent, intercept2, angle );
       }

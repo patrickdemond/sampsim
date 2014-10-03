@@ -57,10 +57,9 @@ std::string gnuplot(
     double angle = town->get_river_angle();
     double sin_angle = sin( angle );
     double cos_angle = cos( angle );
-    double tan_angle = tan( angle );
-    double m = tan_angle;
-    double b1 = ( c.x + sin_angle * width / 2 ) - ( c.y - cos_angle * width / 2 ) * m;
-    double b2 = ( c.x - sin_angle * width / 2 ) - ( c.y + cos_angle * width / 2 ) * m;
+    double m = tan( angle );
+    double b1 = ( c.x - cos_angle * width / 2 ) - ( c.y + sin_angle * width / 2 ) * m;
+    double b2 = ( c.x + cos_angle * width / 2 ) - ( c.y - sin_angle * width / 2 ) * m;
     stream << "r1(x) = " << m << "*x + " << b1 << "; "
            << "r2(x) = " << m << "*x + " << b2 << "; ";
   }
