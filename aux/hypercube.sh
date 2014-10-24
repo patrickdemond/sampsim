@@ -14,25 +14,20 @@ CFG_DIR=cfg
 LOG_DIR=log
 OUT_DIR=out
 
-# ansi colors
+# colors
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-black='\e[0;30m'
-dark_gray='\e[1;30m'
-blue='\e[0;34m'
-light_blue='\e[1;34m'
-green='\e[0;32m'
-light_green='\e[1;32m'
-cyan='\e[0;36m'
-light_cyan='\e[1;36m'
-red='\e[0;31m'
-light_red='\e[1;31m'
-purple='\e[0;35m'
-light_purple='\e[1;35m'
-brown='\e[0;33m'
-yellow='\e[1;33m'
-light_gray='\e[0;37m'
-white='\e[1;37m'
-NC='\e[0m' # No Color
+BLACK=$(tput setaf 0)
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+YELLOW=$(tput setaf 3)
+BLUE=$(tput setaf 4)
+MAGENTA=$(tput setaf 5)
+CYAN=$(tput setaf 6)
+WHITE=$(tput setaf 7)
+BOLD=$(tput bold)
+UNDERLINE=$(tput smul)
+STANDOUT=$(tput smso)
+NORMAL=$(tput sgr0)
 
 # parameter values
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -223,6 +218,36 @@ param_help[45]="Disease weight for pocketing"
 # functions
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
 
+# Used to display a progress meter
+function progress_meter
+{
+  local width=50
+  local message=$1
+  local progress=$2
+  local total=$3
+  local percent=$( echo "scale=2; ${progress} / ${total}" | bc )
+  local ticks=$( echo "${percent} * ${width}" | bc | awk '{printf "%.0f", $0}' )
+  local spaces=$( echo "${width} - ${ticks}" | bc )
+
+  if [ ${progress} -eq 1 ]; then
+    last_progress_meter_ticks=-1
+  fi
+  
+  if [ $ticks -ne $last_progress_meter_ticks ]; then
+    local meter="";
+    if [ $ticks -ne 0 ]; then
+      meter+=`printf "%0.s#" $(seq 1 $ticks)`
+    fi
+    if [ $spaces -ne 0 ]; then
+      meter+=`printf "%0.s " $(seq 1 $spaces)`
+    fi
+    let COL=$(tput cols)-${#message}+${#MAGENTA}+${#NORMAL}
+    printf "\r%s%${COL}s" "$message" "[${MAGENTA}${meter}${NORMAL}]"
+  fi
+  last_progress_meter_ticks=${ticks}
+} 
+
+
 # Used to join the elements of an array into a string.
 # arg1: delimiter
 # arg2: array
@@ -236,22 +261,33 @@ function join
 # arg2: index (start with 0, the recursion takes care of the rest)
 function create_config_tree
 {
-  if [ $( echo "$2 < ${#name_array[@]}" | bc ) -ne 0 ]; then
-    if [[ ${value_array[$2]} == *:* ]]; then
-      # make the base directory
-      mkdir "$1/${name_array[$2]}"
-      array=(${value_array[$2]//:/ })
-      for val in "${array[@]}"; do
-        sub_dir="$1/${name_array[$2]}/${val}"
-        # make the value directories
-        mkdir $sub_dir
-        # go to the next parameter and repeat recursively
-        blah $sub_dir $( echo "$2 + 1" | bc )
-      done
-    else
-      blah $sub_dir $( echo "$2 + 1" | bc )
-    fi  
-  fi  
+  local directory=$1
+  local arr=$2"[*]"
+  local name_array=(${!arr})
+  local arr=$3"[*]"
+  local value_array=(${!arr})
+  local index=$4
+  local total=$5
+  
+  if [ ${index} -eq 0 ]; then
+    declare -i progress=0
+  fi
+
+  if [ $( echo "${index} < ${#name_array[@]}" | bc ) -ne 0 ]; then
+    # make the base directory
+    mkdir "${directory}/${name_array[${index}]}"
+    array=(${value_array[${index}]//:/ })
+    for val in "${array[@]}"; do
+      # determine and display progress
+      let "progress++"
+      progress_meter "Creating configuration tree" $progress $total
+
+      sub_dir="${directory}/${name_array[${index}]}/${val}"
+      mkdir $sub_dir
+      # go to the next parameter and repeat recursively
+      create_config_tree $sub_dir name_array value_array $( echo "${index} + 1" | bc ) ${total}
+    done
+  fi
 }
 
 # preamble
@@ -265,14 +301,14 @@ of every parameter which has a range of values."
 
 # get target directory
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-echo -e "What directory do you wish to create the hypercube in? (default: ${blue}./${NC})
-${red}warning: this will overwrite any existing directory${NC}"
+echo "What directory do you wish to create the hypercube in? (default: ${BLUE}./${NORMAL})
+${RED}warning: this will overwrite any existing directory${NORMAL}"
 read -e -r -p "> " directory
 if [ "${directory:0:1}" != "/" ]; then
   directory="./${directory}"
 fi
 # fix spaces and backslashes
-directory=$( echo ${directory} | sed "s/ /\\\ /g" | sed "s/\\\\\+/\\\\/g" ) 
+directory=$( echo ${directory} | sed "s/ /\\\ /g" | sed "s/\\\\\+/\\\\/g" )
 if [ -d "$directory" ]; then
   rm -rf ${directory}
 fi
@@ -286,13 +322,16 @@ for index in ${!param_name[*]}; do
   help=${param_help[$index]}
 
   echo
-  echo -e "Which parameter do you wish to use for ${light_blue}${name}${NC}? \
-(default: ${blue}${default}${NC})"
-  echo -e "Description: ${dark_gray}${help}${NC}"
+  echo "Which parameter do you wish to use for ${BOLD}${CYAN}${name}${NORMAL}? \
+(default: ${BLUE}${default}${NORMAL})"
+  echo "Description: ${MAGENTA}${help}${NORMAL}"
 
   while true; do
     echo -n -e "Please select \
-${white}d${NC}efault, ${white}c${NC}ustom, ${white}r${NC}ange or ${white}a${NC}rray> "
+${BOLD}${YELLOW}d${NORMAL}efault, \
+${BOLD}${YELLOW}c${NORMAL}ustom, \
+${BOLD}${YELLOW}r${NORMAL}ange or \
+${BOLD}${YELLOW}a${NORMAL}rray> "
     read -s -n 1 answer
     echo
     if [ "$answer" = "d" ] || [ -z "$answer" ]; then
@@ -308,6 +347,17 @@ ${white}d${NC}efault, ${white}c${NC}ustom, ${white}r${NC}ange or ${white}a${NC}r
       read -p "Provide the lowest value in the range: " lower
       read -p "Provide the highest value in the range: " upper
       read -p "Provide the step between values in the range: " step
+
+      pattern="^-?([0-9]*.?[0-9]+|[0-9]+.?[0-9]*)$"
+      if [[ ! $lower =~ $pattern ]] || [[ ! $upper =~ $pattern ]] || [[ ! $step =~ $pattern ]]; then
+        echo "${RED}ERROR: Values for 'lower', 'upper' and 'step' must all be a number${NORMAL}"
+        exit
+      fi
+
+      if [ "$step" -eq "0" ]; then
+        echo "${RED}ERROR: Value for 'step' cannot be 0${NORMAL}"
+        exit
+      fi
 
       value=
       current=${lower}
@@ -325,11 +375,35 @@ ${white}d${NC}efault, ${white}c${NC}ustom, ${white}r${NC}ange or ${white}a${NC}r
 
       break;
     else
-      echo -e "${red}Invalid input, please select d, c or r${NC}"
+      echo "${RED}Invalid input, please select d, c or r${NORMAL}"
     fi
   done
 done
+echo
 
 # create directory structure
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-create_config_tree $directory 0
+
+# make an array of all parameters with multiple values and count the total size of the hypercube
+size=0
+mult=1
+name_array=()
+value_array=()
+for index in ${!param_name[*]}; do
+  if [[ ${param_value[${index}]} == *:* ]]; then
+    name_array+=(${param_name[${index}]})
+    value_array+=(${param_value[${index}]})
+    array=(${value_array[${index}]//:/ })
+    array_size=${#array[@]}
+    mult=$(( $mult * $array_size ))
+    size=$(( $size + $mult ))
+  fi
+done
+
+if [ $size -eq 0 ]; then
+  echo "${RED}ERROR: You have to specify at least one parameter to have multiple values!${NORMAL}"
+  exit
+fi
+
+create_config_tree $directory name_array value_array 0 ${size}
+echo
