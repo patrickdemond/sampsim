@@ -319,6 +319,7 @@ non_zero_number_pattern="^-?((([1-9][0-9]*)(\.[0-9]*)?)|(0?\.[0-9]*[1-9]+[0-9]*)
 
 # get parameter values
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+skip=0
 for index in ${!param_name[*]}; do
   name=${param_name[$index]}
   default=${param_value[$index]}
@@ -333,15 +334,15 @@ for index in ${!param_name[*]}; do
     echo -n -e "Please select \
 ${BOLD}${YELLOW}d${NORMAL}efault, \
 ${BOLD}${YELLOW}c${NORMAL}ustom, \
-${BOLD}${YELLOW}r${NORMAL}ange or \
-${BOLD}${YELLOW}a${NORMAL}rray> "
+${BOLD}${YELLOW}r${NORMAL}ange, \
+${BOLD}${YELLOW}a${NORMAL}rray or \
+${BOLD}${YELLOW}f${NORMAL}inish with default values> "
     read -s -n 1 answer
     echo
     if [ "$answer" = "d" ] || [ -z "$answer" ]; then
       # do nothing
       break;
     elif [ "$answer" = "c" ]; then
-
       # get the custom value
       read -p "Provide a custom value: " param_value[$index]
 
@@ -417,10 +418,19 @@ ${BOLD}${YELLOW}a${NORMAL}rray> "
       param_value[$index]=$(join : ${array[@]})
 
       break;
+    elif [ "$answer" = "f" ]; then
+      # get the custom value
+      echo "Proceeding with default values for remaining parameters"
+      skip=1
+      break;
     else
-      echo "${RED}Invalid input, please select d, c or r${NORMAL}"
+      echo "${RED}Invalid input, please select d, c, r, a or f${NORMAL}"
     fi
   done
+
+  if [ $skip -eq 1 ]; then
+    break
+  fi
 done
 echo
 
@@ -450,3 +460,18 @@ fi
 
 create_config_tree $directory name_array value_array 0 ${size}
 echo
+
+# now create the config files
+
+# convert all end-level directories into files
+depth=$( find $directory -printf '%d\n' | sort -n | tail -n 1 )
+((depth++))
+search=$( seq -s "/*" ${depth} | sed 's/[0-9]//g' )
+search="${directory}${search}"
+for dir in $( find $search ); do
+  # replace directory with file
+  rm -rf "${dir}"
+  touch "${dir}.cfg"
+
+  # TODO: write configuration files here?
+done
