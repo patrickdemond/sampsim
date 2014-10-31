@@ -313,6 +313,9 @@ if [ -d "$directory" ]; then
   rm -rf ${directory}
 fi
 mkdir -p ${directory}
+      
+number_pattern="^-?((([0-9]|[1-9][0-9]*)(\.[0-9]*)?)|(\.[0-9]+))$" # any number
+non_zero_number_pattern="^-?((([1-9][0-9]*)(\.[0-9]*)?)|(0?\.[0-9]*[1-9]+[0-9]*))$" # any non-zero number
 
 # get parameter values
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -344,22 +347,41 @@ ${BOLD}${YELLOW}a${NORMAL}rray> "
 
       break;
     elif [ "$answer" = "r" ]; then
-      read -p "Provide the lowest value in the range: " lower
-      read -p "Provide the highest value in the range: " upper
-      read -p "Provide the step between values in the range: " step
+      # get the lower value in the range
+      while true; do
+        read -p "Provide the lowest value in the range: " lower
+        if [[ ! $lower =~ $number_pattern ]]; then
+          echo "${RED}ERROR: 'lower' must be a number${NORMAL}"
+        else
+          break
+        fi
+      done
 
-      pattern="^-?([0-9]*.?[0-9]+|[0-9]+.?[0-9]*)$"
-      if [[ ! $lower =~ $pattern ]] || [[ ! $upper =~ $pattern ]] || [[ ! $step =~ $pattern ]]; then
-        echo "${RED}ERROR: Values for 'lower', 'upper' and 'step' must all be a number${NORMAL}"
-        exit
-      fi
+      # get the upper value in the range
+      while true; do
+        read -p "Provide the highest value in the range: " upper
+        if [[ ! $upper =~ $number_pattern ]]; then
+          echo "${RED}ERROR: 'upper' must be a number${NORMAL}"
+        elif [ $( echo "${lower} == ${upper}" | bc ) -eq 1 ]; then
+          echo "${RED}ERROR: 'upper' cannot be the same value as 'lower'${NORMAL}"
+        else
+          break
+        fi
+      done
 
-      if [ "$step" -eq "0" ]; then
-        echo "${RED}ERROR: Value for 'step' cannot be 0${NORMAL}"
-        exit
-      fi
+      # get the step value of the range
+      while true; do
+        read -p "Provide the step between values in the range: " step
+        if [[ ! $step =~ $non_zero_pattern ]]; then
+          echo "${RED}ERROR: 'step' must be a non-zero number${NORMAL}"
+        elif [ $( echo "(${lower} < ${upper} && ${step} > 0) || (${lower} > ${upper} && ${step} < 0)" | bc ) -eq 0 ]; then
+          echo "${RED}ERROR: 'step' is in the wrong direction${NORMAL}"
+        else
+          break
+        fi
+      done
 
-      value=
+      value=""
       current=${lower}
       while [ $( echo "${current} <= ${upper}" | bc ) -eq 1 ]; do
         value="${value}:${current}"
@@ -370,8 +392,29 @@ ${BOLD}${YELLOW}a${NORMAL}rray> "
       break;
     elif [ "$answer" = "a" ]; then
 
-      read -a array -p "Provide a list of values delimited by a space: "
-      param_value[$index]="$(join : ${array[@]})"
+      while true; do
+        read -a array -p "Provide a list of values delimited by a space: "
+
+        if [ ${#array[@]} -eq 0 ]; then
+          echo "${RED}ERROR: The array cannot be empty${NORMAL}"
+        else
+          # validate all inputs as numbers
+          test=1
+          for i in ${!array[*]}; do
+            if [[ ! ${array[${i}]} =~ $number_pattern ]]; then
+              echo "${RED}ERROR: Array can only contain numbers${NORMAL}"
+              test=0
+              break
+            fi
+          done
+          if [ ${test} -eq 1 ]; then
+            break
+          fi
+        fi
+      done
+
+      # the array is now valid, put into a string deliminating by :
+      param_value[$index]=$(join : ${array[@]})
 
       break;
     else
