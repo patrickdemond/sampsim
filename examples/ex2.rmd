@@ -10,7 +10,7 @@ The goal:
 * run `glm()`, estimate various odds ratios, compare with truth?
 
 ```
-./generate -c default_population_config test 
+./generate -c default_population.cfg test 
  ## 13 seconds to generate, 13 seconds to write JSON (148M)
 ./strip_epi_sample --flat_file test.json strip
  ## ERROR: failed to parse population file "test.json"
@@ -21,7 +21,7 @@ The goal:
 But
 
 ```
-./generate -c default_population_config --batch_npop 10 \
+./generate -c default_population.cfg --batch_npop 10 \
             --batch_sampler arc_epi \
             --batch_nsamp 10 multi2
 ```

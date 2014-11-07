@@ -28,18 +28,18 @@ CONFIGURE_FILE( ${SAMPSIM_ROOT_DIR}/readme
                 ${PROJECT_BINARY_DIR}/readme COPYONLY )
 
 # Copy the sample config files to build
-CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_population_config
-                ${PROJECT_BINARY_DIR}/default_population_config COPYONLY )
-CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_arc_epi_config
-                ${PROJECT_BINARY_DIR}/default_arc_epi_config COPYONLY )
-CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_circle_gps_config
-                ${PROJECT_BINARY_DIR}/default_circle_gps_config COPYONLY )
-CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_random_config
-                ${PROJECT_BINARY_DIR}/default_random_config COPYONLY )
-CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_square_gps_config
-                ${PROJECT_BINARY_DIR}/default_square_gps_config COPYONLY )
-CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_strip_epi_config
-                ${PROJECT_BINARY_DIR}/default_strip_epi_config COPYONLY )
+CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_population.cfg
+                ${PROJECT_BINARY_DIR}/default_population.cfg COPYONLY )
+CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_arc_epi.cfg
+                ${PROJECT_BINARY_DIR}/default_arc_epi.cfg COPYONLY )
+CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_circle_gps.cfg
+                ${PROJECT_BINARY_DIR}/default_circle_gps.cfg COPYONLY )
+CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_random.cfg
+                ${PROJECT_BINARY_DIR}/default_random.cfg COPYONLY )
+CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_square_gps.cfg
+                ${PROJECT_BINARY_DIR}/default_square_gps.cfg COPYONLY )
+CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_strip_epi.cfg
+                ${PROJECT_BINARY_DIR}/default_strip_epi.cfg COPYONLY )
 
 SET( SAMPSIM_EXECUTABLES
   generate
