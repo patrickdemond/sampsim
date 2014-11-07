@@ -16,6 +16,8 @@ SET( SAMPSIM_LIB_DIR      ${SAMPSIM_ROOT_DIR}/lib )
 SET( SAMPSIM_DOC_DIR      ${SAMPSIM_ROOT_DIR}/doc )
 SET( SAMPSIM_DOXY_DIR     ${PROJECT_BINARY_DIR}/doxygen )
 SET( SAMPSIM_EXAMPLES_DIR ${SAMPSIM_ROOT_DIR}/examples )
+SET( SAMPSIM_CONFIG_DIR   ${PROJECT_BINARY_DIR}/config )
+SET( SAMPSIM_TESTING_DIR  ${PROJECT_BINARY_DIR}/Testing )
 
 # See if gnuplot is installed
 FIND_PACKAGE( Gnuplot QUIET )
@@ -27,19 +29,19 @@ SUBDIRS( ${SAMPSIM_LIB_DIR} )
 CONFIGURE_FILE( ${SAMPSIM_ROOT_DIR}/readme
                 ${PROJECT_BINARY_DIR}/readme COPYONLY )
 
-# Copy the sample config files to build
-CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_population.cfg
-                ${PROJECT_BINARY_DIR}/default_population.cfg COPYONLY )
-CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_arc_epi.cfg
-                ${PROJECT_BINARY_DIR}/default_arc_epi.cfg COPYONLY )
-CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_circle_gps.cfg
-                ${PROJECT_BINARY_DIR}/default_circle_gps.cfg COPYONLY )
-CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_random.cfg
-                ${PROJECT_BINARY_DIR}/default_random.cfg COPYONLY )
-CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_square_gps.cfg
-                ${PROJECT_BINARY_DIR}/default_square_gps.cfg COPYONLY )
-CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/default_strip_epi.cfg
-                ${PROJECT_BINARY_DIR}/default_strip_epi.cfg COPYONLY )
+# Copy all config files to build
+FILE( GLOB CONFIG_FILENAMES "${SAMPSIM_AUX_DIR}/*.cfg" )
+FOREACH( CONFIG ${CONFIG_FILENAMES} )
+  STRING( REPLACE
+    ${SAMPSIM_AUX_DIR}
+    ${SAMPSIM_CONFIG_DIR}
+    DESTINATION
+    ${CONFIG} )
+  CONFIGURE_FILE( ${CONFIG} ${DESTINATION} COPYONLY )
+ENDFOREACH()
+
+# Copy the hypercube.sh script to the config directory
+CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/hypercube.sh ${SAMPSIM_CONFIG_DIR}/hypercube.sh COPYONLY )
 
 SET( SAMPSIM_EXECUTABLES
   generate
@@ -131,5 +133,5 @@ IF( BUILD_TESTING )
   ENABLE_TESTING()
 
   # copy the testing tree from source to build
-  FILE( COPY ${SAMPSIM_EXAMPLES_DIR}/visualization DESTINATION ${PROJECT_BINARY_DIR}/Testing )
+  FILE( COPY ${SAMPSIM_EXAMPLES_DIR}/visualization DESTINATION ${SAMPSIM_TESTING_DIR} )
 ENDIF( BUILD_TESTING )

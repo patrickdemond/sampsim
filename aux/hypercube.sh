@@ -282,7 +282,7 @@ function create_config_tree
       let "progress++"
       progress_meter "Creating configuration tree" $progress $total
 
-      sub_dir="${directory}/${name_array[${index}]}/${val}"
+      sub_dir="${directory}/${name_array[${index}]}/v${val}"
       mkdir $sub_dir
       # go to the next parameter and repeat recursively
       create_config_tree $sub_dir name_array value_array $( echo "${index} + 1" | bc ) ${total}
@@ -387,6 +387,10 @@ ${BOLD}${YELLOW}f${NORMAL}inish with default values> "
       while [ $( echo "${current} <= ${upper}" | bc ) -eq 1 ]; do
         value="${value}:${current}"
         current=$( echo "${current} + ${step}" | bc )
+        # add the leading 0 if the number starts with .
+        if [ '.' = "${current:0:1}" ]; then
+          current="0${current}"
+        fi
       done
       param_value[$index]=${value:1} # remove the first character
 
@@ -470,8 +474,32 @@ search=$( seq -s "/*" ${depth} | sed 's/[0-9]//g' )
 search="${directory}${search}"
 for dir in $( find $search ); do
   # replace directory with file
+  cfg_file="${dir}.cfg"
   rm -rf "${dir}"
-  touch "${dir}.cfg"
+  cp hypercube_template.cfg $cfg_file
 
-  # TODO: write configuration files here?
+  # get the variable parameters for this config file from the directory
+  declare -A variable_params
+  sub_dir=${dir#$directory}
+  parts=(${sub_dir//\// })
+  for (( index=0; index<${#parts[@]}; index+=2 )); do
+    name=${parts[$index]}
+    value=${parts[$index+1]:1} # remove the "v"
+    variable_params[$name]=$value
+  done
+
+  # now go through all parameters and write them to the config file
+  for index in ${!param_name[*]}; do
+    name=${param_name[${index}]}
+    if [ ${variable_params[$name]} ]; then
+      value=${variable_params[$name]}
+    else
+      value=${param_value[${index}]}
+    fi
+    sed -i "s/<${name}>/${value}/" $cfg_file
+  done
 done
+
+# TODO:
+#   check for bug in progress meter when using 3+ variable parameters 
+#   add progress meter to for loop that generates config files
