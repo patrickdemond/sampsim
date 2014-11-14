@@ -1,0 +1,79 @@
+#!/bin/bash
+# 
+# A script used to run a large batch of configuration files
+# 
+# Program:  sampsim
+# Module:   hypercube.sh
+# Language: bash
+# 
+#########################################################################################
+
+# colors
+# -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+BLACK=$(tput setaf 0)
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+YELLOW=$(tput setaf 3)
+BLUE=$(tput setaf 4)
+MAGENTA=$(tput setaf 5)
+CYAN=$(tput setaf 6)
+WHITE=$(tput setaf 7)
+BOLD=$(tput bold)
+UNDERLINE=$(tput smul)
+STANDOUT=$(tput smso)
+NORMAL=$(tput sgr0)
+
+config_files=$( find . -type f | grep "\.cfg$" )
+num_cfg_files=$( echo $config_files | wc -w )
+int_greater_zero_pattern="^[1-9][0-9]*$" # any integer greater than 0
+
+# functions
+# -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+
+# preamble
+# -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+echo This script will build a total of ${num_cfg_files} populations from a hypercube tree of configurations.
+echo
+
+# get batch execution type
+# -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+multiprocess=true
+while true; do
+  echo -n "Please select ${BOLD}${YELLOW}m${NORMAL}ulti-process or ${BOLD}${YELLOW}s${NORMAL}erial farming> "
+  read -s -n 1 answer
+  echo
+  if [ "$answer" = "m" ]; then
+    multiprocess=true
+    break;
+  elif [ "$answer" = "s" ]; then
+    multiprocess=false
+    break;
+  else
+    echo "${RED}Invalid input, please select m or s${NORMAL}"
+  fi
+done
+
+if [ true = "${multiprocess}" ]; then
+  # generate populations using multiple processes
+  # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  while true; do
+    read -p "How many processes do you wish to use? (default: ${BLUE}$num_cfg_files${NORMAL})" numjobs
+    if [ -z $numjobs ]; then numjobs=$num_cfg_files; fi
+    if [[ ! $numjobs =~ $int_greater_zero_pattern ]]; then
+      echo "${RED}ERROR: you must choose an integer greater than 0${NORMAL}"
+    else
+      break;
+    fi
+  done
+else
+  # generate populations using serial farming
+  # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  while true; do
+    read -p "How many serial jobs do you wish to use? (default: ${BLUE}$num_cfg_files${NORMAL})" numjobs
+    if [[ ! $numjobs =~ $int_greater_zero_pattern ]]; then
+      echo "${RED}ERROR: you must choose an integer greater than 0${NORMAL}"
+    else
+      break;
+    fi
+  done
+fi

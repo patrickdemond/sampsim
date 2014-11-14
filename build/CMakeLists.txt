@@ -40,8 +40,14 @@ FOREACH( CONFIG ${CONFIG_FILENAMES} )
   CONFIGURE_FILE( ${CONFIG} ${DESTINATION} COPYONLY )
 ENDFOREACH()
 
-# Copy the hypercube.sh script to the config directory
-CONFIGURE_FILE( ${SAMPSIM_AUX_DIR}/hypercube.sh ${SAMPSIM_CONFIG_DIR}/hypercube.sh COPYONLY )
+# Copy the hypercube.sh and build.sh scripts to the config directory
+FILE( COPY ${SAMPSIM_AUX_DIR}/hypercube.sh
+      DESTINATION ${SAMPSIM_CONFIG_DIR}
+      FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                       GROUP_READ GROUP_EXECUTE
+                       WORLD_READ WORLD_EXECUTE )
+FILE( COPY ${SAMPSIM_AUX_DIR}/build.sh
+      DESTINATION ${SAMPSIM_CONFIG_DIR} )
 
 SET( SAMPSIM_EXECUTABLES
   generate

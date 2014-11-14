@@ -8,12 +8,6 @@
 # 
 #########################################################################################
 
-# directories
-# -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-CFG_DIR=cfg
-LOG_DIR=log
-OUT_DIR=out
-
 # colors
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
 BLACK=$(tput setaf 0)
@@ -225,11 +219,11 @@ function progress_meter
   local message=$1
   local progress=$2
   local total=$3
-  local percent=$( echo "scale=2; ${progress} / ${total}" | bc )
-  local ticks=$( echo "${percent} * ${width}" | bc | awk '{printf "%.0f", $0}' )
-  local spaces=$( echo "${width} - ${ticks}" | bc )
+  local percent=$( echo "scale=2; $progress / $total" | bc )
+  local ticks=$( echo "$percent * $width" | bc | awk '{printf "%.0f", $0}' )
+  local spaces=$( echo "$width - $ticks" | bc )
 
-  if [ ${progress} -eq 1 ]; then
+  if [ $progress -eq 1 ]; then
     last_progress_meter_ticks=-1
   fi
   
@@ -244,7 +238,7 @@ function progress_meter
     let COL=$(tput cols)-${#message}+${#MAGENTA}+${#NORMAL}
     printf "\r%s%${COL}s" "$message" "[${MAGENTA}${meter}${NORMAL}]"
   fi
-  last_progress_meter_ticks=${ticks}
+  last_progress_meter_ticks=$ticks
 } 
 
 
@@ -269,30 +263,30 @@ function create_config_tree
   local index=$4
   local total=$5
   
-  if [ ${index} -eq 0 ]; then
+  if [ $index -eq 0 ]; then
     declare -i progress=0
   fi
 
-  if [ $( echo "${index} < ${#name_array[@]}" | bc ) -ne 0 ]; then
+  if [ $( echo "$index < ${#name_array[@]}" | bc ) -ne 0 ]; then
     # make the base directory
-    mkdir "${directory}/${name_array[${index}]}"
-    array=(${value_array[${index}]//:/ })
+    mkdir "$directory/${name_array[$index]}"
+    array=(${value_array[$index]//:/ })
     for val in "${array[@]}"; do
       # determine and display progress
       let "progress++"
       progress_meter "Creating configuration tree" $progress $total
 
-      sub_dir="${directory}/${name_array[${index}]}/v${val}"
+      sub_dir="$directory/${name_array[$index]}/v$val"
       mkdir $sub_dir
       # go to the next parameter and repeat recursively
-      create_config_tree $sub_dir name_array value_array $( echo "${index} + 1" | bc ) ${total}
+      create_config_tree $sub_dir name_array value_array $( echo "$index + 1" | bc ) $total
     done
   fi
 }
 
 # preamble
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-echo This script will build a list of configurations.
+echo This script will create a hypercube of configurations into a directory tree.
 echo
 echo \
 "For every parameter you may select either the default value, a custom value or a
@@ -301,18 +295,23 @@ of every parameter which has a range of values."
 
 # get target directory
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-echo "What directory do you wish to create the hypercube in? (default: ${BLUE}./${NORMAL})
+directory="./hypercube"
+echo "What directory do you wish to create the hypercube in? (default: ${BLUE}$directory${NORMAL})
 ${RED}warning: this will overwrite any existing directory${NORMAL}"
 read -e -r -p "> " directory
-if [ "${directory:0:1}" != "/" ]; then
-  directory="./${directory}"
+if [[ "${directory:0:1}" != "/" || ${directory:0:2} != "./" ]]; then
+  directory="./$directory"
 fi
 # fix spaces and backslashes
-directory=$( echo ${directory} | sed "s/ /\\\ /g" | sed "s/\\\\\+/\\\\/g" )
+directory=$( echo $directory | sed "s/ /\\\ /g" | sed "s/\\\\\+/\\\\/g" )
 if [ -d "$directory" ]; then
-  rm -rf ${directory}
+  rm -rf $directory
 fi
-mkdir -p ${directory}
+
+# create directory and put the build script in it
+mkdir -p $directory
+cp build.sh $directory
+chmod 755 $directory/build.sh
       
 number_pattern="^-?((([0-9]|[1-9][0-9]*)(\.[0-9]*)?)|(\.[0-9]+))$" # any number
 non_zero_number_pattern="^-?((([1-9][0-9]*)(\.[0-9]*)?)|(0?\.[0-9]*[1-9]+[0-9]*))$" # any non-zero number
@@ -331,7 +330,7 @@ for index in ${!param_name[*]}; do
   echo "Description: ${MAGENTA}${help}${NORMAL}"
 
   while true; do
-    echo -n -e "Please select \
+    echo -n "Please select \
 ${BOLD}${YELLOW}d${NORMAL}efault, \
 ${BOLD}${YELLOW}c${NORMAL}ustom, \
 ${BOLD}${YELLOW}r${NORMAL}ange, \
@@ -363,7 +362,7 @@ ${BOLD}${YELLOW}f${NORMAL}inish with default values> "
         read -p "Provide the highest value in the range: " upper
         if [[ ! $upper =~ $number_pattern ]]; then
           echo "${RED}ERROR: 'upper' must be a number${NORMAL}"
-        elif [ $( echo "${lower} == ${upper}" | bc ) -eq 1 ]; then
+        elif [ $( echo "$lower == $upper" | bc ) -eq 1 ]; then
           echo "${RED}ERROR: 'upper' cannot be the same value as 'lower'${NORMAL}"
         else
           break
@@ -375,7 +374,7 @@ ${BOLD}${YELLOW}f${NORMAL}inish with default values> "
         read -p "Provide the step between values in the range: " step
         if [[ ! $step =~ $non_zero_pattern ]]; then
           echo "${RED}ERROR: 'step' must be a non-zero number${NORMAL}"
-        elif [ $( echo "(${lower} < ${upper} && ${step} > 0) || (${lower} > ${upper} && ${step} < 0)" | bc ) -eq 0 ]; then
+        elif [ $( echo "($lower < $upper && $step > 0) || ($lower > $upper && $step < 0)" | bc ) -eq 0 ]; then
           echo "${RED}ERROR: 'step' is in the wrong direction${NORMAL}"
         else
           break
@@ -383,13 +382,13 @@ ${BOLD}${YELLOW}f${NORMAL}inish with default values> "
       done
 
       value=""
-      current=${lower}
-      while [ $( echo "${current} <= ${upper}" | bc ) -eq 1 ]; do
-        value="${value}:${current}"
-        current=$( echo "${current} + ${step}" | bc )
+      current=$lower
+      while [ $( echo "$current <= $upper" | bc ) -eq 1 ]; do
+        value="$value:${current}"
+        current=$( echo "$current + $step" | bc )
         # add the leading 0 if the number starts with .
         if [ '.' = "${current:0:1}" ]; then
-          current="0${current}"
+          current="0$current"
         fi
       done
       param_value[$index]=${value:1} # remove the first character
@@ -405,14 +404,14 @@ ${BOLD}${YELLOW}f${NORMAL}inish with default values> "
         else
           # validate all inputs as numbers
           test=1
-          for i in ${!array[*]}; do
-            if [[ ! ${array[${i}]} =~ $number_pattern ]]; then
+          for idx in ${!array[*]}; do
+            if [[ ! ${array[$idx]} =~ $number_pattern ]]; then
               echo "${RED}ERROR: Array can only contain numbers${NORMAL}"
               test=0
               break
             fi
           done
-          if [ ${test} -eq 1 ]; then
+          if [ $test -eq 1 ]; then
             break
           fi
         fi
@@ -442,18 +441,20 @@ echo
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
 
 # make an array of all parameters with multiple values and count the total size of the hypercube
+idx=0
 size=0
 mult=1
 name_array=()
 value_array=()
 for index in ${!param_name[*]}; do
-  if [[ ${param_value[${index}]} == *:* ]]; then
-    name_array+=(${param_name[${index}]})
-    value_array+=(${param_value[${index}]})
-    array=(${value_array[${index}]//:/ })
+  if [[ ${param_value[$index]} == *:* ]]; then
+    name_array+=(${param_name[$index]})
+    value_array+=(${param_value[$index]})
+    array=(${value_array[$idx]//:/ })
     array_size=${#array[@]}
     mult=$(( $mult * $array_size ))
     size=$(( $size + $mult ))
+    ((idx++))
   fi
 done
 
@@ -462,20 +463,28 @@ if [ $size -eq 0 ]; then
   exit
 fi
 
-create_config_tree $directory name_array value_array 0 ${size}
+create_config_tree $directory name_array value_array 0 $size
 echo
 
 # now create the config files
+# -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
 
 # convert all end-level directories into files
 depth=$( find $directory -printf '%d\n' | sort -n | tail -n 1 )
 ((depth++))
-search=$( seq -s "/*" ${depth} | sed 's/[0-9]//g' )
-search="${directory}${search}"
-for dir in $( find $search ); do
+search=$( seq -s "/*" $depth | sed 's/[0-9]//g' )
+search="$directory$search"
+dir_list=$( find $search )
+total=$( echo ${dir_list[@]} | wc -w )
+declare -i progress=0
+for dir in $dir_list; do
+  # determine and display progress
+  let "progress++"
+  progress_meter "Writing configuration files" $progress $total
+
   # replace directory with file
-  cfg_file="${dir}.cfg"
-  rm -rf "${dir}"
+  cfg_file="$dir.cfg"
+  rm -rf "$dir"
   cp hypercube_template.cfg $cfg_file
 
   # get the variable parameters for this config file from the directory
@@ -490,16 +499,15 @@ for dir in $( find $search ); do
 
   # now go through all parameters and write them to the config file
   for index in ${!param_name[*]}; do
-    name=${param_name[${index}]}
+    name=${param_name[$index]}
     if [ ${variable_params[$name]} ]; then
       value=${variable_params[$name]}
     else
-      value=${param_value[${index}]}
+      value=${param_value[$index]}
     fi
-    sed -i "s/<${name}>/${value}/" $cfg_file
+    sed -i "s/<$name>/$value/" $cfg_file
   done
 done
 
-# TODO:
-#   check for bug in progress meter when using 3+ variable parameters 
-#   add progress meter to for loop that generates config files
+# -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+echo "Finished creating hypercube configuration tree"
