@@ -23,8 +23,8 @@ UNDERLINE=$(tput smul)
 STANDOUT=$(tput smso)
 NORMAL=$(tput sgr0)
 
-config_files=$( find . -type f | grep "\.cfg$" )
-num_cfg_files=$( echo $config_files | wc -w )
+cfg_files=( $( find . -type f | grep "\.cfg$" ) )
+num_cfg_files=${#cfg_files[*]}
 int_greater_zero_pattern="^[1-9][0-9]*$" # any integer greater than 0
 
 # functions
@@ -56,22 +56,47 @@ done
 if [ true = "${multiprocess}" ]; then
   # generate populations using multiple processes
   # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  default_numjobs=$( grep -c ^processor /proc/cpuinfo )
   while true; do
-    read -p "How many processes do you wish to use? (default: ${BLUE}$num_cfg_files${NORMAL})" numjobs
-    if [ -z $numjobs ]; then numjobs=$num_cfg_files; fi
+    read -p "How many processes do you wish to use? (default: ${BLUE}$default_numjobs${NORMAL}) " numjobs
+    if [ -z $numjobs ]; then numjobs=$default_numjobs; fi
     if [[ ! $numjobs =~ $int_greater_zero_pattern ]]; then
       echo "${RED}ERROR: you must choose an integer greater than 0${NORMAL}"
+      exit
     else
       break;
     fi
   done
+
+  job_commands=()
+  for index in $( seq 1 $numjobs ); do
+    ((index--))
+    job_commands[$index]="date +'[process $index]> starting process at %X'"
+  done
+
+  job_index=0;
+  for index in ${!cfg_files[*]}; do
+    job_index=$( expr $index % $numjobs )
+    name=${cfg_files[$index]:0:-4}
+    cmd="nice -10 ./generate -c ${name}.cfg ${name} > ${name}.log && \
+         echo \"[process ${job_index}]> configuration ${name} complete\""
+    job_commands[$job_index]="${job_commands[$job_index]} && $cmd"
+  done
+
+  echo 
+  for index in ${!job_commands[*]}; do
+    eval ${job_commands[$index]} && date +"[process ${index}]> finished process at %X" &
+  done
+  wait
+  echo "All jobs are complete."
 else
   # generate populations using serial farming
   # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   while true; do
-    read -p "How many serial jobs do you wish to use? (default: ${BLUE}$num_cfg_files${NORMAL})" numjobs
+    read -p "How many serial jobs do you wish to use? (default: ${BLUE}$num_cfg_files${NORMAL}) " numjobs
     if [[ ! $numjobs =~ $int_greater_zero_pattern ]]; then
       echo "${RED}ERROR: you must choose an integer greater than 0${NORMAL}"
+      exit
     else
       break;
     fi

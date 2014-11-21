@@ -83,11 +83,11 @@ param_help[13]="Number of disease pockets to generate"
 
 param_name[14]="pocket_kernel_type"
 param_value[14]="exponential"
-param_help[14]="Number of disease pockets to generate"
+param_help[14]="The type of kernel to use for disease pockets"
 
 param_name[15]="pocket_scaling"
 param_value[15]="1.0"
-param_help[15]="Number of disease pockets to generate"
+param_help[15]="The scaling factor to use for disease pocket"
 
 param_name[16]="mean_income_b00"
 param_value[16]="0.75"
@@ -308,8 +308,9 @@ if [ -d "$directory" ]; then
   rm -rf $directory
 fi
 
-# create directory and put the build script in it
+# create directory and put the generate and build script in it
 mkdir -p $directory
+cp ../generate $directory
 cp build.sh $directory
 chmod 755 $directory/build.sh
       
