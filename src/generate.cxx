@@ -64,8 +64,8 @@ int main( const int argc, const char** argv )
   opts.add_option( "river_probability", "0", "The probability that a town has a river (must be [0,1])" );
   opts.add_option( "river_width", "0", "How wide to make rivers, in meters (must be smaller than tile width)" );
   opts.add_option( "disease_pockets", "0", "Number of disease pockets to generate" );
-  opts.add_option( "pocket_kernel_type", "exponential", "Number of disease pockets to generate" );
-  opts.add_option( "pocket_scaling", "1", "Number of disease pockets to generate" );
+  opts.add_option( "pocket_kernel_type", "exponential", "The type of kernel to use for disease pockets" );
+  opts.add_option( "pocket_scaling", "1", "The scaling factor to use for disease pocket" );
   opts.add_heading( "" );
   opts.add_heading( "Population trends:" );
   opts.add_heading( "" );
