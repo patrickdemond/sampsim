@@ -11,6 +11,7 @@
 #include "building.h"
 #include "building_tree.h"
 
+#include <cmath>
 #include <json/value.h>
 #include <limits>
 #include <stdexcept>
@@ -22,6 +23,8 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   epi::epi()
   {
+    this->number_of_sectors = 1;
+    this->current_sector_index = -1;
     this->skip = 1;
     this->start_angle_defined = false;
     this->start_angle = 0;
@@ -66,6 +69,35 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void epi::set_number_of_sectors( const unsigned int number_of_sectors )
+  {
+    if( utilities::verbose ) utilities::output( "setting number of sectors to %d", number_of_sectors );
+    this->number_of_sectors = number_of_sectors;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  std::pair< double, double > epi::get_next_sector_range()
+  {
+    // increment to the next sector
+    this->current_sector_index++;
+
+    // make sure that we aren't out of bounds
+    if( this->current_sector_index == this->number_of_sectors )
+      throw std::runtime_error(
+        "Tried to get sector range but index is out of bounds" );
+
+    std::pair< double, double > angles;
+    angles.first = -M_PI + 2*M_PI *
+                   static_cast< double >( this->current_sector_index ) /
+                   static_cast< double >( this->number_of_sectors );
+    angles.second = angles.first + 2*M_PI *
+                    static_cast< double >( this->current_sector_index + 1 ) /
+                    static_cast< double >( this->number_of_sectors );
+
+    return angles;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void epi::set_skip( const unsigned int skip )
   {
     if( utilities::verbose ) utilities::output( "setting skip to %d", skip );
@@ -76,6 +108,7 @@ namespace sample
   void epi::to_json( Json::Value &json ) const
   {
     sample::to_json( json );
+    json["number_of_sectors"] = this->number_of_sectors;
     json["skip"] = this->skip;
     json["start_angle"] = this->start_angle;
     json["first_building_index"] = this->first_building_index;
@@ -86,6 +119,7 @@ namespace sample
   {
     std::stringstream stream;
     stream << sample::get_csv_header();
+    stream << "# number_of_sectors: " << this->number_of_sectors << std::endl;
     stream << "# skip: " << this->skip << std::endl;
     stream << "# start_angle: " << this->start_angle << std::endl;
     stream << "# first_building_index: " << this->first_building_index << std::endl;

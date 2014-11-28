@@ -309,6 +309,13 @@ namespace sampsim
     option* option;
 
     std::ifstream file( filename, std::ifstream::in );
+    if( !file.good() )
+    {
+      std::stringstream stream;
+      stream << "Error opening file \"" << filename << "\"";
+      throw std::runtime_error( stream.str() );
+    }
+
     while( !file.eof() )
     {
       std::getline( file, line );

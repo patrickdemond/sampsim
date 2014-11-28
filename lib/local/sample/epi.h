@@ -70,6 +70,29 @@ namespace sample
     virtual std::string get_csv_header() const;
 
     /**
+     * Sets the number of sectors to divide the town into.
+     * 
+     * When sampling a town it is possible to divide the town into N evenly sized sectors such that
+     * one sample will be taken in each sector containing 1/N the total sample size.
+     */
+    void set_number_of_sectors( const unsigned int number_of_sectors );
+
+    /**
+     * Returns the number of sectors to divide the town into.
+     */
+    unsigned int get_number_of_sectors() const { return this->number_of_sectors; }
+
+    /**
+     * Returns the current sector being processed
+     */
+    unsigned int get_current_sector() const { return this->current_sector_index + 1; }
+
+    /**
+     * Returns the lower and upper bounds of the current sector
+     */
+    std::pair< double, double > get_next_sector_range();
+
+    /**
      * Sets the number of households to skip when selecting the next nearest household.
      */
     void set_skip( const unsigned int skip );
@@ -105,11 +128,6 @@ namespace sample
     virtual building* select_next_building( sampsim::building_tree& );
 
     /**
-     * The number of households to skip when selecting the next household
-     */
-    unsigned int skip;
-
-    /**
      * Whether the start angle has been defined
      */
     bool start_angle_defined;
@@ -129,6 +147,25 @@ namespace sample
      * A reference to the currently selected building
      */
     building *current_building;
+
+  private:
+    /**
+     * The total number of sectors to divide the town into for sampling.
+     * 
+     * When sampling a town it is possible to divide the town into N evenly sized sectors such that
+     * one sample will be taken in each sector containing 1/N the total sample size.
+     */
+    unsigned int number_of_sectors;
+
+    /**
+     * The current sector being sampled
+     */
+    unsigned int current_sector_index;
+
+    /**
+     * The number of households to skip when selecting the next household
+     */
+    unsigned int skip;
   };
 }
 

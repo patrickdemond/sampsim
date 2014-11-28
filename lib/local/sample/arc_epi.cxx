@@ -29,6 +29,12 @@ namespace sample
 
     building* b;
 
+    // check to see if we have to move to the next sector and reset the current building if we do
+    double size_fraction = static_cast< double >( this->get_size() ) /
+                           static_cast< double >( this->get_number_of_sectors() );
+    if( this->get_current_size() > size_fraction * this->get_current_sector() )
+      this->current_building = NULL;
+
     if( NULL == this->current_building )
     {
       building_list_type building_list = tree.get_building_list();
@@ -41,14 +47,22 @@ namespace sample
       int iteration = 0;
       while( 0 == initial_building_list.size() && iteration < 100 )
       {
-        // if a start angle hasn't been defined then pick a random start angle in [-PI, PI]
+        // if a start angle hasn't been defined then pick a random start angle in the current sector
         if( !this->start_angle_defined )
-          this->start_angle = utilities::random() * 2 * M_PI - M_PI;
+        {
+          std::pair< double, double > angles = this->get_next_sector_range();
+          this->start_angle = utilities::random() * ( angles.second - angles.first ) + angles.first;
+
+          if( utilities::verbose )
+            utilities::output(
+              "Beginning sector %d of %d with a starting angle of %0.3f radians",
+              this->get_current_sector() - 1,
+              this->get_number_of_sectors(),
+              this->start_angle );
+        }
+
         if( utilities::verbose )
-          utilities::output(
-            "iteration #%d: selecting starting angle of %0.3f radians",
-            iteration + 1,
-            this->start_angle );
+          utilities::output( "iteration #%d", iteration + 1 );
 
         for( auto it = building_list.begin(); it != building_list.end(); ++it )
         {
@@ -64,7 +78,8 @@ namespace sample
             a2 -= 2 * M_PI;
 
             // test from a1 to PI and from -PI to a2
-            if( ( a1 <= a && a <= M_PI ) || ( -M_PI <= a && a < a2 ) ) initial_building_list.push_back( *it );
+            if( ( a1 <= a && a <= M_PI ) || ( -M_PI <= a && a < a2 ) )
+              initial_building_list.push_back( *it );
           }
           // it is possible that a1 < -PI, if so then we need to loop around to PI
           else if( -M_PI > a1 )

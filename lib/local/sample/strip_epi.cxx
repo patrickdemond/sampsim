@@ -29,6 +29,12 @@ namespace sample
 
     building* b;
 
+    // check to see if we have to move to the next sector and reset the current building if we do
+    double size_fraction = static_cast< double >( this->get_size() ) /
+                           static_cast< double >( this->get_number_of_sectors() );
+    if( this->get_current_size() > size_fraction * ( this->get_current_sector() ) )
+      this->current_building = NULL;
+
     if( NULL == this->current_building )
     {   
       building_list_type building_list = tree.get_building_list();
@@ -45,14 +51,22 @@ namespace sample
       int iteration = 0;
       do
       {
-        // if a start angle hasn't been defined then pick a random start angle in [-PI, PI]
+        // if a start angle hasn't been defined then pick a random start angle in the current sector
         if( !this->start_angle_defined )
-          this->start_angle = utilities::random() * 2 * M_PI - M_PI;
+        {
+          std::pair< double, double > angles = this->get_next_sector_range();
+          this->start_angle = utilities::random() * ( angles.second - angles.first ) + angles.first;
+
+          if( utilities::verbose )
+            utilities::output(
+              "Beginning sector %d of %d with a starting angle of %0.3f radians",
+              this->get_current_sector() - 1,
+              this->get_number_of_sectors(),
+              this->start_angle );
+        }
+
         if( utilities::verbose )
-          utilities::output(
-            "iteration #%d: selecting starting angle of %0.3f radians",
-            iteration + 1,
-            this->start_angle );
+          utilities::output( "iteration #%d", iteration + 1 );
 
         // determine the line coefficient (for lines making strip of the appropriate width)
         double sin_min_angle = sin( -this->start_angle );

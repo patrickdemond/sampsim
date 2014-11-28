@@ -30,6 +30,7 @@ namespace sample
   {
     this->number_of_samples = 0;
     this->size = 0;
+    this->current_size = 0;
     this->one_per_household = false;
     this->age = ANY_AGE;
     this->sex = ANY_SEX;
@@ -130,10 +131,10 @@ namespace sample
       utilities::output( "selecting from a list of %d buildings", building_list.size() );
 
       // keep selecting buildings until we've filled our sample size
-      int individual_count = 0;
+      this->current_size = 0;
       int household_count = 0;
       this->first_building = NULL;
-      while( this->get_size() > individual_count )
+      while( this->size > this->current_size )
       {
         if( tree.is_empty() )
         {
@@ -171,11 +172,11 @@ namespace sample
 
           if( count )
           {
-            individual_count += count;
+            this->current_size += count;
             household_count++;
 
             // only select another household if we haven't reached our count
-            if( this->get_size() <= individual_count ) break;
+            if( this->size <= this->current_size ) break;
           }
         }
         tree.remove( b );

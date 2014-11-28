@@ -194,6 +194,11 @@ namespace sample
 
   protected:
     /**
+     * Returns the current number of selected individuals in the sample
+     */
+    unsigned int get_current_size() const { return this->current_size; }
+
+    /**
      * Algorithm which selects buildings based on the sampling method
      * 
      * This pure virtual method must be defined by all child classes.  It allows each sampling method
@@ -236,6 +241,13 @@ namespace sample
      * How many individuals to select in each sample
      */
     unsigned int size;
+
+    /**
+     * The number of individuals which have been selected by the sample so far.
+     * 
+     * This value is updated after every call to the select_next_building() method
+     */
+    unsigned int current_size;
 
     /**
      * Whether to sample one individual per household
