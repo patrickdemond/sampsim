@@ -283,14 +283,14 @@ int main( const int argc, const char** argv )
             bool flat = opts.get_flag( "flat_file" );
             bool plot = opts.get_flag( "plot" );
 
-            if( 0 >= batch_nsamp )
-            {
-              // create a json file no flat file was requested
-              if( !flat ) population->write( population_filename, false );
-              
-              // create a flat file if a flat file or plot was requested
-              if( flat || plot ) population->write( population_filename, true );
+            // create a json file no flat file was requested
+            if( !flat ) population->write( population_filename, false );
+            
+            // create a flat file if a flat file or plot was requested
+            if( flat || plot ) population->write( population_filename, true );
 
+            if( 1 < batch_nsamp )
+            {
               // plot the flat file if requested to
               if( plot )
               {
@@ -322,9 +322,6 @@ int main( const int argc, const char** argv )
             }
             else
             {
-              // only create a flat file is a plot was requested
-              if( plot ) population->write( population_filename, true );
-
               // determine which sampler to use and set up the options for it
               const char* sampler_argv[3];
               sampler_argv[0] = batch_sampler.c_str();
@@ -409,6 +406,7 @@ int main( const int argc, const char** argv )
               for( int s = 0; s < batch_nsamp; s++ )
               {
                 // filename depends on whether we are creating a batch of samples or not
+                sample_filename = population_filename + "_sample";
                 if( 1 < batch_nsamp )
                 {
                   std::stringstream stream;
@@ -417,7 +415,6 @@ int main( const int argc, const char** argv )
                   sample_filename = stream.str();
                   std::cout << "sampling iteration " << s << " of " << batch_nsamp << std::endl;
                 }
-                else sample_filename = population_filename;
 
                 sample->generate();
 
