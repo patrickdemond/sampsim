@@ -32,6 +32,9 @@ do
   $generate -c $population_config_file -p $population_name
 done
 
+# cheat by making a link to the balanced flat file that the script can work with
+ln -sf balanced.household.csv balanced.json.household.csv
+
 # loop over all samplers and process the balanced population
 for sample_dir in *_sample
 do

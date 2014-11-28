@@ -289,7 +289,7 @@ int main( const int argc, const char** argv )
             // create a flat file if a flat file or plot was requested
             if( flat || plot ) population->write( population_filename, true );
 
-            if( 1 < batch_nsamp )
+            if( 0 == batch_nsamp )
             {
               // plot the flat file if requested to
               if( plot )

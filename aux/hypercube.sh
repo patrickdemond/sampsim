@@ -484,9 +484,9 @@ for dir in $dir_list; do
   progress_meter "Writing configuration files" $progress $total
 
   # replace directory with file
-  cfg_file="$dir.cfg"
+  conf_file="$dir.conf"
   rm -rf "$dir"
-  cp hypercube_template.cfg $cfg_file
+  cp hypercube_template.conf $conf_file
 
   # get the variable parameters for this config file from the directory
   declare -A variable_params
@@ -506,7 +506,7 @@ for dir in $dir_list; do
     else
       value=${param_value[$index]}
     fi
-    sed -i "s/<$name>/$value/" $cfg_file
+    sed -i "s/<$name>/$value/" $conf_file
   done
 done
 

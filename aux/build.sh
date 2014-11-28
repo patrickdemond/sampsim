@@ -23,8 +23,8 @@ UNDERLINE=$(tput smul)
 STANDOUT=$(tput smso)
 NORMAL=$(tput sgr0)
 
-cfg_files=( $( find . -type f | grep "\.cfg$" ) )
-num_cfg_files=${#cfg_files[*]}
+conf_files=( $( find . -type f | grep "\.conf$" ) )
+num_conf_files=${#conf_files[*]}
 int_greater_zero_pattern="^[1-9][0-9]*$" # any integer greater than 0
 
 # functions
@@ -32,7 +32,7 @@ int_greater_zero_pattern="^[1-9][0-9]*$" # any integer greater than 0
 
 # preamble
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-echo This script will build a total of ${num_cfg_files} populations from a hypercube tree of configurations.
+echo This script will build a total of ${num_conf_files} populations from a hypercube tree of configurations.
 echo
 
 # get batch execution type
@@ -75,10 +75,10 @@ if [ true = "${multiprocess}" ]; then
   done
 
   job_index=0;
-  for index in ${!cfg_files[*]}; do
+  for index in ${!conf_files[*]}; do
     job_index=$( expr $index % $numjobs )
-    name=${cfg_files[$index]:0:-4}
-    cmd="nice -10 ./generate -c ${name}.cfg ${name} > ${name}.log && \
+    name=${conf_files[$index]:0:-4}
+    cmd="nice -10 ./generate -c ${name}.conf ${name} > ${name}.log && \
          echo \"[process ${job_index}]> configuration ${name} complete\""
     job_commands[$job_index]="${job_commands[$job_index]} && $cmd"
   done
@@ -93,7 +93,7 @@ else
   # generate populations using serial farming
   # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   while true; do
-    read -p "How many serial jobs do you wish to use? (default: ${BLUE}$num_cfg_files${NORMAL}) " numjobs
+    read -p "How many serial jobs do you wish to use? (default: ${BLUE}$num_conf_files${NORMAL}) " numjobs
     if [[ ! $numjobs =~ $int_greater_zero_pattern ]]; then
       echo "${RED}ERROR: you must choose an integer greater than 0${NORMAL}"
       exit

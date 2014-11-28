@@ -22,7 +22,7 @@ import_results <- function(fn,pop,samp,w="individual")
 
 ## generate a simulation
 gen_sim <- function(npop=10,nsamp=10,sampler="arc_epi",fn="tmpsim",
-                    config_file="default_population.cfg") {
+                    config_file="config/default_population.conf") {
     ## TO DO: add wrapper to generate population config file on the fly,
     ##  or specify population parameters
     t1 <- system.time(system(paste("./generate -c",config_file,
@@ -64,7 +64,7 @@ sum_sim <- function(npop=10,nsamp=10,fn="tmpsim",mean.only=TRUE) {
 **TO DO: Loop over population parameters:**
 
 ```{r newsims,eval=FALSE}
-gen_sim(fn="tmpsim2",config_file="spathom_pop.cfg")
+gen_sim(fn="tmpsim2",config_file="config/spathom_pop.conf")
 gen_sim(fn="tmpsim3",sampler="random")
 gen_sim(fn="tmpsim4",sampler="strip_epi")
 ```
