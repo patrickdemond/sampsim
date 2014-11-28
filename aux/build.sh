@@ -32,8 +32,26 @@ int_greater_zero_pattern="^[1-9][0-9]*$" # any integer greater than 0
 
 # preamble
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-echo This script will build a total of ${num_conf_files} populations from a hypercube tree of configurations.
+echo This script will build a total of $num_conf_files populations from a hypercube tree of configurations.
 echo
+
+# get whether to plot populations
+# -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+plot=true
+while true; do
+  echo -n "Do you wish to create plots of all populations? (select ${BOLD}${YELLOW}y${NORMAL}es or ${BOLD}${YELLOW}n${NORMAL}o> "
+  read -s -n 1 answer
+  echo
+  if [ "$answer" = "y" ]; then
+    plot="-p"
+    break;
+  elif [ "$answer" = "n" ]; then
+    plot=""
+    break;
+  else
+    echo "${RED}Invalid input, please select ${BOLD}${YELLOW}y${NORMAL}${RED} or ${BOLD}${YELLOW}n${NORMAL}"
+  fi
+done
 
 # get batch execution type
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -49,11 +67,11 @@ while true; do
     multiprocess=false
     break;
   else
-    echo "${RED}Invalid input, please select m or s${NORMAL}"
+    echo "${RED}Invalid input, please select ${BOLD}${YELLOW}m${NORMAL}${RED} or ${BOLD}${YELLOW}s${NORMAL}"
   fi
 done
 
-if [ true = "${multiprocess}" ]; then
+if [ true = "$multiprocess" ]; then
   # generate populations using multiple processes
   # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   default_numjobs=$( grep -c ^processor /proc/cpuinfo )
@@ -77,15 +95,15 @@ if [ true = "${multiprocess}" ]; then
   job_index=0;
   for index in ${!conf_files[*]}; do
     job_index=$( expr $index % $numjobs )
-    name=${conf_files[$index]:0:-4}
-    cmd="nice -10 ./generate -c ${name}.conf ${name} > ${name}.log && \
-         echo \"[process ${job_index}]> configuration ${name} complete\""
+    name=${conf_files[$index]:0:-5}
+    cmd="nice -10 ./generate $plot -c $name.conf $name > $name.log && \
+         echo \"[process $job_index]> configuration $name complete\""
     job_commands[$job_index]="${job_commands[$job_index]} && $cmd"
   done
 
   echo 
   for index in ${!job_commands[*]}; do
-    eval ${job_commands[$index]} && date +"[process ${index}]> finished process at %X" &
+    eval ${job_commands[$index]} && date +"[process $index]> finished process at %X" &
   done
   wait
   echo "All jobs are complete."
