@@ -95,7 +95,7 @@ if [ true = "$multiprocess" ]; then
   job_index=0;
   for index in ${!conf_files[*]}; do
     job_index=$( expr $index % $numjobs )
-    name=${conf_files[$index]:0:-5}
+    name=${conf_files[$index]%.conf}
     cmd="nice -10 ./generate $plot -c $name.conf $name > $name.log && \
          echo \"[process $job_index]> configuration $name complete\""
     job_commands[$job_index]="${job_commands[$job_index]} && $cmd"
@@ -112,7 +112,7 @@ else
   # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   echo "Launching ${num_conf_files} jobs using sqsub"
   for index in ${!conf_files[*]}; do
-    name=${conf_files[$index]:0:-5}
+    name=${conf_files[$index]%.conf}
     logfile="${name}.log"
     outfile="${name}.out"
     sqsub -r ${RUNTIME} -q serial -o ${logfile} ${SAMPSIM} -c ${cfgfile} ${outfile}
