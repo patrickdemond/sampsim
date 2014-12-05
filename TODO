@@ -1,2 +1,2 @@
-Use a polynomial function to allow for multiple clusters to be included in a single sample (set number of towns in sample as a parameter)
+Create "short" option in the hypercube generator to reduce total file size, then re-test on Sharcnet
 Test nested config files

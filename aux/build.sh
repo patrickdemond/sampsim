@@ -23,17 +23,17 @@ UNDERLINE=$(tput smul)
 STANDOUT=$(tput smso)
 NORMAL=$(tput sgr0)
 
+# preamble
+# -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+echo "Analysing configuration tree..."
+
 conf_files=( $( find . -type f | grep "\.conf$" ) )
 num_conf_files=${#conf_files[*]}
 int_greater_zero_pattern="^[1-9][0-9]*$" # any integer greater than 0
 
-# functions
-# -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-
-# preamble
-# -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-echo This script will build a total of $num_conf_files populations from a hypercube tree of configurations.
+echo "This script will build a total of $num_conf_files populations from a hypercube tree of configurations."
 echo
+
 
 # get whether to plot populations
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
