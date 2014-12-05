@@ -110,12 +110,15 @@ if [ true = "$multiprocess" ]; then
 else
   # generate populations using serial farming
   # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  SAMPSIM=$( pwd )/generate
+  RUNTIME=1m
+  MEMORY=1g
   echo "Launching ${num_conf_files} jobs using sqsub"
   for index in ${!conf_files[*]}; do
     name=${conf_files[$index]%.conf}
-    logfile="${name}.log"
-    outfile="${name}.out"
-    sqsub -r ${RUNTIME} -q serial -o ${logfile} ${SAMPSIM} -c ${cfgfile} ${outfile}
+    sqsub -r $RUNTIME --mpp=$MEMORY -q serial -o ${name}.log $SAMPSIM -c ${name}.conf $name
   done
-  echo "Done, use sqjobs to show jobs in progress."
+  echo "All jobs scheduled."
+  echo "Use sqjobs to show jobs in progress or use the following command:"
+  echo '  echo $(find|grep "\.json"|wc -l) of $(find|grep "\.conf"|wc -l)'
 fi
