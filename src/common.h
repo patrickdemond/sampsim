@@ -48,7 +48,7 @@ std::string gnuplot(
     << "set key at 35.5, 36.5; "
     << "unset colorbox; "
     << "set palette model RGB defined ( 0 0 0 1, 1 1 0 0 ); "
-    << "set term pngcairo size 1200,1230; "
+    << "set term png size 1200,1230; "
     << "set output \"" << image_filename << "\"; ";
 
   if( town->get_has_river() )
@@ -80,6 +80,6 @@ std::string gnuplot(
   // now put the command in an gnuplot execute statement
   std::string command = stream.str();
   stream.str( "" );
-  stream << "gnuplot -p -e " << "'" << command << "'";
+  stream << "gnuplot -e " << "'" << command << "'";
   return stream.str();
 }
