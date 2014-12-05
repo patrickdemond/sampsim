@@ -110,13 +110,12 @@ if [ true = "$multiprocess" ]; then
 else
   # generate populations using serial farming
   # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  while true; do
-    read -p "How many serial jobs do you wish to use? (default: ${BLUE}$num_conf_files${NORMAL}) " numjobs
-    if [[ ! $numjobs =~ $int_greater_zero_pattern ]]; then
-      echo "${RED}ERROR: you must choose an integer greater than 0${NORMAL}"
-      exit
-    else
-      break;
-    fi
+  echo "Launching ${num_conf_files} jobs using sqsub"
+  for index in ${!conf_files[*]}; do
+    name=${conf_files[$index]:0:-5}
+    logfile="${name}.log"
+    outfile="${name}.out"
+    sqsub -r ${RUNTIME} -q serial -o ${logfile} ${SAMPSIM} -c ${cfgfile} ${outfile}
   done
+  echo "Done, use sqjobs to show jobs in progress."
 fi
