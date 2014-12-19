@@ -26,186 +26,232 @@ NORMAL=$(tput sgr0)
 # parameter values
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
 param_name[0]="seed"
+param_short[0]="s"
 param_value[0]="1"
 param_help[0]="Seed used by the random generator"
 
 param_name[1]="towns"
+param_short[1]="t"
 param_value[1]="1"
 param_help[1]="Number of towns to generate"
 
 param_name[2]="town_size_min"
+param_short[2]="tsm"
 param_value[2]="10000"
 param_help[2]="The minimum number of individuals in a town"
 
 param_name[3]="town_size_max"
+param_short[3]="tsM"
 param_value[3]="1000000"
 param_help[3]="The maximum number of individuals in a town"
 
 param_name[4]="town_size_shape"
+param_short[4]="tss"
 param_value[4]="1.0"
 param_help[4]="The shape parameter used by the town size Parato distribution"
 
 param_name[5]="tile_x"
+param_short[5]="tx"
 param_value[5]="10"
 param_help[5]="Number of tiles in the horizontal direction"
 
 param_name[6]="tile_y"
+param_short[6]="ty"
 param_value[6]="10"
 param_help[6]="Number of tiles in the vertical direction"
 
 param_name[7]="tile_width"
+param_short[7]="tw"
 param_value[7]="3.5"
 param_help[7]="Width of a tile in kilometers"
 
 param_name[8]="popdens_mx"
+param_short[8]="px"
 param_value[8]="0"
 param_help[8]="Population density trend's X coefficient (must be [-1,1])"
 
 param_name[9]="popdens_my"
+param_short[9]="py"
 param_value[9]="0"
 param_help[9]="Population density trend's Y coefficient (must be [-1,1])"
 
 param_name[10]="mean_household_pop"
+param_short[10]="mhp"
 param_value[10]="3.2"
 param_help[10]="Mean number of individuals per household"
 
 param_name[11]="river_probability"
+param_short[11]="rp"
 param_value[11]="0.5"
 param_help[11]="The probability that a town has a river (must be [0,1])"
 
 param_name[12]="river_width"
+param_short[12]="rw"
 param_value[12]="400"
 param_help[12]="How wide to make rivers, in meters (must be smaller than tile width)"
 
 param_name[13]="disease_pockets"
+param_short[13]="dp"
 param_value[13]="4"
 param_help[13]="Number of disease pockets to generate"
 
 param_name[14]="pocket_kernel_type"
+param_short[14]="pk"
 param_value[14]="exponential"
 param_help[14]="The type of kernel to use for disease pockets"
 
 param_name[15]="pocket_scaling"
+param_short[15]="ps"
 param_value[15]="1.0"
 param_help[15]="The scaling factor to use for disease pocket"
 
 param_name[16]="mean_income_b00"
+param_short[16]="mi00"
 param_value[16]="0.75"
 param_help[16]="Mean income trend's independent coefficient base value"
 
 param_name[17]="mean_income_b01"
+param_short[17]="mi01"
 param_value[17]="0.00714"
 param_help[17]="Mean income trend's X coefficient base value"
 
 param_name[18]="mean_income_b10"
+param_short[18]="mi10"
 param_value[18]="0.00714"
 param_help[18]="Mean income trend's Y coefficient base value"
 
 param_name[19]="mean_income_b02"
+param_short[19]="mi02"
 param_value[19]="0"
 param_help[19]="Mean income trend's X^2 coefficient base value"
 
 param_name[20]="mean_income_b20"
+param_short[20]="mi20"
 param_value[20]="0"
 param_help[20]="Mean income trend's Y^2 coefficient base value"
 
 param_name[21]="mean_income_b11"
+param_short[21]="mi11"
 param_value[21]="0"
 param_help[21]="Mean income trend's XY coefficient base value"
 
 param_name[22]="sd_income_b00"
+param_short[22]="si00"
 param_value[22]="0.25"
 param_help[22]="SD income trend's independent coefficient base value"
 
 param_name[23]="sd_income_b01"
+param_short[23]="si01"
 param_value[23]="0"
 param_help[23]="SD income trend's X coefficient base value"
 
 param_name[24]="sd_income_b10"
+param_short[24]="si10"
 param_value[24]="0"
 param_help[24]="SD income trend's Y coefficient base value"
 
 param_name[25]="sd_income_b02"
+param_short[25]="si02"
 param_value[25]="0"
 param_help[25]="SD income trend's X^2 coefficient base value"
 
 param_name[26]="sd_income_b20"
+param_short[26]="si20"
 param_value[26]="0"
 param_help[26]="SD income trend's Y^2 coefficient base value"
 
 param_name[27]="sd_income_b11"
+param_short[27]="si11"
 param_value[27]="0"
 param_help[27]="SD income trend's XY coefficient base value"
 
 param_name[28]="mean_disease_b00"
+param_short[28]="md00"
 param_value[28]="0.5"
 param_help[28]="Mean disease trend's independent coefficient base value"
 
 param_name[29]="mean_disease_b01"
+param_short[29]="md01"
 param_value[29]="0"
 param_help[29]="Mean disease trend's X coefficient base value"
 
 param_name[30]="mean_disease_b10"
+param_short[30]="md10"
 param_value[30]="0"
 param_help[30]="Mean disease trend's Y coefficient base value"
 
 param_name[31]="mean_disease_b02"
+param_short[31]="md02"
 param_value[31]="0"
 param_help[31]="Mean disease trend's X^2 coefficient base value"
 
 param_name[32]="mean_disease_b20"
+param_short[32]="md20"
 param_value[32]="0"
 param_help[32]="Mean disease trend's Y^2 coefficient base value"
 
 param_name[33]="mean_disease_b11"
+param_short[33]="md11"
 param_value[33]="0"
 param_help[33]="Mean disease trend's XY coefficient base value"
 
 param_name[34]="sd_disease_b00"
+param_short[34]="sd00"
 param_value[34]="0.25"
 param_help[34]="SD disease trend's independent coefficient base value"
 
 param_name[35]="sd_disease_b01"
+param_short[35]="sd01"
 param_value[35]="0"
 param_help[35]="SD disease trend's X coefficient base value"
 
 param_name[36]="sd_disease_b10"
+param_short[36]="sd10"
 param_value[36]="0"
 param_help[36]="SD disease trend's Y coefficient base value"
 
 param_name[37]="sd_disease_b02"
+param_short[37]="sd02"
 param_value[37]="0"
 param_help[37]="SD disease trend's X^2 coefficient base value"
 
 param_name[38]="sd_disease_b20"
+param_short[38]="sd20"
 param_value[38]="0"
 param_help[38]="SD disease trend's Y^2 coefficient base value"
 
 param_name[39]="sd_disease_b11"
+param_short[39]="sd11"
 param_value[39]="0"
 param_help[39]="SD disease trend's XY coefficient base value"
 
 param_name[40]="dweight_population"
+param_short[40]="wpn"
 param_value[40]="1.0"
 param_help[40]="Disease weight for household population"
 
 param_name[41]="dweight_income"
+param_short[41]="wi"
 param_value[41]="1.0"
 param_help[41]="Disease weight for household income"
 
 param_name[42]="dweight_risk"
+param_short[42]="wr"
 param_value[42]="1.0"
 param_help[42]="Disease weight for household risk"
 
 param_name[43]="dweight_age"
+param_short[43]="wa"
 param_value[43]="1.0"
 param_help[43]="Disease weight for household age"
 
 param_name[44]="dweight_sex"
+param_short[44]="ws"
 param_value[44]="1.0"
 param_help[44]="Disease weight for household sex"
 
 param_name[45]="dweight_pocket"
+param_short[45]="wpt"
 param_value[45]="1.0"
 param_help[45]="Disease weight for pocketing"
 
@@ -298,10 +344,18 @@ of every parameter which has a range of values."
 directory="./hypercube"
 echo "What directory do you wish to create the hypercube in? (default: ${BLUE}$directory${NORMAL})
 ${RED}warning: this will overwrite any existing directory${NORMAL}"
-read -e -r -p "> " directory
+read -e -r -p "> " answer
+
+# make empty responses the default
+if [ "$answer" ]; then
+  directory=$answer
+fi
+
+# append a ./ if there isn't one already and the path isn't absolute (starting with /)
 if [[ "${directory:0:1}" != "/" || ${directory:0:2} != "./" ]]; then
   directory="./$directory"
 fi
+
 # fix spaces and backslashes
 directory=$( echo $directory | sed "s/ /\\\ /g" | sed "s/\\\\\+/\\\\/g" )
 if [ -d "$directory" ]; then
@@ -316,6 +370,27 @@ chmod 755 $directory/build.sh
       
 number_pattern="^-?((([0-9]|[1-9][0-9]*)(\.[0-9]*)?)|(\.[0-9]+))$" # any number
 non_zero_number_pattern="^-?((([1-9][0-9]*)(\.[0-9]*)?)|(0?\.[0-9]*[1-9]+[0-9]*))$" # any non-zero number
+
+# determine whether to use regular or short parameter names
+short=1
+echo "Depending on the number of variable parameters in the hypercube the full path and name of
+generated configuration files may become excessively long.  To mitigate this effect it is possible
+to use short forms of parameter names in configuration file paths.  This option is recommended for
+hypercubes containing 4 or more variable parameters."
+while true; do
+  echo -n "Do you wish to use short parameter names? (select ${BOLD}${YELLOW}y${NORMAL}es or ${BOLD}${YELLOW}n${NORMAL}o> "
+  read -s -n 1 answer
+  echo
+  if [ "$answer" = "y" ]; then
+    short=1
+    break;
+  elif [ "$answer" = "n" ]; then
+    short=0
+    break;
+  else
+    echo "${RED}Invalid input, please select ${BOLD}${YELLOW}y${NORMAL}${RED} or ${BOLD}${YELLOW}n${NORMAL}"
+  fi
+done
 
 # get parameter values
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -449,7 +524,11 @@ name_array=()
 value_array=()
 for index in ${!param_name[*]}; do
   if [[ ${param_value[$index]} == *:* ]]; then
-    name_array+=(${param_name[$index]})
+    if [ $short -eq 1 ]; then
+      name_array+=(${param_short[$index]})
+    else
+      name_array+=(${param_name[$index]})
+    fi
     value_array+=(${param_value[$index]})
     array=(${value_array[$idx]//:/ })
     array_size=${#array[@]}
