@@ -31,39 +31,52 @@ TEST( test_population )
   sampsim::population *population = new sampsim::population;
   create_test_population( population, number_of_towns, town_size_min, town_size_max );
   
-  for( auto it = population->get_town_list_begin(); it != population->get_town_list_end(); ++it )
-    std::cout << (*it)->count_individuals() << std::endl;
-  return;
-
   sampsim::town *town = *population->get_town_list_begin();
   sampsim::tile *tile = town->get_tile_list_begin()->second;
   sampsim::building *building = *tile->get_building_list_begin();
   sampsim::household *household = *building->get_household_list_begin();
   sampsim::individual *individual = *household->get_individual_list_begin();
 
+  std::pair<unsigned int, unsigned int> total = population->count_individuals();
+
   cout << "Testing population size..." << endl;
-  CHECK( town_size_min * number_of_towns <= population->count_individuals() );
-  CHECK( town_size_max * number_of_towns >= population->count_individuals() );
+  CHECK( town_size_min * number_of_towns <= total.second );
+  CHECK( town_size_max * number_of_towns >= total.second );
+
+  cout << "Testing population prevalence..." << endl;
+  CHECK( total.first <= total.second );
+  CHECK( town_size_min * number_of_towns <= total.first );
+  CHECK( town_size_max * number_of_towns >= total.first );
 
   cout << "Turning on sample mode" << endl;
   population->set_sample_mode( true );
 
+  total = population->count_individuals();
+
   cout << "Testing that population now has a count of zero..." << endl;
-  CHECK_EQUAL( 0, population->count_individuals() );
+  CHECK_EQUAL( 0, total.second );
+
+  cout << "Testing that population prevalence now has a count of zero..." << endl;
+  CHECK_EQUAL( 0, total.first );
 
   cout << "Testing that population with selected individual has non-zero count..." << endl;
   individual->select();
-  CHECK( 0 != population->count_individuals() );
+  CHECK( 0 != population->count_individuals().second );
 
   cout << "Testing that population with unselected individual has a count of zero..." << endl;
   individual->unselect();
-  CHECK_EQUAL( 0, population->count_individuals() );
+  CHECK_EQUAL( 0, population->count_individuals().second );
 
   cout << "Turning off sample mode" << endl;
   population->set_sample_mode( false );
 
+  total = population->count_individuals();
+
   cout << "Testing population size..." << endl;
-  CHECK( 0 != population->count_individuals() );
+  CHECK( 0 != total.second );
+
+  cout << "Testing population prevalence..." << endl;
+  CHECK( 0 != total.first );
 
   stringstream temp_filename;
   temp_filename << "/tmp/sampsim" << sampsim::utilities::random( 1000000, 9999999 );
@@ -92,7 +105,10 @@ TEST( test_population )
   temp_filename << ".json";
   sampsim::population *population_read = new sampsim::population;
   CHECK( population_read->read( temp_filename.str() ) );
-  CHECK_EQUAL( population->count_individuals(), population_read->count_individuals() );
+  total = population->count_individuals();
+  std::pair<unsigned int, unsigned int> total_read = population_read->count_individuals();
+  CHECK_EQUAL( total.second, total_read.second );
+  CHECK_EQUAL( total.first, total_read.first );
 
   // clean up
   remove( temp_filename.str().c_str() );

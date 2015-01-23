@@ -60,32 +60,32 @@ TEST( test_building )
         CHECK( position.y < extent.second.y );
 
         cout << "Testing building population..." << endl;
-        CHECK( 0 != building->count_individuals() );
+        CHECK( 0 != building->count_individuals().second );
 
         cout << "Turning on sample mode" << endl;
         population->set_sample_mode( true );
 
         cout << "Testing that building now has no population..." << endl;
-        CHECK_EQUAL( 0, building->count_individuals() );
+        CHECK_EQUAL( 0, building->count_individuals().second );
 
         cout << "Testing that building with selected individual has population..." << endl;
         individual->select();
-        CHECK( 0 != building->count_individuals() );
+        CHECK( 0 != building->count_individuals().second );
 
         cout << "Testing that building with unselected individual has no population..." << endl;
         individual->unselect();
-        CHECK_EQUAL( 0, building->count_individuals() );
+        CHECK_EQUAL( 0, building->count_individuals().second );
 
         cout << "Testing that unselected building has no population..." << endl;
         individual->select();
         building->unselect();
-        CHECK_EQUAL( 0, building->count_individuals() );
+        CHECK_EQUAL( 0, building->count_individuals().second );
 
         cout << "Turning off sample mode" << endl;
         population->set_sample_mode( false );
 
         cout << "Testing building population..." << endl;
-        CHECK( 0 != building->count_individuals() );
+        CHECK( 0 != building->count_individuals().second );
       }
     }
   }

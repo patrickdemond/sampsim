@@ -118,7 +118,8 @@ namespace sampsim
       this->town_list.push_back( t );
     }
 
-    utilities::output( "finished creating population, %d individuals generated", this->count_individuals() );
+    utilities::output( "finished creating population, %d individuals generated",
+                       this->count_individuals().second );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -129,14 +130,14 @@ namespace sampsim
     // calculate the mean( log(individuals) ) from all towns
     double sum_log_individual_count = 0;
     for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
-      sum_log_individual_count = log( (*it)->count_individuals() );
+      sum_log_individual_count = log( (*it)->count_individuals().second );
     double mean_log_individual_count = sum_log_individual_count / this->number_of_towns;
 
     // now set the regression factor for all trends in each town
     for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
     {
       town *t = *it;
-      double factor = log( t->count_individuals() ) - mean_log_individual_count;
+      double factor = log( t->count_individuals().second ) - mean_log_individual_count;
 
       // here we set the regression factor for all trends
       // Note: the regression factor shouldn't be confused with the coefficient's regression coefficient.
@@ -295,6 +296,9 @@ namespace sampsim
     json["population_density_slope"].resize( 2 );
     json["population_density_slope"][0] = this->population_density_slope[0];
     json["population_density_slope"][1] = this->population_density_slope[1];
+    std::pair<unsigned int, unsigned int> count = this->count_individuals();
+    json["diseased_individual_count"] = count.first;
+    json["individual_count"] = count.second;
     json["disease_weights"] = Json::Value( Json::arrayValue );
     json["disease_weights"].resize( population::NUMBER_OF_DISEASE_WEIGHTS );
     for( unsigned int c = 0; c < population::NUMBER_OF_DISEASE_WEIGHTS; c++ )
@@ -326,6 +330,8 @@ namespace sampsim
     // need to reset the static household indexing variable
     utilities::household_index = 0;
 
+    std::pair<unsigned int, unsigned int> count = this->count_individuals();
+
     // put in the parameters
     std::stringstream stream;
     stream << "#" << std::endl
@@ -340,6 +346,8 @@ namespace sampsim
            << "# tile_width: " << this->tile_width << std::endl
            << "# population_density_slope: " << this->population_density_slope << ", "
                                              << this->population_density_slope << std::endl
+           << "# diseased individual count: " << count.first << std::endl
+           << "# individual count: " << count.second << std::endl
            << "#" << std::endl
            << "# dweight_population: " << this->disease_weights[0] << std::endl
            << "# dweight_income: " << this->disease_weights[1] << std::endl
@@ -546,11 +554,15 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  unsigned int population::count_individuals() const
+  std::pair<unsigned int, unsigned int> population::count_individuals() const
   {
-    unsigned int count = 0;
+    std::pair<unsigned int, unsigned int> count( 0, 0 );
     for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
-      count += ( *it )->count_individuals();
+    {
+      std::pair<unsigned int, unsigned int> sub_count = (*it)->count_individuals();
+      count.first += sub_count.first;
+      count.second += sub_count.second;
+    }
 
     return count;
   }

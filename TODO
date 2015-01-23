@@ -1,0 +1,2 @@
+hypercube: sub-sample of all possible configurations (evenly distributed)
+Implement Roberts sampling (see http://www.rescue.org/sites/default/files/resource-file/IRC_SUR_MOR_DRC_2000.pdf)

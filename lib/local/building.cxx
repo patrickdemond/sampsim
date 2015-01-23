@@ -171,12 +171,17 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  unsigned int building::count_individuals() const
+  std::pair<unsigned int, unsigned int> building::count_individuals() const
   {
     bool sample_mode = this->get_population()->get_sample_mode();
-    unsigned int count = 0;
+    std::pair<unsigned int, unsigned int> count( 0, 0 );
     for( auto it = this->household_list.begin(); it != this->household_list.end(); ++it )
-      if( !sample_mode || (*it)->is_selected() ) count += (*it)->count_individuals();
+      if( !sample_mode || (*it)->is_selected() )
+      {
+        std::pair<unsigned int, unsigned int> sub_count = (*it)->count_individuals();
+        count.first += sub_count.first;
+        count.second += sub_count.second;
+      }
 
     return count;
   }

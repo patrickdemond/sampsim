@@ -159,13 +159,15 @@ namespace sampsim
     void unselect();
 
     /**
-     * Get the number of individuals in the household
+     * Get the number of diseased and total number of individuals in the population
      * 
-     * Returns a sum of all individuals in the household.  This method counts the number of individuals
-     * every time it is called, so it should only be used when re-counting is necessary.
-     * A household contains no individuals (so no individuals) until its create() method is called.
+     * Returns a pair containing the total number of individuals who have disease and the total number of
+     * individuals in total in the household.
+     * This method iterates over all towns (and all tiles in those towns, etc) every time it is called, so
+     * it should only be used when re-counting is necessary.  A household contains no individuals until
+     * its create() method is called.
      */
-    unsigned int count_individuals() const;
+    std::pair<unsigned int, unsigned int> count_individuals() const;
 
   protected:
     /**

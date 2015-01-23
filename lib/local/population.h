@@ -378,14 +378,15 @@ namespace sampsim
     void set_disease( trend *mean, trend *sd );
 
     /**
-     * Get the number of individuals in the population
+     * Get the number of diseased and total number of individuals in the population
      * 
-     * Returns a sum of all individuals in all households in all buildings in all tiles in all towns in the
-     * population.  This method iterates over all towns (and all tiles in those towns, etc) every time it is
-     * called, so it should only be used when re-counting is necessary.  A population contains no towns (so
-     * no individuals) until its create() method is called.
+     * Returns a pair containing the total number of individuals who have disease and the total number of
+     * individuals in total in the population.
+     * This method iterates over all towns (and all tiles in those towns, etc) every time it is called, so
+     * it should only be used when re-counting is necessary.  A population contains no towns (so no
+     * individuals) until its create() method is called.
      */
-    unsigned int count_individuals() const;
+    std::pair<unsigned int, unsigned int> count_individuals() const;
 
     /**
      * Deserialize the population

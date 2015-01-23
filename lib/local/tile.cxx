@@ -66,7 +66,7 @@ namespace sampsim
       // create the building
       building *b = new building( this );
       b->create();
-      total_individuals += b->count_individuals();
+      total_individuals += b->count_individuals().second;
       current_density = static_cast< double >( total_individuals ) / area;
 
       // store it in the building list, but not if we are not stopping after the density is met
@@ -83,7 +83,7 @@ namespace sampsim
 
     if( utilities::verbose )
       utilities::output( "finished creating tile: population %d in %d buildings",
-                         this->count_individuals(),
+                         this->count_individuals().second,
                          this->building_list.size() );
   }
 
@@ -180,12 +180,17 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  unsigned int tile::count_individuals() const
+  std::pair<unsigned int, unsigned int> tile::count_individuals() const
   {
     bool sample_mode = this->get_population()->get_sample_mode();
-    unsigned int count = 0;
+    std::pair<unsigned int, unsigned int> count( 0, 0 );
     for( auto it = this->building_list.begin(); it != this->building_list.end(); ++it )
-      if( !sample_mode || (*it)->is_selected() ) count += (*it)->count_individuals();
+      if( !sample_mode || (*it)->is_selected() )
+      {
+        std::pair<unsigned int, unsigned int> sub_count = (*it)->count_individuals();
+        count.first += sub_count.first;
+        count.second += sub_count.second;
+      }
 
     return count;
   }

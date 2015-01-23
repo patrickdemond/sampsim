@@ -221,14 +221,15 @@ namespace sampsim
     trend* get_population_density() { return this->population_density; }
 
     /**
-     * Get the number of individuals in:the town
+     * Get the number of diseased and total number of individuals in the population
      * 
-     * Returns a sum of all individuals in all households in all buildings in all tiles in the town.
-     * This method iterates over all tiles (and all buildings in those tiles, etc) every time it is called,
-     * so it should only be used when re-counting is necessary.  A town contains no tiles (so no
+     * Returns a pair containing the total number of individuals who have disease and the total number of
+     * individuals in total in the town.
+     * This method iterates over all towns (and all tiles in those towns, etc) every time it is called, so
+     * it should only be used when re-counting is necessary.  A townn contains no tiles (so no
      * individuals) until its create() method is called.
      */
-    unsigned int count_individuals() const;
+    std::pair<unsigned int, unsigned int> count_individuals() const;
 
     /**
      * Returns a coordinate at the centre of the town

@@ -78,14 +78,14 @@ namespace sample
 
     // create multinomial function using town populations (and unselect all towns in the process)
     this->population->set_sample_mode( false );
-    int total_individuals = this->population->count_individuals();
+    int total_individuals = this->population->count_individuals().second;
     std::map< sampsim::town*, double > coefficients;
     for( auto town_it = this->population->get_town_list_cbegin();
          town_it != this->population->get_town_list_cend();
          ++town_it )
     {
       sampsim::town *town = *town_it;
-      coefficients[town] = static_cast< double >( town->count_individuals() ) /
+      coefficients[town] = static_cast< double >( town->count_individuals().second ) /
                            static_cast< double >( total_individuals );
       town->unselect();
     }

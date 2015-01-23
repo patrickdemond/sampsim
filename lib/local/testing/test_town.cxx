@@ -39,22 +39,32 @@ TEST( test_population )
     sampsim::household *household = *building->get_household_list_begin();
     sampsim::individual *individual = *household->get_individual_list_begin();
 
+    std::pair<unsigned int, unsigned int> total = town->count_individuals();
+
     cout << "Testing town size..." << endl;
-    CHECK( 0 != town->count_individuals() );
+    CHECK( 0 != total.second );
+
+    cout << "Testing town prevalence..." << endl;
+    CHECK( 0 != total.first );
 
     cout << "Turning on sample mode" << endl;
     population->set_sample_mode( true );
 
+    total = town->count_individuals();
+    
     cout << "Testing that town now has a count of zero..." << endl;
-    CHECK_EQUAL( 0, town->count_individuals() );
+    CHECK_EQUAL( 0, total.second );
+
+    cout << "Testing that town prevalence now has a count of zero..." << endl;
+    CHECK_EQUAL( 0, total.first );
 
     cout << "Testing that town with selected individual has non-zero count..." << endl;
     individual->select();
-    CHECK( 0 != town->count_individuals() );
+    CHECK( 0 != town->count_individuals().second );
 
     cout << "Testing that town with unselected individual has a count of zero..." << endl;
     individual->unselect();
-    CHECK_EQUAL( 0, town->count_individuals() );
+    CHECK_EQUAL( 0, town->count_individuals().second );
 
     cout << "Turning off sample mode" << endl;
     population->set_sample_mode( false );
@@ -64,8 +74,13 @@ TEST( test_population )
     CHECK_EQUAL( 5, centroid.x );
     CHECK_EQUAL( 5, centroid.y );
 
+    total = town->count_individuals();
+
     cout << "Testing town size..." << endl;
-    CHECK( 0 != town->count_individuals() );
+    CHECK( 0 != total.second );
+
+    cout << "Testing town prevalence..." << endl;
+    CHECK( 0 != total.first );
 
     cout << "Testing town area..." << endl;
     CHECK_EQUAL( 100, town->get_area() );

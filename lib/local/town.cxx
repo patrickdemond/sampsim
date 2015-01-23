@@ -154,7 +154,7 @@ namespace sampsim
     // function of the various contributing factors
 
     // create a matrix of all individuals (rows) and their various disease predictor factors
-    const unsigned int number_of_individuals = this->count_individuals();
+    const unsigned int number_of_individuals = this->count_individuals().second;
     const unsigned int number_of_disease_weights = pop->get_number_of_disease_weights();
     double value[number_of_disease_weights], total[number_of_disease_weights];
     for( unsigned int c = 0; c < number_of_disease_weights; c++ ) total[c] = 0;
@@ -180,7 +180,7 @@ namespace sampsim
              household_it != ( *building_it )->get_household_list_cend();
              ++household_it )
         {
-          value[0] = ( *household_it )->count_individuals();
+          value[0] = ( *household_it )->count_individuals().second;
           value[1] = ( *household_it )->get_income();
           value[2] = ( *household_it )->get_disease_risk();
 
@@ -299,6 +299,9 @@ namespace sampsim
     this->mean_disease->to_json( json["mean_disease"] );
     this->sd_disease->to_json( json["sd_disease"] );
     this->population_density->to_json( json["population_density"] );
+    std::pair<unsigned int, unsigned int> count = this->count_individuals();
+    json["diseased_individual_count"] = count.first;
+    json["individual_count"] = count.second;
 
     unsigned int index = 0;
     for( auto it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it, ++index )
@@ -311,6 +314,8 @@ namespace sampsim
   {
     // need to reset the static household indexing variable
     utilities::household_index = 0;
+
+    std::pair<unsigned int, unsigned int> count = this->count_individuals();
 
     // put in the parameters
     std::stringstream stream;
@@ -332,6 +337,8 @@ namespace sampsim
            << "# mean_disease trend: " << this->mean_disease->to_string() << std::endl
            << "# sd_disease trend: " << this->sd_disease->to_string() << std::endl
            << "# population density trend: " << this->population_density->to_string() << std::endl
+           << "# diseased individual count: " << count.first << std::endl
+           << "# individual count: " << count.second << std::endl
            << "#" << std::endl;
 
     household_stream << stream.str();
@@ -413,11 +420,15 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  unsigned int town::count_individuals() const
+  std::pair<unsigned int, unsigned int> town::count_individuals() const
   {
-    unsigned int count = 0;
+    std::pair<unsigned int, unsigned int> count( 0, 0 );
     for( auto it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it )
-      count += it->second->count_individuals();
+    {
+      std::pair<unsigned int, unsigned int> sub_count = (*it).second->count_individuals();
+      count.first += sub_count.first;
+      count.second += sub_count.second;
+    }
 
     return count;
   }

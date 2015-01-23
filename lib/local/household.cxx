@@ -150,7 +150,7 @@ namespace sampsim
     // write the household index and position to the household stream
     household_stream << town_index << "," << utilities::household_index << ",";
     this->get_building()->get_position().to_csv( household_stream, individual_stream );
-    household_stream << "," << this->count_individuals()
+    household_stream << "," << this->count_individuals().second
                      << "," << this->income << ","
                      << this->disease_risk;
 
@@ -176,19 +176,16 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  unsigned int household::count_individuals() const
+  std::pair<unsigned int, unsigned int> household::count_individuals() const
   {
-    unsigned int count = 0;
-
-    if( this->get_population()->get_sample_mode() )
-    {
-      for( auto it = this->individual_list.cbegin(); it != this->individual_list.cend(); ++it )
-        if( (*it)->is_selected() ) count++;
-    }
-    else
-    {
-      count = this->individual_list.size();
-    }
+    bool sample_mode = this->get_population()->get_sample_mode();
+    std::pair<unsigned int, unsigned int> count( 0, 0 );
+    for( auto it = this->individual_list.cbegin(); it != this->individual_list.cend(); ++it )
+      if( !sample_mode || (*it)->is_selected() )
+      {
+        if( (*it)->is_disease() ) count.first++; // count of all individuals with disease
+        count.second++; // count of all individuals
+      }
 
     return count;
   }

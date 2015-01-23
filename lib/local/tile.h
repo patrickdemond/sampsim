@@ -172,14 +172,15 @@ namespace sampsim
     std::pair< coordinate, coordinate > get_extent() const { return this->extent; }
 
     /**
-     * Get the number of individuals in the tile
+     * Get the number of diseased and total number of individuals in the population
      * 
-     * Returns a sum of all individuals in all households in all buildings in the tile.  This method
-     * iterates over all buildings (and all households in those buildings) every time it is called,
-     * so it should only be used when re-counting is necessary.  A tile contains no buildings (so no
+     * Returns a pair containing the total number of individuals who have disease and the total number of
+     * individuals in total in the tile.
+     * This method iterates over all towns (and all tiles in those towns, etc) every time it is called, so
+     * it should only be used when re-counting is necessary.  A tile contains no buildings (so no
      * individuals) until its create() method is called.
      */
-    unsigned int count_individuals() const;
+    std::pair<unsigned int, unsigned int> count_individuals() const;
 
     /**
      * Returns the surface area of the tile

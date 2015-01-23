@@ -119,13 +119,15 @@ namespace sampsim
     population* get_population() const;
 
     /**
-     * Get the number of individuals in the building
+     * Get the number of diseased and total number of individuals in the population
      * 
-     * Returns a sum of all individuals in all households in the building.  This method iterates over
-     * all households every time it is called, so it should only be used when re-counting is necessary.
-     * A building contains no households (so no individuals) until its create() method is called.
+     * Returns a pair containing the total number of individuals who have disease and the total number of
+     * individuals in total in the building.
+     * This method iterates over all towns (and all tiles in those towns, etc) every time it is called, so
+     * it should only be used when re-counting is necessary.  A building contains no households (so no
+     * individuals) until its create() method is called.
      */
-    unsigned int count_individuals() const;
+    std::pair<unsigned int, unsigned int> count_individuals() const;
 
     /**
      * Get the position of the building

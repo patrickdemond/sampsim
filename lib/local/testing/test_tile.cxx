@@ -59,27 +59,27 @@ TEST( test_tile )
       CHECK_EQUAL( ( y + 1 ) * width, extent.second.y );
 
       cout << "Testing tile population..." << endl;
-      CHECK( 0 != tile->count_individuals() );
+      CHECK( 0 != tile->count_individuals().second );
 
       cout << "Turning on sample mode" << endl;
       population->set_sample_mode( true );
 
       cout << "Testing that tile now has no population..." << endl;
-      CHECK_EQUAL( 0, tile->count_individuals() );
+      CHECK_EQUAL( 0, tile->count_individuals().second );
 
       cout << "Testing that tile with selected individual has population..." << endl;
       individual->select();
-      CHECK( 0 != tile->count_individuals() );
+      CHECK( 0 != tile->count_individuals().second );
 
       cout << "Testing that tile with unselected individual has no population..." << endl;
       individual->unselect();
-      CHECK_EQUAL( 0, tile->count_individuals() );
+      CHECK_EQUAL( 0, tile->count_individuals().second );
 
       cout << "Turning off sample mode" << endl;
       population->set_sample_mode( false );
 
       cout << "Testing tile population..." << endl;
-      CHECK( 0 != tile->count_individuals() );
+      CHECK( 0 != tile->count_individuals().second );
     }
   }
 
