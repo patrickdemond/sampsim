@@ -53,7 +53,7 @@ int main( const int argc, const char** argv )
         sample->set_seed( opts.get_option( "seed" ) );
         parse_circle_gps_sample( opts, sample );
 
-        if( sample->set_population( opts.get_input( "population_file" ) ) )
+        if( sample->set_population( population_filename ) )
         {
           bool flat = opts.get_flag( "flat_file" );
           bool plot = opts.get_flag( "plot" );
