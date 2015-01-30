@@ -13,6 +13,7 @@
 
 #include <cmath>
 #include <json/value.h>
+#include <json/writer.h>
 #include <stdexcept>
 #include <vector>
 
@@ -125,6 +126,13 @@ namespace sample
 
     this->current_building = b;
     return b;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void arc_epi::from_json( const Json::Value &json )
+  {
+    epi::from_json( json );
+    this->arc_angle = json["arc_angle"].asDouble();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

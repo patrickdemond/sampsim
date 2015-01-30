@@ -13,6 +13,7 @@
 #include "town.h"
 
 #include <json/value.h>
+#include <json/writer.h>
 #include <stdexcept>
 #include <vector>
 
@@ -125,6 +126,13 @@ namespace sample
 
     this->current_building = b;
     return b;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void strip_epi::from_json( const Json::Value &json )
+  {
+    sample::from_json( json );
+    this->strip_width = json["strip_width"].asDouble();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

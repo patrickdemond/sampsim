@@ -68,6 +68,14 @@ namespace sample
     double get_strip_width() { return this->strip_width; }
 
     /**
+     * Deserialize the sample
+     * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
+     */
+    void from_json( const Json::Value& );
+
+    /**
      * Serialize the sample
      * 
      * All objects must provide an implementation for converting themselves to and from a

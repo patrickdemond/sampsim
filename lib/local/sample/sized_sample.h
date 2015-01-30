@@ -1,15 +1,19 @@
 /*=========================================================================
 
   Program:  sampsim
-  Module:   circle_gps.h
+  Module:   sized_sample.h
   Language: C++
 
 =========================================================================*/
 
-#ifndef __sampsim_sample_circle_gps_h
-#define __sampsim_sample_circle_gps_h
+#ifndef __sampsim_sample_sized_sample_h
+#define __sampsim_sample_sized_sample_h
 
-#include "sample/sized_sample.h"
+#include "sample/sample.h"
+
+#include "utilities.h"
+
+#include <string>
 
 namespace Json{ class Value; }
 
@@ -26,45 +30,36 @@ namespace sampsim
  * @{
  */
 
+/**
+ * @namespace sampsim::sample
+ * @brief A namespace containing all sampling classes
+ */
 namespace sample
 {
   /**
-   * @class circle_gps
+   * @class sized_sample
    * @author Patrick Emond <emondpd@mcmaster.ca>
-   * @brief Random sampler
+   * @brief An abstract base class for all sampling methods
    * @details
-   * A concrete implementation of the sample class.  This sampler selects random "GPS"
-   * positions in the town and then randomly selects one of the buildings within a given
-   * distance from that central GPS point.  This proceedure is repeated until the sample
-   * size is met.
+   * All extending sampling methods work by selecting buildings until the sample size has been met.
    */
-  class circle_gps : public sized_sample
+  class sized_sample : public sample
   {
   public:
     /**
-     * Construction
+     * Constructor
      */
-     circle_gps() : radius( 0 ) {}
+    sized_sample();
 
     /**
-     * Returns the name of the object's class
+     * Sets the number of individuals to select per sample
      */
-    std::string get_name() const { return "circle_gps"; }
+    void set_size( const unsigned int size );
 
     /**
-     * Returns the name of the sampling method
+     * Returns the number of individuals to select per sample
      */
-    virtual std::string get_type() const { return "GPS"; }
-
-    /** 
-     * Sets the radius of the circle used for selecting households from a GPS point
-     */
-    void set_radius( double radius ) { this->radius = radius; }
-
-    /** 
-     * Returns the radius of the circle used for selecting households from a GPS point
-     */
-    double get_radius() { return this->radius; }
+    unsigned int get_size() const { return this->size; }
 
     /**
      * Deserialize the sample
@@ -91,15 +86,15 @@ namespace sample
 
   protected:
     /**
-     * Algorithm which selects buildings based on the sampling method
+     * Returns whether or not the sampling is complete
      */
-    virtual building* select_next_building( building_tree& );
+    virtual bool is_sample_complete();
 
   private:
     /**
-     * What distance (in meters) from a GPS point to include when searching for households
+     * How many individuals to select in each sample
      */
-    double radius;
+    unsigned int size;
   };
 }
 

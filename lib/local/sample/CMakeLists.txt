@@ -5,6 +5,7 @@ SET( SAMPSIM_SAMPLE_LIB_SOURCE
   circle_gps.cxx
   epi.cxx
   random.cxx
+  sized_sample.cxx
   square_gps.cxx
   strip_epi.cxx
   sample.cxx
@@ -13,6 +14,7 @@ SET( SAMPSIM_SAMPLE_LIB_SOURCE
 # Define abstract classes in the following block
 SET_SOURCE_FILES_PROPERTIES(
   epi.cxx
+  sized_sample.cxx
   sample.cxx
   ABSTRACT
 )

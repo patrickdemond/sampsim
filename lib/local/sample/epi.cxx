@@ -13,6 +13,7 @@
 
 #include <cmath>
 #include <json/value.h>
+#include <json/writer.h>
 #include <limits>
 #include <stdexcept>
 
@@ -102,6 +103,16 @@ namespace sample
   {
     if( utilities::verbose ) utilities::output( "setting skip to %d", skip );
     this->skip = skip;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void epi::from_json( const Json::Value &json )
+  {
+    sample::from_json( json );
+    this->number_of_sectors = json["number_of_sectors"].asUInt();
+    this->skip = json["skip"].asUInt();
+    this->start_angle = json["start_angle"].asDouble();
+    this->first_building_index = json["first_building_index"].asUInt();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

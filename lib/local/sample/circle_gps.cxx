@@ -9,8 +9,10 @@
 #include "circle_gps.h"
 
 #include "building_tree.h"
-
 #include "town.h"
+
+#include <json/value.h>
+#include <json/writer.h>
 
 namespace sampsim
 {
@@ -69,6 +71,29 @@ namespace sample
 
     // remove the building from the tree so it doesn't get selected twice
     return *selected_it;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void circle_gps::from_json( const Json::Value &json )
+  {
+    sample::from_json( json );
+    this->radius = json["radius"].asDouble();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void circle_gps::to_json( Json::Value &json ) const
+  {
+    sample::to_json( json );
+    json["radius"] = this->radius;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  std::string circle_gps::get_csv_header() const
+  {
+    std::stringstream stream;
+    stream << sample::get_csv_header();
+    stream << "# radius: " << this->radius << std::endl;
+    return stream.str();
   }
 }
 }

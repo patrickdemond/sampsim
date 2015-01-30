@@ -44,7 +44,7 @@ namespace sample
    * @author Patrick Emond <emondpd@mcmaster.ca>
    * @brief An abstract base class for all sampling methods
    * @details
-   * All sampling methods work by selecting buildings until the sample size has been met.
+   * All sampling methods work by selecting buildings until some pre-defined condition has been met.
    * Implementations of this class define how buildings are selected by defining the 
    * select_next_building() method.
    * Populations used by sample classes are put into sampling mode.
@@ -63,7 +63,7 @@ namespace sample
     ~sample();
 
     /**
-     * Generates the sample by calling select_next_building() until sample size has been met
+     * Generates the sample by calling select_next_building() until the ending condition is met
      */
     virtual void generate();
 
@@ -115,16 +115,6 @@ namespace sample
      * Returns the number of times to sample the population
      */
     unsigned int get_number_of_samples() const { return this->number_of_samples; }
-
-    /**
-     * Sets the number of individuals to select per sample
-     */
-    void set_size( const unsigned int size );
-
-    /**
-     * Returns the number of individuals to select per sample
-     */
-    unsigned int get_size() const { return this->size; }
 
     /**
      * Sets whether to sample one individual per household
@@ -207,9 +197,25 @@ namespace sample
     virtual building* select_next_building( sampsim::building_tree& ) = 0;
 
     /**
+     * Returns whether or not the sampling is complete
+     * 
+     * This pure virtual method must be defined by all child classes.  It allows each sampling method
+     * to determine when to stop selecting buildings.
+     */
+    virtual bool is_sample_complete() = 0;
+
+    /**
      * The population to sample from
      */
     sampsim::population *population;
+
+    /**
+     * Tracks when to stop sampling
+     * 
+     * This member will always start off as true and the sampler will keep requesting the next
+     * building until its value is true (set by the extending class)
+     */
+    bool sample_complete;
 
   private:
     /**
@@ -236,11 +242,6 @@ namespace sample
      * The number of times to sample the population
      */
     unsigned int number_of_samples;
-
-    /**
-     * How many individuals to select in each sample
-     */
-    unsigned int size;
 
     /**
      * The number of individuals which have been selected by the sample so far.

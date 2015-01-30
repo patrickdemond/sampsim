@@ -29,7 +29,6 @@ namespace sample
   sample::sample()
   {
     this->number_of_samples = 0;
-    this->size = 0;
     this->current_size = 0;
     this->one_per_household = false;
     this->age = ANY_AGE;
@@ -37,6 +36,7 @@ namespace sample
     this->first_building = NULL;
     this->population = NULL;
     this->owns_population = false;
+    this->sample_complete = false;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -130,15 +130,15 @@ namespace sample
 
       utilities::output( "selecting from a list of %d buildings", building_list.size() );
 
-      // keep selecting buildings until we've filled our sample size
+      // keep selecting buildings until the ending condition has been met
       this->current_size = 0;
       int household_count = 0;
       this->first_building = NULL;
-      while( this->size > this->current_size )
+      while( !this->is_sample_complete() )
       {
         if( tree.is_empty() )
         {
-          std::cout << "WARNING: unable to fulfill number of samples and sample size" << std::endl;
+          std::cout << "WARNING: unable to fulfill the sample's ending condition" << std::endl;
           break;
         }
 
@@ -175,8 +175,8 @@ namespace sample
             this->current_size += count;
             household_count++;
 
-            // only select another household if we haven't reached our count
-            if( this->size <= this->current_size ) break;
+            // only select another household if we haven't reached our ending condition
+            if( this->is_sample_complete() ) break;
           }
         }
         tree.remove( b );
@@ -273,13 +273,6 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void sample::set_size( const unsigned int size )
-  {
-    if( utilities::verbose ) utilities::output( "setting size to %d", size );
-    this->size = size;
-  }
-
-  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sample::set_one_per_household( const bool one_per_household )
   {
     if( utilities::verbose )
@@ -317,7 +310,6 @@ namespace sample
 
     this->seed = json["seed"].asString();
     this->number_of_samples = json["number_of_samples"].asUInt();
-    this->size = json["size"].asUInt();
     this->one_per_household = json["one_per_household"].asBool();
     this->age = sampsim::get_age_type( json["age"].asString() );
     this->sex = sampsim::get_sex_type( json["sex"].asString() );
@@ -331,7 +323,6 @@ namespace sample
     json["type"] = this->get_type().c_str();
     json["seed"] = this->seed;
     json["number_of_samples"] = this->number_of_samples;
-    json["size"] = this->size;
     json["one_per_household"] = this->one_per_household;
     json["age"] = sampsim::get_age_type_name( this->age );
     json["sex"] = sampsim::get_sex_type_name( this->sex );
@@ -350,7 +341,6 @@ namespace sample
     stream << "# type: " << this->get_type() << std::endl;
     stream << "# seed: " << this->seed << std::endl;
     stream << "# number_of_samples: " << this->number_of_samples << std::endl;
-    stream << "# size: " << this->size << std::endl;
     stream << "# one_per_household: " << ( this->one_per_household ? "true" : "false" ) << std::endl;
     stream << "# age: " << sampsim::get_age_type_name( this->age ) << std::endl;
     stream << "# sex: " << sampsim::get_sex_type_name( this->sex ) << std::endl;

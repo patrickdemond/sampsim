@@ -13,6 +13,9 @@
 #include "population.h"
 #include "town.h"
 
+#include <json/value.h>
+#include <json/writer.h>
+
 namespace sampsim
 {
 namespace sample
@@ -152,6 +155,76 @@ namespace sample
         if( ! *ity ) return false;
 
     return true;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void square_gps::from_json( const Json::Value &json )
+  {
+    sample::from_json( json );
+    this->set_number_of_squares( json["number_of_squares"].asUInt() );
+    // square widths are automatically calculated by the set_number_of_squares() method
+
+    this->reset_selected_squares();
+    for( unsigned int c = 0; c < json["selected_squares"].size(); c++ )
+    {
+      Json::Value selected_json = json["selected_squares"][c];
+      this->select_square( selected_json["x"].asUInt(), selected_json["y"].asUInt() );
+    }
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void square_gps::to_json( Json::Value &json ) const
+  {
+    // count how many squares are selected
+    unsigned int total_selected = 0;
+    for( auto itx = this->selected_squares.cbegin(); itx != this->selected_squares.cend(); ++itx )
+      for( auto ity = itx->cbegin(); ity != itx->cend(); ++ity )
+        if( *ity ) total_selected++;
+
+    sample::to_json( json );
+    json["number_of_squares"] = this->number_of_squares;
+    json["square_width_x"] = this->square_width_x;
+    json["square_width_y"] = this->square_width_y;
+
+    json["selected_squares"] = Json::Value( Json::arrayValue );
+    json["selected_sqaures"].resize( total_selected );
+    unsigned int index = 0;
+    unsigned int x = 0;
+    for( auto itx = this->selected_squares.cbegin(); itx != this->selected_squares.cend(); ++itx )
+    {
+      unsigned int y = 0;
+      for( auto ity = itx->cbegin(); ity != itx->cend(); ++ity )
+      {
+        if( *ity )
+        {
+          json["selected_squares"][index] = Json::Value( Json::objectValue );
+          json["selected_squares"][index]["x"] = x;
+          json["selected_squares"][index]["y"] = y;
+          index++;
+        }
+        y++;
+      }
+      x++;
+    }
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  std::string square_gps::get_csv_header() const
+  {
+    std::stringstream stream;
+    stream << sample::get_csv_header();
+    stream << "# number_of_squares: " << this->number_of_squares << std::endl;
+    stream << "# square_width_x: " << this->square_width_x << std::endl;
+    stream << "# square_width_y: " << this->square_width_y << std::endl;
+    stream << "# selected_squares: ";
+
+    unsigned int total_selected = 0;
+    for( auto itx = this->selected_squares.cbegin(); itx != this->selected_squares.cend(); ++itx )
+      for( auto ity = itx->cbegin(); ity != itx->cend(); ++ity )
+        if( *ity ) total_selected++;
+    stream << total_selected << std::endl;
+
+    return stream.str();
   }
 }
 }

@@ -69,6 +69,14 @@ namespace sample
     double get_arc_angle() { return this->arc_angle; }
 
     /**
+     * Deserialize the sample
+     * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
+     */
+    void from_json( const Json::Value& );
+
+    /**
      * Serialize the sample
      * 
      * All objects must provide an implementation for converting themselves to and from a

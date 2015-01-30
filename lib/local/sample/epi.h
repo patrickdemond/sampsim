@@ -9,7 +9,7 @@
 #ifndef __sampsim_sample_epi_h
 #define __sampsim_sample_epi_h
 
-#include "sample/sample.h"
+#include "sample/sized_sample.h"
 
 #include <float.h>
 #include <list>
@@ -41,7 +41,7 @@ namespace sample
    * direction, randomly selects one of the buildings in that direction and proceeds to sample
    * the nearest buildings from the previously selected building until the sample size is met.
    */
-  class epi : public sample
+  class epi : public sized_sample
   {
   public:
     /**
@@ -53,21 +53,6 @@ namespace sample
      * Generates the sample by calling select_next_building() until sample size has been met
      */
     virtual void generate();
-
-    /**
-     * Serialize the sample
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    void to_json( Json::Value& ) const;
-
-    /**
-     * Returns the header for generated CSV files
-     * 
-     * The header includes all parameters used by the sampling method
-     */
-    virtual std::string get_csv_header() const;
 
     /**
      * Sets the number of sectors to divide the town into.
@@ -120,6 +105,29 @@ namespace sample
      * Unsets the start angle, allowing it to be randomly determined upon execution
      */
     void unset_start_angle() { this->start_angle_defined = false; }
+
+    /**
+     * Deserialize the sample
+     * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
+     */
+    void from_json( const Json::Value& );
+
+    /**
+     * Serialize the sample
+     * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
+     */
+    void to_json( Json::Value& ) const;
+
+    /**
+     * Returns the header for generated CSV files
+     * 
+     * The header includes all parameters used by the sampling method
+     */
+    virtual std::string get_csv_header() const;
 
   protected:
     /**

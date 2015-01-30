@@ -9,7 +9,7 @@
 #ifndef __sampsim_sample_square_gps_h
 #define __sampsim_sample_square_gps_h
 
-#include "sample/sample.h"
+#include "sample/sized_sample.h"
 
 #include <vector>
 
@@ -42,7 +42,7 @@ namespace sample
    * that the GPS point valls into.  This proceedure is repeated until the sample
    * size is met.
    */
-  class square_gps : public sample
+  class square_gps : public sized_sample
   {
   public:
     /**
@@ -69,6 +69,29 @@ namespace sample
      * Returns the number of squares (per direction) to divide towns into
      */
     unsigned int get_number_of_squares() { return this->number_of_squares; }
+
+    /**
+     * Deserialize the sample
+     * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
+     */
+    void from_json( const Json::Value& );
+
+    /**
+     * Serialize the sample
+     * 
+     * All objects must provide an implementation for converting themselves to and from a
+     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
+     */
+    void to_json( Json::Value& ) const;
+
+    /**
+     * Returns the header for generated CSV files
+     * 
+     * The header includes all parameters used by the sampling method
+     */
+    virtual std::string get_csv_header() const;
 
   protected:
     /**
@@ -117,7 +140,7 @@ namespace sample
     double square_width_y;
 
     /**
-     * 
+     * Array of all squares which have been selected
      */
     std::vector< std::vector< bool > > selected_squares;
   };
