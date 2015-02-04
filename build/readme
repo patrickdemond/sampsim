@@ -55,7 +55,6 @@ Building sampsim
 
 6. You are now ready to build sampsim by typing "make".
 
-
 Building documentation
 ======================
 
@@ -100,4 +99,12 @@ Building unit and visualization testing
    the create command:
 
    cd Testing/visualization
+   ./build.sh
    ./create
+
+
+BMB Notes
+==========================
+
+* on older Linux systems you may run into trouble at step 3(?) of building;  "This library needs at least a C++11 compliant compiler". On Ubuntu `sudo apt-get install g++-4.8` (I installed gcc-4.8 first, probably not necessary?) and changing `CMAKE_CXX_COMPILER:FILEPATH=/usr/bin/g++-4.8` seems to work (or if you want to make this change system-wide, change `/etc/alternatives/c++`
+* information about addressing gnuplot 4.6 dependency (installing on Ubuntu 12.04): https://priyansmurarka.wordpress.com/2013/07/02/gnuplot-on-ubuntu-12-04/
