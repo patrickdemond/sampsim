@@ -338,7 +338,7 @@ namespace sampsim
      */
     inline static unsigned int random( unsigned int min, unsigned int max )
     {
-      return random_engine() % ( max - min + 1 ) + min;
+      return random_engine() % ( max - min ) + min;
     }
 
     /**
@@ -347,7 +347,7 @@ namespace sampsim
     inline static double random()
     {
       return static_cast< double >( random_engine() - random_engine.min() ) /
-             static_cast< double >( random_engine.max() - random_engine.min() + 1 );
+             static_cast< double >( random_engine.max() - random_engine.min() );
     }
 
     /**

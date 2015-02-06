@@ -45,7 +45,7 @@ namespace sampsim
     double operator()( std::mt19937 &random_engine )
     {
       double rand = static_cast< double >( random_engine() - random_engine.min() ) /
-                    static_cast< double >( random_engine.max() - random_engine.min() + 1 );
+                    static_cast< double >( random_engine.max() - random_engine.min() );
       double val = this->b_val / pow( 1.0 - rand, 1 / this->a_val );
       if( 0 < this->max_val && this->max_val < val ) val = this->max_val;
       return val;
