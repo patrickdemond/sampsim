@@ -338,7 +338,7 @@ namespace sampsim
      */
     inline static unsigned int random( unsigned int min, unsigned int max )
     {
-      return random_engine() % ( max - min ) + min;
+      return random_engine() % ( max - min + 1 ) + min;
     }
 
     /**
