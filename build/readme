@@ -23,6 +23,21 @@ You will need the jsoncpp development libraries.  You can download these from th
 website or install them using your distro's package manager (try package libjsoncpp-dev)
 
 
+C++11 compliant compiler
+------------------------
+If you are using gcc < 4.8 you will need to upgrade your c and c++ compilers.  If your operating
+system is Ubuntu the following (run as root) will install the required compilers for you:
+
+add-apt-repository ppa:ubuntu-toolchain-r/test
+apt-get update
+apt-get install gcc-4.8 g++-4.8
+
+You can either change the path to the new compilers in your CMakeCache.txt file or change the
+default compiler by using commands:
+
+update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
+update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
+
 Optional Libraries
 ==================
 
