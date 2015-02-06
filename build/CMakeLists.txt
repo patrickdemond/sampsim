@@ -25,10 +25,6 @@ FIND_PACKAGE( Gnuplot QUIET )
 # Build libs
 SUBDIRS( ${SAMPSIM_LIB_DIR} )
 
-# Copy the readme file to build
-CONFIGURE_FILE( ${SAMPSIM_ROOT_DIR}/readme
-                ${PROJECT_BINARY_DIR}/readme COPYONLY )
-
 # Copy all config files to build
 FILE( GLOB CONFIG_FILENAMES "${SAMPSIM_AUX_DIR}/*.conf" )
 FOREACH( CONFIG ${CONFIG_FILENAMES} )
