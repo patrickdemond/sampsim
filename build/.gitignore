@@ -1,0 +1,7 @@
+# ignore everything
+*
+
+# except for the following
+CMakeLists.txt
+FindJSONCpp.cmake
+readme
