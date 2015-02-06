@@ -45,7 +45,7 @@ TEST( test_population )
 
   cout << "Testing population prevalence..." << endl;
   CHECK( total.first <= total.second );
-  CHECK( town_size_min * number_of_towns <= total.first );
+  CHECK( 0 <= total.first );
   CHECK( town_size_max * number_of_towns >= total.first );
 
   cout << "Turning on sample mode" << endl;
