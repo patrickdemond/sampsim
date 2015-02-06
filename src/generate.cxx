@@ -281,7 +281,7 @@ int main( const int argc, const char** argv )
             population->generate();
 
             bool flat = opts.get_flag( "flat_file" );
-            bool plot = opts.get_flag( "plot" );
+            bool plot = GNUPLOT_AVAILABLE ? opts.get_flag( "plot" ) : false;
 
             // create a json file no flat file was requested
             if( !flat ) population->write( population_filename, false );

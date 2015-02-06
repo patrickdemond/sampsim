@@ -56,7 +56,7 @@ int main( const int argc, const char** argv )
         if( sample->set_population( population_filename ) )
         {
           bool flat = opts.get_flag( "flat_file" );
-          bool plot = opts.get_flag( "plot" );
+          bool plot = GNUPLOT_AVAILABLE ? opts.get_flag( "plot" ) : false;
 
           sample->generate();
 
