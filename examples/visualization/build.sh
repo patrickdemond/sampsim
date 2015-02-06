@@ -6,7 +6,7 @@
 
 # Paths to executables is assuming the build is parallel to source directory but
 # with source/ replaced with build/
-build_dir="../../"
+build_dir="../.."
 
 generate="$build_dir/generate"
 arc_epi_sample="$build_dir/arc_epi_sample"

@@ -134,6 +134,8 @@ MARK_AS_ADVANCED( BUILD_TESTING )
 IF( BUILD_TESTING )
   ENABLE_TESTING()
 
-  # copy the testing tree from source to build
-  FILE( COPY ${SAMPSIM_EXAMPLES_DIR}/visualization DESTINATION ${SAMPSIM_TESTING_DIR} )
+  # copy the testing tree from source to build (but only if gnuplot is available)
+  IF( GNUPLOT_FOUND )
+    FILE( COPY ${SAMPSIM_EXAMPLES_DIR}/visualization DESTINATION ${SAMPSIM_TESTING_DIR} )
+  ENDIF( GNUPLOT_FOUND )
 ENDIF( BUILD_TESTING )
