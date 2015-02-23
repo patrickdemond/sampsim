@@ -36,8 +36,9 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void epi::generate()
   {
-    // reset the current building before running the parent method
+    // reset the sampler before proceeding
     this->current_building = NULL;
+    this->current_sector_index = -1;
     sample::generate();
   }
 

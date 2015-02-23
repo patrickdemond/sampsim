@@ -274,7 +274,7 @@ int main( const int argc, const char** argv )
               stream << filename << ".p"
                      << std::setw( log( batch_npop+1 ) ) << std::setfill( '0' ) << p;
               population_filename = stream.str();
-              std::cout << "generating population " << p << " of " << batch_npop << std::endl;
+              std::cout << "generating population " << ( p+1 ) << " of " << batch_npop << std::endl;
             }
             else population_filename = filename;
 
@@ -413,7 +413,7 @@ int main( const int argc, const char** argv )
                   stream << population_filename << ".s"
                          << std::setw( log( batch_nsamp+1 ) ) << std::setfill( '0' ) << s;
                   sample_filename = stream.str();
-                  std::cout << "sampling iteration " << s << " of " << batch_nsamp << std::endl;
+                  std::cout << "sampling iteration " << ( s+1 ) << " of " << batch_nsamp << std::endl;
                 }
 
                 sample->generate();
