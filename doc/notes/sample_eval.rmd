@@ -4,16 +4,23 @@ date: "`r format(Sys.time(), '%H:%M %d %B %Y')`"
 author: Ben Bolker
 ---
 
-```{r pkgs,message=FALSE}
+This version of the document has most of the technical details
+hidden; if you want to explore these details, look at the `.rmd` version
+(which can be opened in any text editor, or more conveniently
+in [RStudio](http://www.rstudio.com)).
+
+```{r pkgs,message=FALSE,echo=FALSE}
+library("knitr")
+opts_chunk$set(echo=FALSE)  ## make prettier for non-technical readers
 library("ggplot2"); theme_set(theme_bw())
 library("reshape2") ## for melt()
 library("dplyr") ## load AFTER plyr
 library("tidyr") ## gather
+## Previously I used the `rjson` package to read the JSON output files,
+## but it's much quicker just to use the system `grep` function to find
+## the lines we need ...
 ```
 
-(Previously I used the `rjson` package to read the JSON output files,
-but it's much quicker just to use the system `grep` function to find
-the lines we need ...)
 
 ```{r code}
 ##' extract true/diseased counts from a sample or population file;
@@ -33,6 +40,12 @@ get_counts <- function(fn,n=1) {
     c(indiv=vals[!dis],dis=vals[dis])
 }
 ## TEST
+```
+
+Extract the total number in the population, and the number diseased,
+from a population output file:
+
+```{r ex1,echo=TRUE}
 fn <- "multi2.p00.json"
 get_counts(fn)
 ```
@@ -41,7 +54,7 @@ get_counts(fn)
 
 This follows the `readme` file to generate a single population (with one town)
 and a single sample and get the counts from each.
-```{r gen1}
+```{r gen1,echo=TRUE}
 system("./generate -c config/default_population.conf test")
 system("./strip_epi_sample test.json strip")
 get_counts("test.json")   ## population
@@ -51,13 +64,10 @@ get_counts("strip.json")  ## sample
 ## Multiple samples
 
 Here we are generating 99 populations; for each population
-we are running each sampler.  It would be convenient
+we are running each sampler.
 
-Set up structures for reading in information: population information is in a
-`npop` $\times$ 2 matrix (one column each for total/diseased), sample information is in a
-`npop` $\times$ 2 $\times$ `nsamplers` array.
+```{r setup}
 
-```{r setup,cache=TRUE}
 ## identify available samplers
 get_samplers <- function() { list.files(pattern="_sample$") }
 get_pops <- function(prefix) {
@@ -65,7 +75,9 @@ get_pops <- function(prefix) {
     pops <- gsub(sprintf("(^%s\\.|\\.json$)",prefix),"",files)
     return(pops)
 }
-
+## Set up structures for reading in information: population information is in a
+## `npop` $\times$ 2 matrix (one column each for total/diseased), sample information is in a
+## `npop` $\times$ 2 $\times$ `nsamplers` array.
 setup_arr <- function(prefix="multi") {
     pops <- get_pops(prefix)
     npop <- length(pops)
@@ -82,8 +94,12 @@ setup_arr <- function(prefix="multi") {
 }
 ```
 
-For each population, extract the counts; then try every sampler and record the counts. We are (now) using a different random-number seed (the same for every sampler) for each population; this should address the problem that the results were presumably biased by the interaction between the fixed geographic gradient and the fixed (if seed was unchanged) starting direction for some samplers.  (Does it make sense to allow an NA/NULL value for the random number seed that picks an *arbitrary* starting seed, i.e. for casual use?)
 
+For each population, extract the counts; then try every sampler and record the counts. We are (now) using a different random-number seed (the same for every sampler) for each population; this should address the problem that the results were presumably biased by the interaction between the fixed geographic gradient and the fixed (if seed was unchanged) starting direction for some samplers.  
+
+Doing this size sample (99 populations $\times$ 5 samplers) takes on the order of a half an hour on my laptop
+(I haven't checked carefully);
+there are probably some ways we can speed it up.
 
 ```{r getcounts}
 get_samp <- function(prefix) {
@@ -112,27 +128,41 @@ if (!file.exists(fn)) {
 } else load(fn)
 ```    
 
-Basic results: here I am using functions from the `dplyr` and `tidyr` packages
-to reshape and manipulate the results. These are a little bit mind-bending
-but very compact and efficient: see the [data wrangling cheatsheet](http://www.rstudio.com/wp-content/uploads/2015/03/data-wrangling-cheatsheet.png) for a quick overview.
-
+Basic results. Boxplots show overall distributions of estimated proportions;
+red line shows overall population mean (averaged across populations); gray lines
+connect results for the same populations across samplers.
 
 ```{r res1}
-get_sum <- function(samp) {
-    tfun <- function(x) {
-        melt(x) %>%    ## reshape array to long
+## here I am using functions from the `dplyr` and `tidyr` packages
+## to reshape and manipulate the results. These are a little bit mind-bending
+## but very compact and efficient: see the
+## [data wrangling cheatsheet](http://www.rstudio.com/wp-content/uploads/2015/03/data-wrangling-cheatsheet.png)
+## for a quick overview.
+get_binCI <- function(x,n) {
+    rbind(setNames(c(binom.test(x,n)$conf.int),c("lwr","upr")))
+}
+get_sum0 <- function(x,calc_CI=FALSE) {
+    m1 <- melt(x) %>%    ## reshape array to long
         spread(state,value) %>%   ## dis, indiv as columns
-            mutate(samp_prop=dis/indiv) %>%  ## compute proportion
-                select(-c(dis,indiv))        ## drop orig cols
-        }
-    sampvals <- tfun(samp$samp) %>%
+            mutate(samp_prop=dis/indiv)  ## compute proportion
+    ## FIXME: should "group on every row"; this will only work
+    ##   if we have a data frame with 'sampler' (but that *should*
+    ##   be the only case where we actually want it)
+    if (calc_CI) m1 <- m1 %>% group_by(pop,sampler) %>%
+        do(cbind(.,data.frame(get_binCI(.$dis,.$indiv))))
+    m2 <- m1 %>% ungroup() %>% select(-c(dis,indiv))
+    return(m2)
+}
+get_sum <- function(samp) {
+    sampvals <- get_sum0(samp$samp,calc_CI=TRUE) %>%
          ## order sampler factor levels by estimated prop:
         mutate(sampler=reorder(sampler,samp_prop))
     ## reshape population-level counts, merge with sampe counts,
     ##  and compute the difference
-    allvals <- tfun(samp$pop) %>% rename(pop_prop=samp_prop) %>%
+    allvals <- get_sum0(samp$pop) %>% rename(pop_prop=samp_prop) %>%
         full_join(sampvals,by="pop") %>%
-            mutate(sdiff=pop_prop-samp_prop)
+            mutate(sdiff=pop_prop-samp_prop) %>%
+                mutate
     ## subtract the true incidences from the sampled incidences
     return(allvals)
 }
@@ -147,7 +177,11 @@ mm <- get_sum(samp1)
                        colour="red"))
 ```
 
-Bias: blue values are means and 95% bootstrap CIs.  The
+Bias (distribution of differences between true and estimated proportion): 
+blue points/whiskers represent means and 95% bootstrap CIs.  The
+`arc_epi` and `strip_epi` samplers are obviously more variable,
+but they may not be biased (95% CIs of `strip_epi_sample` are just
+touching zero).
 
 ```{r plot2}
 (gg2 <- ggplot(mm,aes(x=sampler,y=sdiff))+geom_boxplot()+
@@ -160,9 +194,17 @@ Bias: blue values are means and 95% bootstrap CIs.  The
 ```{r sums}
 sum1 <- mm %>% group_by(sampler) %>%
               summarise(bias=mean(sdiff),var=var(samp_prop),
-                        RMSE=sqrt(sum(sdiff)^2))
+                        RMSE=sqrt(sum(sdiff)^2),
+                        coverage=mean(lwr<pop_prop & pop_prop<upr))
 print(as.data.frame(sum1),digits=3)
 ```
+
+Despite being unbiased, the coverage of a naive binomial 
+confidence interval is terrible for the EPI samplers
+and a little bit bad for the GPS and random samples, probably
+due to the clustering/spatial heterogeneity in the sample
+(theory suggests that SRS should be unbiased no matter what --
+but what does it say about the variance of the estimator?)
 
 ## Vanilla pops
 
@@ -186,7 +228,7 @@ if (!file.exists(fn)) {
 } else load(fn)
 ```
 
-Re-do plots with data from "vanilla" configurations:
+Re-do plots with data from "vanilla" configurations.
 
 ```{r vanilla_plots}
 mm2 <- get_sum(samp2)
@@ -194,10 +236,24 @@ gg1 %+% mm2
 gg2 %+% mm2
 ```
 
+```{r sums2}
+## DRY ... should make this a function
+sum2 <- mm2 %>% group_by(sampler) %>%
+              summarise(bias=mean(sdiff),var=var(samp_prop),
+                        RMSE=sqrt(sum(sdiff)^2),
+                        coverage=mean(lwr<pop_prop & pop_prop<upr))
+print(as.data.frame(sum2),digits=3)
+```
+
+Now all methods are more or less comparable, and unbiased,
+and well-covered: the standard error of the binomial estimate
+for coverage from 99 samples should (?) be about $\sqrt{0.95\cdot 0.05/99} \approx 0.02$,
+so anything within a few percentage points of 0.95 seems good.
+(Could do more runs if we needed to be more precise.)
+
 ### To do/fix me:
 
 * Makefile/otherwise avoid recomputation in a smarter way
 * Think about how we can do more runs, more automatically ...
-* Compute binomial CI, coverage ...
 * It would be very convenient if we could run all samplers for the same population (in C++ code) automatically; not sure how much efficiency gain we would get.  At present we can run the *same* sampler for lots of populations, without writing out the population information, but we like to be able to do the inverse (one config file $\to$ one population $\to$ many samplers, or even one config file $\to$ many populations $\to$ many samplers, or [hypercube config file] $\to$ many populations $\to$ many samplers ...).
-
+* Does it make sense to allow an NA/NULL value for the random number seed that picks an *arbitrary* starting seed, i.e. for casual use?
