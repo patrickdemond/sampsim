@@ -1,0 +1,203 @@
+---
+title: "Initial evaluation of samplers"
+date: "`r format(Sys.time(), '%H:%M %d %B %Y')`"
+author: Ben Bolker
+---
+
+```{r pkgs,message=FALSE}
+library("ggplot2"); theme_set(theme_bw())
+library("reshape2") ## for melt()
+library("dplyr") ## load AFTER plyr
+library("tidyr") ## gather
+```
+
+(Previously I used the `rjson` package to read the JSON output files,
+but it's much quicker just to use the system `grep` function to find
+the lines we need ...)
+
+```{r code}
+##' extract true/diseased counts from a sample or population file;
+##' using 'grep' is more efficient than reading in the whole file
+##' (requires a system with grep, i.e. Linux/MacOS or Windows with Cygwin)
+##' (add a test to see if system("grep") works, or not bother?)
+##' @param fn file name
+##' @param n number of total/diseased pairs to read
+get_counts <- function(fn,n=1) {
+    d <- n*2 ## get indiv and diseased count for each rep
+    ## grep -m stops after a specified number of matches
+    rr <- system(sprintf("grep -m %d _count %s",d,fn),intern=TRUE)
+    ## get last word (minus comma), convert to numeric
+    vals <- as.numeric(gsub("^.*: +([0-9]+),$","\\1",rr))
+    ## identify which counts refer to number w/ disease
+    dis <- grepl("diseased",rr)
+    c(indiv=vals[!dis],dis=vals[dis])
+}
+## TEST
+fn <- "multi2.p00.json"
+get_counts(fn)
+```
+
+### Single sample
+
+This follows the `readme` file to generate a single population (with one town)
+and a single sample and get the counts from each.
+```{r gen1}
+system("./generate -c config/default_population.conf test")
+system("./strip_epi_sample test.json strip")
+get_counts("test.json")   ## population
+get_counts("strip.json")  ## sample
+```
+
+## Multiple samples
+
+Here we are generating 99 populations; for each population
+we are running each sampler.  It would be convenient
+
+Set up structures for reading in information: population information is in a
+`npop` $\times$ 2 matrix (one column each for total/diseased), sample information is in a
+`npop` $\times$ 2 $\times$ `nsamplers` array.
+
+```{r setup,cache=TRUE}
+## identify available samplers
+get_samplers <- function() { list.files(pattern="_sample$") }
+get_pops <- function(prefix) {
+    files <- list.files(pattern=sprintf("%s\\.p[0-9]+\\.json",prefix))
+    pops <- gsub(sprintf("(^%s\\.|\\.json$)",prefix),"",files)
+    return(pops)
+}
+
+setup_arr <- function(prefix="multi") {
+    pops <- get_pops(prefix)
+    npop <- length(pops)
+    pop <- matrix(NA,ncol=2,nrow=npop,
+                  dimnames=list(pop=pops,state=c("indiv","dis")))
+    samplers <- get_samplers()
+    nsamplers <- length(samplers)
+    samp_arr <- array(NA,
+                      dim=c(npop,2,nsamplers),
+                      dimnames=list(pop=pops,
+                      state=c("indiv","dis"),
+                      sampler=samplers))
+    return(list(pop=pop,samp=samp_arr))
+}
+```
+
+For each population, extract the counts; then try every sampler and record the counts. We are (now) using a different random-number seed (the same for every sampler) for each population; this should address the problem that the results were presumably biased by the interaction between the fixed geographic gradient and the fixed (if seed was unchanged) starting direction for some samplers.  (Does it make sense to allow an NA/NULL value for the random number seed that picks an *arbitrary* starting seed, i.e. for casual use?)
+
+
+```{r getcounts}
+get_samp <- function(prefix) {
+    samp <- setup_arr(prefix)
+    pops <- get_pops(prefix)
+    samplers <- get_samplers()
+    nsamplers <- length(samplers)
+    for (i in seq_along(pops)) {
+        samp$pop[pops[i],] <- get_counts(files[i])
+        seed <- 1000+i
+        for (s in seq(nsamplers)) {
+            system(sprintf("./%s %s --seed %d out",samplers[s],files[i],seed))
+            samp$samp[pops[i],,s] <- get_counts("out.json")
+        }
+    }
+    return(samp)
+}
+fn <- "samp1.RData"
+if (!file.exists(fn)) {
+    npop <- 99
+    system(paste("./generate -c config/default_population.conf",
+                 sprintf("--batch_npop %d",npop),
+                 "multi"))
+    samp1 <- get_samp("multi")
+    save("samp1",file=fn)
+} else load(fn)
+```    
+
+Basic results: here I am using functions from the `dplyr` and `tidyr` packages
+to reshape and manipulate the results. These are a little bit mind-bending
+but very compact and efficient: see the [data wrangling cheatsheet](http://www.rstudio.com/wp-content/uploads/2015/03/data-wrangling-cheatsheet.png) for a quick overview.
+
+
+```{r res1}
+get_sum <- function(samp) {
+    tfun <- function(x) {
+        melt(x) %>%    ## reshape array to long
+        spread(state,value) %>%   ## dis, indiv as columns
+            mutate(samp_prop=dis/indiv) %>%  ## compute proportion
+                select(-c(dis,indiv))        ## drop orig cols
+        }
+    sampvals <- tfun(samp$samp) %>%
+         ## order sampler factor levels by estimated prop:
+        mutate(sampler=reorder(sampler,samp_prop))
+    ## reshape population-level counts, merge with sampe counts,
+    ##  and compute the difference
+    allvals <- tfun(samp$pop) %>% rename(pop_prop=samp_prop) %>%
+        full_join(sampvals,by="pop") %>%
+            mutate(sdiff=pop_prop-samp_prop)
+    ## subtract the true incidences from the sampled incidences
+    return(allvals)
+}
+mm <- get_sum(samp1)
+```
+
+```{r plot1}
+(gg1 <- ggplot(mm,aes(x=sampler,y=samp_prop))+geom_boxplot()+
+    geom_line(aes(group=pop),alpha=0.05)+
+        coord_flip()+labs(x="",y="sample incidence")+
+            geom_hline(aes(yintercept=mean(pop_prop)),
+                       colour="red"))
+```
+
+Bias: blue values are means and 95% bootstrap CIs.  The
+
+```{r plot2}
+(gg2 <- ggplot(mm,aes(x=sampler,y=sdiff))+geom_boxplot()+
+    geom_line(aes(group=pop),alpha=0.05)+
+        coord_flip()+labs(x="",y="error")+
+            geom_hline(yintercept=0,colour="red")+
+                stat_summary(fun.data = "mean_cl_boot",colour="blue"))
+```
+
+```{r sums}
+sum1 <- mm %>% group_by(sampler) %>%
+              summarise(bias=mean(sdiff),var=var(samp_prop),
+                        RMSE=sqrt(sum(sdiff)^2))
+print(as.data.frame(sum1),digits=3)
+```
+
+## Vanilla pops
+
+Re-run all of this with a "vanilla" population configuration; all interesting
+settings (pocketing, geographic variation, etc. etc.) are set to zero.
+
+To see differences:
+```
+diff config/default_population.conf config/vanilla_population.conf
+```
+
+```{r samp2}
+fn <- "samp2.RData"
+if (!file.exists(fn)) {
+    npop <- 99
+    system(paste("./generate -c config/vanilla_population.conf",
+                 sprintf("--batch_npop %d",npop),
+                 "vanilla"))
+    samp2 <- get_samp("vanilla")
+    save("samp2",file=fn)
+} else load(fn)
+```
+
+Re-do plots with data from "vanilla" configurations:
+
+```{r vanilla_plots}
+mm2 <- get_sum(samp2)
+gg1 %+% mm2
+gg2 %+% mm2
+```
+
+### To do/fix me:
+
+* Makefile/otherwise avoid recomputation in a smarter way
+* Think about how we can do more runs, more automatically ...
+* Compute binomial CI, coverage ...
+* It would be very convenient if we could run all samplers for the same population (in C++ code) automatically; not sure how much efficiency gain we would get.  At present we can run the *same* sampler for lots of populations, without writing out the population information, but we like to be able to do the inverse (one config file $\to$ one population $\to$ many samplers, or even one config file $\to$ many populations $\to$ many samplers, or [hypercube config file] $\to$ many populations $\to$ many samplers ...).
+
