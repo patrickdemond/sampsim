@@ -13,7 +13,7 @@ scl enable devtoolset-2 bash
 ## as specified in readme ...
 cmake -G "Unix Makefiles" ../sampling-simulation-project/build
 ##
-# now change CMAKE_BUILD_TYPE:STRING=Release in CMakeCache.txt as specified]
+# now change CMAKE_BUILD_TYPE:STRING=Release in CMakeCache.txt as specified
 ## as in readme
 cmake .
 ## /usr/bin/c++ --version is still 4.4.7, so change in CMakeCache.txt:
@@ -65,3 +65,32 @@ cmake version 2.6-patch 4
  CMake 2.8 or higher is required.
 
 
+so instead:
+
+cmake28 -G "Unix Makefiles" ../sampling-simulation-project/build/
+
+now we need to build/install JsonCpp
+
+... README.txt says we need Scons but it appears to be installed
+already in /usr/bin
+
+scons platform=linux-gcc
+
+see
+http://stackoverflow.com/questions/4628922/building-jsoncpp-linux-an-instruction-for-us-mere-mortals
+
+"jsoncpp doesn't seem to install itself, so you'll have to manually copy the library and header files wherever you want them when you're building applications that use the library."
+
+modify CMakeCache.txt as follows:
+
+/Path to a file.
+JSONCPP_INCLUDE_DIR:PATH=../jsoncpp-src-0.5.0/include
+//Path to a library.
+JSONCPP_LIBRARIES:FILEPATH=../jsoncpp-src-0.5.0/libs
+
+# now change CMAKE_BUILD_TYPE:STRING=Release in CMakeCache.txt as specified
+## as in readme
+cmake28 .
+make
+
+##  catastrophic error: #error directive: This library needs at least a C++11 compliant compiler
