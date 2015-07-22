@@ -8,55 +8,30 @@ git clone https://bbolker@bitbucket.org/bbolker/sampling-simulation-project.git
 mkdir sampbuild
 ## go there
 cd sampbuild
-## setup for more recent compiler (but see below)
+## setup for more recent compiler
 scl enable devtoolset-2 bash 
 ## as specified in readme ...
 cmake -G "Unix Makefiles" ../sampling-simulation-project/build
 ##
 # now change CMAKE_BUILD_TYPE:STRING=Release in CMakeCache.txt as specified
-## as in readme
+## as in readme:
 cmake .
-## /usr/bin/c++ --version is still 4.4.7, so change in CMakeCache.txt:
-# CMAKE_CXX_COMPILER:FILEPATH=/opt/rh/devtoolset-2/root/usr/bin/g++
+## 
+## DON'T change CMAKE_CXX_COMPILER:FILEPATH; version set by configure,
+## CMAKE_CXX_COMPILER:FILEPATH=/opt/rh/devtoolset-2/root/usr/bin/c++
+##  appears to be OK
 ## as in readme:
 make
 
-bash-4.1$ make
--- The CXX compiler identification is GNU 4.8.2
--- Check for working CXX compiler: /opt/rh/devtoolset-2/root/usr/bin/g++
--- Check for working CXX compiler: /opt/rh/devtoolset-2/root/usr/bin/g++ -- works
--- Detecting CXX compiler ABI info
--- Detecting CXX compiler ABI info - done
--- Found JSONCpp: /usr/local/include, /usr/local/lib/libjsoncpp.a
--- Configuring done
--- Generating done
--- Build files have been written to: /home/bolker/sampbuild
-[  3%] Building CXX object lib/local/CMakeFiles/sampsim.dir/base_object.cxx.o
-[snip]
-[ 50%] Building CXX object lib/local/CMakeFiles/sampsim.dir/utilities.cxx.o
-Linking CXX shared library libsampsim.so
-/opt/rh/devtoolset-2/root/usr/libexec/gcc/x86_64-redhat-linux/4.8.2/ld: /usr/local/lib/libjsoncpp.a(json_reader.cpp.o): relocation R_X86_64_32 against `.rodata' can not be used when making a shared object; recompile with -fPIC
-/usr/local/lib/libjsoncpp.a: could not read symbols: Bad value
-collect2: error: ld returned 1 exit status
-make[2]: *** [lib/local/libsampsim.so] Error 1
-make[1]: *** [lib/local/CMakeFiles/sampsim.dir/all] Error 2
-make: *** [all] Error 2
-
-
-
-
-
-
-
 =============
-on kraken.sharcnet.ca
+on kraken.sharcnet.ca:
 
   /work/bolker/projects/sampling (should be readable)
 
 copy jsoncpp, scons
 
 tar zxvf <whatever>  ## to unpack
-  unzip scons_* into the jsoncpp directory
+  unzip scons_* into the jsoncpp directory (unnecessary?)
 python scons-2.3.1/script/scons
 
 cmake -G "Unix Makefiles" ../sampling-simulation-project/build/
