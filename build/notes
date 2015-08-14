@@ -8,7 +8,7 @@ git clone https://bbolker@bitbucket.org/bbolker/sampling-simulation-project.git
 mkdir sampbuild
 ## go there
 cd sampbuild
-## setup for more recent compiler
+## (Bayes only) setup for more recent compiler
 scl enable devtoolset-2 bash 
 ## as specified in readme ...
 cmake -G "Unix Makefiles" ../sampling-simulation-project/build
@@ -24,48 +24,40 @@ cmake .
 make
 
 =============
-on kraken.sharcnet.ca:
+## NOTES for kraken.sharcnet.ca:
 
-  /work/bolker/projects/sampling (should be readable)
+## go to /work/bolker/projects/sampling (should be readable)
 
-copy jsoncpp, scons
+## GCC notes for Kraken: https://www.sharcnet.ca/help/index.php/GCC
+module unload intel
+module load gcc/4.9.2
 
-tar zxvf <whatever>  ## to unpack
-  unzip scons_* into the jsoncpp directory (unnecessary?)
-python scons-2.3.1/script/scons
+## have to get JSON (>0.5) from Github and compile that way ...
 
-cmake -G "Unix Makefiles" ../sampling-simulation-project/build/
+## https://github.com/open-source-parsers/jsoncpp
+git clone https://github.com/open-source-parsers/jsoncpp.git
+cd jsoncpp
+mkdir -p build/debug
+cd build/debug
+cmake28 -DCMAKE_BUILD_TYPE=debug -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=ON -DARCHIVE_INSTALL_DIR=. -G "Unix Makefiles" ../..
+make
 
-cmake version 2.6-patch 4
- CMake 2.8 or higher is required.
-
-
-so instead:
+## manual install (probably a less ugly way to do this!)
+cd ../..        ## get back to ./jsoncpp directory
+mkdir lib
+cp build/debug/src/lib_json/libjson* lib
 
 cmake28 -G "Unix Makefiles" ../sampling-simulation-project/build/
 
-now we need to build/install JsonCpp
+## modify CMakeCache.txt as follows:
+## need full paths for JSON ...
+//Path to a file.
+JSONCPP_INCLUDE_DIR:PATH=/work/bolker/projects/sampling/jsoncpp/include
 
-... README.txt says we need Scons but it appears to be installed
-already in /usr/bin
-
-scons platform=linux-gcc
-
-see
-http://stackoverflow.com/questions/4628922/building-jsoncpp-linux-an-instruction-for-us-mere-mortals
-
-"jsoncpp doesn't seem to install itself, so you'll have to manually copy the library and header files wherever you want them when you're building applications that use the library."
-
-modify CMakeCache.txt as follows:
-
-/Path to a file.
-JSONCPP_INCLUDE_DIR:PATH=../jsoncpp-src-0.5.0/include
 //Path to a library.
-JSONCPP_LIBRARIES:FILEPATH=../jsoncpp-src-0.5.0/libs
+JSONCPP_LIBRARIES:FILEPATH=/work/bolker/projects/sampling/jsoncpp/lib/libjsoncpp.so
 
-# now change CMAKE_BUILD_TYPE:STRING=Release in CMakeCache.txt as specified
+## also change CMAKE_BUILD_TYPE:STRING=Release in CMakeCache.txt as specified
 ## as in readme
 cmake28 .
 make
-
-##  catastrophic error: #error directive: This library needs at least a C++11 compliant compiler
