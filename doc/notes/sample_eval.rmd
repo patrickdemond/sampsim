@@ -162,7 +162,7 @@ get_sum <- function(samp) {
     allvals <- get_sum0(samp$pop) %>% rename(pop_prop=samp_prop) %>%
         full_join(sampvals,by="pop") %>%
             mutate(sdiff=pop_prop-samp_prop) %>%
-                mutate
+                mutate   ## ??? no-op ???
     ## subtract the true incidences from the sampled incidences
     return(allvals)
 }
