@@ -34,34 +34,23 @@ namespace sample
     double size_fraction = static_cast< double >( this->get_size() ) /
                            static_cast< double >( this->get_number_of_sectors() );
     if( this->get_current_size() > size_fraction * this->get_current_sector() )
+    {
       this->current_building = NULL;
+    }
 
     if( NULL == this->current_building )
     {
       building_list_type building_list = tree.get_building_list();
 
-      // 1. get list of all buildings in sector from random angle to random angle + the input
-      //    parameter "arc angle"
+      // 1. determine the start angle then get list of all buildings in the sector from the start
+      //    angle to the start angle + the input parameter "arc angle"
+      this->determine_next_start_angle();
       building_list_type initial_building_list;
 
       // 2. keep repeating step 2 until the list produced is not empty
       int iteration = 0;
-      while( 0 == initial_building_list.size() && iteration < 100 )
+      while( 0 == initial_building_list.size() && iteration < 1000 )
       {
-        // if a start angle hasn't been defined then pick a random start angle in the current sector
-        if( !this->start_angle_defined )
-        {
-          std::pair< double, double > angles = this->get_next_sector_range();
-          this->start_angle = utilities::random() * ( angles.second - angles.first ) + angles.first;
-
-          if( utilities::verbose )
-            utilities::output(
-              "Beginning sector %d of %d with a starting angle of %0.3f radians",
-              this->get_current_sector() - 1,
-              this->get_number_of_sectors(),
-              this->start_angle );
-        }
-
         if( utilities::verbose )
           utilities::output( "iteration #%d", iteration + 1 );
 
@@ -106,7 +95,7 @@ namespace sample
 
       if( 0 == initial_building_list.size() )
         throw std::runtime_error(
-          "Unable to find initial building after 100 attempts (try increasing the arc angle)" );
+          "Unable to find initial building after 1000 attempts.  You must either lower the sample size or increase the arc_angle." );
 
       // 3. select a random building from the list produced by step 2
       this->first_building_index = utilities::random( 0, initial_building_list.size() - 1 );

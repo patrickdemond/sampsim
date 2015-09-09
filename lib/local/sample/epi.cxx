@@ -71,6 +71,32 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void epi::determine_next_start_angle()
+  {
+    if( this->start_angle_defined )
+    {
+      // rotate start_angle by the width of a sector, but only if this isn't the first sector being sampled
+      if( 0 < static_cast< double >( this->get_size() ) )
+      {
+        this->start_angle += 2*M_PI / static_cast< double >( this->number_of_sectors );
+      }
+    }
+    else
+    {
+      // get the next sector and select a random angle within its range
+      std::pair< double, double > angles = this->get_next_sector_range();
+      this->start_angle = utilities::random() * ( angles.second - angles.first ) + angles.first;
+    }
+
+    if( utilities::verbose )
+      utilities::output(
+        "Beginning sector %d of %d with a starting angle of %0.3f radians",
+        this->get_current_sector(),
+        this->get_number_of_sectors(),
+        this->start_angle );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void epi::set_number_of_sectors( const unsigned int number_of_sectors )
   {
     if( utilities::verbose ) utilities::output( "setting number of sectors to %d", number_of_sectors );

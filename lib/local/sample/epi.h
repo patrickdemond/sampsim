@@ -94,6 +94,10 @@ namespace sample
 
     /**
      * Sets the angle used in the selection of the initial building
+     * 
+     * Note, if using multiple sectors then the angle selected for each sector will be the initial
+     * set angle rotated by the angle of a sector.  This will result in a uniform distribution of
+     * angles situated at the same sub-angle in each sector.
      */
     void set_start_angle( double start_angle )
     {
@@ -134,6 +138,11 @@ namespace sample
      * Algorithm which selects buildings based on the sampling method
      */
     virtual building* select_next_building( sampsim::building_tree& );
+
+    /**
+     * Is called when needing to select the next angle belonging to the next sector
+     */
+    virtual void determine_next_start_angle();
 
     /**
      * Whether the start angle has been defined

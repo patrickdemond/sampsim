@@ -41,10 +41,11 @@ namespace sample
       building_list_type building_list = tree.get_building_list();
       coordinate centroid = ( *building_list.cbegin() )->get_town()->get_centroid();
 
-      // 1. get list of all buildings in rectangle formed by drawing a line from the centre
-      //    of the town to the edge following the random angle, then widening that line into
-      //    a rectangle the width of the input parameter "strip width" such that the original
-      //    line runs along the centre of the rectagle
+      // 1. determine the start angle then get list of all buildings in rectangle formed by drawing
+      //    a line from the centre of the town to the edge following the start angle, then widening
+      //    that line into a rectangle the width of the input parameter "strip width" such that the
+      //    original line runs along the centre of the rectagle
+      this->determine_next_start_angle();
       building_list_type initial_buildings;
 
       // 2. if the start angle is not explicitly set then keep repeating step 2 until the list
@@ -52,20 +53,6 @@ namespace sample
       int iteration = 0;
       do
       {
-        // if a start angle hasn't been defined then pick a random start angle in the current sector
-        if( !this->start_angle_defined )
-        {
-          std::pair< double, double > angles = this->get_next_sector_range();
-          this->start_angle = utilities::random() * ( angles.second - angles.first ) + angles.first;
-
-          if( utilities::verbose )
-            utilities::output(
-              "Beginning sector %d of %d with a starting angle of %0.3f radians",
-              this->get_current_sector() - 1,
-              this->get_number_of_sectors(),
-              this->start_angle );
-        }
-
         if( utilities::verbose )
           utilities::output( "iteration #%d", iteration + 1 );
 
@@ -101,11 +88,11 @@ namespace sample
 
         iteration++;
       }
-      while( !this->start_angle_defined && 0 == initial_buildings.size() && iteration < 100 );
+      while( !this->start_angle_defined && 0 == initial_buildings.size() && iteration < 1000 );
 
       if( 0 == initial_buildings.size() )
         throw std::runtime_error(
-          "Unable to find initial building after 100 attempts (try widening the strip width)" );
+          "Unable to find initial building after 1000 attempts.  You must either lower the sample size or increase the strip_width." );
 
       // 3. select a random building from the list produced by step 2
       this->first_building_index = utilities::random( 0, initial_buildings.size() - 1 );
