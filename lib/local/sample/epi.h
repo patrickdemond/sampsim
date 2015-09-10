@@ -140,6 +140,11 @@ namespace sample
     virtual building* select_next_building( sampsim::building_tree& );
 
     /**
+     * Extends parent method
+     */
+    virtual void reset_for_next_sample();
+
+    /**
      * Is called when needing to select the next angle belonging to the next sector
      */
     virtual void determine_next_start_angle();

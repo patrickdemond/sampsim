@@ -91,6 +91,9 @@ namespace sample
           utilities::output( "no buildings found in strip" );
 
         iteration++;
+
+        // increase the angle in case we need another iteration
+        this->start_angle += this->arc_angle;
       }
 
       if( 0 == initial_building_list.size() )

@@ -197,6 +197,11 @@ namespace sample
     virtual building* select_next_building( sampsim::building_tree& ) = 0;
 
     /**
+     * Called before each sample is taken
+     */
+    virtual void reset_for_next_sample();
+
+    /**
      * Returns whether or not the sampling is complete
      * 
      * This pure virtual method must be defined by all child classes.  It allows each sampling method

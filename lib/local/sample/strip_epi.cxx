@@ -54,7 +54,7 @@ namespace sample
       do
       {
         if( utilities::verbose )
-          utilities::output( "iteration #%d", iteration + 1 );
+          utilities::output( "iteration #%d (angle %0.2f)", iteration + 1, this->start_angle );
 
         // determine the line coefficient (for lines making strip of the appropriate width)
         double sin_min_angle = sin( -this->start_angle );
@@ -87,6 +87,9 @@ namespace sample
           utilities::output( "no buildings found in strip" );
 
         iteration++;
+
+        // increase the angle in case we need another iteration
+        this->start_angle += 2*M_PI/1000;
       }
       while( !this->start_angle_defined && 0 == initial_buildings.size() && iteration < 1000 );
 

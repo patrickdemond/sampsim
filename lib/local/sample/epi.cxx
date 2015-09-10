@@ -71,6 +71,18 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void epi::reset_for_next_sample()
+  {
+    sized_sample::reset_for_next_sample();
+
+    this->current_sector_index = -1;
+    this->start_angle_defined = false;
+    this->start_angle = 0;
+    this->first_building_index = 0;
+    this->current_building = NULL;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void epi::determine_next_start_angle()
   {
     if( this->start_angle_defined )
