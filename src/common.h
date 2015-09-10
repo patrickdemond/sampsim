@@ -61,6 +61,10 @@ std::string gnuplot(
            << "r2(x) = " << m << "*x + " << b2 << "; ";
   }
 
+  // remove .json from the population name
+  if( 0 == population_name.compare( population_name.size()-5, 5, ".json" ) )
+    population_name = population_name.substr( 0, population_name.size()-5 );
+
   stream
     << "set termoption dashed; "
     << "plot \"" << population_name << ".household.csv\" "
