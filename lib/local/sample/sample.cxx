@@ -94,6 +94,8 @@ namespace sample
     // run selection number_of_samples times
     for( unsigned int iteration = 0; iteration < this->number_of_samples; iteration++ )
     {
+      this->reset_for_next_sample();
+
       // select a town to sample
       sampsim::town *use_town = NULL;
       double lower = 0.0;
@@ -131,9 +133,7 @@ namespace sample
       utilities::output( "selecting from a list of %d buildings", building_list.size() );
 
       // keep selecting buildings until the ending condition has been met
-      this->current_size = 0;
       int household_count = 0;
-      this->first_building = NULL;
       while( !this->is_sample_complete() )
       {
         if( tree.is_empty() )
@@ -188,6 +188,13 @@ namespace sample
         iteration,
         household_count );
     }
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void sample::reset_for_next_sample()
+  {
+    this->current_size = 0;
+    this->first_building = NULL;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

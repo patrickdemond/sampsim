@@ -42,7 +42,7 @@ namespace sample
 
     int iteration = 0;
     // keep selecting a random point until there is at least one building found in the resulting square
-    while( 0 == square_building_list.size() && iteration < 100 )
+    while( 0 == square_building_list.size() && iteration < 1000 )
     {
       // select a random point within the population's bounds
       coordinate p( 2 * centroid.x * utilities::random(), 2 * centroid.y * utilities::random() );
@@ -89,12 +89,12 @@ namespace sample
       if( this->all_squares_selected() )
       { // all squares have been selected
         throw std::runtime_error(
-          "No more unselected squares left before completing sample (try increasing the number of squares)" );
+          "No more unselected squares left before completing sample.  You must increase the number of squares." );
       }
       else
       { // none of the selected squares have any buildings in them
         throw std::runtime_error(
-          "Unable to find building in GPS square after 100 attempts (try decreasing the number of squares)" );
+          "Unable to find building in GPS square after 1000 attempts.  You must either lower the sample size or decrease the number of squares." );
       }
     }
 
