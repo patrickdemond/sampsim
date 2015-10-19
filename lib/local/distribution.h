@@ -79,6 +79,11 @@ namespace sampsim
     distribution() : distribution_type( distribution::UNKNOWN ) {}
 
     /**
+     * Copies another distribution's values into the current object
+     */
+    void copy( const distribution* );
+
+    /**
      * Returns the name of the object's class
      */
     std::string get_name() const { return "distribution"; }

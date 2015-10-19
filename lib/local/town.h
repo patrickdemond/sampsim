@@ -285,6 +285,11 @@ namespace sampsim
      */
     void unselect();
 
+    /**
+     * Copies another town's values into the current object
+     */
+    void copy( const town* );
+
   protected:
     /**
      * Create all tiles belonging to the town

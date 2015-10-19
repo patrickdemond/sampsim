@@ -41,11 +41,11 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void trend::copy( const trend* t )
+  void trend::copy( const trend* object )
   {
     for( unsigned int index = 0; index < 6; index++ )
-      std::copy( std::begin( t->b[index] ), std::end( t->b[index] ), std::begin( this->b[index] ) );
-    this->set_regression_factor( t->regression_factor );
+      std::copy( std::begin( object->b[index] ), std::end( object->b[index] ), std::begin( this->b[index] ) );
+    this->set_regression_factor( object->regression_factor );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

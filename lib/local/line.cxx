@@ -14,6 +14,13 @@
 namespace sampsim
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void line::copy( const line* object )
+  {
+    this->intercept.copy( &( object->intercept ) );
+    this->angle = object->angle;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void line::from_json( const Json::Value &json )
   {
     this->intercept.x = json["x"].asDouble();

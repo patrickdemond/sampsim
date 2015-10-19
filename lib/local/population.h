@@ -133,7 +133,7 @@ namespace sampsim
      * Sets the sample mode
      * 
      * When a population is in sample mode then only selected buildings, households and individuals are
-     * included in all count_individuals(), to_json() and to_csv() methods (including this class' write()
+     * included in all copy(), count_individuals(), to_json() and to_csv() methods (including this class' write()
      * method).
      */
     void set_sample_mode( bool sample_mode ) { this->sample_mode = sample_mode; }
@@ -387,6 +387,11 @@ namespace sampsim
      * individuals) until its create() method is called.
      */
     std::pair<unsigned int, unsigned int> count_individuals() const;
+
+    /**
+     * Copies another population's values into the current object
+     */
+    void copy( const population* );
 
     /**
      * Deserialize the population

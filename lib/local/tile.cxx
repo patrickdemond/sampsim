@@ -223,4 +223,37 @@ namespace sampsim
 
     return this->has_river;
   }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void tile::copy( const tile* object )
+  {
+    this->mean_income = object->mean_income;
+    this->sd_income = object->sd_income;
+    this->mean_disease = object->mean_disease;
+    this->sd_disease = object->sd_disease;
+    this->population_density = object->population_density;
+    this->extent.first.copy( &( object->extent.first ) );
+    this->extent.second.copy( &( object->extent.second ) );
+    this->centroid.copy( &( object->centroid ) );
+    this->income_distribution.copy( &( object->income_distribution ) );
+    this->disease_risk_distribution.copy( &( object->disease_risk_distribution ) );
+    this->has_river = object->has_river;
+    this->has_river_cached = object->has_river_cached;
+    this->population_density = object->population_density;
+
+    // delete all buildings
+    std::for_each( this->building_list.begin(), this->building_list.end(), utilities::safe_delete_type() );
+    this->building_list.empty();
+
+    bool sample_mode = this->get_population()->get_sample_mode();
+    for( auto it = object->building_list.cbegin(); it != object->building_list.cend(); ++it )
+    {
+      if( !sample_mode || (*it)->is_selected() )
+      {
+        building *b = new building( this );
+        b->copy( *it );
+        this->building_list.push_back( b );
+      }
+    }
+  }
 }

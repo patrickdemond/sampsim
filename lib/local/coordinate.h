@@ -38,6 +38,11 @@ namespace sampsim
     coordinate( const double x = 0, const double y = 0 ) : x(x), y(y), cx(0), cy(0) {}
     
     /**
+     * Copies another coordinate's values into the current object
+     */
+    void copy( const coordinate* );
+
+    /**
      * Returns the name of the object's class
      */
     std::string get_name() const { return "coordinate"; }

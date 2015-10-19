@@ -58,10 +58,10 @@ namespace sampsim
     this->town_list.clear();
 
     // delete all trends
-    delete this->mean_income;
-    delete this->sd_income;
-    delete this->mean_disease;
-    delete this->sd_disease;
+    utilities::safe_delete( this->mean_income );
+    utilities::safe_delete( this->sd_income );
+    utilities::safe_delete( this->mean_disease );
+    utilities::safe_delete( this->sd_disease );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -310,11 +310,10 @@ namespace sampsim
     this->sd_disease->to_json( json["sd_disease"] );
     json["town_list"] = Json::Value( Json::arrayValue );
 
-    unsigned int index = 0;
-    for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it, ++index )
+    for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
     {
       town *t = *it;
-      if( !sample_mode || t->is_selected() )
+      if( !this->sample_mode || t->is_selected() )
       {
         Json::Value child;
         t->to_json( child );
@@ -356,7 +355,7 @@ namespace sampsim
            << "# dweight_sex: " << this->disease_weights[4] << std::endl
            << "# dweight_pocket: " << this->disease_weights[5] << std::endl
            << "#" << std::endl
-           << "# mean_household_pop" << this->mean_household_population << std::endl
+           << "# mean_household_pop: " << this->mean_household_population << std::endl
            << "# mean_income trend: " << this->mean_income->to_string() << std::endl
            << "# sd_income trend: " << this->sd_income->to_string() << std::endl
            << "# mean_disease trend: " << this->mean_disease->to_string() << std::endl
@@ -565,5 +564,46 @@ namespace sampsim
     }
 
     return count;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::copy( const population* object )
+  {
+    // copy population parameters
+    this->sample_mode = object->sample_mode;
+    this->seed = object->seed;
+    this->number_of_tiles_x = object->number_of_tiles_x;
+    this->number_of_tiles_y = object->number_of_tiles_y;
+    this->tile_width = object->tile_width;
+    this->population_density_slope[0] = object->population_density_slope[0];
+    this->population_density_slope[1] = object->population_density_slope[1];
+    this->river_probability = object->river_probability;
+    this->river_width = object->river_width;
+    this->number_of_disease_pockets = object->number_of_disease_pockets;
+    for( unsigned int c = 0; c < population::NUMBER_OF_DISEASE_WEIGHTS; c++ )
+      this->disease_weights[c] = object->disease_weights[c];
+    this->mean_household_population = object->mean_household_population;
+    this->mean_income->copy( object->mean_income );
+    this->sd_income->copy( object->sd_income );
+    this->mean_disease->copy( object->mean_disease );
+    this->sd_disease->copy( object->sd_disease );
+    this->pocket_kernel_type = object->pocket_kernel_type;
+    this->pocket_scaling = object->pocket_scaling;
+
+    // delete all towns
+    std::for_each( this->town_list.begin(), this->town_list.end(), utilities::safe_delete_type() );
+    this->town_list.clear();
+
+    unsigned int index = 0;
+    for( auto it = object->town_list.cbegin(); it != object->town_list.cend(); ++it )
+    {
+      if( !this->sample_mode || (*it)->is_selected() )
+      {
+        town *t = new town( this, index );
+        t->copy( *it );
+        this->town_list.push_back( t );
+      }
+    }
+    this->number_of_towns = index + 1;
   }
 }

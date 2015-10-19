@@ -98,7 +98,7 @@ namespace sampsim
       this->river_banks[1] = line();
     }
 
-    // delete all tiles and turn off sample mode (in case it is on)
+    // delete all tiles
     for( auto it = this->tile_list.begin(); it != this->tile_list.end(); ++it )
       utilities::safe_delete( it->second );
     this->tile_list.clear();
@@ -470,5 +470,35 @@ namespace sampsim
            building_it != tile_it->second->get_building_list_cend();
            ++building_it )
         ( *building_it )->unselect();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void town::copy( const town* object )
+  {
+    this->selected = object->selected;
+    this->number_of_tiles_x = object->number_of_tiles_x;
+    this->number_of_tiles_y = object->number_of_tiles_y;
+    this->mean_household_population = object->mean_household_population;
+    this->has_river = object->has_river;
+    this->river_banks[0].copy( &( object->river_banks[0] ) );
+    this->river_banks[1].copy( &( object->river_banks[1] ) );
+    this->mean_income->copy( object->mean_income );
+    this->sd_income->copy( object->sd_income );
+    this->mean_disease->copy( object->mean_disease );
+    this->sd_disease->copy( object->sd_disease );
+    this->population_density->copy( object->population_density );
+
+    // delete all tiles
+    for( auto it = this->tile_list.begin(); it != this->tile_list.end(); ++it )
+      utilities::safe_delete( it->second );
+    this->tile_list.clear();
+
+    // create and copy tiles
+    for( auto it = object->tile_list.cbegin(); it != object->tile_list.cend(); ++it )
+    {
+      tile *t = new tile( this, it->first );
+      t->copy( it->second );
+      this->tile_list[it->first] = t;
+    }
   }
 }

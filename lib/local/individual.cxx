@@ -32,6 +32,15 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void individual::copy( const individual* i )
+  {
+    this->selected = i->selected;
+    this->age = i->age;
+    this->sex = i->sex;
+    this->disease = i->disease;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   building* individual::get_building() const
   {
     return NULL == this->parent ? NULL : this->parent->get_building();

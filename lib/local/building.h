@@ -189,6 +189,11 @@ namespace sampsim
      */
     bool in_river() const;
 
+    /**
+     * Copies another building's values into the current object
+     */
+    void copy( const building* );
+
   protected:
     /**
      * Create all households belonging to the building

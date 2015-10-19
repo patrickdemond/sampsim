@@ -207,4 +207,27 @@ namespace sampsim
     return this->parent->get_has_river() && 
            line::point_inside_strip( this->position, this->get_town()->get_river_banks() );
   }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void building::copy( const building* object )
+  {
+    this->position.copy( &( object->position ) );
+    this->selected = object->selected;
+    this->pocket_factor = object->pocket_factor;
+
+    // delete all households
+    std::for_each( this->household_list.begin(), this->household_list.end(), utilities::safe_delete_type() );
+    this->household_list.empty();
+
+    bool sample_mode = this->get_population()->get_sample_mode();
+    for( auto it = object->household_list.cbegin(); it != object->household_list.cend(); ++it )
+    {
+      if( !sample_mode || (*it)->is_selected() )
+      {
+        household *h = new household( this );
+        h->copy( *it );
+        this->household_list.push_back( h );
+      }
+    }
+  }
 }

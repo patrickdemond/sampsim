@@ -169,6 +169,11 @@ namespace sampsim
      */
     std::pair<unsigned int, unsigned int> count_individuals() const;
 
+    /**
+     * Copies another household's values into the current object
+     */
+    void copy( const household* );
+
   protected:
     /**
      * Create all individuals belonging to the household

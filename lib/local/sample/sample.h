@@ -68,6 +68,38 @@ namespace sample
     virtual void generate();
 
     /**
+     * Iterator access to child populations
+     * 
+     * These methods provide iterator access to the list of populations belonging to this building.
+     */
+    population_list_type::iterator get_sampled_population_list_begin()
+    { return this->sampled_population_list.begin(); }
+
+    /**
+     * Iterator access to child populations
+     * 
+     * These methods provide iterator access to the list of populations belonging to this building.
+     */
+    population_list_type::iterator get_sampled_population_list_end()
+    { return this->sampled_population_list.end(); }
+
+    /**
+     * Constant iterator access to child populations
+     * 
+     * These methods provide constant iterator access to the list of populations belonging to this building.
+     */
+    population_list_type::const_iterator get_sampled_population_list_cbegin() const
+    { return this->sampled_population_list.cbegin(); }
+
+    /**
+     * Constant iterator access to child populations
+     * 
+     * These methods provide constant iterator access to the list of populations belonging to this building.
+     */
+    population_list_type::const_iterator get_sampled_population_list_cend() const
+    { return this->sampled_population_list.cend(); }
+
+    /**
      * Writes the sample to disk
      * 
      * This method opens and writes a serialization of the selected inviduals in the sample's population.
@@ -237,6 +269,11 @@ namespace sample
      * Defines whether this class is reponsible for deleting the memory used by the population object
      */
     bool owns_population;
+
+    /**
+     * A list of sampled populations which only include selected individuals
+     */
+    population_list_type sampled_population_list;
 
     /**
      * The random generator's seed

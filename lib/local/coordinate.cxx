@@ -14,6 +14,15 @@
 namespace sampsim
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void coordinate::copy( const coordinate* object )
+  {
+    this->x = object->x;
+    this->y = object->y;
+    this->cx = object->cx;
+    this->cy = object->cy;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void coordinate::from_json( const Json::Value &json )
   {
     this->x = json["x"].asDouble();

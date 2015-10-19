@@ -17,6 +17,31 @@
 namespace sampsim
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void distribution::copy( const distribution* object )
+  {
+    if( distribution::LOGNORMAL == object->distribution_type )
+    {
+      this->set_lognormal( object->lognormal.m(), object->lognormal.s() );
+    }
+    else if( distribution::NORMAL == object->distribution_type )
+    {
+      this->set_normal( object->normal.mean(), object->normal.stddev() );
+    }
+    else if( distribution::PARETO == object->distribution_type )
+    {
+      this->set_pareto( object->pareto.b(), object->pareto.a(), object->pareto.max() );
+    }
+    else if( distribution::POISSON == object->distribution_type )
+    {
+      this->set_poisson( object->poisson.mean() );
+    }
+    else if( distribution::WEIBULL == object->distribution_type )
+    {
+      this->set_weibull( object->weibull.a(), object->weibull.b() );
+    }
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void distribution::set_lognormal( const double mean, const double sd )
   {
     this->debug( "set_lognormal( mean = %f, sd = %f )", mean, sd );

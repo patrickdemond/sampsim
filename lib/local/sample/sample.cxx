@@ -42,6 +42,11 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   sample::~sample()
   {
+    std::for_each(
+      this->sampled_population_list.begin(),
+      this->sampled_population_list.end(),
+      utilities::safe_delete_type() );
+    this->sampled_population_list.clear();
     this->delete_population();
   }
 
@@ -89,6 +94,14 @@ namespace sample
                            static_cast< double >( total_individuals );
     }
     this->population->set_sample_mode( true );
+
+    // delete all sampled populations
+    std::for_each(
+      this->sampled_population_list.begin(),
+      this->sampled_population_list.end(),
+      utilities::safe_delete_type() );
+    this->sampled_population_list.clear();
+    this->sampled_population_list.reserve( this->number_of_samples );
 
     // run selection number_of_samples times
     for( unsigned int iteration = 0; iteration < this->number_of_samples; iteration++ )
@@ -181,12 +194,17 @@ namespace sample
         tree.remove( b );
       }
 
+      sampsim::population* sampled_population = new sampsim::population;
+      sampled_population->copy( this->population ); // will only copy selected individuals
+      this->sampled_population_list.push_back( sampled_population );
+
       utilities::output(
         "finished generating %s sample #%d, %d households selected",
         this->get_type().c_str(),
         iteration,
         household_count );
     }
+    this->population->set_sample_mode( false );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -325,6 +343,14 @@ namespace sample
     this->age = sampsim::get_age_type( json["age"].asString() );
     this->sex = sampsim::get_sex_type( json["sex"].asString() );
     this->population->from_json( json["population"] );
+
+    this->sampled_population_list.reserve( json["sampled_population_list"].size() );
+    for( unsigned int c = 0; c < json["sampled_population_list"].size(); c++ )
+    {
+      sampsim::population *p = new sampsim::population();
+      p->from_json( json["sampled_population_list"][c] );
+      this->sampled_population_list.push_back( p );
+    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -339,6 +365,14 @@ namespace sample
     json["sex"] = sampsim::get_sex_type_name( this->sex );
     json["population"] = Json::Value( Json::objectValue );
     this->population->to_json( json["population"] );
+
+    json["sampled_population_list"] = Json::Value( Json::arrayValue );
+    for( auto it = this->sampled_population_list.cbegin(); it != this->sampled_population_list.cend(); ++it )
+    {
+      Json::Value child;
+      (*it)->to_json( child );
+      json["sampled_population_list"].append( child );
+    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -364,6 +398,15 @@ namespace sample
     household_stream << this->get_csv_header() << std::endl;
     individual_stream << this->get_csv_header() << std::endl;
     this->population->to_csv( household_stream, individual_stream );
+
+    unsigned int number = 1;
+    for( auto it = this->sampled_population_list.cbegin(); it != this->sampled_population_list.cend(); ++it )
+    {
+      household_stream << "# sample " << number << std::endl;
+      individual_stream << "# sample " << number << std::endl;
+      (*it)->to_csv( household_stream, individual_stream );
+      number++;
+    }
   }
 }
 }

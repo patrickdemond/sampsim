@@ -63,6 +63,11 @@ namespace sampsim
     ~individual();
 
     /**
+     * Copies another individual's values into the current object
+     */
+    void copy( const individual* );
+
+    /**
      * Returns the name of the object's class
      */
     std::string get_name() const { return "individual"; }

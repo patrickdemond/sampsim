@@ -204,4 +204,27 @@ namespace sampsim
     for( auto it = this->individual_list.begin(); it != this->individual_list.end(); ++it )
       (*it)->unselect();
   }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void household::copy( const household* object )
+  {
+    this->income = object->income;
+    this->disease_risk = object->disease_risk;
+    this->selected = object->selected;
+
+    // delete all individuals
+    std::for_each( this->individual_list.begin(), this->individual_list.end(), utilities::safe_delete_type() );
+    this->individual_list.empty();
+
+    bool sample_mode = this->get_population()->get_sample_mode();
+    for( auto it = object->individual_list.cbegin(); it != object->individual_list.cend(); ++it )
+    {
+      if( !sample_mode || (*it)->is_selected() )
+      {
+        individual *i = new individual( this );
+        i->copy( *it );
+        this->individual_list.push_back( i );
+      }
+    }
+  }
 }

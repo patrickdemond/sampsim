@@ -56,11 +56,17 @@
  */
 namespace sampsim
 {
+  class population;
   class town;
   class tile;
   class building;
   class household;
   class individual;
+
+  /**
+   * @typedef population_list_type
+   */
+  typedef std::vector< population* > population_list_type;
 
   /**
    * @typedef town_list_type

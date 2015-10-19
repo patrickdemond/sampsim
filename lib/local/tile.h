@@ -205,6 +205,11 @@ namespace sampsim
      */
     bool get_has_river();
 
+    /**
+     * Copies another tile's values into the current object
+     */
+    void copy( const tile* );
+
   protected:
     /**
      * Create all buildings belonging to the tile

@@ -40,6 +40,11 @@ namespace sampsim
     line( coordinate i = coordinate(), double a = 0.0 ) : intercept(i), angle(a) {}
     
     /**
+     * Copies another line's values into the current object
+     */
+    void copy( const line* );
+
+    /**
      * Returns the name of the object's class
      */
     std::string get_name() const { return "line"; }
