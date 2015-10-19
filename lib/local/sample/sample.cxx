@@ -87,7 +87,6 @@ namespace sample
       sampsim::town *town = *town_it;
       coefficients[town] = static_cast< double >( town->count_individuals().second ) /
                            static_cast< double >( total_individuals );
-      town->unselect();
     }
     this->population->set_sample_mode( true );
 
@@ -195,6 +194,11 @@ namespace sample
   {
     this->current_size = 0;
     this->first_building = NULL;
+    if( this->population )
+      for( auto town_it = this->population->get_town_list_cbegin();
+           town_it != this->population->get_town_list_cend();
+           ++town_it )
+        (*town_it)->unselect();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
