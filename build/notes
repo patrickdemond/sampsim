@@ -1,5 +1,4 @@
-==========
-on bayes:
+Specific information for building on bayes:
 
 
 ## copy project from bitbucket
@@ -23,18 +22,18 @@ cmake .
 ## as in readme:
 make
 
-=============
-## NOTES for kraken.sharcnet.ca:
+Specific information for building on sharcnet:
 
-## go to /work/bolker/projects/sampling (should be readable)
+## you may be able to just copy /work/bolker/projects/sampling/build
+## if not, create a build directory and cd there;
+## these notes assume it is a directory at the same level
 
+## change compilers
 ## GCC notes for Kraken: https://www.sharcnet.ca/help/index.php/GCC
 module unload intel
 module load gcc/4.9.2
 
-## have to get JSON (>0.5) from Github and compile that way ...
-
-## https://github.com/open-source-parsers/jsoncpp
+## Get JSON (>0.5) from Github and compile ...
 git clone https://github.com/open-source-parsers/jsoncpp.git
 cd jsoncpp
 mkdir -p build/debug
@@ -42,11 +41,16 @@ cd build/debug
 cmake28 -DCMAKE_BUILD_TYPE=debug -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=ON -DARCHIVE_INSTALL_DIR=. -G "Unix Makefiles" ../..
 make
 
+## 'make install' fails because we don't have admin privileges
+## for standard location
 ## manual install (probably a less ugly way to do this!)
 cd ../..        ## get back to ./jsoncpp directory
 mkdir lib
 cp build/debug/src/lib_json/libjson* lib
 
+cd ..    ## get back to build directory
+
+## use cmake28, not cmake
 cmake28 -G "Unix Makefiles" ../sampling-simulation-project/build/
 
 ## modify CMakeCache.txt as follows:
@@ -59,5 +63,6 @@ JSONCPP_LIBRARIES:FILEPATH=/work/bolker/projects/sampling/jsoncpp/lib/libjsoncpp
 
 ## also change CMAKE_BUILD_TYPE:STRING=Release in CMakeCache.txt as specified
 ## as in readme
+
 cmake28 .
 make
