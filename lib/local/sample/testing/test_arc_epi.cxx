@@ -47,6 +47,7 @@ TEST( test_sample_arc_epi )
 
   int sample_size = 100;
   sample1->set_number_of_samples( 1 );
+  sample1->set_number_of_sectors( 4 );
   sample1->set_size( sample_size );
   sample1->set_arc_angle( M_PI / 30 );
   sample1->set_one_per_household( true );
@@ -84,25 +85,31 @@ TEST( test_sample_arc_epi )
     cout << "Testing arc from " << angle1 << " to " << angle2 << " radians..." << endl;
     sample1->generate();
 
-    CHECK( sample1->get_first_building() );
-    double a = sample1->get_first_building()->get_position().get_a();
-    if( -M_PI > angle1 || M_PI < angle2 )
+    // make sure a building was chosen
+    sampsim::building *first_building = sample1->get_first_building();
+    CHECK( first_building );
+
+    if( first_building )
     {
-      if( 0 < a )
+      double a = first_building->get_position().get_a();
+      if( -M_PI > angle1 || M_PI < angle2 )
       {
-        CHECK( angle1 <= a );
-        CHECK( M_PI >= a );
+        if( 0 < a )
+        {
+          CHECK( angle1 <= a );
+          CHECK( M_PI >= a );
+        }
+        else
+        {
+          CHECK( -M_PI <= a );
+          CHECK( angle2 > a );
+        }
       }
       else
       {
-        CHECK( -M_PI <= a );
-        CHECK( angle2 > a );
+        CHECK( a >= angle1 );
+        CHECK( a < angle2 );
       }
-    }
-    else
-    {
-      CHECK( a >= angle1 );
-      CHECK( a < angle2 );
     }
 
     cout << "Testing adult-female only sampling..." << endl;

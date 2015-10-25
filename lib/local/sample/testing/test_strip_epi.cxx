@@ -49,6 +49,7 @@ TEST( test_sample_strip_epi )
 
   int sample_size = 100;
   sample1->set_number_of_samples( 1 );
+  sample1->set_number_of_sectors( 4 );
   sample1->set_size( sample_size );
   sample1->set_strip_width( 0.25 );
   sample1->set_one_per_household( true );
@@ -95,32 +96,39 @@ TEST( test_sample_strip_epi )
     cout << "Testing strip " << sample1->get_strip_width() << " kilometers wide at an angle of "
          << sample1->get_start_angle() << " radians..." << endl;
 
-    // determine the slope and intercepts for the two lines defining the strip
-    sampsim::coordinate centroid = sample1->get_first_building()->get_town()->get_centroid();
-    sampsim::coordinate first_building_pos = sample1->get_first_building()->get_position();
-    double m = tan( start_angle );
-    sampsim::coordinate p0 = centroid;
-    p0.x += sample1->get_strip_width() * sin( start_angle ) / 2;
-    p0.y -= sample1->get_strip_width() * cos( start_angle ) / 2;
-    sampsim::coordinate p1 = centroid;
-    p1.x -= sample1->get_strip_width() * sin( start_angle ) / 2;
-    p1.y += sample1->get_strip_width() * cos( start_angle ) / 2;
-    double b0 = p0.y - m * p0.x;
-    double b1 = p1.y - m * p1.x;
+    // make sure a building was chosen
+    sampsim::building *first_building = sample1->get_first_building();
+    CHECK( first_building );
 
-    // confirm that the intercept is between the strip line's intercepts
-    double b = first_building_pos.y - m * first_building_pos.x;
+    if( first_building )
+    {
+      // determine the slope and intercepts for the two lines defining the strip
+      sampsim::coordinate centroid = sample1->get_first_building()->get_town()->get_centroid();
+      sampsim::coordinate first_building_pos = sample1->get_first_building()->get_position();
+      double m = tan( start_angle );
+      sampsim::coordinate p0 = centroid;
+      p0.x += sample1->get_strip_width() * sin( start_angle ) / 2;
+      p0.y -= sample1->get_strip_width() * cos( start_angle ) / 2;
+      sampsim::coordinate p1 = centroid;
+      p1.x -= sample1->get_strip_width() * sin( start_angle ) / 2;
+      p1.y += sample1->get_strip_width() * cos( start_angle ) / 2;
+      double b0 = p0.y - m * p0.x;
+      double b1 = p1.y - m * p1.x;
 
-    cout << b0 << ", " << b << ", " << b1 << endl;
-    if( b0 < b1 )
-    {
-      CHECK( b >= b0 );
-      CHECK( b < b1 );
-    }
-    else
-    {
-      CHECK( b <= b0 );
-      CHECK( b > b1 );
+      // confirm that the intercept is between the strip line's intercepts
+      double b = first_building_pos.y - m * first_building_pos.x;
+
+      cout << b0 << ", " << b << ", " << b1 << endl;
+      if( b0 < b1 )
+      {
+        CHECK( b >= b0 );
+        CHECK( b < b1 );
+      }
+      else
+      {
+        CHECK( b <= b0 );
+        CHECK( b > b1 );
+      }
     }
 
     cout << "Testing adult-female only sampling..." << endl;

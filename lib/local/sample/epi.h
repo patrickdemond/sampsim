@@ -50,11 +50,6 @@ namespace sample
     epi();
 
     /**
-     * Generates the sample by calling select_next_building() until sample size has been met
-     */
-    virtual void generate();
-
-    /**
      * Sets the number of sectors to divide the town into.
      * 
      * When sampling a town it is possible to divide the town into N evenly sized sectors such that

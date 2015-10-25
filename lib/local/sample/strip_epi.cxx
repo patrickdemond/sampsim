@@ -91,7 +91,7 @@ namespace sample
         // increase the angle in case we need another iteration
         this->start_angle += 2*M_PI/1000;
       }
-      while( !this->start_angle_defined && 0 == initial_buildings.size() && iteration < 1000 );
+      while( 0 == initial_buildings.size() && iteration < 1000 );
 
       if( 0 == initial_buildings.size() )
         throw std::runtime_error(

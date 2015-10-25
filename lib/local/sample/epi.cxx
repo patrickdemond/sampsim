@@ -34,15 +34,6 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void epi::generate()
-  {
-    // reset the sampler before proceeding
-    this->current_building = NULL;
-    this->current_sector_index = -1;
-    sample::generate();
-  }
-
-  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   building* epi::select_next_building( sampsim::building_tree &tree )
   {
     // Steps 1, 2 and 3 are done by child classes in select_initial_building()
@@ -76,8 +67,6 @@ namespace sample
     sized_sample::reset_for_next_sample();
 
     this->current_sector_index = -1;
-    this->start_angle_defined = false;
-    this->start_angle = 0;
     this->first_building_index = 0;
     this->current_building = NULL;
   }
@@ -85,12 +74,16 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void epi::determine_next_start_angle()
   {
+    // increment to the next sector
+    this->current_sector_index++;
+
     if( this->start_angle_defined )
     {
-      // rotate start_angle by the width of a sector, but only if this isn't the first sector being sampled
-      if( 0 < static_cast< double >( this->get_size() ) )
+      // if this isn't the first sector then rotate start_angle by the width of a sector
+      if( 0 < this->current_sector_index )
       {
-        this->start_angle += 2*M_PI / static_cast< double >( this->number_of_sectors );
+        this->start_angle += ( 2*M_PI / static_cast< double >( this->number_of_sectors ) );
+        if( 2*M_PI <= this->start_angle ) this->start_angle -= 2*M_PI;
       }
     }
     else
@@ -104,7 +97,7 @@ namespace sample
       utilities::output(
         "Beginning sector %d of %d with a starting angle of %0.3f radians",
         this->get_current_sector(),
-        this->get_number_of_sectors(),
+        this->number_of_sectors,
         this->start_angle );
   }
 
@@ -118,9 +111,6 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   std::pair< double, double > epi::get_next_sector_range()
   {
-    // increment to the next sector
-    this->current_sector_index++;
-
     // make sure that we aren't out of bounds
     if( this->current_sector_index == this->number_of_sectors )
       throw std::runtime_error(
