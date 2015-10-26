@@ -20,3 +20,12 @@ FOREACH( HEADER ${HEADER_FILENAMES} )
     ADD_TEST( sample::${CLASS_NAME} ${TEST_NAME} )
   ENDIF()
 ENDFOREACH()
+
+# Include the vanilla test
+ADD_EXECUTABLE( test_vanilla test_vanilla.cxx )
+TARGET_LINK_LIBRARIES(
+  test_vanilla UnitTest++
+  ${PROJECT_NAME}
+  ${PROJECT_NAME}_sample
+)
+ADD_TEST( sample::vanilla test_vanilla )
