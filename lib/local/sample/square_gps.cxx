@@ -21,6 +21,14 @@ namespace sampsim
 namespace sample
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void square_gps::reset_for_next_sample()
+  {
+    sized_sample::reset_for_next_sample();
+
+    this->reset_selected_squares();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   building* square_gps::select_next_building( sampsim::building_tree& tree )
   {
     // make sure the strip width has been set

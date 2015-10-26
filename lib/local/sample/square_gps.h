@@ -95,6 +95,11 @@ namespace sample
 
   protected:
     /**
+     * Called before each sample is taken
+     */
+    virtual void reset_for_next_sample();
+
+    /**
      * Algorithm which selects buildings based on the sampling method
      */
     virtual building* select_next_building( building_tree& );
