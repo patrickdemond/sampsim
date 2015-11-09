@@ -271,6 +271,42 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void sample::write_summary( const std::string filename ) const
+  {
+    this->population->write_summary( filename );
+
+    std::ofstream stream( filename + ".txt", std::ofstream::app );
+
+    unsigned int individual_count = 0, diseased_individual_count = 0;
+    for( auto it = this->get_sampled_population_list_cbegin();
+              it != this->get_sampled_population_list_cend();
+              ++it )
+    {
+      std::pair<unsigned int, unsigned int> count = (*it)->count_individuals();
+      diseased_individual_count += count.first;
+      individual_count += count.second;
+    }
+
+    double prevalence = static_cast<double>( diseased_individual_count ) / static_cast<double>( individual_count ),
+           squared_sum = 0.0;
+    for( auto it = this->get_sampled_population_list_cbegin();
+              it != this->get_sampled_population_list_cend();
+              ++it )
+    {
+      std::pair<unsigned int, unsigned int> count = (*it)->count_individuals();
+      double diff = ( static_cast<double>( count.first ) / static_cast<double>( count.second ) ) - prevalence;
+      squared_sum += diff*diff;
+    }
+    double stdev = sqrt( squared_sum / this->sampled_population_list.size() );
+
+    stream << "sampled invididual count: " << individual_count << std::endl;
+    stream << "sampled diseased individual count: " << diseased_individual_count << std::endl;
+    stream << "sampled prevalence: " << prevalence << " (" << stdev << ")" << std::endl;
+    
+    stream.close();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   bool sample::set_population( const std::string filename )
   {
     this->create_population();
@@ -363,6 +399,31 @@ namespace sample
     json["one_per_household"] = this->one_per_household;
     json["age"] = sampsim::get_age_type_name( this->age );
     json["sex"] = sampsim::get_sex_type_name( this->sex );
+
+    unsigned int diseased = 0, total = 0;
+    for( auto it = this->get_sampled_population_list_cbegin();
+              it != this->get_sampled_population_list_cend();
+              ++it )
+    {
+      std::pair<unsigned int, unsigned int> count = (*it)->count_individuals();
+      diseased += count.first;
+      total += count.second;
+    }
+
+    double prevalence = static_cast<double>( diseased ) / static_cast<double>( total ), squared_sum = 0.0;
+    for( auto it = this->get_sampled_population_list_cbegin();
+              it != this->get_sampled_population_list_cend();
+              ++it )
+    {
+      std::pair<unsigned int, unsigned int> count = (*it)->count_individuals();
+      double diff = ( static_cast<double>( count.first ) / static_cast<double>( count.second ) ) - prevalence;
+      squared_sum += diff*diff;
+    }
+
+    json["sampled_diseased_individual_sum"] = diseased;
+    json["sampled_individual_sum"] = total;
+    json["sampled_disease_prevalence"] = prevalence;
+    json["sampled_disease_stdev"] = sqrt( squared_sum / this->sampled_population_list.size() );
     json["population"] = Json::Value( Json::objectValue );
     this->population->to_json( json["population"] );
 

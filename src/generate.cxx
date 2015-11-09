@@ -42,6 +42,7 @@ int main( const int argc, const char** argv )
 
   // define general parameters
   opts.add_flag( 'f', "flat_file", "Whether to output data in two CSV files instead of JSON data" );
+  opts.add_flag( 's', "summary_file", "Whether to output summary data of the sample" );
   if( GNUPLOT_AVAILABLE )
     opts.add_flag( 'p', "plot", "Whether to create a plot of the population (will create a flat-file)" );
   opts.add_flag( 'v', "verbose", "Be verbose when generating population" );
@@ -281,6 +282,7 @@ int main( const int argc, const char** argv )
             population->generate();
 
             bool flat = opts.get_flag( "flat_file" );
+            bool summary = opts.get_flag( "summary_file" );
             bool plot = GNUPLOT_AVAILABLE ? opts.get_flag( "plot" ) : false;
 
             // create a json file no flat file was requested
@@ -288,6 +290,9 @@ int main( const int argc, const char** argv )
             
             // create a flat file if a flat file or plot was requested
             if( flat || plot ) population->write( population_filename, true );
+
+            // create a summary file if requested
+            if( summary ) population->write_summary( population_filename );
 
             if( 0 == batch_nsamp )
             {

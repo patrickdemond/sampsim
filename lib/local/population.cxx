@@ -236,6 +236,22 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::write_summary( const std::string filename ) const
+  {
+    std::ofstream stream( filename + ".txt", std::ofstream::out );
+
+    std::pair<unsigned int, unsigned int> count = this->count_individuals();
+
+    stream << "individual count: " << count.second << std::endl;
+    stream << "diseased individual count: " << count.first << std::endl;
+    stream << "prevalence: "
+           << ( static_cast< double >( count.first ) / static_cast< double >( count.second ) )
+           << std::endl;
+    
+    stream.close();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::from_json( const Json::Value &json )
   {
     // check to make sure the version is compatible

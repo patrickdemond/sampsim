@@ -121,6 +121,13 @@ namespace sampsim
     void write( const std::string filename, const bool flat_file = false ) const;
 
     /**
+     * Writes a summary of the population to disk
+     * 
+     * This method opens and writes a brief summary of the population
+     */
+    void write_summary( const std::string filename ) const;
+
+    /**
      * Returns whether the population is in sample mode or not
      * 
      * When a population is in sample mode then only selected buildings, households and individuals are

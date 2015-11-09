@@ -109,6 +109,13 @@ namespace sample
     void write( const std::string filename, const bool flat_file = false ) const;
 
     /**
+     * Writes a summary of the sample to disk
+     * 
+     * This method opens and writes a brief summary of the sample.
+     */
+    void write_summary( const std::string filename ) const;
+
+    /**
      * Returns the name of the sampling method
      */
     virtual std::string get_type() const = 0;
