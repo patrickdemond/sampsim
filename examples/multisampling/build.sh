@@ -47,6 +47,9 @@ while true; do
   fi
 done
 
+# determine the seed
+read -p "What seed would you like to use? (any number or string is permitted)> " seed
+
 # delete all existing csv, json and png files if we are replacing them
 if [ $replace -eq 1 ]; then
   rm `find -type f | grep "\.\(csv\|json\|png\)$"`
@@ -58,39 +61,39 @@ shopt -s nullglob
 # loop over all weight types
 for weight_type in vanilla population income risk age sex pocket; do
   echo ""
-  echo -n "Generating $weight_type population "
+  echo -n "${BOLD}Generating $weight_type population${NORMAL} "
   if [ -f "$weight_type.json" ]; then
-    echo "[skipping]"
+    echo "${BLUE}[skipping]${NORMAL}"
   else
-    $generate -s -p -c vanilla.conf $weight_type \
+    $generate -s -p --seed $seed -c vanilla.conf $weight_type \
       --dweight_population `if [[ "population" = "$weight_type" ]]; then echo 1.0; else echo 0.0; fi` \
       --dweight_income `if [[ "income" = "$weight_type" ]]; then echo 1.0; else echo 0.0; fi` \
       --dweight_risk `if [[ "risk" = "$weight_type" ]]; then echo 1.0; else echo 0.0; fi` \
       --dweight_age `if [[ "age" = "$weight_type" ]]; then echo 1.0; else echo 0.0; fi` \
       --dweight_sex `if [[ "sex" = "$weight_type" ]]; then echo 1.0; else echo 0.0; fi` \
       --dweight_pocket `if [[ "pocket" = "$weight_type" ]]; then echo 1.0; else echo 0.0; fi` > $weight_type.log
-    echo "[done]"
+    echo "${GREEN}[done]${NORMAL}"
   fi
 
   # loop over all samplers and process the population
-  for sample_dir in *_sample
-  do
+  for sample_dir in *_sample; do
     # get the sample type by removing the _method at the end of the sample directory
     sample_type=${sample_dir:0: -7}
 
-    for sample_config_file in $sample_dir/*.conf
-    do
+    files=($sample_dir/*.conf)
+    for ((i=${#files[@]}-1; i>=0; i--)); do
       # get the sample type by removing the .conf at the end of the sample config file
+      sample_config_file="${files[$i]}"
       slash=`expr index "$sample_config_file" /`
       sample_size=${sample_config_file:$slash:-5}
       sample_name=${sample_config_file:0:$slash}${weight_type}.${sample_size}
 
       echo -n "> Generating $sample_type sample (sample size ${sample_size}) "
       if [ -f "$sample_name.json" ]; then
-        echo "[skipping]"
+        echo "${BLUE}[skipping]${NORMAL}"
       else
-        ${!sample_dir} -s -c $sample_config_file $weight_type.json $sample_name > $sample_name.log
-        echo "[done]"
+        ${!sample_dir} -s --seed $seed -c $sample_config_file $weight_type.json $sample_name > $sample_name.log
+        echo "${GREEN}[done]${NORMAL}"
       fi
     done
   done
