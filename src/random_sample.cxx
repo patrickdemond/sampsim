@@ -86,9 +86,10 @@ int main( const int argc, const char** argv )
                 gnuplot( town, population_filename, index, sample_filename ) );
 
               stream.str( "" );
-              stream << sample_filename << ".t"
-                     << std::setw( log( population->get_number_of_towns()+1 ) ) << std::setfill( '0' )
-                     << index << ".png";
+              if( 1 < population->get_number_of_towns() )
+                stream << sample_filename << ".t"
+                       << std::setw( log( population->get_number_of_towns()+1 ) ) << std::setfill( '0' );
+              stream << index << ".png";
               std::string image_filename = stream.str();
 
               stream.str( "" );
