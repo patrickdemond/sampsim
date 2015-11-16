@@ -458,13 +458,16 @@ namespace sample
   {
     household_stream << this->get_csv_header() << std::endl;
     individual_stream << this->get_csv_header() << std::endl;
-    this->population->to_csv( household_stream, individual_stream );
 
     unsigned int number = 1;
     for( auto it = this->sampled_population_list.cbegin(); it != this->sampled_population_list.cend(); ++it )
     {
-      household_stream << "# sample " << number << std::endl;
-      individual_stream << "# sample " << number << std::endl;
+      household_stream << "# sample " << number << std::endl
+                       << "# -----------------------------------------------------------------------"
+                       << std::endl;
+      individual_stream << "# sample " << number << std::endl
+                        << "# -----------------------------------------------------------------------"
+                        << std::endl;
       (*it)->to_csv( household_stream, individual_stream );
       number++;
     }
