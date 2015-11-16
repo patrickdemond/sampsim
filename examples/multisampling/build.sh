@@ -58,9 +58,9 @@ shopt -s nullglob
 # loop over all weight types
 for weight_type in vanilla population income risk age sex pocket; do
   echo ""
-  echo "${BLUE}Processing $weight_type${NORMAL}"
+  echo -n "Generating $weight_type population "
   if [ -f "$weight_type.json" ]; then
-    echo "${BLUE}Population file already exists, skipping${NORMAL}"
+    echo "[skipping]"
   else
     $generate -s -p -c vanilla.conf $weight_type \
       --dweight_population `if [[ "population" = "$weight_type" ]]; then echo 1.0; else echo 0.0; fi` \
@@ -68,7 +68,8 @@ for weight_type in vanilla population income risk age sex pocket; do
       --dweight_risk `if [[ "risk" = "$weight_type" ]]; then echo 1.0; else echo 0.0; fi` \
       --dweight_age `if [[ "age" = "$weight_type" ]]; then echo 1.0; else echo 0.0; fi` \
       --dweight_sex `if [[ "sex" = "$weight_type" ]]; then echo 1.0; else echo 0.0; fi` \
-    --dweight_pocket `if [[ "pocket" = "$weight_type" ]]; then echo 1.0; else echo 0.0; fi`
+      --dweight_pocket `if [[ "pocket" = "$weight_type" ]]; then echo 1.0; else echo 0.0; fi` > $weight_type.log
+    echo "[done]"
   fi
 
   # loop over all samplers and process the population
@@ -81,14 +82,15 @@ for weight_type in vanilla population income risk age sex pocket; do
     do
       # get the sample type by removing the .conf at the end of the sample config file
       slash=`expr index "$sample_config_file" /`
-      sample_name=${sample_config_file:0:$slash}${weight_type}.${sample_config_file:$slash:-5}
+      sample_size=${sample_config_file:$slash:-5}
+      sample_name=${sample_config_file:0:$slash}${weight_type}.${sample_size}
 
-      echo ""
-      echo "${BLUE}Sampling $weight_type using the $sample_type sampler (configuration ${sample_config_file})${NORMAL}"
+      echo -n "> Generating $sample_type sample (sample size ${sample_size}) "
       if [ -f "$sample_name.json" ]; then
-        echo "${BLUE}Sample file already exists, skipping${NORMAL}"
+        echo "[skipping]"
       else
-        ${!sample_dir} -s -c $sample_config_file $weight_type.json $sample_name
+        ${!sample_dir} -s -c $sample_config_file $weight_type.json $sample_name > $sample_name.log
+        echo "[done]"
       fi
     done
   done
