@@ -10,7 +10,11 @@
 // An executable which generates random latin hypercube samples
 //
 
+#include "options.h"
+
+#include <cmath>
 #include <iostream>
+#include <vector>
 
 #include "latin_center.hpp"
 
@@ -18,27 +22,70 @@ using namespace std;
 
 int main( const int argc, const char** argv )
 {
-  // TODO: need to make dims, points and seed argv input parameters
-  int dims = 2, points = 4;
-  int seed = 1;
-  double x[10000]; // TODO: make pointer with mem
-  double y[100][100]; // TODO: make pointer with mem
-  latin_center( dims, points, &seed, x );
+  int status = EXIT_FAILURE;
+  sampsim::options opts( argv[0] );
+  opts.add_option( 's', "seed", "1", "Seed used by the random generator" );
+  opts.add_option( 'd', "dims", "2", "The number of dimensions to generate" );
+  opts.add_option( 'p', "points", "10", "The number of points to generate" );
+  opts.add_flag( 'i', "index", "Whether to output indeces instead of values between 0 and 1" );
+  opts.add_flag( 't', "transpose", "Whether to transpose the output" );
 
-  // organise points into a two-dimensional array
-  for( int row = 0; row < points; row++ )
-    for( int col = 0; col < dims; col++ )
-      y[row][col] = x[row + points*col];
-
-  for( int row = 0; row < points; row++ )
+  try
   {
-    for( int col = 0; col < dims; col++ )
+    opts.set_arguments( argc, argv );
+    if( opts.process() )
     {
-      if( 0 < col ) cout << ",";
-      cout << y[row][col];
+      // now either show the help or run the application
+      if( opts.get_flag( "help" ) )
+      {
+        opts.print_usage();
+      }
+      else
+      {
+        int seed = opts.get_option_as_int( "seed" );
+        int dims = opts.get_option_as_int( "dims" );
+        int points = opts.get_option_as_int( "points" );
+        bool index = opts.get_flag( "index" );
+        bool transpose = opts.get_flag( "transpose" );
+
+        std::vector<double> data( dims*points, 0.0 );
+        latin_center( dims, points, &seed, data.data() );
+
+        if( transpose )
+        {
+          for( int dim = 0; dim < dims; dim++ )
+          {
+            for( int pnt = 0; pnt < points; pnt++ )
+            {
+              if( 0 < pnt ) cout << ",";
+              if( index ) cout << round( points * ( data[pnt + points*dim] - 1/(2.0*points) ) );
+              else cout << data[pnt + points*dim];
+            }
+            cout << endl;
+          }
+        }
+        else
+        {
+          for( int pnt = 0; pnt < points; pnt++ )
+          {
+            for( int dim = 0; dim < dims; dim++ )
+            {
+              if( 0 < dim ) cout << ",";
+              if( index ) cout << round( points * ( data[pnt + points*dim] - 1/(2.0*points) ) );
+              else cout << data[pnt + points*dim];
+            }
+            cout << endl;
+          }
+        }
+      }
+
+      status = EXIT_SUCCESS;
     }
-    cout << endl;
+  }
+  catch( std::exception &e )
+  {
+    std::cerr << "Uncaught exception: " << e.what() << std::endl;
   }
 
-  return EXIT_SUCCESS;
+  return status;
 }
