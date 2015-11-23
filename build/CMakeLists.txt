@@ -46,6 +46,7 @@ FILE( COPY ${SAMPSIM_AUX_DIR}/build.sh
       DESTINATION ${SAMPSIM_CONFIG_DIR} )
 
 SET( SAMPSIM_EXECUTABLES
+  latin_hypercube
   generate
   arc_epi_sample
   circle_gps_sample
@@ -58,6 +59,7 @@ SET( SAMPSIM_EXECUTABLES
 INCLUDE_DIRECTORIES(
   ${SAMPSIM_SRC_DIR}
   ${SAMPSIM_LIB_DIR}/local
+  ${SAMPSIM_LIB_DIR}/jburkardt
   ${PROJECT_BINARY_DIR}/lib/local
   ${PROJECT_BINARY_DIR}/lib/local/sample
 )
@@ -69,6 +71,7 @@ SET( CMAKE_CXX_FLAGS "-std=c++0x " )
 FOREACH( EXECUTABLE ${SAMPSIM_EXECUTABLES} )
   ADD_EXECUTABLE( ${EXECUTABLE} ${SAMPSIM_SRC_DIR}/${EXECUTABLE}.cxx )
   TARGET_LINK_LIBRARIES( ${EXECUTABLE}
+    jburkardt
     ${PROJECT_NAME}
     ${PROJECT_NAME}_sample
   )
