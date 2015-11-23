@@ -293,7 +293,7 @@ function progress_meter
 # arg2: array
 function join
 {
-   local IFS="$1"; shift; echo "$*";
+  local IFS="$1"; shift; echo "$*";
 }
 
 # Recursive function to create nested directories
@@ -302,30 +302,48 @@ function join
 function create_config_tree
 {
   local directory=$1
-  local arr=$2"[*]"
+  local latin=$2
+  local number_of_points=$3 # only used in first iteration and when latin is 1
+  local arr=$4"[*]"
   local name_array=(${!arr})
-  local arr=$3"[*]"
+  local arr=$5"[*]"
   local value_array=(${!arr})
-  local index=$4
-  local total=$5
+  local index=$6
+  local total=$7
   
   if [ $index -eq 0 ]; then
     declare -i progress=0
+    if [ $latin -eq 1 ]; then
+      declare -r latin_points=`../latin_hypercube --index --dims ${#value_array[@]} --points $number_of_points`
+      declare point_num=1
+    fi
   fi
 
   if [ $( echo "$index < ${#name_array[@]}" | bc ) -ne 0 ]; then
     # make the base directory
     mkdir "$directory/${name_array[$index]}"
     array=(${value_array[$index]//:/ })
+    local val_index=0
     for val in "${array[@]}"; do
       # determine and display progress
       let "progress++"
       progress_meter "Creating configuration tree" $progress $total
 
-      sub_dir="$directory/${name_array[$index]}/v$val"
-      mkdir $sub_dir
-      # go to the next parameter and repeat recursively
-      create_config_tree $sub_dir name_array value_array $( echo "$index + 1" | bc ) $total
+      # get the point corresponding to this branch of the tree
+      point=`echo "$latin_points" | sed -n "$point_num"p`
+      p=`echo $point | cut -d "," -f $(( $index+1 ))`
+
+      # only generate if we aren't using a latin hypercube, or test the point index if we are
+      if [ $latin -eq 0 ] || [ $p -eq $val_index ]; then
+        sub_dir="$directory/${name_array[$index]}/v$val"
+        mkdir $sub_dir
+        # go to the next parameter and repeat recursively
+        create_config_tree $sub_dir $latin 0 name_array value_array $( echo "$index + 1" | bc ) $total
+      fi
+
+      # increment to the next point, but only when in the tree's root
+      [ $index -eq 0 ] && ((point_num++))
+      ((val_index++))
     done
   fi
 }
@@ -337,7 +355,9 @@ echo
 echo \
 "For every parameter you may select either the default value, a custom value or a
 range of values.  A hypercube of configurations will be created for every value
-of every parameter which has a range of values."
+of every parameter which has a range of values.  Or, if you choose the random latin
+hypercube sampling option, then a subset of configurations will be created such that
+they fulfil a random latin hypercube."
 
 # get target directory
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -371,6 +391,28 @@ chmod 755 $directory/build.sh
 number_pattern="^-?((([0-9]|[1-9][0-9]*)(\.[0-9]*)?)|(\.[0-9]+))$" # any number
 non_zero_number_pattern="^-?((([1-9][0-9]*)(\.[0-9]*)?)|(0?\.[0-9]*[1-9]+[0-9]*))$" # any non-zero number
 
+# latin or full hypercube?
+latin=1
+echo "You must nose choose whether to create the full hypercube or a random latin hypercube subset of
+configurations.  The full hypercube option will generate every possible variation of all parameter sets
+provided, which, depending on the paramters you select may grow restrictively large.  The random latin
+hypercube option will create a reduced subset such that only one parameter value will be used for each
+hyperplane in the hypercube."
+while true; do
+  echo -n "Do you wish to only generate a random latin hypercube subset of configurations? (select ${BOLD}${YELLOW}y${NORMAL}es or ${BOLD}${YELLOW}n${NORMAL}o)> "
+  read -s -n 1 answer
+  echo
+  if [ "$answer" = "y" ]; then
+    latin=1
+    break;
+  elif [ "$answer" = "n" ]; then
+    latin=0
+    break;
+  else
+    echo "${RED}Invalid input, please select ${BOLD}${YELLOW}y${NORMAL}${RED} or ${BOLD}${YELLOW}n${NORMAL}"
+  fi
+done
+
 # determine whether to use regular or short parameter names
 short=1
 echo "Depending on the number of variable parameters in the hypercube the full path and name of
@@ -378,7 +420,7 @@ generated configuration files may become excessively long.  To mitigate this eff
 to use short forms of parameter names in configuration file paths.  This option is recommended for
 hypercubes containing 4 or more variable parameters."
 while true; do
-  echo -n "Do you wish to use short parameter names? (select ${BOLD}${YELLOW}y${NORMAL}es or ${BOLD}${YELLOW}n${NORMAL}o> "
+  echo -n "Do you wish to use short parameter names? (select ${BOLD}${YELLOW}y${NORMAL}es or ${BOLD}${YELLOW}n${NORMAL}o)> "
   read -s -n 1 answer
   echo
   if [ "$answer" = "y" ]; then
@@ -520,6 +562,7 @@ echo
 idx=0
 size=0
 mult=1
+number_of_points=0 # only used if using a latin hypercube
 name_array=()
 value_array=()
 for index in ${!param_name[*]}; do
@@ -532,6 +575,9 @@ for index in ${!param_name[*]}; do
     value_array+=(${param_value[$index]})
     array=(${value_array[$idx]//:/ })
     array_size=${#array[@]}
+    if [ $array_size -gt $number_of_points ]; then
+      number_of_points=$array_size
+    fi
     mult=$(( $mult * $array_size ))
     size=$(( $size + $mult ))
     ((idx++))
@@ -543,7 +589,7 @@ if [ $size -eq 0 ]; then
   exit
 fi
 
-create_config_tree $directory name_array value_array 0 $size
+create_config_tree $directory $latin $number_of_points name_array value_array 0 $size
 echo
 
 # now create the config files
