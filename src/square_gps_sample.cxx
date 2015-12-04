@@ -21,18 +21,9 @@ int main( const int argc, const char** argv )
 {
   int status = EXIT_FAILURE;
   sampsim::options opts( argv[0] );
-  sampsim::sample::square_gps *sample = new sampsim::sample::square_gps;
-
-  // define inputs
-  opts.add_input( "population_file" );
-  opts.add_input( "output_file" );
-  opts.add_flag( 'f', "flat_file", "Whether to output data in two CSV files instead of JSON data" );
-  opts.add_flag( 's', "summary_file", "Whether to output summary data of the sample" );
-  if( GNUPLOT_AVAILABLE )
-    opts.add_flag( 'p', "plot", "Whether to create a plot of the sample (will create a flat-file)" );
-  opts.add_flag( 'v', "verbose", "Be verbose when generating sample" );
+  setup_sample( opts );
   setup_square_gps_sample( opts );
-  opts.add_option( "seed", "", "Seed used by the random generator" );
+  sampsim::sample::square_gps *sample = new sampsim::sample::square_gps;
 
   try
   {
@@ -47,22 +38,19 @@ int main( const int argc, const char** argv )
       }
       else
       {
+        bool flat, summary, plot;
         std::cout << "sampsim square_gps_sample version " << sampsim::utilities::get_version() << std::endl;
         std::string population_filename = opts.get_input( "population_file" );
         std::string sample_filename = opts.get_input( "output_file" );
         sampsim::utilities::verbose = opts.get_flag( "verbose" );
-        sample->set_seed( opts.get_option( "seed" ) );
+        parse_sample( opts, sample, flat, summary, plot );
         parse_square_gps_sample( opts, sample );
 
         if( sample->set_population( population_filename ) )
         {
-          bool flat = opts.get_flag( "flat_file" );
-          bool summary = opts.get_flag( "summary_file" );
-          bool plot = GNUPLOT_AVAILABLE ? opts.get_flag( "plot" ) : false;
-
           sample->generate();
 
-          // create a json file no flat file was requested
+          // create a json file if no flat file was requested
           if( !flat ) sample->write( sample_filename, false );
 
           // create a flat file if a flat file or plot was requested

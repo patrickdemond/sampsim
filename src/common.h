@@ -11,9 +11,50 @@
 //
 
 #include "line.h"
-#include "town.h"
+#include "options.h"
 #include "population.h"
+#include "sample/sized_sample.h"
+#include "town.h"
 #include "utilities.h"
+
+void setup_sample( sampsim::options &opts )
+{
+  // define inputs
+  opts.add_input( "population_file" );
+  opts.add_input( "output_file" );
+  opts.add_flag( 'f', "flat_file", "Whether to output data in two CSV files instead of JSON data" );
+  opts.add_flag( 's', "summary_file", "Whether to output summary data of the sample" );
+  if( GNUPLOT_AVAILABLE )
+  {
+    opts.add_flag( 'p', "plot", "Whether to create a plot of the sample (will create a flat-file)" );
+    opts.add_option( 'P', "plot_sample_number", "", "Whether to only plot a specific sample" );
+  }
+  opts.add_flag( 'v', "verbose", "Be verbose when generating sample" );
+  opts.add_heading( "" );
+  opts.add_heading( "Sampling parameters (overrides config files):" );
+  opts.add_heading( "" );
+  opts.add_option( "seed", "", "Seed used by the random generator" );
+  opts.add_option( "age", "either", "Restricts sample by age (\"adult\", \"child\" or \"either\")" );
+  opts.add_flag( "one_per_household", "Only sample one individual per household" );
+  opts.add_option( "sex", "either", "Restricts sample by sex (\"male\", \"female\" or \"either\")" );
+  opts.add_option( "samples", "1", "The number of times to sample the population" );
+  opts.add_option( "size", "1000", "How many individuals to select in each sample" );
+}
+
+void parse_sample(
+  sampsim::options &opts, sampsim::sample::sized_sample *sample, bool &flat, bool &summary, bool &plot )
+{
+  flat = opts.get_flag( "flat_file" );
+  summary = opts.get_flag( "summary_file" );
+  plot = GNUPLOT_AVAILABLE ? opts.get_flag( "plot" ) : false;
+
+  sample->set_seed( opts.get_option( "seed" ) );
+  sample->set_age( sampsim::get_age_type( opts.get_option( "age" ) ) );
+  sample->set_one_per_household( opts.get_flag( "one_per_household" ) );
+  sample->set_sex( sampsim::get_sex_type( opts.get_option( "sex" ) ) );
+  sample->set_number_of_samples( opts.get_option_as_int( "samples" ) );
+  sample->set_size( opts.get_option_as_int( "size" ) );
+}
 
 // function to generate gnuplot commands
 std::string gnuplot(

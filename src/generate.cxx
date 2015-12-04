@@ -10,12 +10,6 @@
 // An executable which generates a population
 //
 
-#include "arc_epi_sample.h"
-#include "circle_gps_sample.h"
-#include "random_sample.h"
-#include "square_gps_sample.h"
-#include "strip_epi_sample.h"
-
 #include "common.h"
 #include "options.h"
 #include "population.h"
@@ -31,18 +25,13 @@ int main( const int argc, const char** argv )
   int status = EXIT_FAILURE;
   sampsim::options opts( argv[0] );
   sampsim::population *population = new sampsim::population;
-  sampsim::sample::arc_epi *arc_epi_sample = new sampsim::sample::arc_epi;
-  sampsim::sample::circle_gps *circle_gps_sample = new sampsim::sample::circle_gps;
-  sampsim::sample::random *random_sample = new sampsim::sample::random;
-  sampsim::sample::square_gps *square_gps_sample = new sampsim::sample::square_gps;
-  sampsim::sample::strip_epi *strip_epi_sample = new sampsim::sample::strip_epi;
 
   // define inputs
   opts.add_input( "output" );
 
   // define general parameters
   opts.add_flag( 'f', "flat_file", "Whether to output data in two CSV files instead of JSON data" );
-  opts.add_flag( 's', "summary_file", "Whether to output summary data of the sample" );
+  opts.add_flag( 's', "summary_file", "Whether to output summary data of the population" );
   if( GNUPLOT_AVAILABLE )
     opts.add_flag( 'p', "plot", "Whether to create a plot of the population (will create a flat-file)" );
   opts.add_flag( 'v', "verbose", "Be verbose when generating population" );
@@ -52,6 +41,7 @@ int main( const int argc, const char** argv )
   opts.add_heading( "Global population parameters:" );
   opts.add_heading( "" );
   opts.add_option( "seed", "", "Seed used by the random generator" );
+  opts.add_option( "populations", "1", "Number of populations to generate" );
   opts.add_option( "towns", "1", "Number of towns to generate" );
   opts.add_option( "town_size_min", "10000", "The minimum number of individuals in a town" );
   opts.add_option( "town_size_max", "1000000", "The maximum number of individuals in a town" );
@@ -130,15 +120,6 @@ int main( const int argc, const char** argv )
   opts.add_option( "dweight_sex", "1.0", "Disease weight for household sex" );
   opts.add_option( "dweight_pocket", "1.0", "Disease weight for pocketing" );
 
-  // define batch parameters
-  opts.add_heading( "" );
-  opts.add_heading( "Batch operation parameters:" );
-  opts.add_heading( "" );
-  opts.add_option( "batch_sampler", "", "Which sampler to use when batch processing" );
-  opts.add_option( "batch_config", "", "Config file containing options to pass to the batch sampler" );
-  opts.add_option( "batch_npop", "1", "Number of populations to generate" );
-  opts.add_option( "batch_nsamp", "0", "Number of samples to take of each population" );
-
   try
   {
     // parse the command line arguments
@@ -156,42 +137,11 @@ int main( const int argc, const char** argv )
         sampsim::utilities::verbose = opts.get_flag( "verbose" );
 
         // work out the batch job details, if requested
-        std::string batch_sampler = opts.get_option( "batch_sampler" );
-        std::string batch_config = opts.get_option( "batch_config" );
-        int batch_npop = opts.get_option_as_int( "batch_npop" );
-        int batch_nsamp = opts.get_option_as_int( "batch_nsamp" );
+        int populations = opts.get_option_as_int( "populations" );
         double river_width = opts.get_option_as_double( "river_width" ) / 1000;
         double tile_width = opts.get_option_as_double( "tile_width" );
 
-        if( 0 < batch_sampler.length() && 0 >= batch_nsamp )
-        {
-          std::cout << "ERROR: Batch sampler provided without specifying how many samples to take."
-                    << std::endl
-                    << "       Make sure to set batch_nsamp when providing a batch_sampler."
-                    << std::endl;
-        }
-        else if( 0 < batch_config.length() && 0 >= batch_nsamp )
-        {
-          std::cout << "ERROR: Batch config provided without specifying how many samples to take. "
-                    << std::endl
-                    << "       Make sure to set batch_nsamp when providing a batch_config."
-                    << std::endl;
-        }
-        else if( 0 < batch_config.length() && 0 == batch_sampler.length() )
-        {
-          std::cout << "ERROR: Batch config provided without specifying which sampler to use. "
-                    << std::endl
-                    << "       Make sure to set batch_sampler when providing a batch_config."
-                    << std::endl;
-        }
-        else if( 0 < batch_nsamp && 0 == batch_sampler.length() )
-        {
-          std::cout << "ERROR: Number of batch samples provided without specifying which sampler to use. "
-                    << std::endl
-                    << "       Make sure to set batch_sampler when providing batch_nsamp."
-                    << std::endl;
-        }
-        else if( 0 >= tile_width )
+        if( 0 >= tile_width )
         {
           std::cout << "ERROR: Tile width must be > 0. "
                     << std::endl
@@ -266,16 +216,16 @@ int main( const int argc, const char** argv )
           sd_disease->set_b11( opts.get_option_as_double_list( "sd_disease_b11" ) );
 
           std::string population_filename;
-          for( int p = 0; p < batch_npop; p++ )
+          for( int p = 0; p < populations; p++ )
           {
             // filename depends on whether we are creating a batch of populations or not
-            if( 1 < batch_npop )
+            if( 1 < populations )
             {
               std::stringstream stream;
               stream << filename << ".p"
-                     << std::setw( log( batch_npop+1 ) ) << std::setfill( '0' ) << p;
+                     << std::setw( log( populations+1 ) ) << std::setfill( '0' ) << p;
               population_filename = stream.str();
-              std::cout << "generating population " << ( p+1 ) << " of " << batch_npop << std::endl;
+              std::cout << "generating population " << ( p+1 ) << " of " << populations << std::endl;
             }
             else population_filename = filename;
 
@@ -285,7 +235,7 @@ int main( const int argc, const char** argv )
             bool summary = opts.get_flag( "summary_file" );
             bool plot = GNUPLOT_AVAILABLE ? opts.get_flag( "plot" ) : false;
 
-            // create a json file no flat file was requested
+            // create a json file if no flat file was requested
             if( !flat ) population->write( population_filename, false );
             
             // create a flat file if a flat file or plot was requested
@@ -294,175 +244,38 @@ int main( const int argc, const char** argv )
             // create a summary file if requested
             if( summary ) population->write_summary( population_filename );
 
-            if( 0 == batch_nsamp )
+            // plot the flat file if requested to
+            if( plot )
             {
-              // plot the flat file if requested to
-              if( plot )
-              {
 
-                if( 1 == population->get_number_of_towns() )
-                {
-                  std::string result = sampsim::utilities::exec(
-                    gnuplot( *( population->get_town_list_cbegin() ), population_filename ) );
-                  if( "ERROR" == result ) sampsim::utilities::output( "warning: failed to create plot" );
-                  else sampsim::utilities::output( "creating plot file" );
-                }
-                else
-                {
-                  std::stringstream stream;
-                  unsigned int index = 0;
-                  for( auto it = population->get_town_list_cbegin();
-                       it != population->get_town_list_cend();
-                       ++it, ++index )
-                  {
-                    sampsim::town *town = *it;
-                    std::string result = sampsim::utilities::exec( gnuplot( town, population_filename, index ) );
-
-                    stream.str( "" );
-                    stream << population_filename << ".t"
-                           << std::setw( log( population->get_number_of_towns()+1 ) )
-                           << std::setfill( '0' ) << index << ".png";
-                    std::string image_filename = stream.str();
-
-                    stream.str( "" );
-                    if( "ERROR" == result ) stream << "warning: failed to create plot";
-                    else stream << "creating plot file \"" << image_filename << "\"";
-                    sampsim::utilities::output( stream.str() );
-                  }
-                }
-              }
-            }
-            else
-            {
-              // determine which sampler to use and set up the options for it
-              const char* sampler_argv[3];
-              sampler_argv[0] = batch_sampler.c_str();
-              sampler_argv[1] = "--config";
-              sampsim::options sampler_opts( argv[0] );
-              sampler_opts.add_option( "seed", "", "Seed used by the random generator" );
-              sampsim::sample::sample *sample;
-              if( "arc_epi" == batch_sampler || "arc_epi_sample" == batch_sampler )
+              if( 1 == population->get_number_of_towns() )
               {
-                setup_arc_epi_sample( sampler_opts );
-                if( 0 < batch_config.length() )
-                {
-                  sampler_argv[2] = batch_config.c_str();
-                  sampler_opts.set_arguments( 3, sampler_argv );
-                }
-                if( !sampler_opts.process() ) throw std::runtime_error( "Error while setting up sampler" );
-                parse_arc_epi_sample( sampler_opts, arc_epi_sample );
-                arc_epi_sample->set_population( population );
-                sample = arc_epi_sample;
-              }
-              else if( "circle_gps" == batch_sampler || "circle_gps_sample" == batch_sampler )
-              {
-                setup_circle_gps_sample( sampler_opts );
-                if( 0 < batch_config.length() )
-                {
-                  sampler_argv[2] = batch_config.c_str();
-                  sampler_opts.set_arguments( 3, sampler_argv );
-                }
-                if( !sampler_opts.process() ) throw std::runtime_error( "Error while setting up sampler" );
-                parse_circle_gps_sample( sampler_opts, circle_gps_sample );
-                circle_gps_sample->set_population( population );
-                sample = circle_gps_sample;
-              }
-              else if( "random" == batch_sampler || "random_sample" == batch_sampler )
-              {
-                setup_random_sample( sampler_opts );
-                if( 0 < batch_config.length() )
-                {
-                  sampler_argv[2] = batch_config.c_str();
-                  sampler_opts.set_arguments( 3, sampler_argv );
-                }
-                if( !sampler_opts.process() ) throw std::runtime_error( "Error while setting up sampler" );
-                parse_random_sample( sampler_opts, random_sample );
-                random_sample->set_population( population );
-                sample = random_sample;
-              }
-              else if( "square_gps" == batch_sampler || "square_gps_sample" == batch_sampler )
-              {
-                setup_square_gps_sample( sampler_opts );
-                if( 0 < batch_config.length() )
-                {
-                  sampler_argv[2] = batch_config.c_str();
-                  sampler_opts.set_arguments( 3, sampler_argv );
-                }
-                if( !sampler_opts.process() ) throw std::runtime_error( "Error while setting up sampler" );
-                parse_square_gps_sample( sampler_opts, square_gps_sample );
-                square_gps_sample->set_population( population );
-                sample = square_gps_sample;
-              }
-              else if( "strip_epi" == batch_sampler || "strip_epi_sample" == batch_sampler )
-              {
-                setup_strip_epi_sample( sampler_opts );
-                if( 0 < batch_config.length() )
-                {
-                  sampler_argv[2] = batch_config.c_str();
-                  sampler_opts.set_arguments( 3, sampler_argv );
-                }
-                if( !sampler_opts.process() ) throw std::runtime_error( "Error while setting up sampler" );
-                parse_strip_epi_sample( sampler_opts, strip_epi_sample );
-                strip_epi_sample->set_population( population );
-                sample = strip_epi_sample;
+                std::string result = sampsim::utilities::exec(
+                  gnuplot( *( population->get_town_list_cbegin() ), population_filename ) );
+                if( "ERROR" == result ) sampsim::utilities::output( "warning: failed to create plot" );
+                else sampsim::utilities::output( "creating plot file" );
               }
               else
               {
                 std::stringstream stream;
-                stream << "Unknown sampler \"" << batch_sampler << "\", must be the same as one of "
-                       << "the executables ending in _sample";
-                throw std::runtime_error( stream.str() );
-              }
-
-              std::string sample_filename;
-              for( int s = 0; s < batch_nsamp; s++ )
-              {
-                // filename depends on whether we are creating a batch of samples or not
-                sample_filename = population_filename + "_sample";
-                if( 1 < batch_nsamp )
+                unsigned int index = 0;
+                for( auto it = population->get_town_list_cbegin();
+                     it != population->get_town_list_cend();
+                     ++it, ++index )
                 {
-                  std::stringstream stream;
-                  stream << population_filename << ".s"
-                         << std::setw( log( batch_nsamp+1 ) ) << std::setfill( '0' ) << s;
-                  sample_filename = stream.str();
-                  std::cout << "sampling iteration " << ( s+1 ) << " of " << batch_nsamp << std::endl;
-                }
+                  sampsim::town *town = *it;
+                  std::string result = sampsim::utilities::exec( gnuplot( town, population_filename, index ) );
 
-                sample->generate();
+                  stream.str( "" );
+                  stream << population_filename << ".t"
+                         << std::setw( log( population->get_number_of_towns()+1 ) )
+                         << std::setfill( '0' ) << index << ".png";
+                  std::string image_filename = stream.str();
 
-                // create a json file no flat file was requested
-                if( !flat ) sample->write( sample_filename, false );
-
-                // create a flat file if a flat file or plot was requested
-                if( flat || plot ) sample->write( sample_filename, true );
-
-                // plot the flat file if requested to
-                if( plot )
-                {
-                  std::stringstream stream;
-                  unsigned int index = 0;
-                  for( auto it = population->get_town_list_cbegin();
-                       it != population->get_town_list_cend();
-                       ++it, ++index )
-                  {
-                    sampsim::town *town = *it;
-                    std::string result = sampsim::utilities::exec(
-                      gnuplot( town, population_filename, index, sample_filename ) );
-
-                    stream.str( "" );
-                    stream << sample_filename << ".t"
-                           << std::setw( log( population->get_number_of_towns()+1 ) ) << std::setfill( '0' )
-                           << index << ".png";
-                    std::string image_filename = stream.str();
-
-                    stream.str( "" );
-                    std::stringstream stream;
-                    if( "ERROR" == result )
-                      stream << "warning: failed to create plot";
-                    else
-                      stream << "creating plot file \"" << image_filename << "\"";
-                    sampsim::utilities::output( stream.str() );
-                  }
+                  stream.str( "" );
+                  if( "ERROR" == result ) stream << "warning: failed to create plot";
+                  else stream << "creating plot file \"" << image_filename << "\"";
+                  sampsim::utilities::output( stream.str() );
                 }
               }
             }
@@ -479,10 +292,5 @@ int main( const int argc, const char** argv )
   }
 
   sampsim::utilities::safe_delete( population );
-  sampsim::utilities::safe_delete( arc_epi_sample );
-  sampsim::utilities::safe_delete( circle_gps_sample );
-  sampsim::utilities::safe_delete( random_sample );
-  sampsim::utilities::safe_delete( square_gps_sample );
-  sampsim::utilities::safe_delete( strip_epi_sample );
   return status;
 }
