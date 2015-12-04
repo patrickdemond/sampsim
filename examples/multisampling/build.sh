@@ -50,20 +50,20 @@ done
 # determine the seed
 read -p "What seed would you like to use? (any number or string is permitted)> " seed
 
-# delete all existing csv, json and png files if we are replacing them
+# delete all existing csv, json, log, done and png files if we are replacing them
 if [ $replace -eq 1 ]; then
-  rm `find -type f | grep "\.\(csv\|json\|png\)$"`
+  rm `find -type f | grep "\.\(csv\|json\|log\|done\|png\)$"`
 fi
 
 # ignore file searches that come up empty
 shopt -s nullglob
 
 # loop over all weight types
+echo ""
+echo "Generating populations"
 for weight_type in vanilla population income risk age sex pocket; do
-  echo ""
-  echo -n "${BOLD}Generating $weight_type population${NORMAL} "
   if [ -f "$weight_type.json" ]; then
-    echo "${BLUE}[skipping]${NORMAL}"
+    echo "  ${BOLD}$weight_type${NORMAL} population ${BLUE}[skipping]${NORMAL}" &
   else
     $generate -s -p --seed $seed -c vanilla.conf $weight_type \
       --dweight_population `if [[ "population" = "$weight_type" ]]; then echo 1.0; else echo 0.0; fi` \
@@ -71,9 +71,19 @@ for weight_type in vanilla population income risk age sex pocket; do
       --dweight_risk `if [[ "risk" = "$weight_type" ]]; then echo 1.0; else echo 0.0; fi` \
       --dweight_age `if [[ "age" = "$weight_type" ]]; then echo 1.0; else echo 0.0; fi` \
       --dweight_sex `if [[ "sex" = "$weight_type" ]]; then echo 1.0; else echo 0.0; fi` \
-      --dweight_pocket `if [[ "pocket" = "$weight_type" ]]; then echo 1.0; else echo 0.0; fi` > $weight_type.log
-    echo "${GREEN}[done]${NORMAL}"
+      --dweight_pocket `if [[ "pocket" = "$weight_type" ]]; then echo 1.0; else echo 0.0; fi` \
+      > $weight_type.log && \
+      echo "  ${BOLD}$weight_type${NORMAL} population ${GREEN}[done]${NORMAL}" &
   fi
+done
+
+for job in `jobs -p`; do
+  wait $job
+done
+
+for weight_type in vanilla population income risk age sex pocket; do
+  echo ""
+  echo "Sampling $weight_type population"
 
   # loop over all samplers and process the population
   for sample_dir in *_sample; do
@@ -88,13 +98,18 @@ for weight_type in vanilla population income risk age sex pocket; do
       sample_size=${sample_config_file:$slash:-5}
       sample_name=${sample_config_file:0:$slash}${weight_type}.${sample_size}
 
-      echo -n "> Generating $sample_type sample (sample size ${sample_size}) "
-      if [ -f "$sample_name.json" ]; then
-        echo "${BLUE}[skipping]${NORMAL}"
+      if [ -f "$sample_name.done" ]; then
+        echo "  ${BOLD}$sample_type${NORMAL} sample (sample size ${sample_size}) ${BLUE}[skipping]${NORMAL}" &
       else
-        ${!sample_dir} -s --seed $seed -c $sample_config_file $weight_type.json $sample_name > $sample_name.log
-        echo "${GREEN}[done]${NORMAL}"
+        ${!sample_dir} -p -d -s --seed $seed -c $sample_config_file $weight_type.json $sample_name \
+          > $sample_name.log && \
+          touch $sample_name.done && \
+          echo "  ${BOLD}$sample_type${NORMAL} sample (sample size ${sample_size}) ${GREEN}[done]${NORMAL}" &
       fi
     done
+  done
+
+  for job in `jobs -p`; do
+    wait $job
   done
 done
