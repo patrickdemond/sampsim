@@ -7,7 +7,7 @@
 =========================================================================*/
 //
 // .SECTION Description
-// An executable which randomly samples a population
+// An executable which samples a population using the strip EPI method
 //
 
 #include "random_sample.h"
@@ -38,65 +38,8 @@ int main( const int argc, const char** argv )
       }
       else
       {
-        bool flat, summary, plot;
-        std::cout << "sampsim random_sample version " << sampsim::utilities::get_version() << std::endl;
-        std::string population_filename = opts.get_input( "population_file" );
-        std::string sample_filename = opts.get_input( "output_file" );
-        sampsim::utilities::verbose = opts.get_flag( "verbose" );
-        parse_sample( opts, sample, flat, summary, plot );
         parse_random_sample( opts, sample );
-
-        if( sample->set_population( population_filename ) )
-        {
-          sample->generate();
-
-          // create a json file if no flat file was requested
-          if( !flat ) sample->write( sample_filename, false );
-
-          // create a flat file if a flat file or plot was requested
-          if( flat || plot ) sample->write( sample_filename, true );
-
-          // create a summary file if requested
-          if( summary ) sample->write_summary( sample_filename );
-
-          // plot the flat file if requested to
-          if( plot )
-          {
-            sampsim::population *population = sample->get_population();
-
-            if( 1 == population->get_number_of_towns() )
-            {
-              std::string result = sampsim::utilities::exec(
-                gnuplot( *( population->get_town_list_cbegin() ), population_filename, sample_filename ) );
-              if( "ERROR" == result ) sampsim::utilities::output( "warning: failed to create plot" );
-              else sampsim::utilities::output( "creating plot file" );
-            }
-            else
-            {
-              std::stringstream stream;
-              unsigned int index = 0;
-              for( auto it = population->get_town_list_cbegin();
-                   it != population->get_town_list_cend();
-                   ++it, ++index )
-              {
-                sampsim::town *town = *it;
-                std::string result = sampsim::utilities::exec(
-                  gnuplot( town, population_filename, index, sample_filename ) );
-
-                stream.str( "" );
-                stream << sample_filename << ".t"
-                       << std::setw( log( population->get_number_of_towns()+1 ) )
-                       << std::setfill( '0' ) << index << ".png";
-                std::string image_filename = stream.str();
-
-                stream.str( "" );
-                if( "ERROR" == result ) stream << "warning: failed to create plot";
-                else stream << "creating plot file \"" << image_filename << "\"";
-                sampsim::utilities::output( stream.str() );
-              }
-            }
-          }
-        }
+        process_sample( opts, sample );
       }
 
       status = EXIT_SUCCESS;
