@@ -19,22 +19,26 @@
 std::string gnuplot(
   sampsim::town *town,
   std::string population_name,
-  unsigned int town_index,
+  int town_index,
   std::string sample_name = "" )
 {
+  bool multitown = 0 <= town_index;
+  if( !multitown ) town_index = 0; // there is only one town so its index is 0
   sampsim::population *population = town->get_population();
 
   // the name is the sample name if one is provided, the population name if not
   std::string name = 0 == sample_name.length() ? population_name : sample_name;
   std::stringstream stream;
 
-  stream << name << ".t"
-         << std::setw( log( population->get_number_of_towns()+1 ) ) << std::setfill( '0' )
-         << town_index << ".png";
+  stream << name;
+  if( multitown ) stream << ".t" << std::setw( log( population->get_number_of_towns()+1 ) )
+                         << std::setfill( '0' ) << ( town_index + 1 );
+  stream << ".png";
 
   std::string image_filename = stream.str();
   stream.str( "" );
-  stream << "Household plot of \\\"" << name << "\\\", town " << town_index;
+  stream << "Household plot of \\\"" << name << "\\\"";
+  if( multitown ) stream << ", town " << ( town_index + 1 );
   std::string title = stream.str();
 
   stream.str( "" );
@@ -70,7 +74,7 @@ std::string gnuplot(
     << "set termoption dashed; "
     << "plot \"" << population_name << ".household.csv\" "
     <<   "using ($1 == " << town_index << " ? $3 : 1/0):4:($8/2):10 palette pt 6 ps variable "
-    <<   "title \"town " << town_index << "\"";
+    <<   "title \"town " << ( town_index + 1 ) << "\"";
 
   if( 0 < sample_name.length() )
   {
@@ -87,4 +91,13 @@ std::string gnuplot(
   stream.str( "" );
   stream << "gnuplot -e " << "'" << command << "'";
   return stream.str();
+}
+
+// convenience function to generate gnuplot commands (for one town only)
+std::string gnuplot(
+  sampsim::town *town,
+  std::string population_name,
+  std::string sample_name = "" )
+{
+  return gnuplot( town, population_name, -1, sample_name );
 }
