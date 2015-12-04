@@ -130,14 +130,14 @@ namespace sampsim
     // calculate the mean( log(individuals) ) from all towns
     double sum_log_individual_count = 0;
     for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
-      sum_log_individual_count = log( (*it)->count_individuals().second );
+      sum_log_individual_count = log10( (*it)->count_individuals().second );
     double mean_log_individual_count = sum_log_individual_count / this->number_of_towns;
 
     // now set the regression factor for all trends in each town
     for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
     {
       town *t = *it;
-      double factor = log( t->count_individuals().second ) - mean_log_individual_count;
+      double factor = log10( t->count_individuals().second ) - mean_log_individual_count;
 
       // here we set the regression factor for all trends
       // Note: the regression factor shouldn't be confused with the coefficient's regression coefficient.
