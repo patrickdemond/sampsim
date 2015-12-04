@@ -299,29 +299,36 @@ int main( const int argc, const char** argv )
               // plot the flat file if requested to
               if( plot )
               {
-                std::stringstream stream;
-                unsigned int index = 0;
-                for( auto it = population->get_town_list_cbegin();
-                     it != population->get_town_list_cend();
-                     ++it, ++index )
+
+                if( 1 == population->get_number_of_towns() )
                 {
-                  sampsim::town *town = *it;
                   std::string result = sampsim::utilities::exec(
-                    gnuplot( town, population_filename, index ) );
-
-                  stream.str( "" );
-                  stream << population_filename << ".t"
-                         << std::setw( log( population->get_number_of_towns()+1 ) ) << std::setfill( '0' )
-                         << index << ".png";
-                  std::string image_filename = stream.str();
-
-                  stream.str( "" );
+                    gnuplot( *( population->get_town_list_cbegin() ), population_filename ) );
+                  if( "ERROR" == result ) sampsim::utilities::output( "warning: failed to create plot" );
+                  else sampsim::utilities::output( "creating plot file" );
+                }
+                else
+                {
                   std::stringstream stream;
-                  if( "ERROR" == result )
-                    stream << "warning: failed to create plot";
-                  else
-                    stream << "creating plot file \"" << image_filename << "\"";
-                  sampsim::utilities::output( stream.str() );
+                  unsigned int index = 0;
+                  for( auto it = population->get_town_list_cbegin();
+                       it != population->get_town_list_cend();
+                       ++it, ++index )
+                  {
+                    sampsim::town *town = *it;
+                    std::string result = sampsim::utilities::exec( gnuplot( town, population_filename, index ) );
+
+                    stream.str( "" );
+                    stream << population_filename << ".t"
+                           << std::setw( log( population->get_number_of_towns()+1 ) )
+                           << std::setfill( '0' ) << index << ".png";
+                    std::string image_filename = stream.str();
+
+                    stream.str( "" );
+                    if( "ERROR" == result ) stream << "warning: failed to create plot";
+                    else stream << "creating plot file \"" << image_filename << "\"";
+                    sampsim::utilities::output( stream.str() );
+                  }
                 }
               }
             }

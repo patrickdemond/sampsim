@@ -85,6 +85,7 @@ int main( const int argc, const char** argv )
             }
             else
             {
+              std::stringstream stream;
               unsigned int index = 0;
               for( auto it = population->get_town_list_cbegin();
                    it != population->get_town_list_cend();
@@ -94,8 +95,7 @@ int main( const int argc, const char** argv )
                 std::string result = sampsim::utilities::exec(
                   gnuplot( town, population_filename, index, sample_filename ) );
 
-                std::stringstream stream;
-                stream.str( sample_filename );
+                stream.str( "" );
                 stream << sample_filename << ".t"
                        << std::setw( log( population->get_number_of_towns()+1 ) )
                        << std::setfill( '0' ) << index << ".png";
