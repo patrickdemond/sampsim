@@ -29,6 +29,7 @@ namespace sample
   sample::sample()
   {
     this->number_of_samples = 0;
+    this->write_sample_number = 0; // 0 => all samples
     this->current_size = 0;
     this->one_per_household = false;
     this->age = ANY_AGE;
@@ -338,6 +339,13 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void sample::set_write_sample_number( const unsigned int number )
+  {
+    if( utilities::verbose ) utilities::output( "setting write_sample_number to %d", number );
+    this->write_sample_number = number;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sample::set_one_per_household( const bool one_per_household )
   {
     if( utilities::verbose )
@@ -459,17 +467,32 @@ namespace sample
     household_stream << this->get_csv_header() << std::endl;
     individual_stream << this->get_csv_header() << std::endl;
 
-    unsigned int number = 1;
-    for( auto it = this->sampled_population_list.cbegin(); it != this->sampled_population_list.cend(); ++it )
+    if( 0 < this->write_sample_number )
     {
-      household_stream << "# sample " << number << std::endl
-                       << "# -----------------------------------------------------------------------"
-                       << std::endl;
-      individual_stream << "# sample " << number << std::endl
-                        << "# -----------------------------------------------------------------------"
-                        << std::endl;
-      (*it)->to_csv( household_stream, individual_stream );
-      number++;
+      if( this->write_sample_number > this->sampled_population_list.size() )
+      {
+        std::stringstream stream;
+        stream << "Told to write sample #" << this->write_sample_number << " but only "
+               << this->sampled_population_list.size() << " samples exist.";
+        throw std::runtime_error( stream.str() );
+      }
+
+      this->sampled_population_list[this->write_sample_number-1]->to_csv( household_stream, individual_stream );
+    }
+    else
+    { // write all samples
+      unsigned int number = 1;
+      for( auto it = this->sampled_population_list.cbegin(); it != this->sampled_population_list.cend(); ++it )
+      {
+        household_stream << "# sample " << number << std::endl
+                         << "# -----------------------------------------------------------------------"
+                         << std::endl;
+        individual_stream << "# sample " << number << std::endl
+                          << "# -----------------------------------------------------------------------"
+                          << std::endl;
+        (*it)->to_csv( household_stream, individual_stream );
+        number++;
+      }
     }
   }
 }

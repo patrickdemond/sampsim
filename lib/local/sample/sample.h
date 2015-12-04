@@ -156,6 +156,24 @@ namespace sample
     unsigned int get_number_of_samples() const { return this->number_of_samples; }
 
     /**
+     * Sets which sample to write to output files
+     * 
+     * The default setting, 0, will output all samples when writing data or flat files to disk.
+     * If this value is set above 0 then only that sample number will be included.  This is
+     * useful for visualizing one sample at a time.
+     */
+    void set_write_sample_number( const unsigned int write_sample_number );
+
+    /**
+     * Returns which sample to write to output files
+     * 
+     * The default setting, 0, will output all samples when writing data or flat files to disk.
+     * If this value is set above 0 then only that sample number will be included.  This is
+     * useful for visualizing one sample at a time.
+     */
+    unsigned int get_write_sample_number() const { return this->write_sample_number; }
+
+    /**
      * Sets whether to sample one individual per household
      */
     void set_one_per_household( const bool one_per_household );
@@ -291,6 +309,14 @@ namespace sample
      * The number of times to sample the population
      */
     unsigned int number_of_samples;
+
+    /**
+     * When writing sample files, which sample to output (using 1-based indexing)
+     * 
+     * A value of 0, the default, will output all samples
+     */
+    unsigned int write_sample_number;
+
 
     /**
      * The number of individuals which have been selected by the sample so far.
