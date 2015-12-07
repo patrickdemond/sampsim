@@ -48,6 +48,9 @@ namespace sampsim
     this->sd_disease = new trend;
     this->pocket_kernel_type = "exponential";
     this->pocket_scaling = 1.0;
+    this->town_size_min = 0.0;
+    this->town_size_max = 0.0;
+    this->town_size_shape = 0.0;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -359,8 +362,8 @@ namespace sampsim
            << "# town_size_max: " << this->town_size_max << std::endl
            << "# town_size_shape: " << this->town_size_shape << std::endl
            << "# tile_width: " << this->tile_width << std::endl
-           << "# population_density_slope: " << this->population_density_slope << ", "
-                                             << this->population_density_slope << std::endl
+           << "# population_density_slope: " << this->population_density_slope[0] << ", "
+                                             << this->population_density_slope[1] << std::endl
            << "# diseased individual count: " << count.first << std::endl
            << "# individual count: " << count.second << std::endl
            << "#" << std::endl

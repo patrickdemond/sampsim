@@ -121,7 +121,7 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void strip_epi::from_json( const Json::Value &json )
   {
-    sample::from_json( json );
+    epi::from_json( json );
     this->strip_width = json["strip_width"].asDouble();
   }
 

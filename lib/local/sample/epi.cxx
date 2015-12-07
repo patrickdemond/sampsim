@@ -67,6 +67,8 @@ namespace sample
     sized_sample::reset_for_next_sample();
 
     this->current_sector_index = -1;
+    this->start_angle_defined = false;
+    this->start_angle = 0;
     this->first_building_index = 0;
     this->current_building = NULL;
   }
@@ -137,7 +139,7 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void epi::from_json( const Json::Value &json )
   {
-    sample::from_json( json );
+    sized_sample::from_json( json );
     this->number_of_sectors = json["number_of_sectors"].asUInt();
     this->skip = json["skip"].asUInt();
     this->start_angle = json["start_angle"].asDouble();
@@ -147,7 +149,7 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void epi::to_json( Json::Value &json ) const
   {
-    sample::to_json( json );
+    sized_sample::to_json( json );
     json["number_of_sectors"] = this->number_of_sectors;
     json["skip"] = this->skip;
     json["start_angle"] = this->start_angle;
@@ -158,7 +160,7 @@ namespace sample
   std::string epi::get_csv_header() const
   {
     std::stringstream stream;
-    stream << sample::get_csv_header();
+    stream << sized_sample::get_csv_header();
     stream << "# number_of_sectors: " << this->number_of_sectors << std::endl;
     stream << "# skip: " << this->skip << std::endl;
     stream << "# start_angle: " << this->start_angle << std::endl;

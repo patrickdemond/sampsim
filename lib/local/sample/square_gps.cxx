@@ -168,7 +168,7 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void square_gps::from_json( const Json::Value &json )
   {
-    sample::from_json( json );
+    sized_sample::from_json( json );
     this->set_number_of_squares( json["number_of_squares"].asUInt() );
     // square widths are automatically calculated by the set_number_of_squares() method
 
@@ -189,7 +189,7 @@ namespace sample
       for( auto ity = itx->cbegin(); ity != itx->cend(); ++ity )
         if( *ity ) total_selected++;
 
-    sample::to_json( json );
+    sized_sample::to_json( json );
     json["number_of_squares"] = this->number_of_squares;
     json["square_width_x"] = this->square_width_x;
     json["square_width_y"] = this->square_width_y;
@@ -220,7 +220,7 @@ namespace sample
   std::string square_gps::get_csv_header() const
   {
     std::stringstream stream;
-    stream << sample::get_csv_header();
+    stream << sized_sample::get_csv_header();
     stream << "# number_of_squares: " << this->number_of_squares << std::endl;
     stream << "# square_width_x: " << this->square_width_x << std::endl;
     stream << "# square_width_y: " << this->square_width_y << std::endl;

@@ -76,14 +76,14 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void circle_gps::from_json( const Json::Value &json )
   {
-    sample::from_json( json );
+    sized_sample::from_json( json );
     this->radius = json["radius"].asDouble();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void circle_gps::to_json( Json::Value &json ) const
   {
-    sample::to_json( json );
+    sized_sample::to_json( json );
     json["radius"] = this->radius;
   }
 
@@ -91,7 +91,7 @@ namespace sample
   std::string circle_gps::get_csv_header() const
   {
     std::stringstream stream;
-    stream << sample::get_csv_header();
+    stream << sized_sample::get_csv_header();
     stream << "# radius: " << this->radius << std::endl;
     return stream.str();
   }
