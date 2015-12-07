@@ -224,13 +224,6 @@ namespace sample
     stream << "# number_of_squares: " << this->number_of_squares << std::endl;
     stream << "# square_width_x: " << this->square_width_x << std::endl;
     stream << "# square_width_y: " << this->square_width_y << std::endl;
-    stream << "# selected_squares: ";
-
-    unsigned int total_selected = 0;
-    for( auto itx = this->selected_squares.cbegin(); itx != this->selected_squares.cend(); ++itx )
-      for( auto ity = itx->cbegin(); ity != itx->cend(); ++ity )
-        if( *ity ) total_selected++;
-    stream << total_selected << std::endl;
 
     return stream.str();
   }

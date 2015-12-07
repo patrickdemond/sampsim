@@ -163,8 +163,6 @@ namespace sample
     stream << sized_sample::get_csv_header();
     stream << "# number_of_sectors: " << this->number_of_sectors << std::endl;
     stream << "# skip: " << this->skip << std::endl;
-    stream << "# start_angle: " << this->start_angle << std::endl;
-    stream << "# first_building_index: " << this->first_building_index << std::endl;
     return stream.str();
   }
 }

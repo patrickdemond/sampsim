@@ -37,7 +37,6 @@ namespace sample
     this->first_building = NULL;
     this->population = NULL;
     this->owns_population = false;
-    this->sample_complete = false;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

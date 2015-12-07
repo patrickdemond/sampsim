@@ -271,14 +271,6 @@ namespace sample
      */
     sampsim::population *population;
 
-    /**
-     * Tracks when to stop sampling
-     * 
-     * This member will always start off as true and the sampler will keep requesting the next
-     * building until its value is true (set by the extending class)
-     */
-    bool sample_complete;
-
   private:
     /**
      * Internal method for creating new populations when they are read from disk
