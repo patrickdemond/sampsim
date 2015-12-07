@@ -608,6 +608,9 @@ namespace sampsim
     this->sd_disease->copy( object->sd_disease );
     this->pocket_kernel_type = object->pocket_kernel_type;
     this->pocket_scaling = object->pocket_scaling;
+    this->town_size_min =  object->town_size_min;
+    this->town_size_max =  object->town_size_max;
+    this->town_size_shape =  object->town_size_shape;
 
     // delete all towns
     std::for_each( this->town_list.begin(), this->town_list.end(), utilities::safe_delete_type() );
