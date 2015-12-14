@@ -44,12 +44,14 @@ namespace sample
     /**
      * Construction
      */
-     circle_gps() : radius( 0 ) {}
+    circle_gps() : radius( 0 ) {}
 
-    /**
-     * Returns the name of the object's class
-     */
+    // defining pure abstract methods
     std::string get_name() const { return "circle_gps"; }
+    void copy( const base_object* o ) { this->copy( static_cast<const circle_gps*>( o ) ); }
+    void copy( const circle_gps* );
+    void from_json( const Json::Value& );
+    void to_json( Json::Value& ) const;
 
     /**
      * Returns the name of the sampling method
@@ -65,22 +67,6 @@ namespace sample
      * Returns the radius of the circle used for selecting households from a GPS point
      */
     double get_radius() { return this->radius; }
-
-    /**
-     * Deserialize the sample
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    void from_json( const Json::Value& );
-
-    /**
-     * Serialize the sample
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    void to_json( Json::Value& ) const;
 
     /**
      * Returns the header for generated CSV files

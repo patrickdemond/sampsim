@@ -22,6 +22,12 @@ namespace sampsim
 namespace sample
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void arc_epi::copy( const arc_epi* object )
+  {
+    this->arc_angle = object->arc_angle;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   building* arc_epi::select_next_building( sampsim::building_tree &tree )
   {
     // make sure the arc angle has been set
@@ -54,11 +60,11 @@ namespace sample
         if( utilities::verbose )
           utilities::output( "iteration #%d", iteration + 1 );
 
+        double a1 = this->start_angle - this->arc_angle / 2.0;
+        double a2 = this->start_angle + this->arc_angle / 2.0;
         for( auto it = building_list.begin(); it != building_list.end(); ++it )
         {
           building *building = (*it);
-          double a1 = this->start_angle - this->arc_angle / 2.0;
-          double a2 = this->start_angle + this->arc_angle / 2.0;
           double a = (*it)->get_position().get_a();
 
           // it is possible that a2 > PI, if so then we need to loop around to -PI
@@ -93,7 +99,7 @@ namespace sample
         iteration++;
 
         // increase the angle in case we need another iteration
-        this->start_angle += this->arc_angle;
+        if( 0 == initial_building_list.size() && iteration < 1000 ) this->start_angle += this->arc_angle;
       }
 
       if( 0 == initial_building_list.size() )

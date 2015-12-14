@@ -22,6 +22,12 @@ namespace sampsim
 namespace sample
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void strip_epi::copy( const strip_epi* object )
+  {
+    this->strip_width = object->strip_width;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   building* strip_epi::select_next_building( sampsim::building_tree &tree )
   {
     // make sure the strip width has been set

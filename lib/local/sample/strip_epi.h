@@ -47,10 +47,12 @@ namespace sample
      */
     strip_epi() : strip_width( 0 ) {}
 
-    /**
-     * Returns the name of the object's class
-     */
+    // defining pure abstract methods
     std::string get_name() const { return "strip_epi"; }
+    void copy( const base_object* o ) { this->copy( static_cast<const strip_epi*>( o ) ); }
+    void copy( const strip_epi* );
+    void from_json( const Json::Value& );
+    void to_json( Json::Value& ) const;
 
     /**
      * Returns the name of the sampling method
@@ -66,22 +68,6 @@ namespace sample
      * Returns the width of the strip (in meters) used to determine the initial building list
      */
     double get_strip_width() { return this->strip_width; }
-
-    /**
-     * Deserialize the sample
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    void from_json( const Json::Value& );
-
-    /**
-     * Serialize the sample
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    void to_json( Json::Value& ) const;
 
     /**
      * Returns the header for generated CSV files

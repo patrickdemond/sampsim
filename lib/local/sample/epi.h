@@ -49,6 +49,12 @@ namespace sample
      */
     epi();
 
+    // defining pure abstract methods
+    void copy( const base_object* o ) { this->copy( static_cast<const epi*>( o ) ); }
+    void copy( const epi* );
+    virtual void from_json( const Json::Value& );
+    virtual void to_json( Json::Value& ) const;
+
     /**
      * Sets the number of sectors to divide the town into.
      * 
@@ -104,22 +110,6 @@ namespace sample
      * Unsets the start angle, allowing it to be randomly determined upon execution
      */
     void unset_start_angle() { this->start_angle_defined = false; }
-
-    /**
-     * Deserialize the sample
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    void from_json( const Json::Value& );
-
-    /**
-     * Serialize the sample
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    void to_json( Json::Value& ) const;
 
     /**
      * Returns the header for generated CSV files

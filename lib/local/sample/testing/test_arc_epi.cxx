@@ -47,7 +47,7 @@ TEST( test_sample_arc_epi )
 
   int sample_size = 100;
   sample1->set_number_of_samples( 1 );
-  sample1->set_number_of_sectors( 4 );
+  sample1->set_number_of_sectors( 1 );
   sample1->set_size( sample_size );
   sample1->set_arc_angle( M_PI / 30 );
   sample1->set_one_per_household( true );
@@ -82,7 +82,6 @@ TEST( test_sample_arc_epi )
     sample1->set_start_angle( start_angle );
     double angle1 = sample1->get_start_angle() - sample1->get_arc_angle() / 2.0;
     double angle2 = sample1->get_start_angle() + sample1->get_arc_angle() / 2.0;
-    cout << "Testing arc from " << angle1 << " to " << angle2 << " radians..." << endl;
     sample1->generate();
 
     // make sure a building was chosen

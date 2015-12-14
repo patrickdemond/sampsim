@@ -56,15 +56,13 @@ namespace sampsim
       const double b20 = 0,
       const double b11 = 0 );
 
-    /**
-     * Returns the name of the object's class
-     */
+    // defining pure abstract methods
     std::string get_name() const { return "trend"; }
-
-    /**
-     * Copies another trend's values into the current object
-     */
+    void copy( const base_object* o ) { this->copy( static_cast<const trend*>( o ) ); }
     void copy( const trend* );
+    void from_json( const Json::Value& );
+    void to_json( Json::Value& ) const;
+    void to_csv( std::ostream&, std::ostream& ) const;
 
     /**
      * Returns the regression factor defining how much the regression affects each coefficient
@@ -174,30 +172,6 @@ namespace sampsim
      * Returns the trend as a string representation
      */
     std::string to_string();
-
-    /**
-     * Deserialize the population
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void from_json( const Json::Value& );
-
-    /**
-     * Serialize the population
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void to_json( Json::Value& ) const;
-
-    /**
-     * Output the population to two CSV files (households and individuals)
-     * 
-     * All objects must provide an implementation for printing to a CSV (comma separated value) format.
-     * Two streams are expected, the first is for household data and the second for individual data.
-     */
-    virtual void to_csv( std::ostream&, std::ostream& ) const;
 
   private:
     /**

@@ -66,10 +66,16 @@ namespace sampsim
     */
     ~household();
 
-    /**
-     * Returns the name of the object's class
-     */
+    // defining pure abstract methods
     std::string get_name() const { return "household"; }
+    void copy( const base_object* o ) { this->copy( static_cast<const household*>( o ) ); }
+    void copy( const household* );
+    void from_json( const Json::Value& );
+    void to_json( Json::Value& ) const;
+    void to_csv( std::ostream&, std::ostream& ) const;
+    std::vector< std::pair<unsigned int, unsigned int> >count_individuals() const;
+    void select();
+    void unselect();
 
     /**
      * Iterator access to child individuals
@@ -133,90 +139,9 @@ namespace sampsim
      */
     double get_disease_risk() const { return this->disease_risk; }
 
-    /**
-     * Returns whether the household is selected or not
-     * 
-     * Selection works in the following manner: selecting an object also selects its parent but not its
-     * children.  Unselecting an object also unselects its children but not its parent.  This mechanism
-     * therefore defines "selection" as true if any of its children are selected, and allows for
-     * unselecting all children by unselecting the object.  Only towns, buildings, households and
-     * individuals may be selected/unselected.
-     */
-    bool is_selected() const { return this->selected; }
-
-    /**
-     * Selects the household
-     * 
-     * This will also select the parent building.
-     */
-    void select();
-
-    /**
-     * Unselects the household
-     * 
-     * This will also unselect all children living in this household
-     */
-    void unselect();
-
-    /**
-     * Get the number of diseased and total number of individuals in the population
-     * 
-     * Returns a pair containing the total number of individuals who have disease and the total number of
-     * individuals in total in the household.
-     * This method iterates over all towns (and all tiles in those towns, etc) every time it is called, so
-     * it should only be used when re-counting is necessary.  A household contains no individuals until
-     * its create() method is called.
-     */
-    std::pair<unsigned int, unsigned int> count_individuals() const;
-
-    /**
-     * Copies another household's values into the current object
-     */
-    void copy( const household* );
-
   protected:
-    /**
-     * Create all individuals belonging to the household
-     * 
-     * This method will create the household according to its internal parameters.  The method
-     * creates individuals but does not define their properties.  After calling this function all individuals
-     * belonging to the household will exist but without parameters such as income, disease status,
-     * disease risk, etc.
-     */
     void create();
-
-    /**
-     * Define all parameters for all individuals belonging to the household
-     * 
-     * This method will determine all factors such as income, disease status, disease risk, etc for
-     * all individuals belonging to the household.  If this method is called before the individuals
-     * have been created nothing will happen.
-     */
     void define();
-
-    /**
-     * Deserialize the household
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void from_json( const Json::Value& );
-
-    /**
-     * Serialize the household
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void to_json( Json::Value& ) const;
-
-    /**
-     * Output the household to two CSV files (households and individuals)
-     * 
-     * All objects must provide an implementation for printing to a CSV (comma separated value) format.
-     * Two streams are expected, the first is for household data and the second for individual data.
-     */
-    virtual void to_csv( std::ostream&, std::ostream& ) const;
 
   private:
     /**
@@ -233,11 +158,6 @@ namespace sampsim
      * The household's disease risk factor
      */
     double disease_risk;
-
-    /**
-     * Whether the household is selected
-     */
-    bool selected;
 
     /**
      * A container holding all individuals belonging to this household.  The household is responsible

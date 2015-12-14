@@ -62,6 +62,13 @@ namespace sample
      */
     ~sample();
 
+    // defining pure abstract methods
+    void copy( const base_object* o ) { this->copy( static_cast<const sample*>( o ) ); }
+    void copy( const sample* );
+    virtual void from_json( const Json::Value& );
+    virtual void to_json( Json::Value& ) const;
+    virtual void to_csv( std::ostream&, std::ostream& ) const;
+
     /**
      * Generates the sample by calling select_next_building() until the ending condition is met
      */
@@ -207,30 +214,6 @@ namespace sample
      * Returns the first building which was selected by the sampler
      */
     building* get_first_building() { return this->first_building; }
-
-    /**
-     * Deserialize the sample
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void from_json( const Json::Value& );
-
-    /**
-     * Serialize the sample
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void to_json( Json::Value& ) const;
-
-    /**
-     * Output the sample to two CSV files (households and individuals)
-     * 
-     * All objects must provide an implementation for printing to a CSV (comma separated value) format.
-     * Two streams are expected, the first is for household data and the second for individual data.
-     */
-    virtual void to_csv( std::ostream&, std::ostream& ) const;
 
     /**
      * Returns the header for generated CSV files

@@ -40,6 +40,40 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void sample::copy( const sample* object )
+  {
+    this->number_of_samples = object->number_of_samples;
+    this->write_sample_number = object->write_sample_number;
+    this->current_size = object->current_size;
+    this->one_per_household = object->one_per_household;
+    this->age = object->age;
+    this->sex = object->sex;
+    std::cout << "WARNING: copying samples is unable to preserve the first_building selected by the sampler"
+              << std::endl;
+    this->first_building = NULL;
+
+    this->delete_population();
+    if( object->owns_population ) this->population->copy( object->population );
+    else this->population = object->population;
+    this->owns_population = object->owns_population;
+
+    std::for_each(
+      this->sampled_population_list.begin(),
+      this->sampled_population_list.end(),
+      utilities::safe_delete_type() );
+    this->sampled_population_list.clear();
+    this->sampled_population_list.reserve( this->number_of_samples );
+
+    auto oit = object->sampled_population_list.cbegin();
+    auto it = this->sampled_population_list.begin();
+    for( ; oit != object->sampled_population_list.cend() && it != this->sampled_population_list.end();
+         ++oit, ++it )
+    {
+      ( *it )->copy( *oit );
+    }
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   sample::~sample()
   {
     std::for_each(
@@ -53,7 +87,7 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sample::create_population()
   {
-    if( this->population ) this->delete_population();
+    this->delete_population();
     this->population = new sampsim::population;
     this->population->set_sample_mode( true );
     this->owns_population = true;
@@ -83,14 +117,17 @@ namespace sample
 
     // create multinomial function using town populations (and unselect all towns in the process)
     this->population->set_sample_mode( false );
-    int total_individuals = this->population->count_individuals().second;
+    std::vector< std::pair<unsigned int, unsigned int> > count_vector = this->population->count_individuals();
+    unsigned int total_individuals = count_vector[0].first + count_vector[0].second;
     std::map< sampsim::town*, double > coefficients;
     for( auto town_it = this->population->get_town_list_cbegin();
          town_it != this->population->get_town_list_cend();
          ++town_it )
     {
       sampsim::town *town = *town_it;
-      coefficients[town] = static_cast< double >( town->count_individuals().second ) /
+      count_vector = town->count_individuals();
+      unsigned int town_individuals = count_vector[0].first + count_vector[0].second;
+      coefficients[town] = static_cast< double >( town_individuals ) /
                            static_cast< double >( total_individuals );
     }
     this->population->set_sample_mode( true );
@@ -157,7 +194,11 @@ namespace sample
         building* b = this->select_next_building( tree );
 
         // set the first building
-        if( NULL == this->first_building ) this->first_building = b;
+        if( NULL == this->first_building )
+        {
+          this->first_building = b;
+          std::cout << "######## setting first building to " << b << " at " << b->get_position().get_a() << std::endl;
+        }
 
         int count = 0;
         // select households within the building (this is step 4 of the algorithm)
@@ -277,32 +318,77 @@ namespace sample
 
     std::ofstream stream( filename + ".txt", std::ofstream::app );
 
-    unsigned int individual_count = 0, diseased_individual_count = 0;
-    for( auto it = this->get_sampled_population_list_cbegin();
-              it != this->get_sampled_population_list_cend();
-              ++it )
+    std::vector< std::pair<unsigned int, unsigned int> > total_vector;
+    std::vector< double > mean_vector, stdev_vector, squared_sum_vector;
+    std::vector< std::vector< std::pair<unsigned int, unsigned int> > > sample_count_vector;
+
+    mean_vector.resize( 9, 0 );
+    stdev_vector.resize( 9, 0 );
+    squared_sum_vector.resize( 9, 0 );
+    sample_count_vector.reserve( this->sampled_population_list.size() );
+
+    for( unsigned int s = 0; s < this->sampled_population_list.size(); s++ )
     {
-      std::pair<unsigned int, unsigned int> count = (*it)->count_individuals();
-      diseased_individual_count += count.first;
-      individual_count += count.second;
+      sample_count_vector[s] = this->sampled_population_list[s]->count_individuals();
+      for( std::vector< std::pair<unsigned int, unsigned int> >::size_type i = 0; i < 9; i++ )
+      {
+        total_vector[i].first += sample_count_vector[s][i].first;
+        total_vector[i].second += sample_count_vector[s][i].second;
+      }
     }
 
-    double prevalence = static_cast<double>( diseased_individual_count ) / static_cast<double>( individual_count ),
-           squared_sum = 0.0;
-    for( auto it = this->get_sampled_population_list_cbegin();
-              it != this->get_sampled_population_list_cend();
-              ++it )
+    // determine standard deviations for all prevalences
+    for( std::vector< std::pair<unsigned int, unsigned int> >::size_type i = 0; i < 9; i++ )
     {
-      std::pair<unsigned int, unsigned int> count = (*it)->count_individuals();
-      double diff = ( static_cast<double>( count.first ) / static_cast<double>( count.second ) ) - prevalence;
-      squared_sum += diff*diff;
+      for( unsigned int s = 0; s < this->sampled_population_list.size(); s++ )
+      {
+        double diff = 
+          ( static_cast<double>( sample_count_vector[s][i].first ) /
+            static_cast<double>( sample_count_vector[s][i].first + sample_count_vector[s][i].second ) ) -
+          ( static_cast<double>( total_vector[i].first ) /
+            static_cast<double>( total_vector[i].first + total_vector[i].second ) );
+        squared_sum_vector[i] += diff*diff;
+      }
+      mean_vector[i] = squared_sum_vector[i] /
+                       static_cast<double>( total_vector[i].first + total_vector[i].second );
     }
-    double stdev = sqrt( squared_sum / this->sampled_population_list.size() );
 
-    stream << "sampled invididual count: " << individual_count << std::endl;
-    stream << "sampled diseased individual count: " << diseased_individual_count << std::endl;
-    stream << "sampled prevalence: " << prevalence << " (" << stdev << ")" << std::endl;
-    
+    stream << "individual count: " << total_vector[0].first << " diseased of "
+           << ( total_vector[0].first + total_vector[0].second ) << " total "
+           << "(prevalence " << mean_vector[0] << " (" << stdev_vector[0] << "))" << std::endl;
+
+    stream << "adult count: " << total_vector[1].first << " diseased of "
+           << ( total_vector[1].first + total_vector[1].second ) << " total "
+           << "(prevalence " << mean_vector[1] << " (" << stdev_vector[1] << "))" << std::endl;
+
+    stream << "child count: " << total_vector[2].first << " diseased of "
+           << ( total_vector[2].first + total_vector[2].second ) << " total "
+           << "(prevalence " << mean_vector[2] << " (" << stdev_vector[2] << "))" << std::endl;
+
+    stream << "male count: " << total_vector[3].first << " diseased of "
+           << ( total_vector[3].first + total_vector[3].second ) << " total "
+           << "(prevalence " << mean_vector[3] << " (" << stdev_vector[3] << "))" << std::endl;
+
+    stream << "female count: " << total_vector[4].first << " diseased of "
+           << ( total_vector[4].first + total_vector[4].second ) << " total "
+           << "(prevalence " << mean_vector[4] << " (" << stdev_vector[4] << "))" << std::endl;
+
+    stream << "male adult count: " << total_vector[5].first << " diseased of "
+           << ( total_vector[5].first + total_vector[5].second ) << " total "
+           << "(prevalence " << mean_vector[5] << " (" << stdev_vector[5] << "))" << std::endl;
+
+    stream << "female adult count: " << total_vector[6].first << " diseased of "
+           << ( total_vector[6].first + total_vector[6].second ) << " total "
+           << "(prevalence " << mean_vector[6] << " (" << stdev_vector[6] << "))" << std::endl;
+
+    stream << "male child count: " << total_vector[7].first << " diseased of "
+           << ( total_vector[7].first + total_vector[7].second ) << " total "
+           << "(prevalence " << mean_vector[7] << " (" << stdev_vector[7] << "))" << std::endl;
+
+    stream << "female child count: " << total_vector[8].first << " diseased of "
+           << ( total_vector[8].first + total_vector[8].second ) << " total "
+           << "(prevalence " << mean_vector[8] << " (" << stdev_vector[8] << "))" << std::endl;
+
     stream.close();
   }
 
@@ -407,30 +493,6 @@ namespace sample
     json["age"] = sampsim::get_age_type_name( this->age );
     json["sex"] = sampsim::get_sex_type_name( this->sex );
 
-    unsigned int diseased = 0, total = 0;
-    for( auto it = this->get_sampled_population_list_cbegin();
-              it != this->get_sampled_population_list_cend();
-              ++it )
-    {
-      std::pair<unsigned int, unsigned int> count = (*it)->count_individuals();
-      diseased += count.first;
-      total += count.second;
-    }
-
-    double prevalence = static_cast<double>( diseased ) / static_cast<double>( total ), squared_sum = 0.0;
-    for( auto it = this->get_sampled_population_list_cbegin();
-              it != this->get_sampled_population_list_cend();
-              ++it )
-    {
-      std::pair<unsigned int, unsigned int> count = (*it)->count_individuals();
-      double diff = ( static_cast<double>( count.first ) / static_cast<double>( count.second ) ) - prevalence;
-      squared_sum += diff*diff;
-    }
-
-    json["sampled_diseased_individual_sum"] = diseased;
-    json["sampled_individual_sum"] = total;
-    json["sampled_disease_prevalence"] = prevalence;
-    json["sampled_disease_stdev"] = sqrt( squared_sum / this->sampled_population_list.size() );
     json["population"] = Json::Value( Json::objectValue );
     this->population->to_json( json["population"] );
 

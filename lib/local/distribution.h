@@ -78,15 +78,13 @@ namespace sampsim
      */
     distribution() : distribution_type( distribution::UNKNOWN ) {}
 
-    /**
-     * Copies another distribution's values into the current object
-     */
-    void copy( const distribution* );
-
-    /**
-     * Returns the name of the object's class
-     */
+    // defining pure abstract methods
     std::string get_name() const { return "distribution"; }
+    void copy( const base_object* o ) { this->copy( static_cast<const distribution*>( o ) ); }
+    void copy( const distribution* );
+    void from_json( const Json::Value& );
+    void to_json( Json::Value& ) const;
+    void to_csv( std::ostream&, std::ostream& ) const;
 
     /**
      * Returns the distribution's type code
@@ -149,32 +147,7 @@ namespace sampsim
      */
     std::string to_string();
 
-    /**
-     * Deserialize the distribution
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void from_json( const Json::Value& );
-
-    /**
-     * Serialize the distribution
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void to_json( Json::Value& ) const;
-
-    /**
-     * Output the distribution to two CSV files (households and individuals)
-     * 
-     * All objects must provide an implementation for printing to a CSV (comma separated value) format.
-     * Two streams are expected, the first is for household data and the second for individual data.
-     */
-    virtual void to_csv( std::ostream&, std::ostream& ) const;
-
   protected:
-
     /**
      * The distribution's current type.
      */

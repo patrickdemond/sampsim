@@ -46,7 +46,7 @@ namespace sampsim
   class population : public model_object
   {
   public:
-    /**
+   /**
      * Constructor
      */
     population();
@@ -56,10 +56,16 @@ namespace sampsim
      */
     ~population();
 
-    /**
-     * Returns the name of the object's class
-     */
+    // defining pure abstract methods
     std::string get_name() const { return "population"; }
+    void copy( const base_object* o ) { this->copy( static_cast<const population*>( o ) ); }
+    void copy( const population* );
+    void from_json( const Json::Value& );
+    void to_json( Json::Value& ) const;
+    void to_csv( std::ostream&, std::ostream& ) const;
+    std::vector< std::pair<unsigned int, unsigned int> >count_individuals() const;
+    void select() {} // does nothing
+    void unselect() {} // does nothing
 
     /**
      * Iterator access to child towns
@@ -384,64 +390,8 @@ namespace sampsim
      */
     void set_disease( trend *mean, trend *sd );
 
-    /**
-     * Get the number of diseased and total number of individuals in the population
-     * 
-     * Returns a pair containing the total number of individuals who have disease and the total number of
-     * individuals in total in the population.
-     * This method iterates over all towns (and all tiles in those towns, etc) every time it is called, so
-     * it should only be used when re-counting is necessary.  A population contains no towns (so no
-     * individuals) until its create() method is called.
-     */
-    std::pair<unsigned int, unsigned int> count_individuals() const;
-
-    /**
-     * Copies another population's values into the current object
-     */
-    void copy( const population* );
-
-    /**
-     * Deserialize the population
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void from_json( const Json::Value& );
-
-    /**
-     * Serialize the population
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void to_json( Json::Value& ) const;
-
-    /**
-     * Output the population to two CSV files (households and individuals)
-     * 
-     * All objects must provide an implementation for printing to a CSV (comma separated value) format.
-     * Two streams are expected, the first is for household data and the second for individual data.
-     */
-    virtual void to_csv( std::ostream&, std::ostream& ) const;
-
   protected:
-    /**
-     * Create all towns belonging to the population
-     * 
-     * This method will create the population according to its internal parameters.  The method
-     * creates towns but does not define their properties.  After calling this function all individuals
-     * belonging to the population will exist but without parameters such as income, disease status,
-     * disease risk, etc.
-     */
     void create();
-
-    /**
-     * Define all parameters for all towns belonging to the population
-     * 
-     * This method will determine all factors such as income, disease status, disease risk, etc for
-     * all individuals belonging to the population.  If this method is called before the individuals
-     * have been created nothing will happen.
-     */
     void define();
 
   private:

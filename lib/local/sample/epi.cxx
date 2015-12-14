@@ -34,6 +34,18 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void epi::copy( const epi* object )
+  {
+    this->number_of_sectors = object->number_of_sectors;
+    this->current_sector_index = object->current_sector_index;
+    this->skip = object->skip;
+    this->start_angle_defined = object->start_angle_defined;
+    this->start_angle = object->start_angle;
+    this->first_building_index = object->first_building_index;
+    this->current_building = object->current_building;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   building* epi::select_next_building( sampsim::building_tree &tree )
   {
     // Steps 1, 2 and 3 are done by child classes in select_initial_building()

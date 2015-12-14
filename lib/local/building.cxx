@@ -24,7 +24,6 @@ namespace sampsim
   building::building( tile *parent )
   {
     this->parent = parent;
-    this->selected = false;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -171,19 +170,25 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  std::pair<unsigned int, unsigned int> building::count_individuals() const
+  std::vector< std::pair<unsigned int, unsigned int> > building::count_individuals() const
   {
     bool sample_mode = this->get_population()->get_sample_mode();
-    std::pair<unsigned int, unsigned int> count( 0, 0 );
+    std::vector< std::pair<unsigned int, unsigned int> > count_vector;
+    count_vector.resize( 9, std::pair<unsigned int, unsigned int>( 0, 0 ) );
     for( auto it = this->household_list.begin(); it != this->household_list.end(); ++it )
+    {
       if( !sample_mode || (*it)->is_selected() )
       {
-        std::pair<unsigned int, unsigned int> sub_count = (*it)->count_individuals();
-        count.first += sub_count.first;
-        count.second += sub_count.second;
+        std::vector< std::pair<unsigned int, unsigned int> > sub_count_vector = (*it)->count_individuals();
+        for( std::vector< std::pair<unsigned int, unsigned int> >::size_type i = 0; i < 9; i++ )
+        {
+          count_vector[i].first += sub_count_vector[i].first;
+          count_vector[i].second += sub_count_vector[i].second;
+        }
       }
+    }
 
-    return count;
+    return count_vector;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

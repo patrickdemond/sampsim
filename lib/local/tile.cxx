@@ -60,13 +60,15 @@ namespace sampsim
     double current_density = 0;
     double area = this->get_area();
     bool stop_after = 0 != ( this->index.first + this->index.second ) % 2;
+    std::vector< std::pair<unsigned int, unsigned int> > count_vector;
 
     while( current_density < this->population_density )
     {
       // create the building
       building *b = new building( this );
       b->create();
-      total_individuals += b->count_individuals().second;
+      count_vector = b->count_individuals();
+      total_individuals += ( count_vector[0].first + count_vector[0].second );
       current_density = static_cast< double >( total_individuals ) / area;
 
       // store it in the building list, but not if we are not stopping after the density is met
@@ -82,8 +84,7 @@ namespace sampsim
     }
 
     if( utilities::verbose )
-      utilities::output( "finished creating tile: population %d in %d buildings",
-                         this->count_individuals().second,
+      utilities::output( "finished creating tile: %d buildings created",
                          this->building_list.size() );
   }
 
@@ -180,19 +181,25 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  std::pair<unsigned int, unsigned int> tile::count_individuals() const
+  std::vector< std::pair<unsigned int, unsigned int> > tile::count_individuals() const
   {
     bool sample_mode = this->get_population()->get_sample_mode();
-    std::pair<unsigned int, unsigned int> count( 0, 0 );
+    std::vector< std::pair<unsigned int, unsigned int> > count_vector;
+    count_vector.resize( 9, std::pair<unsigned int, unsigned int>( 0, 0 ) );
     for( auto it = this->building_list.begin(); it != this->building_list.end(); ++it )
+    {
       if( !sample_mode || (*it)->is_selected() )
       {
-        std::pair<unsigned int, unsigned int> sub_count = (*it)->count_individuals();
-        count.first += sub_count.first;
-        count.second += sub_count.second;
+        std::vector< std::pair<unsigned int, unsigned int> > sub_count_vector = (*it)->count_individuals();
+        for( std::vector< std::pair<unsigned int, unsigned int> >::size_type i = 0; i < 9; i++ )
+        {
+          count_vector[i].first += sub_count_vector[i].first;
+          count_vector[i].second += sub_count_vector[i].second;
+        }
       }
+    }
 
-    return count;
+    return count_vector;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

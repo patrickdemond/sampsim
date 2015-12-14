@@ -62,15 +62,16 @@ namespace sampsim
      */
     ~individual();
 
-    /**
-     * Copies another individual's values into the current object
-     */
-    void copy( const individual* );
-
-    /**
-     * Returns the name of the object's class
-     */
+    // defining pure abstract methods
     std::string get_name() const { return "individual"; }
+    void copy( const base_object* o ) { this->copy( static_cast<const individual*>( o ) ); }
+    void copy( const individual* );
+    void from_json( const Json::Value& );
+    void to_json( Json::Value& ) const;
+    void to_csv( std::ostream&, std::ostream& ) const;
+    std::vector< std::pair<unsigned int, unsigned int> >count_individuals() const;
+    void select();
+    void unselect() { this->selected = false; }
 
     /**
      * Returns the individual's parent household
@@ -127,53 +128,9 @@ namespace sampsim
      */
     void set_disease( const bool disease ) { this->disease = disease; }
 
-    /**
-     * Returns whether the individual is selected or not
-     * 
-     * Selection works in the following manner: selecting an object also selects its parent but not its
-     * children.  Unselecting an object also unselects its children but not its parent.  This mechanism
-     * therefore defines "selection" as true if any of its children are selected, and allows for
-     * unselecting all children by unselecting the object.  Only towns, buildings, households and
-     * individuals may be selected/unselected.
-     */
-    bool is_selected() const { return this->selected; }
-
-    /**
-     * Selects the individual
-     * 
-     * This will also select the individual's parent household
-     */
-    void select();
-
-    /**
-     * Unselects the individual
-     */
-    void unselect() { this->selected = false; }
-
   protected:
-    /**
-     * Deserialize the individual
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void from_json( const Json::Value& );
-
-    /**
-     * Serialize the individual
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void to_json( Json::Value& ) const;
-
-    /**
-     * Output the individual to two CSV files (households and individuals)
-     * 
-     * All objects must provide an implementation for printing to a CSV (comma separated value) format.
-     * Two streams are expected, the first is for household data and the second for individual data.
-     */
-    virtual void to_csv( std::ostream&, std::ostream& ) const;
+    void create();
+    void define();
 
   private:
     /**
@@ -195,11 +152,6 @@ namespace sampsim
      * The individual's disease status
      */
     bool disease;
-
-    /**
-     * Whether the individual is selected
-     */
-    bool selected;
   };
 }
 

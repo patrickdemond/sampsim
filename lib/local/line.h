@@ -39,15 +39,13 @@ namespace sampsim
      */
     line( coordinate i = coordinate(), double a = 0.0 ) : intercept(i), angle(a) {}
     
-    /**
-     * Copies another line's values into the current object
-     */
-    void copy( const line* );
-
-    /**
-     * Returns the name of the object's class
-     */
+    // defining pure abstract methods
     std::string get_name() const { return "line"; }
+    void copy( const base_object* o ) { this->copy( static_cast<const line*>( o ) ); }
+    void copy( const line* );
+    void from_json( const Json::Value& );
+    void to_json( Json::Value& ) const;
+    void to_csv( std::ostream&, std::ostream& ) const {}
 
     /**
      * Comparison operator
@@ -68,30 +66,6 @@ namespace sampsim
      * Returns true if the two lines do not have the same x, y or centroid
      */
     bool operator != ( const line l ) const { return !( *this == l ); }
-
-    /**
-     * Deserialize the line
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void from_json( const Json::Value& );
-
-    /**
-     * Serialize the line
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void to_json( Json::Value& ) const;
-
-    /**
-     * Output the line to two CSV files (households and individuals)
-     * 
-     * All objects must provide an implementation for printing to a CSV (comma separated value) format.
-     * Two streams are expected, the first is for household data and the second for individual data.
-     */
-    virtual void to_csv( std::ostream&, std::ostream& ) const {}
 
     /**
      * Returns the distance from a point to the line

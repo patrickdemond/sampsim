@@ -63,10 +63,16 @@ namespace sampsim
      */
     ~town();
 
-    /**
-     * Returns the name of the object's class
-     */
+    // defining pure abstract methods
     std::string get_name() const { return "town"; }
+    void copy( const base_object* o ) { this->copy( static_cast<const town*>( o ) ); }
+    void copy( const town* );
+    void from_json( const Json::Value& );
+    void to_json( Json::Value& ) const;
+    void to_csv( std::ostream&, std::ostream& ) const;
+    std::vector< std::pair<unsigned int, unsigned int> >count_individuals() const;
+    void select();
+    void unselect();
 
     /**
      * Iterator access to child tiles
@@ -221,17 +227,6 @@ namespace sampsim
     trend* get_population_density() { return this->population_density; }
 
     /**
-     * Get the number of diseased and total number of individuals in the population
-     * 
-     * Returns a pair containing the total number of individuals who have disease and the total number of
-     * individuals in total in the town.
-     * This method iterates over all towns (and all tiles in those towns, etc) every time it is called, so
-     * it should only be used when re-counting is necessary.  A townn contains no tiles (so no
-     * individuals) until its create() method is called.
-     */
-    std::pair<unsigned int, unsigned int> count_individuals() const;
-
-    /**
      * Returns a coordinate at the centre of the town
      * 
      * This coordinate is based on the number of tiles in the X and Y directions as well as tile width.
@@ -262,77 +257,9 @@ namespace sampsim
      */
     double get_area() const;
 
-    /**
-     * Returns whether the town is selected or not
-     * 
-     * Selection works in the following manner: selecting an object also selects its parent but not its
-     * children.  Unselecting an object also unselects its children but not its parent.  This mechanism
-     * therefore defines "selection" as true if any of its children are selected, and allows for
-     * unselecting all children by unselecting the object.  Only towns, buildings, households and
-     * individuals may be selected/unselected.
-     */
-    bool is_selected() const { return this->selected; }
-
-    /**
-     * Selects the household
-     */
-    void select() { this->selected = true; }
-
-    /**
-     * Unselects the household
-     * 
-     * This will also unselect all children living in this household
-     */
-    void unselect();
-
-    /**
-     * Copies another town's values into the current object
-     */
-    void copy( const town* );
-
   protected:
-    /**
-     * Create all tiles belonging to the town
-     * 
-     * This method will create the town according to its internal parameters.  The method
-     * creates tiles but does not define their properties.  After calling this function all individuals
-     * belonging to the town will exist but without parameters such as income, disease status,
-     * disease risk, etc.
-     */
     void create();
-
-    /**
-     * Define all parameters for all tiles belonging to the tile
-     * 
-     * This method will determine all factors such as income, disease status, disease risk, etc for
-     * all individuals belonging to the town.  If this method is called before the individuals
-     * have been created nothing will happen.
-     */
     void define();
-
-    /**
-     * Deserialize the town
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void from_json( const Json::Value& );
-
-    /**
-     * Serialize the town
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void to_json( Json::Value& ) const;
-
-    /**
-     * Output the town to two CSV files (households and individuals)
-     * 
-     * All objects must provide an implementation for printing to a CSV (comma separated value) format.
-     * Two streams are expected, the first is for household data and the second for individual data.
-     */
-    virtual void to_csv( std::ostream&, std::ostream& ) const;
 
   private:
     /**
@@ -409,11 +336,6 @@ namespace sampsim
      * Population density is determined by tile position according to this trend.
      */
     trend *population_density;
-
-    /**
-     * Whether the town is selected
-     */
-    bool selected;
 
     /**
      * A container holding all tiles belonging to the town.  The town is responsible

@@ -34,6 +34,11 @@ namespace sampsim
     base_object() : debug_mode( false ) {}
 
     /**
+     * Copies another object's properties into this object
+     */
+    virtual void copy( const base_object* ) = 0;
+
+    /**
      * Determines whether to output debug information for this object
      */
     bool debug_mode;
@@ -42,14 +47,6 @@ namespace sampsim
      * Returns the name of the object's class
      */
     virtual std::string get_name() const = 0;
-
-  protected:
-    /**
-     * Used to display debug messages to the standard output.
-     * 
-     * This method will only display messages if the "debug_mode" member is true.
-     */
-    void debug( std::string message, ... ) const;
 
     /**
      * Deserialize object
@@ -74,6 +71,14 @@ namespace sampsim
      * Two streams are expected, the first is for household data and the second for individual data.
      */
     virtual void to_csv( std::ostream&, std::ostream& ) const = 0;
+
+  protected:
+    /**
+     * Used to display debug messages to the standard output.
+     * 
+     * This method will only display messages if the "debug_mode" member is true.
+     */
+    void debug( std::string message, ... ) const;
   };
 }
 

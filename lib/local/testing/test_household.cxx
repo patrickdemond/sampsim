@@ -30,6 +30,7 @@ TEST( test_household )
   // create a population
   sampsim::population *population = new sampsim::population;
   create_test_population( population );
+  std::vector< std::pair<unsigned int, unsigned int> > count_vector;
 
   for( auto town_it = population->get_town_list_begin();
        town_it != population->get_town_list_end();
@@ -54,32 +55,41 @@ TEST( test_household )
           sampsim::individual *individual = *household->get_individual_list_begin();
 
           cout << "Testing household population..." << endl;
-          CHECK( 0 != household->count_individuals().second );
+          count_vector = household->count_individuals();
+          CHECK( 0 != ( count_vector[0].first + count_vector[0].second ) );
 
           cout << "Turning on sample mode" << endl;
           population->set_sample_mode( true );
 
           cout << "Testing that household now has no population..." << endl;
-          CHECK_EQUAL( 0, household->count_individuals().second );
+          count_vector = household->count_individuals();
+          for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
+            CHECK_EQUAL( 0, (*it).first + (*it).second );
 
           cout << "Testing that household with selected individual has population..." << endl;
           individual->select();
-          CHECK( 0 != household->count_individuals().second );
+          count_vector = household->count_individuals();
+          CHECK( 0 != ( count_vector[0].first + count_vector[0].second ) );
 
           cout << "Testing that household with unselected individual has no population..." << endl;
           individual->unselect();
-          CHECK_EQUAL( 0, household->count_individuals().second );
+          count_vector = household->count_individuals();
+          for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
+            CHECK_EQUAL( 0, (*it).first + (*it).second );
 
           cout << "Testing that unselected household has no population..." << endl;
           individual->select();
           household->unselect();
-          CHECK_EQUAL( 0, household->count_individuals().second );
+          count_vector = household->count_individuals();
+          for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
+            CHECK_EQUAL( 0, (*it).first + (*it).second );
 
           cout << "Turning off sample mode" << endl;
           population->set_sample_mode( false );
 
           cout << "Testing household population..." << endl;
-          CHECK( 0 != household->count_individuals().second );
+          count_vector = household->count_individuals();
+          CHECK( 0 != ( count_vector[0].first + count_vector[0].second ) );
         }
       }
     }

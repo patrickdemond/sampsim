@@ -25,7 +25,6 @@ namespace sampsim
   household::household( building *parent )
   {
     this->parent = parent;
-    this->selected = false;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -69,6 +68,7 @@ namespace sampsim
     // create the first individual an adult of random sex
     bool male = 0 == utilities::random( 0, 1 );
     individual *i = new individual( this );
+    i->create();
     i->set_age( ADULT );
     i->set_sex( male ? MALE : FEMALE );
     this->individual_list.push_back( i );
@@ -96,6 +96,8 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void household::define()
   {
+    for( auto it = this->individual_list.begin(); it != this->individual_list.end(); ++it ) (*it)->define();
+
     // income and disease are Normal deviates from the tile average
     tile *tile = this->get_tile();
     this->income = tile->get_income_distribution()->generate_value();
@@ -148,9 +150,11 @@ namespace sampsim
     unsigned int town_index = this->get_town()->get_index();
 
     // write the household index and position to the household stream
+    std::vector< std::pair<unsigned int, unsigned int> > count_vector = this->count_individuals();
+    unsigned int total_individuals = count_vector[0].first + count_vector[0].second;
     household_stream << town_index << "," << utilities::household_index << ",";
     this->get_building()->get_position().to_csv( household_stream, individual_stream );
-    household_stream << "," << this->count_individuals().second
+    household_stream << "," << total_individuals
                      << "," << this->income << ","
                      << this->disease_risk;
 
@@ -176,18 +180,25 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  std::pair<unsigned int, unsigned int> household::count_individuals() const
+  std::vector< std::pair<unsigned int, unsigned int> > household::count_individuals() const
   {
     bool sample_mode = this->get_population()->get_sample_mode();
-    std::pair<unsigned int, unsigned int> count( 0, 0 );
+    std::vector< std::pair<unsigned int, unsigned int> > count_vector;
+    count_vector.resize( 9, std::pair<unsigned int, unsigned int>( 0, 0 ) );
     for( auto it = this->individual_list.cbegin(); it != this->individual_list.cend(); ++it )
+    {
       if( !sample_mode || (*it)->is_selected() )
       {
-        if( (*it)->is_disease() ) count.first++; // count of all individuals with disease
-        count.second++; // count of all individuals
+        std::vector< std::pair<unsigned int, unsigned int> > sub_count_vector = (*it)->count_individuals();
+        for( std::vector< std::pair<unsigned int, unsigned int> >::size_type i = 0; i < 9; i++ )
+        {
+          count_vector[i].first += sub_count_vector[i].first;
+          count_vector[i].second += sub_count_vector[i].second;
+        }
       }
+    }
 
-    return count;
+    return count_vector;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

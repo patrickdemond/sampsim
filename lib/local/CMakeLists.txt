@@ -33,6 +33,7 @@ SET( SAMPSIM_LIB_SOURCE
 # Define abstract classes in the following block
 SET_SOURCE_FILES_PROPERTIES(
   base_object.cxx
+  model_object.cxx
   ABSTRACT
 )
 

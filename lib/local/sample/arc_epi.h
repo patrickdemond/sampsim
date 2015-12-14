@@ -48,10 +48,12 @@ namespace sample
      */
     arc_epi() : arc_angle( 0 ) {}
 
-    /**
-     * Returns the name of the object's class
-     */
+    // defining pure abstract methods
     std::string get_name() const { return "arc_epi"; }
+    void copy( const base_object* o ) { this->copy( static_cast<const arc_epi*>( o ) ); }
+    void copy( const arc_epi* );
+    void from_json( const Json::Value& );
+    void to_json( Json::Value& ) const;
 
     /**
      * Returns the name of the sampling method
@@ -67,22 +69,6 @@ namespace sample
      * Returns the size of the arc (in radians) used to determine the initial building list
      */
     double get_arc_angle() { return this->arc_angle; }
-
-    /**
-     * Deserialize the sample
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    void from_json( const Json::Value& );
-
-    /**
-     * Serialize the sample
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    void to_json( Json::Value& ) const;
 
     /**
      * Returns the header for generated CSV files

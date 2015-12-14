@@ -24,6 +24,12 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void sized_sample::copy( const sized_sample* object )
+  {
+    this->size = object->size;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sized_sample::set_size( const unsigned int size )
   {
     if( utilities::verbose ) utilities::output( "setting size to %d", size );

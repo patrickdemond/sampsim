@@ -41,10 +41,10 @@ namespace sample
   class random : public sized_sample
   {
   public:
-    /**
-     * Returns the name of the object's class
-     */
+    // defining pure abstract methods
     std::string get_name() const { return "random"; }
+    void copy( const base_object* o ) { this->copy( static_cast<const random*>( o ) ); }
+    void copy( const random* );
 
     /**
      * Returns the name of the sampling method

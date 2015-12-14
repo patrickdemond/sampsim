@@ -48,12 +48,14 @@ namespace sample
     /**
      * Construction
      */
-     square_gps() : number_of_squares( 0 ), square_width_x( 0 ), square_width_y( 0 ) {}
+    square_gps() : number_of_squares( 0 ), square_width_x( 0 ), square_width_y( 0 ) {}
 
-    /**
-     * Returns the name of the object's class
-     */
+    // defining pure abstract methods
     std::string get_name() const { return "square_gps"; }
+    void copy( const base_object* o ) { this->copy( static_cast<const square_gps*>( o ) ); }
+    void copy( const square_gps* );
+    void from_json( const Json::Value& );
+    void to_json( Json::Value& ) const;
 
     /**
      * Returns the name of the sampling method
@@ -69,22 +71,6 @@ namespace sample
      * Returns the number of squares (per direction) to divide towns into
      */
     unsigned int get_number_of_squares() { return this->number_of_squares; }
-
-    /**
-     * Deserialize the sample
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    void from_json( const Json::Value& );
-
-    /**
-     * Serialize the sample
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    void to_json( Json::Value& ) const;
 
     /**
      * Returns the header for generated CSV files

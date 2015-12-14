@@ -28,6 +28,7 @@ TEST( test_tile )
   // create a population
   sampsim::population *population = new sampsim::population;
   create_test_population( population );
+  std::vector< std::pair<unsigned int, unsigned int> > count_vector;
 
   for( auto town_it = population->get_town_list_begin();
        town_it != population->get_town_list_end();
@@ -59,27 +60,36 @@ TEST( test_tile )
       CHECK_EQUAL( ( y + 1 ) * width, extent.second.y );
 
       cout << "Testing tile population..." << endl;
-      CHECK( 0 != tile->count_individuals().second );
+      count_vector = tile->count_individuals();
+      for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
+        CHECK( 0 != ( (*it).first + (*it).second ) );
 
       cout << "Turning on sample mode" << endl;
       population->set_sample_mode( true );
 
       cout << "Testing that tile now has no population..." << endl;
-      CHECK_EQUAL( 0, tile->count_individuals().second );
+      count_vector = tile->count_individuals();
+      for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
+        CHECK_EQUAL( 0, (*it).first + (*it).second );
 
       cout << "Testing that tile with selected individual has population..." << endl;
       individual->select();
-      CHECK( 0 != tile->count_individuals().second );
+      count_vector = tile->count_individuals();
+      CHECK( 0 != ( count_vector[0].first + count_vector[0].second ) );
 
       cout << "Testing that tile with unselected individual has no population..." << endl;
       individual->unselect();
-      CHECK_EQUAL( 0, tile->count_individuals().second );
+      count_vector = tile->count_individuals();
+      for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
+        CHECK_EQUAL( 0, (*it).first + (*it).second );
 
       cout << "Turning off sample mode" << endl;
       population->set_sample_mode( false );
 
       cout << "Testing tile population..." << endl;
-      CHECK( 0 != tile->count_individuals().second );
+      count_vector = tile->count_individuals();
+      for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
+        CHECK( 0 != ( (*it).first + (*it).second ) );
     }
   }
 

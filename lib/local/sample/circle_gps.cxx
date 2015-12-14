@@ -19,6 +19,12 @@ namespace sampsim
 namespace sample
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void circle_gps::copy( const circle_gps* object )
+  {
+    this->radius = object->radius;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   building* circle_gps::select_next_building( sampsim::building_tree& tree )
   {
     // make sure the strip width has been set

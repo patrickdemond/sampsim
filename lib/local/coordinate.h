@@ -37,15 +37,13 @@ namespace sampsim
      */
     coordinate( const double x = 0, const double y = 0 ) : x(x), y(y), cx(0), cy(0) {}
     
-    /**
-     * Copies another coordinate's values into the current object
-     */
-    void copy( const coordinate* );
-
-    /**
-     * Returns the name of the object's class
-     */
+    // defining pure abstract methods
     std::string get_name() const { return "coordinate"; }
+    void copy( const base_object* o ) { this->copy( static_cast<const coordinate*>( o ) ); }
+    void copy( const coordinate* );
+    void from_json( const Json::Value& );
+    void to_json( Json::Value& ) const;
+    void to_csv( std::ostream&, std::ostream& ) const;
 
     /**
      * Comparison operator
@@ -118,30 +116,6 @@ namespace sampsim
      * Divides an existing coordinate by a scalar value.  For example: (x, y) = (x0/a, y0/a)
      */
     coordinate& operator /= ( const double a ) { this->x /= a; this->y /= a; return (*this); }
-
-    /**
-     * Deserialize the coordinate
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void from_json( const Json::Value& );
-
-    /**
-     * Serialize the coordinate
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    virtual void to_json( Json::Value& ) const;
-
-    /**
-     * Output the coordinate to two CSV files (households and individuals)
-     * 
-     * All objects must provide an implementation for printing to a CSV (comma separated value) format.
-     * Two streams are expected, the first is for household data and the second for individual data.
-     */
-    virtual void to_csv( std::ostream&, std::ostream& ) const;
 
     /**
      * Returns the scalar distance to another coordinate

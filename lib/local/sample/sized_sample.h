@@ -51,6 +51,12 @@ namespace sample
      */
     sized_sample();
 
+    // defining pure abstract methods
+    void copy( const base_object* o ) { this->copy( static_cast<const sized_sample*>( o ) ); }
+    void copy( const sized_sample* );
+    virtual void from_json( const Json::Value& );
+    virtual void to_json( Json::Value& ) const;
+
     /**
      * Sets the number of individuals to select per sample
      */
@@ -60,22 +66,6 @@ namespace sample
      * Returns the number of individuals to select per sample
      */
     unsigned int get_size() const { return this->size; }
-
-    /**
-     * Deserialize the sample
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    void from_json( const Json::Value& );
-
-    /**
-     * Serialize the sample
-     * 
-     * All objects must provide an implementation for converting themselves to and from a
-     * JSON-encoded string.  JSON is a lightweight data-interchange format (see http://json.org/).
-     */
-    void to_json( Json::Value& ) const;
 
     /**
      * Returns the header for generated CSV files

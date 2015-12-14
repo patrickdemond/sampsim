@@ -121,8 +121,7 @@ namespace sampsim
       this->town_list.push_back( t );
     }
 
-    utilities::output( "finished creating population, %d individuals generated",
-                       this->count_individuals().second );
+    utilities::output( "finished creating population" );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -130,17 +129,20 @@ namespace sampsim
   {
     utilities::output( "defining population" );
 
+    std::vector< std::pair<unsigned int, unsigned int> > count_vector = this->count_individuals();
+    unsigned int total_individuals = count_vector[0].first + count_vector[0].second;
+
     // calculate the mean( log(individuals) ) from all towns
     double sum_log_individual_count = 0;
     for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
-      sum_log_individual_count = log10( (*it)->count_individuals().second );
+      sum_log_individual_count = log10( total_individuals );
     double mean_log_individual_count = sum_log_individual_count / this->number_of_towns;
 
     // now set the regression factor for all trends in each town
     for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
     {
       town *t = *it;
-      double factor = log10( t->count_individuals().second ) - mean_log_individual_count;
+      double factor = log10( total_individuals ) - mean_log_individual_count;
 
       // here we set the regression factor for all trends
       // Note: the regression factor shouldn't be confused with the coefficient's regression coefficient.
@@ -158,7 +160,7 @@ namespace sampsim
       t->define();
     }
 
-    utilities::output( "finished defining population" );
+    utilities::output( "finished defining population, %d individuals generated", total_individuals );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -243,14 +245,62 @@ namespace sampsim
   {
     std::ofstream stream( filename + ".txt", std::ofstream::out );
 
-    std::pair<unsigned int, unsigned int> count = this->count_individuals();
+    std::vector< std::pair<unsigned int, unsigned int> > count_vector = this->count_individuals();
 
-    stream << "individual count: " << count.second << std::endl;
-    stream << "diseased individual count: " << count.first << std::endl;
-    stream << "prevalence: "
-           << ( static_cast< double >( count.first ) / static_cast< double >( count.second ) )
-           << std::endl;
-    
+    stream << "individual count: " << count_vector[0].first << " diseased of "
+           << ( count_vector[0].first + count_vector[0].second ) << " total "
+           << "(prevalence " << static_cast< double >( count_vector[0].first ) /
+                                static_cast< double >( count_vector[0].first + count_vector[0].second )
+           << ")" << std::endl;
+
+    stream << "adult count: " << count_vector[1].first << " diseased of "
+           << ( count_vector[1].first + count_vector[1].second ) << " total "
+           << "(prevalence " << static_cast< double >( count_vector[1].first ) /
+                                static_cast< double >( count_vector[1].first + count_vector[1].second )
+           << ")" << std::endl;
+
+    stream << "child count: " << count_vector[2].first << " diseased of "
+           << ( count_vector[2].first + count_vector[2].second ) << " total "
+           << "(prevalence " << static_cast< double >( count_vector[2].first ) /
+                                static_cast< double >( count_vector[2].first + count_vector[2].second )
+           << ")" << std::endl;
+
+    stream << "male count: " << count_vector[3].first << " diseased of "
+           << ( count_vector[3].first + count_vector[3].second ) << " total "
+           << "(prevalence " << static_cast< double >( count_vector[3].first ) /
+                                static_cast< double >( count_vector[3].first + count_vector[3].second )
+           << ")" << std::endl;
+
+    stream << "female count: " << count_vector[4].first << " diseased of "
+           << ( count_vector[4].first + count_vector[4].second ) << " total "
+           << "(prevalence " << static_cast< double >( count_vector[4].first ) /
+                                static_cast< double >( count_vector[4].first + count_vector[4].second )
+           << ")" << std::endl;
+
+    stream << "male adult count: " << count_vector[5].first << " diseased of "
+           << ( count_vector[5].first + count_vector[5].second ) << " total "
+           << "(prevalence " << static_cast< double >( count_vector[5].first ) /
+                                static_cast< double >( count_vector[5].first + count_vector[5].second )
+           << ")" << std::endl;
+
+    stream << "female adult count: " << count_vector[6].first << " diseased of "
+           << ( count_vector[6].first + count_vector[6].second ) << " total "
+           << "(prevalence " << static_cast< double >( count_vector[6].first ) /
+                                static_cast< double >( count_vector[6].first + count_vector[6].second )
+           << ")" << std::endl;
+
+    stream << "male child count: " << count_vector[7].first << " diseased of "
+           << ( count_vector[7].first + count_vector[7].second ) << " total "
+           << "(prevalence " << static_cast< double >( count_vector[7].first ) /
+                                static_cast< double >( count_vector[7].first + count_vector[7].second )
+           << ")" << std::endl;
+
+    stream << "female child count: " << count_vector[8].first << " diseased of "
+           << ( count_vector[8].first + count_vector[8].second ) << " total "
+           << "(prevalence " << static_cast< double >( count_vector[8].first ) /
+                                static_cast< double >( count_vector[8].first + count_vector[8].second )
+           << ")" << std::endl;
+
     stream.close();
   }
 
@@ -315,9 +365,6 @@ namespace sampsim
     json["population_density_slope"].resize( 2 );
     json["population_density_slope"][0] = this->population_density_slope[0];
     json["population_density_slope"][1] = this->population_density_slope[1];
-    std::pair<unsigned int, unsigned int> count = this->count_individuals();
-    json["diseased_individual_count"] = count.first;
-    json["individual_count"] = count.second;
     json["disease_weights"] = Json::Value( Json::arrayValue );
     json["disease_weights"].resize( population::NUMBER_OF_DISEASE_WEIGHTS );
     for( unsigned int c = 0; c < population::NUMBER_OF_DISEASE_WEIGHTS; c++ )
@@ -348,8 +395,6 @@ namespace sampsim
     // need to reset the static household indexing variable
     utilities::household_index = 0;
 
-    std::pair<unsigned int, unsigned int> count = this->count_individuals();
-
     // put in the parameters
     std::stringstream stream;
     stream << "#" << std::endl
@@ -364,8 +409,6 @@ namespace sampsim
            << "# tile_width: " << this->tile_width << std::endl
            << "# population_density_slope: " << this->population_density_slope[0] << ", "
                                              << this->population_density_slope[1] << std::endl
-           << "# diseased individual count: " << count.first << std::endl
-           << "# individual count: " << count.second << std::endl
            << "#" << std::endl
            << "# dweight_population: " << this->disease_weights[0] << std::endl
            << "# dweight_income: " << this->disease_weights[1] << std::endl
@@ -572,17 +615,21 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  std::pair<unsigned int, unsigned int> population::count_individuals() const
+  std::vector< std::pair<unsigned int, unsigned int> > population::count_individuals() const
   {
-    std::pair<unsigned int, unsigned int> count( 0, 0 );
+    std::vector< std::pair<unsigned int, unsigned int> > count_vector;
+    count_vector.resize( 9, std::pair<unsigned int, unsigned int>( 0, 0 ) );
     for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
     {
-      std::pair<unsigned int, unsigned int> sub_count = (*it)->count_individuals();
-      count.first += sub_count.first;
-      count.second += sub_count.second;
+      std::vector< std::pair<unsigned int, unsigned int> > sub_count_vector = (*it)->count_individuals();
+      for( std::vector< std::pair<unsigned int, unsigned int> >::size_type i = 0; i < 9; i++ )
+      {
+        count_vector[i].first += sub_count_vector[i].first;
+        count_vector[i].second += sub_count_vector[i].second;
+      }
     }
 
-    return count;
+    return count_vector;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

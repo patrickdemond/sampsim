@@ -21,6 +21,20 @@ namespace sampsim
 namespace sample
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void square_gps::copy( const square_gps* object )
+  {
+    this->set_number_of_squares( object->number_of_squares );
+    auto oitx = object->selected_squares.cbegin();
+    auto itx = this->selected_squares.begin();
+    for( ; oitx != object->selected_squares.cend() && itx != this->selected_squares.end(); ++oitx, ++itx )
+    {
+      auto oity = oitx->cbegin();
+      auto ity = itx->begin();
+      for( ; oity != oitx->cend() && ity != itx->end(); ++oity, ++ity ) ( *ity )  = ( *oity );
+    }
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void square_gps::reset_for_next_sample()
   {
     sized_sample::reset_for_next_sample();
