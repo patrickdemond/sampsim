@@ -345,7 +345,7 @@ namespace sample
       }
       stdev_vector[i] = sqrt(
         squared_sum_vector[i] /
-        static_cast<double>( total_vector[i].first + total_vector[i].second - 1 ) );
+        static_cast<double>( this->sampled_population_list.size() - 1 ) );
     }
 
     stream << "sampled individual count: " << total_vector[0].first << " diseased of "
