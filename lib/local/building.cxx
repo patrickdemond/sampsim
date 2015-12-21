@@ -195,7 +195,7 @@ namespace sampsim
   void building::select()
   {
     this->selected = true;
-    this->get_town()->select();
+    this->parent->select();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

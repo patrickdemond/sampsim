@@ -184,6 +184,6 @@ namespace sampsim
   void individual::select()
   {
     this->selected = true;
-    this->get_household()->select();
+    this->parent->select();
   }
 }

@@ -72,8 +72,8 @@ namespace sampsim
     void to_json( Json::Value& ) const;
     void to_csv( std::ostream&, std::ostream& ) const;
     std::vector< std::pair<unsigned int, unsigned int> >count_individuals() const;
-    void select() {} // does nothing
-    void unselect() {} // does nothing
+    void select();
+    void unselect();
 
     /**
      * Iterator access to child buildings

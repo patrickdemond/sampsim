@@ -675,4 +675,18 @@ namespace sampsim
     }
     this->number_of_towns = index + 1;
   }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::select()
+  {
+    this->selected = true;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::unselect()
+  {
+    this->selected = false;
+    for( auto town_it = this->get_town_list_cbegin(); town_it != this->get_town_list_cend(); ++town_it )
+      (*town_it)->unselect();
+  }
 }

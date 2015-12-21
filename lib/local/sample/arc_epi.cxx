@@ -62,39 +62,34 @@ namespace sample
 
         double a1 = this->start_angle - this->arc_angle / 2.0;
         double a2 = this->start_angle + this->arc_angle / 2.0;
+
+        // it is possible that a1 < -PI, if so then we need to loop around to PI
+        // translate a1 into the 2nd quadrant (in positive radians)
+        while( -M_PI > a1 ) a1 += 2 * M_PI;
+
+        // it is possible that a2 > PI, if so then we need to loop around to -PI
+        // translate a2 into the 3rd quadrant (in negative radians)
+        while( M_PI < a2 ) a2 -= 2 * M_PI;
+
         for( auto it = building_list.begin(); it != building_list.end(); ++it )
         {
           building *building = (*it);
           double a = (*it)->get_position().get_a();
 
-          // it is possible that a2 > PI, if so then we need to loop around to -PI
-          if( M_PI < a2 )
+          if( a1 > a2 )
           {
-            // translate a2 into the 3rd quadrant (in negative radians)
-            a2 -= 2 * M_PI;
-
-            // test from a1 to PI and from -PI to a2
+            // the arc crosses over the -pi/pi boundary
             if( ( a1 <= a && a <= M_PI ) || ( -M_PI <= a && a < a2 ) )
               initial_building_list.push_back( *it );
           }
-          // it is possible that a1 < -PI, if so then we need to loop around to PI
-          else if( -M_PI > a1 )
-          {
-            // translate a1 into the 2nd quadrant (in positive radians)
-            a1 += 2 * M_PI;
-
-            // test from a1 to PI and from -PI to a2
-            if( ( a1 <= a && a <= M_PI ) || ( -M_PI <= a && a < a2 ) ) initial_building_list.push_back( *it );
-          }
           else
           {
-            // the test is simple, check if a is between angle and angle + arc_angle
             if( a1 <= a && a < a2 ) initial_building_list.push_back( *it );
           }
         }
 
         if( 0 == initial_building_list.size() && utilities::verbose ) 
-          utilities::output( "no buildings found in strip" );
+          utilities::output( "no buildings found in arc" );
 
         iteration++;
 

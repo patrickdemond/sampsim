@@ -462,6 +462,7 @@ namespace sampsim
   void town::select()
   {
     this->selected = true;
+    this->parent->select();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -471,10 +472,7 @@ namespace sampsim
 
     // unselect all buildings
     for( auto tile_it = this->tile_list.begin(); tile_it != this->tile_list.end(); ++tile_it )
-      for( auto building_it = tile_it->second->get_building_list_cbegin();
-           building_it != tile_it->second->get_building_list_cend();
-           ++building_it )
-        ( *building_it )->unselect();
+      tile_it->second->unselect();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

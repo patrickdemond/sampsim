@@ -70,9 +70,7 @@ namespace sampsim
      * Selection works in the following manner: selecting an object also selects its parent but not its
      * children.  Unselecting an object also unselects its children but not its parent.  This mechanism
      * therefore defines "selection" as true if any of its children are selected, and allows for
-     * unselecting all children by unselecting the object.  Only towns, buildings, households and
-     * individuals may be selected/unselected.  Selecting or unselecting populations or tiles is
-     * meaningless.
+     * unselecting all children by unselecting the object.
      */
     bool is_selected() const { return this->selected; }
     

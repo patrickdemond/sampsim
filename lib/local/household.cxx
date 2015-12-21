@@ -205,7 +205,7 @@ namespace sampsim
   void household::select()
   {
     this->selected = true;
-    this->get_building()->select();
+    this->parent->select();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

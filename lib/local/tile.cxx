@@ -263,4 +263,19 @@ namespace sampsim
       }
     }
   }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void tile::select()
+  {
+    this->selected = true;
+    this->parent->select();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void tile::unselect()
+  {
+    this->selected = false;
+    for( auto it = this->building_list.begin(); it != this->building_list.end(); ++it )
+      (*it)->unselect();
+  }
 }

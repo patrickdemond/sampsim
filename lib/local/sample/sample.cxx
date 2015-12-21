@@ -143,7 +143,7 @@ namespace sample
     // run selection number_of_samples times
     for( unsigned int iteration = 0; iteration < this->number_of_samples; iteration++ )
     {
-      this->reset_for_next_sample();
+      if( 0 < iteration ) this->reset_for_next_sample();
 
       // select a town to sample
       sampsim::town *use_town = NULL;
@@ -194,11 +194,7 @@ namespace sample
         building* b = this->select_next_building( tree );
 
         // set the first building
-        if( NULL == this->first_building )
-        {
-          this->first_building = b;
-          std::cout << "######## setting first building to " << b << " at " << b->get_position().get_a() << std::endl;
-        }
+        if( NULL == this->first_building ) this->first_building = b;
 
         int count = 0;
         // select households within the building (this is step 4 of the algorithm)
@@ -253,11 +249,7 @@ namespace sample
   {
     this->current_size = 0;
     this->first_building = NULL;
-    if( this->population )
-      for( auto town_it = this->population->get_town_list_cbegin();
-           town_it != this->population->get_town_list_cend();
-           ++town_it )
-        (*town_it)->unselect();
+    if( this->population ) this->population->unselect();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -324,12 +316,13 @@ namespace sample
 
     mean_vector.resize( 9, 0 );
     stdev_vector.resize( 9, 0 );
+    total_vector.resize( 9, std::pair<unsigned int, unsigned int>( 0, 0 ) );
     squared_sum_vector.resize( 9, 0 );
     sample_count_vector.reserve( this->sampled_population_list.size() );
 
     for( unsigned int s = 0; s < this->sampled_population_list.size(); s++ )
     {
-      sample_count_vector[s] = this->sampled_population_list[s]->count_individuals();
+      sample_count_vector.push_back( this->sampled_population_list[s]->count_individuals() );
       for( std::vector< std::pair<unsigned int, unsigned int> >::size_type i = 0; i < 9; i++ )
       {
         total_vector[i].first += sample_count_vector[s][i].first;
@@ -340,52 +333,54 @@ namespace sample
     // determine standard deviations for all prevalences
     for( std::vector< std::pair<unsigned int, unsigned int> >::size_type i = 0; i < 9; i++ )
     {
+      mean_vector[i] = ( static_cast<double>( total_vector[i].first ) /
+                         static_cast<double>( total_vector[i].first + total_vector[i].second ) );
       for( unsigned int s = 0; s < this->sampled_population_list.size(); s++ )
       {
         double diff = 
           ( static_cast<double>( sample_count_vector[s][i].first ) /
             static_cast<double>( sample_count_vector[s][i].first + sample_count_vector[s][i].second ) ) -
-          ( static_cast<double>( total_vector[i].first ) /
-            static_cast<double>( total_vector[i].first + total_vector[i].second ) );
+          mean_vector[i];
         squared_sum_vector[i] += diff*diff;
       }
-      mean_vector[i] = squared_sum_vector[i] /
-                       static_cast<double>( total_vector[i].first + total_vector[i].second );
+      stdev_vector[i] = sqrt(
+        squared_sum_vector[i] /
+        static_cast<double>( total_vector[i].first + total_vector[i].second - 1 ) );
     }
 
-    stream << "individual count: " << total_vector[0].first << " diseased of "
+    stream << "sampled individual count: " << total_vector[0].first << " diseased of "
            << ( total_vector[0].first + total_vector[0].second ) << " total "
            << "(prevalence " << mean_vector[0] << " (" << stdev_vector[0] << "))" << std::endl;
 
-    stream << "adult count: " << total_vector[1].first << " diseased of "
+    stream << "sampled adult count: " << total_vector[1].first << " diseased of "
            << ( total_vector[1].first + total_vector[1].second ) << " total "
            << "(prevalence " << mean_vector[1] << " (" << stdev_vector[1] << "))" << std::endl;
 
-    stream << "child count: " << total_vector[2].first << " diseased of "
+    stream << "sampled child count: " << total_vector[2].first << " diseased of "
            << ( total_vector[2].first + total_vector[2].second ) << " total "
            << "(prevalence " << mean_vector[2] << " (" << stdev_vector[2] << "))" << std::endl;
 
-    stream << "male count: " << total_vector[3].first << " diseased of "
+    stream << "sampled male count: " << total_vector[3].first << " diseased of "
            << ( total_vector[3].first + total_vector[3].second ) << " total "
            << "(prevalence " << mean_vector[3] << " (" << stdev_vector[3] << "))" << std::endl;
 
-    stream << "female count: " << total_vector[4].first << " diseased of "
+    stream << "sampled female count: " << total_vector[4].first << " diseased of "
            << ( total_vector[4].first + total_vector[4].second ) << " total "
            << "(prevalence " << mean_vector[4] << " (" << stdev_vector[4] << "))" << std::endl;
 
-    stream << "male adult count: " << total_vector[5].first << " diseased of "
+    stream << "sampled male adult count: " << total_vector[5].first << " diseased of "
            << ( total_vector[5].first + total_vector[5].second ) << " total "
            << "(prevalence " << mean_vector[5] << " (" << stdev_vector[5] << "))" << std::endl;
 
-    stream << "female adult count: " << total_vector[6].first << " diseased of "
+    stream << "sampled female adult count: " << total_vector[6].first << " diseased of "
            << ( total_vector[6].first + total_vector[6].second ) << " total "
            << "(prevalence " << mean_vector[6] << " (" << stdev_vector[6] << "))" << std::endl;
 
-    stream << "male child count: " << total_vector[7].first << " diseased of "
+    stream << "sampled male child count: " << total_vector[7].first << " diseased of "
            << ( total_vector[7].first + total_vector[7].second ) << " total "
            << "(prevalence " << mean_vector[7] << " (" << stdev_vector[7] << "))" << std::endl;
 
-    stream << "female child count: " << total_vector[8].first << " diseased of "
+    stream << "sampled female child count: " << total_vector[8].first << " diseased of "
            << ( total_vector[8].first + total_vector[8].second ) << " total "
            << "(prevalence " << mean_vector[8] << " (" << stdev_vector[8] << "))" << std::endl;
 
