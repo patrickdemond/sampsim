@@ -52,7 +52,7 @@ read -p "What seed would you like to use? (any number or string is permitted)> "
 
 # delete all existing csv, json, log, done and png files if we are replacing them
 if [ $replace -eq 1 ]; then
-  rm `find -type f | grep "\.\(csv\|json\|log\|done\|png\)$"`
+  rm `find -type f | grep "\.\(csv\|json\|log\|done\|png\|avi\)$"`
 fi
 
 # ignore file searches that come up empty

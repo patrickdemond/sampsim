@@ -109,71 +109,29 @@ namespace sampsim
     count_vector.resize( 9, std::pair<unsigned int, unsigned int>( 0, 0 ) );
     if( !sample_mode || this->is_selected() )
     {
-      count_vector[0].first += this->is_disease();
-      count_vector[0].second++;
-      if( ADULT == this->get_age() )
+      if( this->is_disease() )
       {
-        count_vector[1].first += this->is_disease();
-        count_vector[1].second++;
-
-        if( MALE == this->get_sex() )
-        {
-          if( this->is_disease() )
-          {
-            count_vector[3].first += this->is_disease();
-            count_vector[5].first += this->is_disease();
-          }
-          else
-          {
-            count_vector[3].second++;
-            count_vector[5].second++;
-          }
-        }
-        else
-        {
-          if( this->is_disease() )
-          {
-            count_vector[4].first += this->is_disease();
-            count_vector[6].first += this->is_disease();
-          }
-          else
-          {
-            count_vector[4].second++;
-            count_vector[6].second++;
-          }
-        }
+        count_vector[0].first++;
+        if( ADULT == this->get_age() ) count_vector[1].first++;
+        else if( CHILD == this->get_age() ) count_vector[2].first++;
+        if( MALE == this->get_sex() ) count_vector[3].first++;
+        else if( FEMALE == this->get_sex() ) count_vector[4].first++;
+        if( ADULT == this->get_age() && MALE == this->get_sex() ) count_vector[5].first++;
+        if( ADULT == this->get_age() && FEMALE == this->get_sex() ) count_vector[6].first++;
+        if( CHILD == this->get_age() && MALE == this->get_sex() ) count_vector[7].first++;
+        if( CHILD == this->get_age() && FEMALE == this->get_sex() ) count_vector[8].first++;
       }
       else
       {
-        count_vector[2].first += this->is_disease();
-        count_vector[2].second++;
-
-        if( MALE == this->get_sex() )
-        {
-          if( this->is_disease() )
-          {
-            count_vector[3].first += this->is_disease();
-            count_vector[7].first += this->is_disease();
-          }
-          else
-          {
-            count_vector[3].second++;
-            count_vector[7].second++;
-          }
-        }
-        else
-        {
-          if( this->is_disease() )
-          {
-            count_vector[4].first += this->is_disease();
-            count_vector[8].first += this->is_disease();
-          }
-          else
-          {
-            count_vector[4].second++;
-            count_vector[8].second++;
-          }
-        }
+        count_vector[0].second++;
+        if( ADULT == this->get_age() ) count_vector[1].second++;
+        else if( CHILD == this->get_age() ) count_vector[2].second++;
+        if( MALE == this->get_sex() ) count_vector[3].second++;
+        else if( FEMALE == this->get_sex() ) count_vector[4].second++;
+        if( ADULT == this->get_age() && MALE == this->get_sex() ) count_vector[5].second++;
+        if( ADULT == this->get_age() && FEMALE == this->get_sex() ) count_vector[6].second++;
+        if( CHILD == this->get_age() && MALE == this->get_sex() ) count_vector[7].second++;
+        if( CHILD == this->get_age() && FEMALE == this->get_sex() ) count_vector[8].second++;
       }
     }
 

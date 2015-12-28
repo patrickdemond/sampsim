@@ -75,7 +75,7 @@ std::string gnuplot(
   stream
     << "set termoption dashed; "
     << "plot \"" << population_name << ".household.csv\" "
-    <<   "using ($1 == " << town_index << " ? $3 : 1/0):4:($8/2):10 palette pt 6 ps variable "
+    <<   "using ($1 == " << town_index << " ? $3 : 1/0):4:($8/4):10 palette pt 6 ps variable "
     <<   "title \"town " << ( town_index + 1 ) << "\"";
 
   if( 0 < sample_name.length() )
