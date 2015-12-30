@@ -5,6 +5,7 @@
 # Program:  sampsim
 # Module:   hypercube.sh
 # Language: bash
+# TODO:     Latin hypercube isn't using a seed
 # 
 #########################################################################################
 
@@ -298,51 +299,111 @@ function join
 
 # Recursive function to create nested directories
 # arg1: directory (start with base directory, the recursion takes care of the rest)
-# arg2: index (start with 0, the recursion takes care of the rest)
+# arg2: latin (whether to restrict to latin hypercube points only)
+# arg3: number_of_points (only used in first iteration and when latin is 1)
+# arg4: name_array (the name of the name array)
+# arg5: value_array (the name of the value array)
+# arg6: index (start with 0, the recursion takes care of the rest)
+# arg7: total (the number of possible configuration files to be generated)
 function create_config_tree
 {
   local directory=$1
   local latin=$2
-  local number_of_points=$3 # only used in first iteration and when latin is 1
+  local number_of_points=$3
   local arr=$4"[*]"
   local name_array=(${!arr})
   local arr=$5"[*]"
   local value_array=(${!arr})
   local index=$6
   local total=$7
-  
+
   if [ $index -eq 0 ]; then
-    declare -i progress=0
+    array=(${value_array[$index]//:/ })
+    root_array_size=${#array[@]}
+    progress=0
     if [ $latin -eq 1 ]; then
       declare -r latin_points=`../latin_hypercube --index --dims ${#value_array[@]} --points $number_of_points`
-      declare point_num=1
+      root_index=0
+echo $latin_points
     fi
   fi
 
+echo
+echo "create_config_tree index: $index"
+
   if [ $( echo "$index < ${#name_array[@]}" | bc ) -ne 0 ]; then
     # make the base directory
-    mkdir "$directory/${name_array[$index]}"
-    array=(${value_array[$index]//:/ })
+    mkdir -p "$directory/${name_array[$index]}"
+    local array=(${value_array[$index]//:/ })
+    local array_size=${#array[@]}
     local val_index=0
     for val in "${array[@]}"; do
+echo "index is $index and value is $val"
       # determine and display progress
       let "progress++"
-      progress_meter "Creating configuration tree" $progress $total
+      if [ $latin -eq 0 ]; then
+        progress_meter "Creating configuration tree" $progress $total
+      else
+        # get the indeces of the points corresponding to the root and current branches of the tree
+        declare -i loop_index=0
+        declare -i test_index
+        declare -i min_index
+        declare -i max_index
+        declare -i root_point_index=-1
+        declare -i branch_point_index=-1
+echo "(root,val)_index: $root_index,$val_index"
+        for point in $latin_points; do
+          # get the root point index
+          if [ $root_point_index -eq -1 ]; then
+            test_index=$( echo $point | cut -d "," -f 1 )
+            min_index=$( printf "%.*f" 0 $( echo "scale=8; $root_index * $number_of_points / $root_array_size" | bc ) )
+            max_index=$( printf "%.*f" 0 $( echo "scale=8; ($root_index+1) * $number_of_points / $root_array_size - 1" | bc ) )
+  echo "a) test_index: "$test_index"  min_index: "$min_index"  max_index: "$max_index"  min<=test: $( [ "$min_index" -le "$test_index" ] && echo "Y" || echo "N" )  test<=max: $( [ "$test_index" -le "$max_index" ] && echo "Y" || echo "N" )"
+            if [ "$min_index" -le "$test_index" ] && [ "$test_index" -le "$max_index" ]; then
+              root_point_index=$loop_index
+              if [ $branch_point_index -ge 0 ]; then break; fi
+            fi
+          fi
 
-      # get the point corresponding to this branch of the tree
-      point=`echo "$latin_points" | sed -n "$point_num"p`
-      p=`echo $point | cut -d "," -f $(( $index+1 ))`
+          # get the current branch point index
+          if [ $branch_point_index -eq -1 ]; then
+            test_index=$( echo $point | cut -d "," -f $(( $index+1 )) )
+            min_index=$( printf "%.*f" 0 $( echo "scale=8; $val_index * $number_of_points / $array_size" | bc ) )
+            max_index=$( printf "%.*f" 0 $( echo "scale=8; ($val_index+1) * $number_of_points / $array_size - 1" | bc ) )
+  echo "b) test_index: "$test_index"  min_index: "$min_index"  max_index: "$max_index"  min<=test: $( [ "$min_index" -le "$test_index" ] && echo "Y" || echo "N" )  test<=max: $( [ "$test_index" -le "$max_index" ] && echo "Y" || echo "N" )"
+            if [ "$min_index" -le "$test_index" ] && [ "$test_index" -le "$max_index" ]; then
+              branch_point_index=$loop_index
+              if [ $root_point_index -ge 0 ]; then break; fi
+            fi
+          fi
 
-      # only generate if we aren't using a latin hypercube, or test the point index if we are
-      if [ $latin -eq 0 ] || [ $p -eq $val_index ]; then
+          let "loop_index++"
+        done
+
+echo "root_point_index: $root_point_index  branch_point_index: $branch_point_index"
+        # sanity checking
+        if [ -1 -eq $root_point_index ]; then
+          echo "${RED}ERROR: Can't find root in latin points${NORMAL}"
+          exit
+        fi
+
+        if [ -1 -eq $branch_point_index ]; then
+          echo "${RED}ERROR: Can't find branch in latin points${NORMAL}"
+          exit
+        fi
+      fi
+
+      # only generate if we aren't using a latin hypercube, or the root/branch indeces match
+      if [ $latin -eq 0 ] || [ "$root_point_index" -eq "$branch_point_index" ]; then
         sub_dir="$directory/${name_array[$index]}/v$val"
-        mkdir $sub_dir
+        echo "making $sub_dir"
+        mkdir -p $sub_dir
         # go to the next parameter and repeat recursively
-        create_config_tree $sub_dir $latin 0 name_array value_array $( echo "$index + 1" | bc ) $total
+        create_config_tree $sub_dir $latin $number_of_points name_array value_array $( echo "$index + 1" | bc ) $total
       fi
 
       # increment to the next point, but only when in the tree's root
-      [ $index -eq 0 ] && ((point_num++))
+      [ $index -eq 0 ] && ((root_index++))
       ((val_index++))
     done
   fi
