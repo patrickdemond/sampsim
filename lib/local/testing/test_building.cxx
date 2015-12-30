@@ -70,34 +70,40 @@ TEST( test_building )
         cout << "Testing that building now has no population..." << endl;
         count_vector = building->count_individuals();
         for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
-          CHECK_EQUAL( 0, ( (*it).first + count_vector[1].second ) );
+          CHECK_EQUAL( 0, ( (*it).first + (*it).second ) );
 
         cout << "Testing that building with selected individual has population..." << endl;
         individual->select();
         count_vector = building->count_individuals();
-        for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
-          CHECK( 0 != ( (*it).first + count_vector[1].second ) );
+        CHECK( 0 != ( count_vector[0].first + count_vector[0].second ) );
 
         cout << "Testing that building with unselected individual has no population..." << endl;
         individual->unselect();
         count_vector = building->count_individuals();
         for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
-          CHECK_EQUAL( 0, ( (*it).first + count_vector[1].second ) );
+          CHECK_EQUAL( 0, ( (*it).first + (*it).second ) );
 
         cout << "Testing that unselected building has no population..." << endl;
         individual->select();
         building->unselect();
         count_vector = building->count_individuals();
         for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
-          CHECK_EQUAL( 0, ( (*it).first + count_vector[1].second ) );
+          CHECK_EQUAL( 0, ( (*it).first + (*it).second ) );
 
         cout << "Turning off sample mode" << endl;
         population->set_sample_mode( false );
 
         cout << "Testing building population..." << endl;
         count_vector = building->count_individuals();
-        for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
-          CHECK( 0 != ( (*it).first + count_vector[1].second ) );
+        CHECK( 0 != ( count_vector[0].first + count_vector[0].second ) );
+          CHECK( 0 != ( count_vector[1].first + count_vector[1].second ) );
+        if( 2 < count_vector[0].first + count_vector[0].second )
+          CHECK( 0 != ( count_vector[2].first + count_vector[2].second ) );
+        if( 1 < count_vector[0].first + count_vector[0].second )
+        {
+          CHECK( 0 != ( count_vector[3].first + count_vector[3].second ) );
+          CHECK( 0 != ( count_vector[4].first + count_vector[4].second ) );
+        }
       }
     }
   }
