@@ -299,51 +299,77 @@ function join
 
 # Recursive function to create nested directories
 # arg1: directory (start with base directory, the recursion takes care of the rest)
-# arg2: latin (whether to restrict to latin hypercube points only)
-# arg3: number_of_points (only used in first iteration and when latin is 1)
-# arg4: name_array (the name of the name array)
-# arg5: value_array (the name of the value array)
-# arg6: index (start with 0, the recursion takes care of the rest)
-# arg7: total (the number of possible configuration files to be generated)
+# arg2: name_array (the name of the name array)
+# arg3: value_array (the name of the value array)
+# arg4: index (start with 0, the recursion takes care of the rest)
+# arg5: total (the number of possible configuration files to be generated)
 function create_config_tree
 {
   local directory=$1
-  local latin=$2
-  local number_of_points=$3
-  local arr=$4"[*]"
+  local arr=$2"[*]"
   local name_array=(${!arr})
-  local arr=$5"[*]"
+  local arr=$3"[*]"
   local value_array=(${!arr})
-  local index=$6
-  local total=$7
+  local index=$4
+  local total=$5
 
+  # initialize when in the root of the tree
   if [ $index -eq 0 ]; then
-    array=(${value_array[$index]//:/ })
-    root_array_size=${#array[@]}
     progress=0
-    if [ $latin -eq 1 ]; then
-      declare -r latin_points=`../latin_hypercube --index --dims ${#value_array[@]} --points $number_of_points`
-      root_index=0
-echo $latin_points
-    fi
   fi
 
-echo
-echo "create_config_tree index: $index"
+  if [ $index -lt "${#name_array[@]}" ]; then
+    # make the base directory
+    mkdir -p "$directory/${name_array[$index]}"
+    local array=(${value_array[$index]//:/ })
+    for val in "${array[@]}"; do
+      # determine and display progress
+      let "progress++"
+      progress_meter "Creating configuration tree" $progress $total
+      sub_dir="$directory/${name_array[$index]}/v$val"
+      mkdir -p $sub_dir
+      # go to the next parameter and repeat recursively
+      create_config_tree $sub_dir name_array value_array $( echo "$index + 1" | bc ) $total
+    done
+  fi
+}
 
-  if [ $( echo "$index < ${#name_array[@]}" | bc ) -ne 0 ]; then
+# Recursive function to create nested directories
+# arg1: directory (start with base directory, the recursion takes care of the rest)
+# arg2: name_array (the name of the name array)
+# arg3: value_array (the name of the value array)
+# arg4: index (start with 0, the recursion takes care of the rest)
+# arg5: number_of_points (only used in first iteration and when latin is 1)
+function create_latin_config_tree
+{
+  local directory=$1
+  local arr=$2"[*]"
+  local name_array=(${!arr})
+  local arr=$3"[*]"
+  local value_array=(${!arr})
+  local index=$4
+  local number_of_points=$5
+
+  # initialize when in the root of the tree
+  if [ $index -eq 0 ]; then
+    declare -r latin_points=`../latin_hypercube --index --dims ${#value_array[@]} --points $number_of_points`
+#echo $latin_points
+  fi
+
+  if [ $index -lt "${#name_array[@]}" ]; then
     # make the base directory
     mkdir -p "$directory/${name_array[$index]}"
     local array=(${value_array[$index]//:/ })
     local array_size=${#array[@]}
-    local val_index=0
-    for val in "${array[@]}"; do
-echo "index is $index and value is $val"
-      # determine and display progress
-      let "progress++"
-      if [ $latin -eq 0 ]; then
-        progress_meter "Creating configuration tree" $progress $total
-      else
+    local found=0
+
+    # loop through every latin point
+    for point in $latin_points; do
+#echo "point: $point"
+      if [ $index -eq 0 ]; then root_index=0; fi;
+      local val_index=0
+      for val in "${array[@]}"; do
+#echo "INDEX IS $index AND VAL IS $val"
         # get the indeces of the points corresponding to the root and current branches of the tree
         declare -i loop_index=0
         declare -i test_index
@@ -351,60 +377,46 @@ echo "index is $index and value is $val"
         declare -i max_index
         declare -i root_point_index=-1
         declare -i branch_point_index=-1
-echo "(root,val)_index: $root_index,$val_index"
-        for point in $latin_points; do
-          # get the root point index
-          if [ $root_point_index -eq -1 ]; then
-            test_index=$( echo $point | cut -d "," -f 1 )
-            min_index=$( printf "%.*f" 0 $( echo "scale=8; $root_index * $number_of_points / $root_array_size" | bc ) )
-            max_index=$( printf "%.*f" 0 $( echo "scale=8; ($root_index+1) * $number_of_points / $root_array_size - 1" | bc ) )
-  echo "a) test_index: "$test_index"  min_index: "$min_index"  max_index: "$max_index"  min<=test: $( [ "$min_index" -le "$test_index" ] && echo "Y" || echo "N" )  test<=max: $( [ "$test_index" -le "$max_index" ] && echo "Y" || echo "N" )"
-            if [ "$min_index" -le "$test_index" ] && [ "$test_index" -le "$max_index" ]; then
-              root_point_index=$loop_index
-              if [ $branch_point_index -ge 0 ]; then break; fi
-            fi
-          fi
 
-          # get the current branch point index
-          if [ $branch_point_index -eq -1 ]; then
-            test_index=$( echo $point | cut -d "," -f $(( $index+1 )) )
-            min_index=$( printf "%.*f" 0 $( echo "scale=8; $val_index * $number_of_points / $array_size" | bc ) )
-            max_index=$( printf "%.*f" 0 $( echo "scale=8; ($val_index+1) * $number_of_points / $array_size - 1" | bc ) )
-  echo "b) test_index: "$test_index"  min_index: "$min_index"  max_index: "$max_index"  min<=test: $( [ "$min_index" -le "$test_index" ] && echo "Y" || echo "N" )  test<=max: $( [ "$test_index" -le "$max_index" ] && echo "Y" || echo "N" )"
-            if [ "$min_index" -le "$test_index" ] && [ "$test_index" -le "$max_index" ]; then
-              branch_point_index=$loop_index
-              if [ $root_point_index -ge 0 ]; then break; fi
-            fi
-          fi
-
-          let "loop_index++"
-        done
-
-echo "root_point_index: $root_point_index  branch_point_index: $branch_point_index"
-        # sanity checking
-        if [ -1 -eq $root_point_index ]; then
-          echo "${RED}ERROR: Can't find root in latin points${NORMAL}"
-          exit
+        # get the root point index then convert if the array size is less than the number of points
+        root_point_index=$( echo $point | cut -d "," -f 1 )
+        if [ "$number_of_points" -ne "$array_size" ]; then
+          root_point_index=$( printf "%.*f" 0\
+            $( echo "scale=8; $root_point_index/$number_of_points*$array_size" | bc )\
+          )
         fi
 
-        if [ -1 -eq $branch_point_index ]; then
-          echo "${RED}ERROR: Can't find branch in latin points${NORMAL}"
-          exit
+        # get the branch point index then convert if the array size is less than the number of points
+        branch_point_index=$( echo $point | cut -d "," -f $(( $index+1 )) )
+        if [ "$number_of_points" -ne "$array_size" ]; then
+          branch_point_index=$( printf "%.*f" 0\
+            $( echo "scale=8; $branch_point_index/$number_of_points*$array_size" | bc )\
+          )
         fi
-      fi
 
-      # only generate if we aren't using a latin hypercube, or the root/branch indeces match
-      if [ $latin -eq 0 ] || [ "$root_point_index" -eq "$branch_point_index" ]; then
-        sub_dir="$directory/${name_array[$index]}/v$val"
-        echo "making $sub_dir"
-        mkdir -p $sub_dir
-        # go to the next parameter and repeat recursively
-        create_config_tree $sub_dir $latin $number_of_points name_array value_array $( echo "$index + 1" | bc ) $total
-      fi
+        # only generate if we aren't using a latin hypercube, or the root/branch indeces match
+#echo "looking for ($root_point_index,$branch_point_index) currently in ($root_index,$val_index)"
+        if [ "$root_index" -eq "$root_point_index" ] && [ "$val_index" -eq "$branch_point_index" ]; then
+          sub_dir="$directory/${name_array[$index]}/v$val"
+#echo "making $sub_dir"
+          mkdir -p $sub_dir
+          # go to the next parameter and repeat recursively
+#echo
+#echo "STARTING $( echo "$index + 1" | bc )"
+#echo
+          create_latin_config_tree $sub_dir name_array value_array $( echo "$index + 1" | bc ) $number_of_points
+          found=1
+#echo
+#echo "FINISHED $( echo "$index + 1" | bc )"
+#echo
+          if [ $found -eq 1 ]; then break; fi;
+        fi
 
-      # increment to the next point, but only when in the tree's root
-      [ $index -eq 0 ] && ((root_index++))
-      ((val_index++))
+        # increment to the next point, but only when in the tree's root
+        [ $index -eq 0 ] && ((root_index++))
+        ((val_index++))
+      done
+      if [ $index -gt 0 ] && [ $found -eq 1 ]; then break; fi;
     done
   fi
 }
@@ -650,7 +662,11 @@ if [ $size -eq 0 ]; then
   exit
 fi
 
-create_config_tree $directory $latin $number_of_points name_array value_array 0 $size
+if [ $latin -eq 1 ]; then
+  create_latin_config_tree $directory name_array value_array 0 $number_of_points
+else
+  create_config_tree $directory name_array value_array 0 $size
+fi
 echo
 
 # now create the config files
