@@ -352,8 +352,10 @@ function create_latin_config_tree
 
   # initialize when in the root of the tree
   if [ $index -eq 0 ]; then
-    declare -r latin_points=`../latin_hypercube --index --dims ${#value_array[@]} --points $number_of_points`
-#echo $latin_points
+    # TODO: make use of the new maximum option in latin_hypercube
+    declare -r latin_points=`../latin_hypercube --index0 --dims ${#value_array[@]} --points $number_of_points`
+    root_array=(${value_array[0]//:/ })
+    root_array_size=${#root_array[@]}
   fi
 
   if [ $index -lt "${#name_array[@]}" ]; then
@@ -365,11 +367,9 @@ function create_latin_config_tree
 
     # loop through every latin point
     for point in $latin_points; do
-#echo "point: $point"
       if [ $index -eq 0 ]; then root_index=0; fi;
       local val_index=0
       for val in "${array[@]}"; do
-#echo "INDEX IS $index AND VAL IS $val"
         # get the indeces of the points corresponding to the root and current branches of the tree
         declare -i loop_index=0
         declare -i test_index
@@ -379,36 +379,30 @@ function create_latin_config_tree
         declare -i branch_point_index=-1
 
         # get the root point index then convert if the array size is less than the number of points
+        # TODO: won't need this with new maximum option in latin_hypercube
         root_point_index=$( echo $point | cut -d "," -f 1 )
-        if [ "$number_of_points" -ne "$array_size" ]; then
-          root_point_index=$( printf "%.*f" 0\
-            $( echo "scale=8; $root_point_index/$number_of_points*$array_size" | bc )\
-          )
+        if [ "$number_of_points" -ne "$root_array_size" ]; then
+          (( root_point_index=$( printf "%.*f" 0\
+            $( echo "scale=8; ($root_point_index-0.001)/$number_of_points*$root_array_size" | bc )\
+          ) ))
         fi
 
         # get the branch point index then convert if the array size is less than the number of points
+        # TODO: won't need this with new maximum option in latin_hypercube
         branch_point_index=$( echo $point | cut -d "," -f $(( $index+1 )) )
         if [ "$number_of_points" -ne "$array_size" ]; then
-          branch_point_index=$( printf "%.*f" 0\
-            $( echo "scale=8; $branch_point_index/$number_of_points*$array_size" | bc )\
-          )
+          (( branch_point_index=$( printf "%.*f" 0\
+            $( echo "scale=8; ($branch_point_index-0.001)/$number_of_points*$array_size" | bc )\
+          ) ))
         fi
 
         # only generate if we aren't using a latin hypercube, or the root/branch indeces match
-#echo "looking for ($root_point_index,$branch_point_index) currently in ($root_index,$val_index)"
         if [ "$root_index" -eq "$root_point_index" ] && [ "$val_index" -eq "$branch_point_index" ]; then
           sub_dir="$directory/${name_array[$index]}/v$val"
-#echo "making $sub_dir"
           mkdir -p $sub_dir
           # go to the next parameter and repeat recursively
-#echo
-#echo "STARTING $( echo "$index + 1" | bc )"
-#echo
           create_latin_config_tree $sub_dir name_array value_array $( echo "$index + 1" | bc ) $number_of_points
           found=1
-#echo
-#echo "FINISHED $( echo "$index + 1" | bc )"
-#echo
           if [ $found -eq 1 ]; then break; fi;
         fi
 
