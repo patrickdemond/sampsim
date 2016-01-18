@@ -20,7 +20,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   std::string options::option::get_value( const unsigned int index ) const
   {
-    if( index >= this->initial_values.size() )
+    if( 0 < this->initial_values.size() && index >= this->initial_values.size() )
     {
       std::stringstream stream;
       stream << "ERROR: Option ";
@@ -30,7 +30,10 @@ namespace sampsim
       throw std::runtime_error( stream.str() );
     }
 
-    return index < this->values.size() ? this->values[index] : this->initial_values[index];
+    std::string retval = "";
+    if( index < this->values.size() ) retval = this->values[index];
+    else if( index < this->initial_values.size() ) retval = this->initial_values[index];
+    return retval;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -207,7 +210,7 @@ namespace sampsim
         if( 0 < long_name.length() )
         { // expecting a value for an option identified by its long name
           std::vector< std::string > values = utilities::explode( arg, "," );
-          if( values.size() <= option->initial_values.size() )
+          if( 0 == option->initial_values.size() || values.size() <= option->initial_values.size() )
           {
             option->values = values;
             long_name = "";
@@ -217,7 +220,7 @@ namespace sampsim
         else if( ' ' != short_name )
         { // expecting a value for an option identified by its short name
           std::vector< std::string > values = utilities::explode( arg, "," );
-          if( values.size() <= option->initial_values.size() )
+          if( 0 == option->initial_values.size() || values.size() <= option->initial_values.size() )
           {
             option->values = values;
             short_name = ' ';
@@ -232,28 +235,28 @@ namespace sampsim
 
       if( invalid )
       {
-        std::cout << "ERROR: Invalid ";
-        if( 0 < long_name.length() ) std::cout << "option \"--" << long_name << "\"";
-        else if( ' ' != short_name ) std::cout << "option \"-" << short_name << "\"";
-        else std::cout << "argument \"" << arg << "\"";
-        std::cout << std::endl;
+        std::cerr << "ERROR: Invalid ";
+        if( 0 < long_name.length() ) std::cerr << "option \"--" << long_name << "\"";
+        else if( ' ' != short_name ) std::cerr << "option \"-" << short_name << "\"";
+        else std::cerr << "argument \"" << arg << "\"";
+        std::cerr << std::endl;
         break;
       }
       else if( out_of_range )
       {
-        std::cout << "ERROR: Number of values for option ";
-        if( 0 < long_name.length() ) std::cout << "\"" << long_name << "\"";
-        else if( ' ' != short_name ) std::cout << "\"" << short_name << "\"";
-        std::cout << " is out of range (expecting up to " << option->initial_values.size() << " value)"
+        std::cerr << "ERROR: Number of values for option ";
+        if( 0 < long_name.length() ) std::cerr << "\"" << long_name << "\"";
+        else if( ' ' != short_name ) std::cerr << "\"" << short_name << "\"";
+        std::cerr << " is out of range (expecting up to " << option->initial_values.size() << " value)"
                   << std::endl;
         break;
       }
       else if( missing_value )
       {
-        std::cout << "ERROR: Expecting value for option ";
-        if( 0 < long_name.length() ) std::cout << "\"" << long_name << "\"";
-        else if( ' ' != short_name ) std::cout << "\"" << short_name << "\"";
-        std::cout << " but none provided" << std::endl;
+        std::cerr << "ERROR: Expecting value for option ";
+        if( 0 < long_name.length() ) std::cerr << "\"" << long_name << "\"";
+        else if( ' ' != short_name ) std::cerr << "\"" << short_name << "\"";
+        std::cerr << " but none provided" << std::endl;
         break;
       }
     }
@@ -263,12 +266,12 @@ namespace sampsim
     {
       if( 0 < long_name.length() )
       {
-        std::cout << "ERROR: expecting a value after \"--" << long_name << "\"" << std::endl;
+        std::cerr << "ERROR: expecting a value after \"--" << long_name << "\"" << std::endl;
         invalid = true;
       }
       else if( ' ' != short_name )
       {
-        std::cout << "ERROR: expecting a value after \"-" << short_name << "\"" << std::endl;
+        std::cerr << "ERROR: expecting a value after \"-" << short_name << "\"" << std::endl;
         invalid = true;
       }
 
@@ -278,7 +281,7 @@ namespace sampsim
         // now make sure we have the correct number of inputs
         if( input_list.size() != this->input_map.size() )
         {
-          std::cout << "ERROR: Wrong number of free (input) arguments (expecting "
+          std::cerr << "ERROR: Wrong number of free (input) arguments (expecting "
                     << this->input_map.size() << ", got " << input_list.size() << ")" << std::endl;
           invalid = true;
         }
@@ -295,7 +298,7 @@ namespace sampsim
     }
 
     if( invalid || out_of_range || missing_value )
-      std::cout << "Try '" << this->executable_name << " --help' for more information." << std::endl;
+      std::cerr << "Try '" << this->executable_name << " --help' for more information." << std::endl;
 
     return !( invalid || out_of_range || missing_value );
   }
@@ -350,7 +353,7 @@ namespace sampsim
 
       if( invalid )
       {
-        std::cout << "ERROR: Error parsing config file at \"" << line << "\"" << std::endl;
+        std::cerr << "ERROR: Error parsing config file at \"" << line << "\"" << std::endl;
         break;
       }
     }
@@ -427,6 +430,7 @@ namespace sampsim
           ( ' ' != short_name && it->short_name == short_name ) )
     {
       unsigned int size = it->initial_values.size();
+      if( 0 == size ) size = it->values.size();
       list.resize( size );
       for( unsigned int index = 0; index < size; index++ ) list[index] = it->get_value( index );
       break;
