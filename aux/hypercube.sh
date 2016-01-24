@@ -352,8 +352,22 @@ function create_latin_config_tree
 
   # initialize when in the root of the tree
   if [ $index -eq 0 ]; then
-    # TODO: make use of the new maximum option in latin_hypercube
-    declare -r latin_points=`../latin_hypercube --index0 --dims ${#value_array[@]} --points $number_of_points`
+    # determine the maximum number of values in each index of the value array
+    maximums="";
+    for value in "${value_array[@]}"; do
+      local array=(${value//:/ })
+      local array_size=${#array[@]}
+      if [ "" != "$maximums" ]; then
+        maximums="$maximums,"
+      fi
+      maximums="$maximums$array_size"
+    done
+
+    declare -r latin_points=`\
+      ../latin_hypercube --index0 \
+                         --dims ${#value_array[@]} \
+                         --points $number_of_points \
+                         --maximums $maximums`
     root_array=(${value_array[0]//:/ })
     root_array_size=${#root_array[@]}
   fi
@@ -367,7 +381,13 @@ function create_latin_config_tree
 
     # loop through every latin point
     for point in $latin_points; do
-      if [ $index -eq 0 ]; then root_index=0; fi;
+      # if we at the root then start counting the root index make note of the root point
+      if [ $index -eq 0 ]; then
+        root_index=0
+        root_point=$point
+      else # otherwise only continue if the non-root point matches the root point
+        if [ "$point" != "$root_point" ]; then continue; fi
+      fi;
       local val_index=0
       for val in "${array[@]}"; do
         # get the indeces of the points corresponding to the root and current branches of the tree
@@ -378,23 +398,9 @@ function create_latin_config_tree
         declare -i root_point_index=-1
         declare -i branch_point_index=-1
 
-        # get the root point index then convert if the array size is less than the number of points
-        # TODO: won't need this with new maximum option in latin_hypercube
+        # get the root and branch point indeces
         root_point_index=$( echo $point | cut -d "," -f 1 )
-        if [ "$number_of_points" -ne "$root_array_size" ]; then
-          (( root_point_index=$( printf "%.*f" 0\
-            $( echo "scale=8; ($root_point_index-0.001)/$number_of_points*$root_array_size" | bc )\
-          ) ))
-        fi
-
-        # get the branch point index then convert if the array size is less than the number of points
-        # TODO: won't need this with new maximum option in latin_hypercube
         branch_point_index=$( echo $point | cut -d "," -f $(( $index+1 )) )
-        if [ "$number_of_points" -ne "$array_size" ]; then
-          (( branch_point_index=$( printf "%.*f" 0\
-            $( echo "scale=8; ($branch_point_index-0.001)/$number_of_points*$array_size" | bc )\
-          ) ))
-        fi
 
         # only generate if we aren't using a latin hypercube, or the root/branch indeces match
         if [ "$root_index" -eq "$root_point_index" ] && [ "$val_index" -eq "$branch_point_index" ]; then
