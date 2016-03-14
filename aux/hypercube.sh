@@ -701,14 +701,22 @@ for dir in $dir_list; do
   done
 
   # now go through all parameters and write them to the config file
+  if [ $short -eq 1 ]; then
+    name_array=("${param_short[@]}")
+  else
+    name_array=("${param_name[@]}")
+  fi
   for index in ${!param_name[*]}; do
-    name=${param_name[$index]}
-    if [ ${variable_params[$name]} ]; then
-      value=${variable_params[$name]}
+    short_name=${param_short[$index]}
+    long_name=${param_name[$index]}
+    if [ $short -eq 1 ] && [ ${variable_params[$short_name]} ]; then
+      value=${variable_params[$short_name]}
+    elif [ $short -ne 1 ] && [ ${variable_params[$long_name]} ]; then
+      value=${variable_params[$long_name]}
     else
       value=${param_value[$index]}
     fi
-    sed -i "s/<$name>/$value/" $conf_file
+    sed -i "s/<$long_name>/$value/" $conf_file
   done
 done
 
