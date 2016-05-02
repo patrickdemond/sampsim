@@ -92,7 +92,7 @@ namespace sampsim
     }
 
     // cache the value of the constant
-    if( isnan( this->b[index][3] ) )
+    if( std::isnan( this->b[index][3] ) )
     {
       this->b[index][3] = this->dist[index].generate_value();
       this->debug( "get_constant( index = %d ) caching value of %f", index, this->b[index][3] );

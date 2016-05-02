@@ -222,7 +222,7 @@ namespace sampsim
       {
         matrix[c][i] = ( 1 == c ? -1 : 1 ) * // income should have an inverse relationship to disease
                        ( matrix[c][i] - mean[c] ) / sd[c]; // normalize values
-        if( isnan( matrix[c][i] ) ) matrix[c][i] = 0.0;
+        if( std::isnan( matrix[c][i] ) ) matrix[c][i] = 0.0;
       }
     }
 
