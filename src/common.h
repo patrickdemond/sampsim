@@ -109,7 +109,8 @@ void setup_sample( sampsim::options &opts )
   // define inputs
   opts.add_input( "population_file" );
   opts.add_input( "output_file" );
-  opts.add_flag( 'f', "flat_file", "Whether to output data in two CSV files instead of JSON data" );
+  opts.add_flag( 'f', "flat_file", "Whether to output data in two CSV \"flat\" files" );
+  opts.add_flag( 'F', "flat_only", "Whether to output data in CSV format, omitting the usual JSON file" );
   opts.add_flag( 's', "summary_file", "Whether to output summary data of the sample" );
   opts.add_flag( 'd', "distinguish", "Write separate output files for each sample" );
   if( GNUPLOT_AVAILABLE ) opts.add_flag( 'p', "plot", "Plot all samples (will create a flat-file)" );
@@ -128,6 +129,8 @@ void setup_sample( sampsim::options &opts )
 void process_sample( sampsim::options &opts, sampsim::sample::sized_sample *sample )
 {
   bool flat = opts.get_flag( "flat_file" );
+  bool flat_only = opts.get_flag( "flat_only" );
+  if( flat_only ) flat = true;
   bool summary = opts.get_flag( "summary_file" );
   bool plot = GNUPLOT_AVAILABLE ? opts.get_flag( "plot" ) : false;
   bool distinguish = opts.get_flag( "distinguish" );
@@ -148,8 +151,8 @@ void process_sample( sampsim::options &opts, sampsim::sample::sized_sample *samp
   {
     sample->generate();
 
-    // create a json file if no flat file was requested
-    if( !flat ) sample->write( output_filename, false );
+    // create a json file unless a flat file only was requested
+    if( !flat_only ) sample->write( output_filename, false );
 
     // create a summary file if requested
     if( summary ) sample->write_summary( output_filename );
