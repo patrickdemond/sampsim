@@ -238,7 +238,8 @@ namespace sampsim
     }
 
     stream.str( "" );
-    stream << "finished defining town #" << ( this->index + 1 );
+    stream << "finished defining town #" << ( this->index + 1 ) << ", "
+           << total_individuals << " individuals generated";
     utilities::output( stream.str() );
   }
 

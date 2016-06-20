@@ -129,20 +129,24 @@ namespace sampsim
   {
     utilities::output( "defining population" );
 
-    std::vector< std::pair<unsigned int, unsigned int> > count_vector = this->count_individuals();
-    unsigned int total_individuals = count_vector[0].first + count_vector[0].second;
-
     // calculate the mean( log(individuals) ) from all towns
     double sum_log_individual_count = 0;
+    std::vector< double > town_log_individual_count;
     for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
-      sum_log_individual_count = log10( total_individuals );
+    {
+      std::vector< std::pair<unsigned int, unsigned int> > count_vector = (*it)->count_individuals();
+      double log_individuals = log10( count_vector[0].first + count_vector[0].second );
+      town_log_individual_count.push_back( log_individuals );
+      sum_log_individual_count += log_individuals;
+    }
     double mean_log_individual_count = sum_log_individual_count / this->number_of_towns;
 
     // now set the regression factor for all trends in each town
-    for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
+    auto log_it = town_log_individual_count.cbegin();
+    for( auto town_it = this->town_list.cbegin(); town_it != this->town_list.cend(); ++town_it )
     {
-      town *t = *it;
-      double factor = log10( total_individuals ) - mean_log_individual_count;
+      town *t = *town_it;
+      double factor = *log_it - mean_log_individual_count;
 
       // here we set the regression factor for all trends
       // Note: the regression factor shouldn't be confused with the coefficient's regression coefficient.
@@ -158,8 +162,12 @@ namespace sampsim
 
       t->set_number_of_disease_pockets( this->number_of_disease_pockets );
       t->define();
+
+      ++log_it;
     }
 
+    std::vector< std::pair<unsigned int, unsigned int> > count_vector = this->count_individuals();
+    unsigned int total_individuals = count_vector[0].first + count_vector[0].second;
     utilities::output( "finished defining population, %d individuals generated", total_individuals );
   }
 
