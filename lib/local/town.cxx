@@ -480,6 +480,7 @@ namespace sampsim
   void town::copy( const town* object )
   {
     this->selected = object->selected;
+    this->index = object->index;
     this->number_of_tiles_x = object->number_of_tiles_x;
     this->number_of_tiles_y = object->number_of_tiles_y;
     this->mean_household_population = object->mean_household_population;
