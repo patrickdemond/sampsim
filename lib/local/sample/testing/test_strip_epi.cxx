@@ -49,6 +49,7 @@ TEST( test_sample_strip_epi )
 
   int sample_size = 100;
   sample1->set_number_of_samples( 1 );
+  sample1->set_number_of_towns( 1 );
   sample1->set_number_of_sectors( 1 );
   sample1->set_size( sample_size );
   sample1->set_strip_width( 0.25 );
@@ -84,6 +85,7 @@ TEST( test_sample_strip_epi )
     sampsim::sample::strip_epi *sample = new sampsim::sample::strip_epi;
     CHECK( sample->set_population( population ) );
     sample->set_number_of_samples( 1 );
+    sample->set_number_of_towns( 1 );
     sample->set_number_of_sectors( 1 );
     sample->set_size( sample_size );
     sample->set_strip_width( 0.25 );
@@ -147,6 +149,7 @@ TEST( test_sample_strip_epi )
   sampsim::sample::strip_epi *sample3 = new sampsim::sample::strip_epi;
   CHECK( sample3->set_population( population ) );
   sample3->set_number_of_samples( 1 );
+  sample3->set_number_of_towns( 1 );
   sample3->set_number_of_sectors( 1 );
   sample3->set_size( sample_size );
   sample3->set_strip_width( 0.25 );
@@ -211,6 +214,7 @@ TEST( test_sample_strip_epi )
   sampsim::sample::strip_epi *sample4 = new sampsim::sample::strip_epi;
   CHECK( sample4->set_population( population ) );
   sample4->set_number_of_samples( 1 );
+  sample4->set_number_of_towns( 1 );
   sample4->set_number_of_sectors( 1 );
   sample4->set_size( sample_size );
   sample4->set_strip_width( 0.25 );
@@ -273,6 +277,7 @@ TEST( test_sample_strip_epi )
   sampsim::sample::strip_epi *sample5 = new sampsim::sample::strip_epi;
   CHECK( sample5->set_population( population ) );
   sample5->set_number_of_samples( 1 );
+  sample5->set_number_of_towns( 1 );
   sample5->set_number_of_sectors( 1 );
   sample5->set_size( sample_size );
   sample5->set_strip_width( 0.25 );

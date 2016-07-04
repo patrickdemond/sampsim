@@ -163,6 +163,16 @@ namespace sample
     unsigned int get_number_of_samples() const { return this->number_of_samples; }
 
     /**
+     * Sets the number of towns to sample
+     */
+    void set_number_of_towns( const unsigned int number_of_towns );
+
+    /**
+     * Returns the number of town to sample
+     */
+    unsigned int get_number_of_towns() const { return this->number_of_towns; }
+
+    /**
      * Sets which sample to write to output files
      * 
      * The default setting, 0, will output all samples when writing data or flat files to disk.
@@ -229,6 +239,16 @@ namespace sample
     unsigned int get_current_size() const { return this->current_size; }
 
     /**
+     * Returns the current number of selected individuals in the current town
+     */
+    unsigned int get_current_town_size() const { return this->current_town_size; }
+
+    /**
+     * Returns the current town index being sampled
+     */
+    int get_current_town_index() const { return this->current_town_index; }
+
+    /**
      * Algorithm which selects buildings based on the sampling method
      * 
      * This pure virtual method must be defined by all child classes.  It allows each sampling method
@@ -239,7 +259,7 @@ namespace sample
     /**
      * Called before each sample is taken
      */
-    virtual void reset_for_next_sample();
+    virtual void reset_for_next_sample( const bool full = true );
 
     /**
      * Returns whether or not the sampling is complete
@@ -286,12 +306,21 @@ namespace sample
     unsigned int number_of_samples;
 
     /**
+     * The number of towns to sample
+     */
+    unsigned int number_of_towns;
+
+    /**
      * When writing sample files, which sample to output (using 1-based indexing)
      * 
      * A value of 0, the default, will output all samples
      */
     unsigned int write_sample_number;
 
+    /**
+     * The index of the town currently being sampled
+     */
+    int current_town_index;
 
     /**
      * The number of individuals which have been selected by the sample so far.
@@ -299,6 +328,13 @@ namespace sample
      * This value is updated after every call to the select_next_building() method
      */
     unsigned int current_size;
+
+    /**
+     * The number of individuals which have been selected by the sample for the current town.
+     * 
+     * This value is updated after every call to the select_next_building() method
+     */
+    unsigned int current_town_size;
 
     /**
      * Whether to sample one individual per household

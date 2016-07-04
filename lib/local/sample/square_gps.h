@@ -83,7 +83,7 @@ namespace sample
     /**
      * Called before each sample is taken
      */
-    virtual void reset_for_next_sample();
+    virtual void reset_for_next_sample( const bool full = true );
 
     /**
      * Algorithm which selects buildings based on the sampling method

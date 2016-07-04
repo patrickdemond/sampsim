@@ -74,9 +74,9 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void epi::reset_for_next_sample()
+  void epi::reset_for_next_sample( const bool full )
   {
-    sized_sample::reset_for_next_sample();
+    sized_sample::reset_for_next_sample( full );
 
     this->current_sector_index = -1;
     this->start_angle_defined = false;

@@ -35,9 +35,9 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void square_gps::reset_for_next_sample()
+  void square_gps::reset_for_next_sample( const bool full )
   {
-    sized_sample::reset_for_next_sample();
+    sized_sample::reset_for_next_sample( full );
 
     this->reset_selected_squares();
   }

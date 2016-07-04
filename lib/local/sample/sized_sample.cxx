@@ -39,8 +39,8 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   bool sized_sample::is_sample_complete()
   {
-    // the definition of sized samples is that the sampling is finished once we have reached the size
-    return this->get_current_size() >= this->size;
+    // quit once the town being sampled has reached or is above the sample size
+    return this->get_current_town_size() >= this->size;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

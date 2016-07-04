@@ -39,7 +39,7 @@ namespace sample
     // check to see if we have to move to the next sector and reset the current building if we do
     double size_fraction = static_cast< double >( this->get_size() ) /
                            static_cast< double >( this->get_number_of_sectors() );
-    if( this->get_current_size() > size_fraction * ( this->get_current_sector() ) )
+    if( this->get_current_town_size() > size_fraction * ( this->get_current_sector() ) )
       this->current_building = NULL;
 
     if( NULL == this->current_building )

@@ -40,6 +40,7 @@ TEST( test_sample_square_gps )
 
   int sample_size = 100;
   sample1->set_number_of_samples( 1 );
+  sample1->set_number_of_towns( 1 );
   sample1->set_size( sample_size );
   sample1->set_number_of_squares( 64 );
   sample1->set_one_per_household( true );

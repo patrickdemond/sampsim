@@ -71,7 +71,7 @@ namespace sample
     /**
      * Returns the current sector being processed
      */
-    unsigned int get_current_sector() const { return this->current_sector_index + 1; }
+    int get_current_sector() const { return this->current_sector_index + 1; }
 
     /**
      * Returns the lower and upper bounds of the current sector
@@ -127,7 +127,7 @@ namespace sample
     /**
      * Extends parent method
      */
-    virtual void reset_for_next_sample();
+    virtual void reset_for_next_sample( const bool full = true );
 
     /**
      * Is called when needing to select the next angle belonging to the next sector
@@ -167,7 +167,7 @@ namespace sample
     /**
      * The current sector being sampled
      */
-    unsigned int current_sector_index;
+    int current_sector_index;
 
     /**
      * The number of households to skip when selecting the next household
