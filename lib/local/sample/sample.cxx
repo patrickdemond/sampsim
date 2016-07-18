@@ -151,7 +151,7 @@ namespace sample
       if( 0 < iteration ) this->reset_for_next_sample();
 
       // select a town to sample
-      sampsim::town *use_town = NULL, *last_town = NULL;
+      sampsim::town *use_town = NULL;
       double lower = 0.0;
       double target = utilities::random();
       for( auto it = coefficients.cbegin(); it != coefficients.cend(); ++it )
@@ -249,7 +249,6 @@ namespace sample
         }
 
         // select the next town to sample
-        last_town = use_town;
         use_town = NULL;
         double lower = 0.0;
         target += 1.0 / static_cast<double>( this->number_of_towns );
