@@ -466,7 +466,7 @@ non_zero_number_pattern="^-?((([1-9][0-9]*)(\.[0-9]*)?)|(0?\.[0-9]*[1-9]+[0-9]*)
 
 # latin or full hypercube?
 latin=1
-echo "You must nose choose whether to create the full hypercube or a random latin hypercube subset of
+echo "You must now choose whether to create the full hypercube or a random latin hypercube subset of
 configurations.  The full hypercube option will generate every possible variation of all parameter sets
 provided, which, depending on the paramters you select may grow restrictively large.  The random latin
 hypercube option will create a reduced subset such that only one parameter value will be used for each
