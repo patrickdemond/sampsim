@@ -102,14 +102,18 @@ for income_type in flat b00 b00b01b10; do
     # loop over all samplers and process the population
     for sample_dir in *_sample; do
       # get the sample type by removing the _method at the end of the sample directory
-      sample_type=${sample_dir:0: -7}
+      len=${#sample_dir}
+      let len=len-7
+      sample_type=${sample_dir:0:$len}
 
       files=($sample_dir/*.conf)
       for ((i=${#files[@]}-1; i>=0; i--)); do
         # get the sample type by removing the .conf at the end of the sample config file
         sample_config_file="${files[$i]}"
         slash=`expr index "$sample_config_file" /`
-        sample_size=${sample_config_file:$slash:-5}
+        len=${#sample_config_file}
+        let len=len-5
+        sample_size=${sample_config_file:$slash:$len}
         sample_name=${sample_config_file:0:$slash}$population_type.$income_type.$sample_size
 
         if [ -f "$sample_name.done" ]; then
