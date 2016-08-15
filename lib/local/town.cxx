@@ -215,14 +215,17 @@ namespace sampsim
       mean[c] = total[c] / total_individuals;
       sd[c] = 0;
       for( unsigned int i = 0; i < total_individuals; i++ )
-        sd[c] += ( matrix[c][i] - mean[c] ) * ( matrix[c][i] - mean[c] );
+        if( abs( matrix[c][i] - mean[c] ) > mean[c]/1e-10 ) // avoid floating-point messiness
+          sd[c] += ( matrix[c][i] - mean[c] ) * ( matrix[c][i] - mean[c] );
       sd[c] = sqrt( sd[c] / ( total_individuals - 1 ) );
+      if( 1 == c ) std::cout << sd[c] << std::endl;
 
       for( unsigned int i = 0; i < total_individuals; i++ )
       {
-        matrix[c][i] = ( 1 == c ? -1 : 1 ) * // income should have an inverse relationship to disease
+        matrix[c][i] = 0 == sd[c]
+                     ? 0.0 // avoid division by 0
+                     : ( 1 == c ? -1 : 1 ) * // income should have an inverse relationship to disease
                        ( matrix[c][i] - mean[c] ) / sd[c]; // normalize values
-        if( std::isnan( matrix[c][i] ) ) matrix[c][i] = 0.0;
       }
     }
 
