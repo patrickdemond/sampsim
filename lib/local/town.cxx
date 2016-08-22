@@ -218,7 +218,6 @@ namespace sampsim
         if( abs( matrix[c][i] - mean[c] ) > mean[c]/1e-10 ) // avoid floating-point messiness
           sd[c] += ( matrix[c][i] - mean[c] ) * ( matrix[c][i] - mean[c] );
       sd[c] = sqrt( sd[c] / ( total_individuals - 1 ) );
-      if( 1 == c ) std::cout << sd[c] << std::endl;
 
       for( unsigned int i = 0; i < total_individuals; i++ )
       {
