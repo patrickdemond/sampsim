@@ -41,15 +41,16 @@ namespace sampsim
   double line::distance_from_point( coordinate point ) const
   {
     double tan_angle = tan( this->angle );
-    return fabs( ( point.x - this->intercept.x ) * tan_angle - ( point.y - this->intercept.y ) ) /
-           sqrt( tan_angle*tan_angle + 1.0 );
+    return std::abs( safe_subtract( point.x, this->intercept.x ) *
+                     safe_subtract( tan_angle, safe_subtract( point.y, this->intercept.y ) ) ) /
+             sqrt( tan_angle*tan_angle + 1.0 );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   bool line::line_inside_bounds( std::pair< coordinate, coordinate > extent )
   {
     double tan_angle = tan( this->angle );
-    double b = this->intercept.y - this->intercept.x * tan_angle;
+    double b = safe_subtract( this->intercept.y, this->intercept.x * tan_angle );
     double y1 = tan_angle * extent.first.x + b;
     double y2 = tan_angle * extent.second.x + b;
     return ( y1 > extent.first.y || y2 > extent.first.y ) &&

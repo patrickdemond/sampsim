@@ -146,7 +146,7 @@ namespace sampsim
     for( auto town_it = this->town_list.cbegin(); town_it != this->town_list.cend(); ++town_it )
     {
       town *t = *town_it;
-      double factor = *log_it - mean_log_individual_count;
+      double factor = safe_subtract( *log_it, mean_log_individual_count );
 
       // here we set the regression factor for all trends
       // Note: the regression factor shouldn't be confused with the coefficient's regression coefficient.

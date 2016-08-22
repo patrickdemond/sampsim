@@ -11,8 +11,10 @@
 
 #include "base_object.h"
 
-#include <cmath>
 #include "coordinate.h"
+#include "utilities.h"
+
+#include <cmath>
 
 namespace Json{ class Value; }
 
@@ -55,9 +57,10 @@ namespace sampsim
     bool operator == ( const line l ) const
     {
       // the point may be on two different parts of the line
-      return ( this->angle == l.angle ) &&
-             ( tan( this->angle ) ==
-               ( ( l.intercept.x - this->intercept.x ) / ( l.intercept.y - this->intercept.y ) ) );
+      return safe_equals( this->angle, l.angle ) &&
+             safe_equals( tan( this->angle ),
+               safe_subtract( l.intercept.x, this->intercept.x ) /
+               safe_subtract( l.intercept.y, this->intercept.y ) );
     }
 
     /**

@@ -104,7 +104,7 @@ namespace sample
     {
       // get the next sector and select a random angle within its range
       std::pair< double, double > angles = this->get_next_sector_range();
-      this->start_angle = utilities::random() * ( angles.second - angles.first ) + angles.first;
+      this->start_angle = utilities::random() * safe_subtract( angles.second, angles.first ) + angles.first;
     }
 
     if( utilities::verbose )

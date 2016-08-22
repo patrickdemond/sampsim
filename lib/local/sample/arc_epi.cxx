@@ -60,7 +60,7 @@ namespace sample
         if( utilities::verbose )
           utilities::output( "iteration #%d", iteration + 1 );
 
-        double a1 = this->start_angle - this->arc_angle / 2.0;
+        double a1 = safe_subtract( this->start_angle, this->arc_angle / 2.0 );
         double a2 = this->start_angle + this->arc_angle / 2.0;
 
         // it is possible that a1 < -PI, if so then we need to loop around to PI

@@ -50,8 +50,7 @@ namespace sampsim
      * 
      * Returns true if the two coordinates have the same x, y and centroid
      */
-    bool operator == ( const coordinate c ) const
-    { return this->x == c.x && this->y == c.y && this->cx == c.cx && this->cy == c.cy; }
+    bool operator == ( const coordinate c ) const;
 
     /**
      * Comparison operator
@@ -72,7 +71,7 @@ namespace sampsim
      * 
      * Vector subtraction of two coordinates.  For example: (x, y) = (x1 - x2, y1 - y2)
      */
-    coordinate operator - ( const coordinate c ) const { return coordinate( this->x - c.x, this->y - c.y ); }
+    coordinate operator - ( const coordinate c ) const;
 
     /**
      * Linear multiplication operator

@@ -167,6 +167,25 @@ namespace sampsim
   }
 
   /**
+   * Safely compares if two doubles are equal (avoids CPU floating-point messiness)
+   * @link http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html
+   */
+  inline static double safe_equals( const double a, const double b )
+  {
+    double diff = a - b;
+    return std::abs( diff ) <= 1e-10*( a+b );
+  }
+
+  /**
+   * Safely subtracts two doubles (avoids CPU floating-point messiness)
+   * @link http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html
+   */
+  inline static double safe_subtract( const double a, const double b )
+  {
+    return safe_equals( a, b ) ? 0.0 : a - b;
+  }
+
+  /**
    * @class utilities
    * @author Patrick Emond <emondpd@mcmaster.ca>
    * @brief A class of various utility functions (all inline static functions)

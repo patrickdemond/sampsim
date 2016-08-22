@@ -66,9 +66,9 @@ namespace sample
         double sin_min_angle = sin( -this->start_angle );
         double cos_min_angle = cos( -this->start_angle );
         double tan_angle = tan( this->start_angle );
-        double coef = centroid.y - centroid.x * tan_angle;
+        double coef = safe_subtract( centroid.y, centroid.x * tan_angle );
         double offset = this->strip_width / 2;
-        double coef1 = coef - offset;
+        double coef1 = safe_subtract( coef, offset );
         double coef2 = coef + offset;
 
         for( auto it = building_list.begin(); it != building_list.end(); ++it )
@@ -77,13 +77,13 @@ namespace sample
 
           // determine the house's coefficient based on a line at the same angle as the strip lines
           // but crossing through the point
-          double house_coef = p.y - p.x * tan_angle;
+          double house_coef = safe_subtract( p.y, p.x * tan_angle );
 
           if( coef1 <= house_coef && house_coef < coef2 ) 
           {
             // now rotate the point by -angle to see if is in the strip or on the opposite side
-            double rotated_x = ( p.x - centroid.x ) * cos_min_angle -
-                               ( p.y - centroid.y ) * sin_min_angle +
+            double rotated_x = safe_subtract( p.x, centroid.x ) * cos_min_angle -
+                               safe_subtract( p.y, centroid.y ) * sin_min_angle +
                                centroid.x;
             if( centroid.x <= rotated_x ) initial_buildings.push_back( *it );
           }

@@ -58,8 +58,8 @@ namespace sampsim
     // determine the building's position
     town* town = this->get_town();
     std::pair< coordinate, coordinate > extent = this->get_tile()->get_extent();
-    this->position.x = utilities::random() * ( extent.second.x - extent.first.x ) + extent.first.x;
-    this->position.y = utilities::random() * ( extent.second.y - extent.first.y ) + extent.first.y;
+    this->position.x = utilities::random() * safe_subtract( extent.second.x, extent.first.x ) + extent.first.x;
+    this->position.y = utilities::random() * safe_subtract( extent.second.y, extent.first.y ) + extent.first.y;
     this->position.set_centroid( town->get_centroid() );
 
     // check if the building is in a river and move it to the nearest bank if it is
@@ -111,7 +111,7 @@ namespace sampsim
       }
       else if( "gaussian" == type )
       {
-        this->pocket_factor += exp( - ( distance * distance ) );
+        this->pocket_factor += exp( -( distance * distance ) );
       }
       else
       {

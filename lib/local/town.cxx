@@ -79,16 +79,16 @@ namespace sampsim
       coordinate intercept = coordinate( utilities::random() * this->get_x_width(),
                                          utilities::random() * this->get_y_width() );
       intercept.set_centroid( this->get_centroid() );
-      double angle = ( utilities::random() - 0.5 ) * M_PI; // from -pi/2 to pi/2
+      double angle = safe_subtract( utilities::random(), 0.5 ) * M_PI; // from -pi/2 to pi/2
       double sin_angle = sin( angle );
       double cos_angle = cos( angle );
       double width = this->get_population()->get_river_width();
 
       this->river_banks[0].angle = angle;
       this->river_banks[0].intercept = coordinate( intercept.x + sin_angle * width / 2,
-                                                   intercept.y - cos_angle * width / 2 );
+                                                   safe_subtract( intercept.y, cos_angle * width / 2 ) );
       this->river_banks[1].angle = angle;
-      this->river_banks[1].intercept = coordinate( intercept.x - sin_angle * width / 2,
+      this->river_banks[1].intercept = coordinate( safe_subtract( intercept.x, sin_angle * width / 2 ),
                                                    intercept.y + cos_angle * width / 2 );
     }
     else
@@ -215,8 +215,10 @@ namespace sampsim
       mean[c] = total[c] / total_individuals;
       sd[c] = 0;
       for( unsigned int i = 0; i < total_individuals; i++ )
-        if( abs( matrix[c][i] - mean[c] ) > mean[c]/1e-10 ) // avoid floating-point messiness
-          sd[c] += ( matrix[c][i] - mean[c] ) * ( matrix[c][i] - mean[c] );
+      {
+        double diff = safe_subtract( matrix[c][i], mean[c] );
+        sd[c] += diff*diff;
+      }
       sd[c] = sqrt( sd[c] / ( total_individuals - 1 ) );
 
       for( unsigned int i = 0; i < total_individuals; i++ )
@@ -224,7 +226,7 @@ namespace sampsim
         matrix[c][i] = 0 == sd[c]
                      ? 0.0 // avoid division by 0
                      : ( 1 == c ? -1 : 1 ) * // income should have an inverse relationship to disease
-                       ( matrix[c][i] - mean[c] ) / sd[c]; // normalize values
+                       safe_subtract( matrix[c][i], mean[c] ) / sd[c]; // normalize values
       }
     }
 

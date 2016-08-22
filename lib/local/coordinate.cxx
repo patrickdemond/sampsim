@@ -8,11 +8,29 @@
 
 #include "coordinate.h"
 
+#include "utilities.h"
+
 #include <cmath>
 #include <json/value.h>
 
 namespace sampsim
 {
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  bool coordinate::operator == ( const coordinate c ) const
+  {
+    return safe_equals( this->x, c.x ) &&
+           safe_equals( this->y, c.y ) &&
+           safe_equals( this->cx, c.cx ) &&
+           safe_equals( this->cy, c.cy );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  coordinate coordinate::operator - ( const coordinate c ) const
+  {
+    coordinate r( safe_subtract( this->x, c.x ), safe_subtract( this->y, c.y ) );
+    return r;
+  }
+
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void coordinate::copy( const coordinate* object )
   {
@@ -54,12 +72,14 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   double coordinate::squared_distance( const coordinate c ) const
   {
-    return ( this->x - c.x )*( this->x - c.x ) + ( this->y - c.y )*( this->y - c.y );
+    double dx = safe_subtract( this->x, c.x );
+    double dy = safe_subtract( this->y, c.y );
+    return dx*dx + dy*dy;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   double coordinate::get_a() const
   {
-    return atan2( this->y - this->cy, this->x - this->cx );
+    return atan2( safe_subtract( this->y, this->cy ), safe_subtract( this->x, this->cx ) );
   }
 }

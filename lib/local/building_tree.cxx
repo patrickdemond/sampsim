@@ -223,8 +223,8 @@ namespace sampsim
           // if the search coordinate is closer to the current node's splitting plane than it is to the
           // nearest node then we need to perform the nearest node search down the other side
           double plane_sqdist = 0 == current_node->depth % 2
-                              ? current_coord.x - search_coord.x
-                              : current_coord.y - search_coord.y;
+                              ? safe_subtract( current_coord.x, search_coord.x )
+                              : safe_subtract( current_coord.y, search_coord.y );
           plane_sqdist *= plane_sqdist;
           if( plane_sqdist < nearest_sqdist )
           {
