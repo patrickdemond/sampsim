@@ -161,7 +161,8 @@ int main( const int argc, const char** argv )
         }
         else
         {
-          std::cout << "sampsim generate version " << sampsim::utilities::get_version() << std::endl;
+          if( !sampsim::utilities::quiet )
+            std::cout << "sampsim generate version " << sampsim::utilities::get_version() << std::endl;
 
           population->set_seed( opts.get_option( "seed" ) );
           population->set_number_of_towns( opts.get_option_as_int( "towns" ) );

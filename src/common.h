@@ -141,11 +141,13 @@ void process_sample( sampsim::options &opts, sampsim::sample::sized_sample *samp
   bool plot = GNUPLOT_AVAILABLE ? opts.get_flag( "plot" ) : false;
   bool distinguish = opts.get_flag( "distinguish" );
 
-  std::cout << "sampsim strip_epi_sample version " << sampsim::utilities::get_version() << std::endl;
   std::string population_filename = opts.get_input( "population_file" );
   std::string output_filename = opts.get_input( "output_file" );
   sampsim::utilities::verbose = opts.get_flag( "verbose" );
   sampsim::utilities::quiet = opts.get_flag( "quiet" );
+
+  if( !sampsim::utilities::quiet )
+    std::cout << "sampsim strip_epi_sample version " << sampsim::utilities::get_version() << std::endl;
 
   sample->set_seed( opts.get_option( "seed" ) );
   sample->set_age( sampsim::get_age_type( opts.get_option( "age" ) ) );
