@@ -110,11 +110,14 @@ void setup_sample( sampsim::options &opts )
   opts.add_input( "population_file" );
   opts.add_input( "output_file" );
   opts.add_flag( 'f', "flat_file", "Whether to output data in two CSV \"flat\" files" );
-  opts.add_flag( 'F', "flat_only", "Whether to output data in CSV format, omitting the usual JSON file" );
+  opts.add_flag( 'F', "flat_file_only", "Whether to output data in CSV format, omitting the usual JSON file" );
   opts.add_flag( 's', "summary_file", "Whether to output summary data of the sample" );
+  opts.add_flag( 'S', "summary_file_only",
+    "Whether to output summary data of the sample only, with no data output" );
   opts.add_flag( 'd', "distinguish", "Write separate output files for each sample" );
   if( GNUPLOT_AVAILABLE ) opts.add_flag( 'p', "plot", "Plot all samples (will create a flat-file)" );
   opts.add_flag( 'v', "verbose", "Be verbose when generating sample" );
+  opts.add_flag( 'q', "quiet", "Be quiet when generating sample" );
   opts.add_heading( "" );
   opts.add_heading( "Sampling parameters (overrides config files):" );
   opts.add_heading( "" );
@@ -130,9 +133,11 @@ void setup_sample( sampsim::options &opts )
 void process_sample( sampsim::options &opts, sampsim::sample::sized_sample *sample )
 {
   bool flat = opts.get_flag( "flat_file" );
-  bool flat_only = opts.get_flag( "flat_only" );
+  bool flat_only = opts.get_flag( "flat_file_only" );
   if( flat_only ) flat = true;
   bool summary = opts.get_flag( "summary_file" );
+  bool summary_only = opts.get_flag( "summary_file_only" );
+  if( summary_only ) summary = true;
   bool plot = GNUPLOT_AVAILABLE ? opts.get_flag( "plot" ) : false;
   bool distinguish = opts.get_flag( "distinguish" );
 
@@ -140,6 +145,7 @@ void process_sample( sampsim::options &opts, sampsim::sample::sized_sample *samp
   std::string population_filename = opts.get_input( "population_file" );
   std::string output_filename = opts.get_input( "output_file" );
   sampsim::utilities::verbose = opts.get_flag( "verbose" );
+  sampsim::utilities::quiet = opts.get_flag( "quiet" );
 
   sample->set_seed( opts.get_option( "seed" ) );
   sample->set_age( sampsim::get_age_type( opts.get_option( "age" ) ) );
@@ -154,13 +160,13 @@ void process_sample( sampsim::options &opts, sampsim::sample::sized_sample *samp
     sample->generate();
 
     // create a json file unless a flat file only was requested
-    if( !flat_only ) sample->write( output_filename, false );
+    if( !flat_only && !summary_only ) sample->write( output_filename, false );
 
     // create a summary file if requested
     if( summary ) sample->write_summary( output_filename );
 
     // create a flat file if a flat file or plot was requested
-    if( flat || plot )
+    if( !summary_only && ( flat || plot ) )
     {
       sampsim::population *population = sample->get_population();
       unsigned int number_of_towns = population->get_number_of_towns();

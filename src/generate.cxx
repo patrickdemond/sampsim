@@ -33,9 +33,11 @@ int main( const int argc, const char** argv )
   opts.add_flag( 'f', "flat_file", "Whether to output data in two CSV \"flat\" files" );
   opts.add_flag( 'F', "flat_file_only", "Whether to output data in CSV format, omitting the usual JSON data" );
   opts.add_flag( 's', "summary_file", "Whether to output summary data of the population" );
+  opts.add_flag( 'S', "summary_file_only", "Whether to output summary data only, ommitting population data" );
   if( GNUPLOT_AVAILABLE )
     opts.add_flag( 'p', "plot", "Whether to create a plot of the population (will create a flat-file)" );
   opts.add_flag( 'v', "verbose", "Be verbose when generating population" );
+  opts.add_flag( 'q', "quiet", "Do not generate any output" );
 
   // define population parameters
   opts.add_heading( "" );
@@ -136,6 +138,7 @@ int main( const int argc, const char** argv )
       {
         std::string filename = opts.get_input( "output" );
         sampsim::utilities::verbose = opts.get_flag( "verbose" );
+        sampsim::utilities::quiet = opts.get_flag( "quiet" );
 
         // work out the batch job details, if requested
         int populations = opts.get_option_as_int( "populations" );
@@ -236,19 +239,21 @@ int main( const int argc, const char** argv )
             bool flat_only = opts.get_flag( "flat_file_only" );
             if( flat_only ) flat = true;
             bool summary = opts.get_flag( "summary_file" );
+            bool summary_only = opts.get_flag( "summary_file_only" );
+            if( summary_only ) summary = true;
             bool plot = GNUPLOT_AVAILABLE ? opts.get_flag( "plot" ) : false;
 
             // create a json file unless a flat file only was requested
-            if( !flat_only ) population->write( population_filename, false );
+            if( !flat_only && !summary_only ) population->write( population_filename, false );
             
             // create a flat file if a flat file or plot was requested
-            if( flat || plot ) population->write( population_filename, true );
+            if( !summary_only && ( flat || plot ) ) population->write( population_filename, true );
 
             // create a summary file if requested
             if( summary ) population->write_summary( population_filename );
 
             // plot the flat file if requested to
-            if( plot )
+            if( !summary_only && plot )
             {
 
               if( 1 == population->get_number_of_towns() )

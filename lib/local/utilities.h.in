@@ -210,17 +210,20 @@ namespace sampsim
      */
     inline static void output( std::string message, va_list args )
     {
-      char buffer[512];
-      vsprintf( buffer, message.c_str(), args );
+      if( !utilities::quiet )
+      {
+        char buffer[512];
+        vsprintf( buffer, message.c_str(), args );
 
-      double elapsed = (float)( clock() - utilities::start_time ) / CLOCKS_PER_SEC;
-      int hours = floor( elapsed / 3600 );
-      int minutes = floor( ( elapsed - hours * 3600 ) / 60 );
-      double seconds = elapsed - hours * 3600 - minutes * 60;
-      char time[32];
-      sprintf( time, "[%d:%02d:%05.2f]", hours, minutes, seconds );
+        double elapsed = (float)( clock() - utilities::start_time ) / CLOCKS_PER_SEC;
+        int hours = floor( elapsed / 3600 );
+        int minutes = floor( ( elapsed - hours * 3600 ) / 60 );
+        double seconds = elapsed - hours * 3600 - minutes * 60;
+        char time[32];
+        sprintf( time, "[%d:%02d:%05.2f]", hours, minutes, seconds );
 
-      std::cout << time << " " << buffer << std::endl;
+        std::cout << time << " " << buffer << std::endl;
+      }
     }
 
     /**
@@ -403,6 +406,11 @@ namespace sampsim
      * Whether to output additional messages during execution
      */
     static bool verbose;
+    
+    /**
+     * Whether to prevent all output
+     */
+    static bool quiet;
     
     /**
      * A running household count used to identify households in CSV output files
