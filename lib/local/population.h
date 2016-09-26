@@ -202,6 +202,16 @@ namespace sampsim
     void set_tile_width( const double );
 
     /**
+     * Gets the target mean disease prevalence of the population
+     */
+    double get_target_prevalence() const { return this->target_prevalence; }
+
+    /**
+     * Sets the target mean disease prevalence of the population
+     */
+    void set_target_prevalence( const double );
+
+    /**
      * Sets the x and y slopes of the population density
      * 
      * Note that both values must be in the range [-1, 1].  Trying to set values outside of this
@@ -451,6 +461,11 @@ namespace sampsim
      * The width of all (square) tiles in a town
      */
     double tile_width;
+
+    /**
+     * The target mean disease prevalence of the population
+     */
+    double target_prevalence;
 
     /**
      * The x and y slope of the population density

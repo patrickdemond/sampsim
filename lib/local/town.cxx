@@ -230,6 +230,10 @@ namespace sampsim
       }
     }
 
+    // determine the target_prevalence factor (if it isn't the standard 0.5)
+    double target_prevalence_factor =
+      0.5 == pop->get_target_prevalence() ? 0 : log( 1/pop->get_target_prevalence() - 1 );
+
     // factor in weights, compute disease probability then set disease status for all individuals
     for( unsigned int i = 0; i < total_individuals; i++ )
     {
@@ -237,6 +241,8 @@ namespace sampsim
 
       for( unsigned int c = 0; c < number_of_disease_weights; c++ )
         eta += matrix[c][i] * pop->get_disease_weight_by_index( c );
+
+      eta -= target_prevalence_factor;
       probability = 1 / ( 1 + exp( -eta ) );
       individual_list[i]->set_disease( utilities::random() < probability );
     }

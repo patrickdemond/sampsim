@@ -34,6 +34,7 @@ namespace sampsim
     this->number_of_tiles_x = 0;
     this->number_of_tiles_y = 0;
     this->tile_width = 0;
+    this->target_prevalence = 0.5;
     this->population_density_slope[0] = 0.0;
     this->population_density_slope[1] = 0.0;
     this->river_probability = 0.0;
@@ -335,6 +336,7 @@ namespace sampsim
     this->number_of_tiles_x = json["number_of_tiles_x"].asUInt();
     this->number_of_tiles_y = json["number_of_tiles_y"].asUInt();
     this->tile_width = json["tile_width"].asDouble();
+    this->target_prevalence = json["target_prevalence"].asDouble();
     this->population_density_slope[0] = json["population_density_slope"][0].asDouble();
     this->population_density_slope[1] = json["population_density_slope"][1].asDouble();
     for( unsigned int c = 0; c < population::NUMBER_OF_DISEASE_WEIGHTS; c++ )
@@ -369,6 +371,7 @@ namespace sampsim
     json["number_of_tiles_x"] = this->number_of_tiles_x;
     json["number_of_tiles_y"] = this->number_of_tiles_y;
     json["tile_width"] = this->tile_width;
+    json["target_prevalence"] = this->target_prevalence;
     json["population_density_slope"] = Json::Value( Json::arrayValue );
     json["population_density_slope"].resize( 2 );
     json["population_density_slope"][0] = this->population_density_slope[0];
@@ -415,6 +418,7 @@ namespace sampsim
            << "# town_size_max: " << this->town_size_max << std::endl
            << "# town_size_shape: " << this->town_size_shape << std::endl
            << "# tile_width: " << this->tile_width << std::endl
+           << "# target_prevalence: " << this->target_prevalence << std::endl
            << "# population_density_slope: " << this->population_density_slope[0] << ", "
                                              << this->population_density_slope[1] << std::endl
            << "#" << std::endl
@@ -529,6 +533,13 @@ namespace sampsim
   {
     if( utilities::verbose ) utilities::output( "setting tile_width to %f meters", tile_width );
     this->tile_width = tile_width;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::set_target_prevalence( const double target_prevalence )
+  {
+    if( utilities::verbose ) utilities::output( "setting target_prevalence to %f meters", target_prevalence );
+    this->target_prevalence = target_prevalence;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -649,6 +660,7 @@ namespace sampsim
     this->number_of_tiles_x = object->number_of_tiles_x;
     this->number_of_tiles_y = object->number_of_tiles_y;
     this->tile_width = object->tile_width;
+    this->target_prevalence = object->target_prevalence;
     this->population_density_slope[0] = object->population_density_slope[0];
     this->population_density_slope[1] = object->population_density_slope[1];
     this->river_probability = object->river_probability;

@@ -45,6 +45,7 @@ int main( const int argc, const char** argv )
   opts.add_heading( "" );
   opts.add_option( "seed", "", "Seed used by the random generator" );
   opts.add_option( "populations", "1", "Number of populations to generate" );
+  opts.add_option( "target_prevalence", "0.5", "The population's target mean disease prevalence" );
   opts.add_option( "towns", "1", "Number of towns to generate" );
   opts.add_option( "town_size_min", "10000", "The minimum number of individuals in a town" );
   opts.add_option( "town_size_max", "1000000", "The maximum number of individuals in a town" );
@@ -142,6 +143,7 @@ int main( const int argc, const char** argv )
 
         // work out the batch job details, if requested
         int populations = opts.get_option_as_int( "populations" );
+        double target_prevalence = opts.get_option_as_double( "target_prevalence" );
         double river_width = opts.get_option_as_double( "river_width" ) / 1000;
         double tile_width = opts.get_option_as_double( "tile_width" );
 
@@ -150,6 +152,11 @@ int main( const int argc, const char** argv )
           std::cout << "ERROR: Tile width must be > 0. "
                     << std::endl
                     << "       Make sure to set a non-negative value for tile_width."
+                    << std::endl;
+        }
+        else if( !( 0.0 < target_prevalence && target_prevalence < 1.0 ) )
+        {
+          std::cout << "ERROR: Target prevalence must be > 0.0 and < 1.0."
                     << std::endl;
         }
         else if( river_width >= tile_width )
@@ -173,6 +180,7 @@ int main( const int argc, const char** argv )
           population->set_number_of_tiles_x( opts.get_option_as_int( "tile_x" ) );
           population->set_number_of_tiles_y( opts.get_option_as_int( "tile_y" ) );
           population->set_tile_width( tile_width );
+          population->set_target_prevalence( target_prevalence );
           population->set_river_probability( opts.get_option_as_double( "river_probability" ) );
           population->set_river_width( river_width );
           population->set_population_density_slope(

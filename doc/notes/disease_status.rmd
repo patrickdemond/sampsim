@@ -8,7 +8,7 @@ $$
 P(i) = \frac{ 1 }{ 1 + e^{-\eta(i)} }
 $$
 
-where $i$ is a particular individual and $\eta$ is the sum of all wegithed factors:
+where $i$ is a particular individual and $\eta$ is the sum of all weighted factors:
 
 $$
 \eta(i) = \sum_{f} W_f Z_f(i)
@@ -78,3 +78,12 @@ distributions for mean $\mu$ and standard deviation $\sigma$, $F()$ is a spacial
 the form $F() = b_{00} + b_{10}x + b_{01}y + b_{20}x^2 + b_{02}y^2 + b_{11}xy$,
 $F()\big\rvert_{\boxdot}$ is the function $F()$ evaluated at the centroid of a tile and $d_f$ is
 the distance to the pocket $p$ divided by a programmable scaling constant.
+
+By default this algorithm will result in the mean disease prevalence always being near 0.5.
+However, it is possible to change the resulting mean by setting a parameter, $\tau$ (target
+disease prevalence) to a number in (0,1).  This changes the value of $\eta$ to
+the following:
+
+$$
+\eta(i) = \sum_{f} W_f Z_f(i) - ln\bigg(\frac{1}{\tau}-1\bigg)
+$$
