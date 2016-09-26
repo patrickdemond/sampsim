@@ -13,7 +13,7 @@
 #include "individual.h"
 #include "population.h"
 #include "town.h"
-#include "tile.h"
+#include "trend.h"
 #include "utilities.h"
 
 #include <json/value.h>
@@ -98,11 +98,20 @@ namespace sampsim
   {
     for( auto it = this->individual_list.begin(); it != this->individual_list.end(); ++it ) (*it)->define();
 
-    // income and disease are Normal deviates from the tile average
-    tile *tile = this->get_tile();
-    this->income = tile->get_income_distribution()->generate_value();
+    town *town = this->get_town();
+
+    distribution income_distribution;
+    income_distribution.set_lognormal(
+      town->get_mean_income()->get_value( this->get_building()->get_position() ),
+      town->get_sd_income()->get_value( this->get_building()->get_position() ) );
+    this->income = income_distribution.generate_value();
     this->debug( "setting income to %f", this->income );
-    this->disease_risk = tile->get_disease_risk_distribution()->generate_value();
+
+    distribution disease_risk_distribution;
+    disease_risk_distribution.set_normal(
+      town->get_mean_disease()->get_value( this->get_building()->get_position() ),
+      town->get_sd_disease()->get_value( this->get_building()->get_position() ) );
+    this->disease_risk = disease_risk_distribution.generate_value();
     this->debug( "setting disease risk to %f", this->disease_risk );
   }
 
