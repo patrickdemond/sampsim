@@ -80,10 +80,26 @@ $F()\big\rvert_{\boxdot}$ is the function $F()$ evaluated at the centroid of a t
 the distance to the pocket $p$ divided by a programmable scaling constant.
 
 By default this algorithm will result in the mean disease prevalence always being near 0.5.
-However, it is possible to change the resulting mean by setting a parameter, $\tau$ (target
-disease prevalence) to a number in (0,1).  This changes the value of $\eta$ to
-the following:
+However, it is possible to change the resulting mean to a target mean, $\tau$ by shifting the
+function for $P$ such that it crosses the Y-axis at $\tau$.  First we must solve $P$ for $\eta$:
+
+$$
+\eta = -ln\bigg(\frac{1}{P}-1\bigg)
+$$
+
+then add the value of $\eta$ for $P=\tau$ from the function for $\eta(i)$:
 
 $$
 \eta(i) = \sum_{f} W_f Z_f(i) - ln\bigg(\frac{1}{\tau}-1\bigg)
+$$
+
+Finally, the above adjustment to $\eta$ will result in a mean prevalence that follows an arc-sin curve.
+In order to get the desired mean prevalence the value for $\tau$ must be adjusted by an ad-hoc function:
+
+$$
+\tau_o = \frac{1}{2}\Bigg\{
+  sin \bigg[
+    \frac{\pi}{2}(2\tau - 1)
+  \bigg] + 1
+\Bigg\}
 $$

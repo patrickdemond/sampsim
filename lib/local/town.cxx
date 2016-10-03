@@ -230,9 +230,10 @@ namespace sampsim
       }
     }
 
-    // determine the target_prevalence factor (if it isn't the standard 0.5)
-    double target_prevalence_factor =
-      0.5 == pop->get_target_prevalence() ? 0 : log( 1/pop->get_target_prevalence() - 1 );
+    // Determine the target_prevalence factor
+    // This is an ad-hoc transformation described in the disease status documentation
+    double adjusted_prevalence_factor = ( sin( (M_PI/2)*(2*pop->get_target_prevalence() - 1) ) + 1 )/2;
+    double target_prevalence_factor = log( 1/adjusted_prevalence_factor - 1 );
 
     // factor in weights, compute disease probability then set disease status for all individuals
     for( unsigned int i = 0; i < total_individuals; i++ )
