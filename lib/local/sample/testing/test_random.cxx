@@ -45,10 +45,9 @@ TEST( test_sample_random )
   sampsim::sample::random *sample2 = new sampsim::sample::random;
   CHECK( sample2->set_population( temp_population_filename.str() ) );
 
-  sample1->set_one_per_household( true );
   sample1->set_number_of_samples( 100 );
   sample1->set_number_of_towns( 30 );
-  sample1->set_size( 10 );
+  sample1->set_size( 30 );
   sample1->set_age( sampsim::get_age_type( "child" ) );
   sample1->generate();
 
@@ -72,6 +71,11 @@ TEST( test_sample_random )
   }
 
   CHECK_EQUAL( number_of_samples, sample1->get_number_of_samples() );
+
+  std::vector< std::pair<unsigned int, unsigned int> > count_vector =
+    sample1->get_population()->count_individuals();
+  CHECK( ( sample1->get_number_of_towns() * sample1->get_size() ) <=
+         ( count_vector[0].first + count_vector[1].second ) );
 
   // clean up
   remove( temp_population_filename.str().c_str() );
