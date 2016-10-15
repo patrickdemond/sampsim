@@ -128,6 +128,7 @@ void setup_sample( sampsim::options &opts )
   opts.add_option( "samples", "1", "The number of times to sample the population" );
   opts.add_option( "towns", "1", "For multi-town populations, the number of towns to sample" );
   opts.add_option( "size", "1000", "How many individuals to select in each sample" );
+  opts.add_flag( "resample_towns", "Resample towns with every sample iteration" );
 }
 
 void process_sample( sampsim::options &opts, sampsim::sample::sized_sample *sample )
@@ -156,6 +157,7 @@ void process_sample( sampsim::options &opts, sampsim::sample::sized_sample *samp
   sample->set_number_of_samples( opts.get_option_as_int( "samples" ) );
   sample->set_number_of_towns( opts.get_option_as_int( "towns" ) );
   sample->set_size( opts.get_option_as_int( "size" ) );
+  sample->set_resample_towns( opts.get_flag( "resample_towns" ) );
 
   if( sample->set_population( population_filename ) )
   {
@@ -172,6 +174,13 @@ void process_sample( sampsim::options &opts, sampsim::sample::sized_sample *samp
     {
       sampsim::population *population = sample->get_population();
       unsigned int number_of_towns = population->get_number_of_towns();
+      if( sample->get_number_of_towns() > number_of_towns )
+      {
+        std::cout << "ERROR: Trying to sample " << sample->get_number_of_towns()
+                  << "but the population only has " << number_of_towns << "."
+                  << std::endl;
+      }
+
       int town_width = floor( log10( number_of_towns ) ) + 1;
       unsigned int number_of_samples = sample->get_number_of_samples();
       int sample_width = floor( log10( number_of_samples ) ) + 1;

@@ -201,6 +201,16 @@ namespace sample
     bool get_one_per_household() const { return this->one_per_household; }
 
     /**
+     * Sets whether to resample towns on every sample iteration
+     */
+    void set_resample_towns( const bool resample_towns );
+
+    /**
+     * Returns whether to resample towns on every sample iteration
+     */
+    bool get_resample_towns() const { return this->resample_towns; }
+
+    /**
      * Sets what age to restrict the sample to
      */
     void set_age( const age_type age );
@@ -242,11 +252,6 @@ namespace sample
      * Returns the current number of selected individuals in the current town
      */
     unsigned int get_current_town_size() const { return this->current_town_size; }
-
-    /**
-     * Returns the current town index being sampled
-     */
-    int get_current_town_index() const { return this->current_town_index; }
 
     /**
      * Algorithm which selects buildings based on the sampling method
@@ -318,11 +323,6 @@ namespace sample
     unsigned int write_sample_number;
 
     /**
-     * The index of the town currently being sampled
-     */
-    int current_town_index;
-
-    /**
      * The number of individuals which have been selected by the sample so far.
      * 
      * This value is updated after every call to the select_next_building() method
@@ -340,6 +340,11 @@ namespace sample
      * Whether to sample one individual per household
      */
     bool one_per_household;
+
+    /**
+     * Whether to resample towns on every sample iteration
+     */
+    bool resample_towns;
 
     /**
      * What age to restrict the sample to

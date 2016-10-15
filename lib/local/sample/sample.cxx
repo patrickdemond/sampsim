@@ -31,10 +31,10 @@ namespace sample
     this->number_of_samples = 1;
     this->number_of_towns = 1;
     this->write_sample_number = 0; // 0 => all samples
-    this->current_town_index = -1;
     this->current_size = 0;
     this->current_town_size = 0;
     this->one_per_household = false;
+    this->resample_towns = false;
     this->age = ANY_AGE;
     this->sex = ANY_SEX;
     this->first_building = NULL;
@@ -120,21 +120,61 @@ namespace sample
     if( UNKNOWN_SEX_TYPE == this->get_sex() )
       throw std::runtime_error( "Cannot generate sample, sex type is unknown" );
 
-    // create multinomial function using town populations (and unselect all towns in the process)
+    // get the population's total number of individuals
     this->population->set_sample_mode( false );
     std::vector< std::pair<unsigned int, unsigned int> > count_vector = this->population->count_individuals();
     unsigned int total_individuals = count_vector[0].first + count_vector[0].second;
-    std::map< sampsim::town*, double > coefficients;
+
+    // create look-up table of towns based on their first and last individual number (sequentially)
+    unsigned int town_index = 0;
+    unsigned int cumulative_individuals = 0;
+    std::vector< std::pair< unsigned int, sampsim::town* > > town_lookup;
+    town_lookup.resize( this->population->get_number_of_towns() );
     for( auto town_it = this->population->get_town_list_cbegin();
          town_it != this->population->get_town_list_cend();
          ++town_it )
     {
       sampsim::town *town = *town_it;
       count_vector = town->count_individuals();
-      unsigned int town_individuals = count_vector[0].first + count_vector[0].second;
-      coefficients[town] = static_cast< double >( town_individuals ) /
-                           static_cast< double >( total_individuals );
+      cumulative_individuals += ( count_vector[0].first + count_vector[0].second );
+      town_lookup[town_index] = std::pair< unsigned int, sampsim::town* >( cumulative_individuals, town );
+      town_index++;
     }
+
+    // now sample towns
+    unsigned int individual_chunk = floor( total_individuals / this->number_of_towns );
+    std::vector< town_list_type > sampled_town_list;
+    for( unsigned int iteration = 0; iteration < this->number_of_samples; iteration++ )
+    {
+      town_list_type town_list;
+      if( 0 == iteration || this->resample_towns )
+      {
+        unsigned int select_individual = utilities::random( 1, individual_chunk );
+        for( unsigned int town_index = 0; town_index < this->number_of_towns; town_index++ )
+        {
+          // find the town who has the select-individual
+          sampsim::town *last_town;
+          auto lookup_it = town_lookup.cbegin();
+          for( ; lookup_it != town_lookup.cend(); ++lookup_it )
+          {
+            if( select_individual < lookup_it->first ) break;
+          }
+          town_list.push_back( lookup_it->second );
+          select_individual += individual_chunk;
+        }
+      }
+      else
+      {
+        // make a copy of the first town list
+        for( auto it = sampled_town_list.cbegin()->cbegin(); it != sampled_town_list.cbegin()->cend(); ++it )
+        {
+          town_list.push_back( *it );
+        }
+      }
+
+      sampled_town_list.push_back( town_list );
+    }
+
     this->population->set_sample_mode( true );
 
     // delete all sampled populations
@@ -150,39 +190,20 @@ namespace sample
     {
       if( 0 < iteration ) this->reset_for_next_sample();
 
-      // select a town to sample
-      sampsim::town *use_town = NULL;
-      double lower = 0.0;
-      double target = utilities::random();
-      for( auto it = coefficients.cbegin(); it != coefficients.cend(); ++it )
-      {
-        double upper = lower + it->second;
-        if( lower <= target && target < upper )
-        {
-          use_town = it->first;
-          break;
-        }
-        lower = upper;
-      }
-
-      // if we get here and we haven't selected a town then the total number of individuals in all towns
-      // in the population doesn't appear to be the same as the population's count of individuals
-      if( !use_town )
-        throw std::runtime_error( "Cannot generate sample, error in multinomial distribution" );
-
+      bool first = true;
       int household_count = 0;
 
-      // iterate through the number of towns to sample
-      for( this->current_town_index = 0;
-           this->current_town_index < this->number_of_towns;
-           this->current_town_index++ )
+      // sample each town in the sampled town list
+      for( auto it = sampled_town_list[iteration].cbegin(); it != sampled_town_list[iteration].cend(); ++it )
       {
-        if( 0 < current_town_index ) this->reset_for_next_sample( false );
+        sampsim::town *town = *it;
+        if( first ) first = false;
+        else this->reset_for_next_sample( false );
 
         // create a building-tree from a list of all buildings in the town
         building_list_type building_list;
-        for( auto tile_it = use_town->get_tile_list_cbegin();
-             tile_it != use_town->get_tile_list_cend();
+        for( auto tile_it = town->get_tile_list_cbegin();
+             tile_it != town->get_tile_list_cend();
              ++tile_it )
         {
           for( auto building_it = tile_it->second->get_building_list_cbegin();
@@ -196,7 +217,8 @@ namespace sample
         // store the building list in a tree
         sampsim::building_tree tree( building_list );
 
-        utilities::output( "selecting from a list of %d buildings", building_list.size() );
+        if( utilities::verbose )
+          utilities::output( "selecting from a list of %d buildings", building_list.size() );
 
         // keep selecting buildings until the ending condition has been met
         while( !this->is_sample_complete() )
@@ -212,12 +234,12 @@ namespace sample
           // set the first building
           if( NULL == this->first_building ) this->first_building = b;
 
-          int count = 0;
           // select households within the building (this is step 4 of the algorithm)
           for( auto household_it = b->get_household_list_begin();
                household_it != b->get_household_list_end();
                ++household_it )
           {
+            int count = 0;
             household *h = *household_it;
 
             // select individuals within the household
@@ -247,26 +269,6 @@ namespace sample
           }
           tree.remove( b );
         }
-
-        // select the next town to sample
-        use_town = NULL;
-        double lower = 0.0;
-        target += 1.0 / static_cast<double>( this->number_of_towns );
-        if( 1.0 < target ) target -= 1.0;
-        for( auto it = coefficients.cbegin(); it != coefficients.cend(); ++it )
-        {
-          double upper = lower + it->second;
-          if( lower <= target && target < upper )
-          {
-            use_town = it->first;
-            break;
-          }
-          lower = upper;
-        }
-
-        // make sure we have another town
-        if( !use_town )
-          throw std::runtime_error( "Cannot generate sample, error in multinomial distribution" );
       }
 
       sampsim::population* sampled_population = new sampsim::population;
@@ -278,7 +280,7 @@ namespace sample
         utilities::output(
           "finished generating %s sample #%d, %d households selected across %d towns",
           this->get_type().c_str(),
-          iteration,
+          iteration + 1,
           household_count,
           this->number_of_towns);
       }
@@ -287,7 +289,7 @@ namespace sample
         utilities::output(
           "finished generating %s sample #%d, %d households selected",
           this->get_type().c_str(),
-          iteration,
+          iteration + 1,
           household_count );
       }
     }
@@ -493,6 +495,14 @@ namespace sample
     if( utilities::verbose )
       utilities::output( "setting one_per_household to %s", one_per_household ? "true" : "false" );
     this->one_per_household = one_per_household;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void sample::set_resample_towns( const bool resample_towns )
+  {
+    if( utilities::verbose )
+      utilities::output( "setting resample_towns to %s", resample_towns ? "true" : "false" );
+    this->resample_towns = resample_towns;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
