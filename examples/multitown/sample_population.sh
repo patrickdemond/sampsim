@@ -84,7 +84,7 @@ for income_type in flat bbb; do
         if [ -f "$sample_name.done" ]; then
           echo "  ${BOLD}$sample_type${NORMAL} sample (sample size $sample_size) ${BLUE}[skipping]${NORMAL}"
         else
-          which sqsub
+          which sqsub > /dev/null
           if [ $? -eq 0 ]; then
             sqsub -r 120m --mpp=2g -q serial -o $sample_name.log \
               ${!sample_dir} -q -S --seed $seed -c $sample_config_file \
