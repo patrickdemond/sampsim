@@ -76,8 +76,8 @@ for income_type in flat bbb; do
         # get the sample type by removing the .conf at the end of the sample config file
         sample_config_file="${files[$i]}"
         slash=`expr index "$sample_config_file" /`
-        len=${#sample_config_file}
-        let len=len-5
+        dot=`expr index "$sample_config_file" .`
+        let len=dot-slash-1
         sample_size=${sample_config_file:$slash:$len}
         sample_name=${sample_config_file:0:$slash}$population_type.$income_type.$sample_size
 

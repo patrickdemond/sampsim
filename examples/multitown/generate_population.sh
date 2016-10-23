@@ -79,12 +79,12 @@ for income_type in flat bbb; do
       which sqsub > /dev/null
       if [ $? -eq 0 ]; then
         sqsub -r 10m --mpp=4g -q serial -o $population_type.$income_type.log \
-          $generate -f -s --seed 1 -c $population_type.conf $population_type.$income_type \
+          $generate -f -s --seed $seed -c $population_type.conf $population_type.$income_type \
             --mean_income_b00 $mean_income_b00 \
             --mean_income_b01 $mean_income_b01 \
             --mean_income_b10 $mean_income_b10
       else
-        $generate -f -s --seed 1 -c $population_type.conf $population_type.$income_type \
+        $generate -f -s --seed $seed -c $population_type.conf $population_type.$income_type \
           --mean_income_b00 $mean_income_b00 \
           --mean_income_b01 $mean_income_b01 \
           --mean_income_b10 $mean_income_b10 \
