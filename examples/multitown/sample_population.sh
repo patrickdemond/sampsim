@@ -86,7 +86,7 @@ for income_type in flat bbb; do
         else
           which sqsub > /dev/null
           if [ $? -eq 0 ]; then
-            sqsub -r 120m --mpp=2g -q serial -o $sample_name.log \
+            sqsub -r 120m --mpp=4g -q serial -o $sample_name.log \
               ${!sample_dir} -q -S --seed $seed -c $sample_config_file \
               $population_type.$income_type.json $sample_name && \
               touch $sample_name.done
