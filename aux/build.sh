@@ -111,8 +111,8 @@ else
   # generate populations using serial farming
   # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   SAMPSIM=$( pwd )/generate
-  RUNTIME=1m
-  MEMORY=1g
+  RUNTIME=10m
+  MEMORY=4g
   echo "Launching ${num_conf_files} jobs using sqsub"
   for index in ${!conf_files[*]}; do
     name=${conf_files[$index]%.conf}
