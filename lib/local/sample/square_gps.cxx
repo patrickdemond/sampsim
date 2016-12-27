@@ -45,10 +45,10 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   building* square_gps::select_next_building( sampsim::building_tree& tree )
   {
-    // make sure the strip width has been set
+    // make sure the number of squares is set and greater than 0
     if( 0 >= this->number_of_squares )
       throw std::runtime_error( "Tried to sample without first setting the number of squares" );
-    
+
     building_list_type building_list = tree.get_building_list();
     building_list_type square_building_list;
     sampsim::town *town = ( *building_list.cbegin() )->get_town();
@@ -77,8 +77,8 @@ namespace sample
       // only select a building from this square if it hasn't yet been selected
       if( !this->select_square( index_x, index_y ) )
       {
-        lower.x = index_x * this->square_width_x; 
-        lower.y = index_y * this->square_width_y; 
+        lower.x = index_x * this->square_width_x;
+        lower.y = index_y * this->square_width_y;
         upper.x = lower.x + this->square_width_x;
         upper.y = lower.y + this->square_width_y;
 
@@ -156,8 +156,8 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void square_gps::reset_selected_squares()
   {
-    this->selected_squares.assign( 
-      this->number_of_squares, 
+    this->selected_squares.assign(
+      this->number_of_squares,
       std::vector< bool >( this->number_of_squares, false ) );
   }
 

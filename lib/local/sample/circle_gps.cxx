@@ -27,10 +27,10 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   building* circle_gps::select_next_building( sampsim::building_tree& tree )
   {
-    // make sure the strip width has been set
+    // make sure the sampling radius is set and greater than 0
     if( 0 >= this->radius )
       throw std::runtime_error( "Tried to sample without first setting the sampling radius" );
-    
+
     building_list_type building_list = tree.get_building_list();
     building_list_type circle_building_list;
     coordinate centroid = ( *building_list.cbegin() )->get_town()->get_centroid();
