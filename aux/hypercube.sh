@@ -43,22 +43,22 @@ param_help+=("The population's target mean disease prevalence")
 
 param_name+=("towns")
 param_short+=("t")
-param_value+=("1")
+param_value+=("250")
 param_help+=("Number of towns to generate")
 
 param_name+=("town_size_min")
 param_short+=("tsm")
-param_value+=("10000")
+param_value+=("250")
 param_help+=("The minimum number of individuals in a town")
 
 param_name+=("town_size_max")
 param_short+=("tsM")
-param_value+=("1000000")
+param_value+=("250000")
 param_help+=("The maximum number of individuals in a town")
 
 param_name+=("town_size_shape")
 param_short+=("tss")
-param_value+=("1.0")
+param_value+=("0.819")
 param_help+=("The shape parameter used by the town size Parato distribution")
 
 param_name+=("tile_x")
@@ -73,7 +73,7 @@ param_help+=("Number of tiles in the vertical direction")
 
 param_name+=("tile_width")
 param_short+=("tw")
-param_value+=("3.5")
+param_value+=("1.0")
 param_help+=("Width of a tile in kilometers")
 
 param_name+=("popdens_mx")
@@ -88,22 +88,22 @@ param_help+=("Population density trend's Y coefficient (must be [-1,1])")
 
 param_name+=("mean_household_pop")
 param_short+=("mhp")
-param_value+=("3.2")
+param_value+=("4")
 param_help+=("Mean number of individuals per household")
 
 param_name+=("river_probability")
 param_short+=("rp")
-param_value+=("0.5")
+param_value+=("0")
 param_help+=("The probability that a town has a river (must be [0,1])")
 
 param_name+=("river_width")
 param_short+=("rw")
-param_value+=("400")
+param_value+=("0")
 param_help+=("How wide to make rivers, in meters (must be smaller than tile width)")
 
 param_name+=("disease_pockets")
 param_short+=("dp")
-param_value+=("4")
+param_value+=("0")
 param_help+=("Number of disease pockets to generate")
 
 param_name+=("pocket_kernel_type")
@@ -118,17 +118,17 @@ param_help+=("The scaling factor to use for disease pocket")
 
 param_name+=("mean_income_b00")
 param_short+=("mi00")
-param_value+=("0.75")
+param_value+=("0.75,0.5")
 param_help+=("Mean income trend's independent coefficient base value")
 
 param_name+=("mean_income_b01")
 param_short+=("mi01")
-param_value+=("0.00714")
+param_value+=("0.00714,0.1")
 param_help+=("Mean income trend's X coefficient base value")
 
 param_name+=("mean_income_b10")
 param_short+=("mi10")
-param_value+=("0.00714")
+param_value+=("0.00714,0.1")
 param_help+=("Mean income trend's Y coefficient base value")
 
 param_name+=("mean_income_b02")
@@ -178,7 +178,7 @@ param_help+=("SD income trend's XY coefficient base value")
 
 param_name+=("mean_disease_b00")
 param_short+=("md00")
-param_value+=("0.5")
+param_value+=("0")
 param_help+=("Mean disease trend's independent coefficient base value")
 
 param_name+=("mean_disease_b01")
@@ -208,7 +208,7 @@ param_help+=("Mean disease trend's XY coefficient base value")
 
 param_name+=("sd_disease_b00")
 param_short+=("sd00")
-param_value+=("0.25")
+param_value+=("0")
 param_help+=("SD disease trend's independent coefficient base value")
 
 param_name+=("sd_disease_b01")
@@ -238,7 +238,7 @@ param_help+=("SD disease trend's XY coefficient base value")
 
 param_name+=("dweight_population")
 param_short+=("wpn")
-param_value+=("1.0")
+param_value+=("0.0")
 param_help+=("Disease weight for household population")
 
 param_name+=("dweight_income")
@@ -248,22 +248,22 @@ param_help+=("Disease weight for household income")
 
 param_name+=("dweight_risk")
 param_short+=("wr")
-param_value+=("1.0")
+param_value+=("0.0")
 param_help+=("Disease weight for household risk")
 
 param_name+=("dweight_age")
 param_short+=("wa")
-param_value+=("1.0")
+param_value+=("0.0")
 param_help+=("Disease weight for household age")
 
 param_name+=("dweight_sex")
 param_short+=("ws")
-param_value+=("1.0")
+param_value+=("0.0")
 param_help+=("Disease weight for household sex")
 
 param_name+=("dweight_pocket")
 param_short+=("wpt")
-param_value+=("1.0")
+param_value+=("0.0")
 param_help+=("Disease weight for pocketing")
 
 # functions
