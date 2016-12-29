@@ -9,7 +9,7 @@
 #ifndef __sampsim_sample_circle_gps_h
 #define __sampsim_sample_circle_gps_h
 
-#include "sample/sized_sample.h"
+#include "sample/gps.h"
 
 namespace Json{ class Value; }
 
@@ -38,7 +38,7 @@ namespace sample
    * distance from that central GPS point.  This proceedure is repeated until the sample
    * size is met.
    */
-  class circle_gps : public sized_sample
+  class circle_gps : public gps
   {
   public:
     /**
@@ -56,7 +56,7 @@ namespace sample
     /**
      * Returns the name of the sampling method
      */
-    virtual std::string get_type() const { return "GPS"; }
+    virtual std::string get_type() const { return "Circle GPS"; }
 
     /** 
      * Sets the radius of the circle used for selecting households from a GPS point
@@ -80,6 +80,11 @@ namespace sample
      * Algorithm which selects buildings based on the sampling method
      */
     virtual building* select_next_building( building_tree& );
+
+    /**
+     * Determines an individual's sample weight
+     */
+    virtual double get_sample_weight( const sampsim::individual* ) const;
 
   private:
     /**

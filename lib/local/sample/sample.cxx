@@ -251,7 +251,7 @@ namespace sample
               if( ( ANY_AGE == this->get_age() || this->get_age() == i->get_age() ) &&
                   ( ANY_SEX == this->get_sex() || this->get_sex() == i->get_sex() ) )
               {
-                i->select();
+                i->select( this->get_sample_weight( i ) );
                 count++;
                 if( this->get_one_per_household() ) break;
               }
@@ -307,6 +307,17 @@ namespace sample
       if( this->population ) this->population->unselect();
     }
     this->current_town_size = 0;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  double sample::get_sample_weight( const sampsim::individual* individual ) const
+  {
+    // return the ratio of the number of individuals in the individual's population to town
+    auto town_count_vector = individual->get_town()->count_individuals();
+    auto pop_count_vector = individual->get_population()->count_individuals();
+
+    return ( pop_count_vector[0].first + pop_count_vector[0].second ) /
+           ( town_count_vector[0].first + town_count_vector[0].second );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

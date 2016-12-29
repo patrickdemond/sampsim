@@ -61,22 +61,31 @@ namespace sample
       iteration++;
     }
 
-    if( 0 == circle_building_list.size() )
+    this->number_of_buildings = circle_building_list.size();
+
+    if( 0 == this->number_of_buildings )
       throw std::runtime_error(
         "Unable to find building in GPS circle after 1000 attempts.  You must either lower the sample size or increase the radius." );
 
     // select a random building from the list of those in the circle
-    int index = utilities::random( 0, circle_building_list.size() - 1 );
+    int index = utilities::random( 0, this->number_of_buildings - 1 );
     auto selected_it = circle_building_list.begin();
     std::advance( selected_it, index );
     if( utilities::verbose )
       utilities::output(
         "selecting building %d of %d in GPS circle",
         index + 1,
-        circle_building_list.size() );
+        this->number_of_buildings );
 
     // remove the building from the tree so it doesn't get selected twice
     return *selected_it;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  double circle_gps::get_sample_weight( const sampsim::individual* individual ) const
+  {
+    // TODO: multiply by area_of_town / ( area_of_circle * number_of_circles )
+    return gps::get_sample_weight( individual );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

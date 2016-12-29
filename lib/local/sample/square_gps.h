@@ -9,7 +9,7 @@
 #ifndef __sampsim_sample_square_gps_h
 #define __sampsim_sample_square_gps_h
 
-#include "sample/sized_sample.h"
+#include "sample/gps.h"
 
 #include <vector>
 
@@ -42,7 +42,7 @@ namespace sample
    * that the GPS point valls into.  This proceedure is repeated until the sample
    * size is met.
    */
-  class square_gps : public sized_sample
+  class square_gps : public gps
   {
   public:
     /**
@@ -89,6 +89,11 @@ namespace sample
      * Algorithm which selects buildings based on the sampling method
      */
     virtual building* select_next_building( building_tree& );
+
+    /**
+     * Determines an individual's sample weight
+     */
+    virtual double get_sample_weight( const sampsim::individual* ) const;
 
     /**
      * Determines the x and y width of the squares to use based on a town's dimensions

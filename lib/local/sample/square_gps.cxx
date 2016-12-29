@@ -106,7 +106,10 @@ namespace sample
       iteration++;
     }
 
-    if( 0 == square_building_list.size() )
+    // make note of the number of buildings in the list that we have to choose from (for sample weights)
+    this->number_of_buildings = square_building_list.size();
+
+    if( 0 == this->number_of_buildings )
     {
       if( this->all_squares_selected() )
       { // all squares have been selected
@@ -121,17 +124,24 @@ namespace sample
     }
 
     // select a random building from the list of those in the square
-    int index = utilities::random( 0, square_building_list.size() - 1 );
+    int index = utilities::random( 0, this->number_of_buildings - 1 );
     auto selected_it = square_building_list.begin();
     std::advance( selected_it, index );
     if( utilities::verbose )
       utilities::output(
         "selecting building %d of %d in GPS square",
         index + 1,
-        square_building_list.size() );
+        this->number_of_buildings );
 
     // remove the building from the tree so it doesn't get selected twice
     return *selected_it;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  double square_gps::get_sample_weight( const sampsim::individual* individual ) const
+  {
+    // TODO: multiply by total_squares / selected_squares
+    return gps::get_sample_weight( individual );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

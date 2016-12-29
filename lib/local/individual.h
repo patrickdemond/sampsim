@@ -70,8 +70,9 @@ namespace sampsim
     void to_json( Json::Value& ) const;
     void to_csv( std::ostream&, std::ostream& ) const;
     std::vector< std::pair<unsigned int, unsigned int> >count_individuals() const;
-    void select();
-    void unselect() { this->selected = false; }
+    void select() { this->select( 1.0 ); }
+    void select( const double sample_weight );
+    void unselect() { this->selected = false; this->sample_weight = 0.0; }
 
     /**
      * Returns the individual's parent household
@@ -152,6 +153,11 @@ namespace sampsim
      * The individual's disease status
      */
     bool disease;
+
+    /**
+     * When selected, the individual's sample weight
+     */
+    double sample_weight;
   };
 }
 

@@ -25,6 +25,7 @@ namespace Json{ class Value; }
 
 namespace sampsim
 {
+class individual;
 class building_tree;
 class population;
 
@@ -273,6 +274,15 @@ namespace sample
      * to determine when to stop selecting buildings.
      */
     virtual bool is_sample_complete() = 0;
+
+    /**
+     * Determines an individual's sample weight
+     * 
+     * Sample weight is the inverse of the probability of selecting an individual.  This base class
+     * includes determining the probability of selecting the town the individual belongs to as compared
+     * to the total population size.  Additional factors must be implemented by child classes.
+     */
+    virtual double get_sample_weight( const sampsim::individual* ) const;
 
     /**
      * The population to sample from
