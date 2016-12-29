@@ -8,10 +8,10 @@ Once a town has been selected for sampling the following algorithm is performed 
 
 1. select random point in town
 2. make a set of all unselected buildings, $B$, which are within the “sampling radius”^\*^ of the selected point
-3. if $B$ is empty then go back to step 2 (if this happens 1000 times then quit with an error)
+3. if $B$ is empty then go back to step 1 (if this happens 1000 times then quit with an error)
 4. select a random building, $b$, in set $B$
 5. add all individuals^\*\*^ in all households in building $b$ to the sample
-6. if number of individuals in the sample is less than the sample size return to step 2
+6. if number of individuals in the sample is less than the sample size return to step 1
 
 \* "sampling radius" is a parameter defined by the user when running the sampler and remains constant for all sampling circles across all towns
 
@@ -28,10 +28,10 @@ Strictly, it's number of buildings or households, but we ignore that, and assume
 
 Probability of selecting circle $\overset{\circ}{j}$ is:
 $$
-P_{\overset{\circ}{j}\bigvee i} = P\big(\text{select circle}\ \overset{\circ}{j}\ \text{within town}\ i\big) = \frac{A_{\overset{\circ}{j}}}{A_i}
+P_{\overset{\circ}{j}\bigvee i} = P\big(\text{select circle}\ \overset{\circ}{j}\ \text{within town}\ i\big) = \frac{A_c}{A_t} n_c
 $$
-where $A_{\overset{\circ}{j}}=$ area of the circle $\overset{\circ}{j}$, and $A_i=$ area of town $i$.
-Since all circles have the same area across all towns we do not have to include $P_{\overset{\circ}{j}\bigvee i}$ when determining sampling weights.
+where $A_c=$ area of the sampling circle (all circles will have the same radius defined by the "sampling radius" parameter set when running a sampler), $A_t=$ area of a town (all towns have the same area) and $n_c$ is the number of circles chosen within the town.
+The number of circles chosen will vary depending on the sampling radius and population density.
 
 Probability of selecting household $k$ in circle $\overset{\circ}{j}$ is:
 $$
@@ -48,8 +48,14 @@ Making the weight for household $i\overset{\circ}{j}k$ equal to:
 $$
 \begin{aligned}
 w_{i\overset{\circ}{j}k}
-  &= \frac{1}{P_{i\overset{\circ}{j}k}} \\
-  &= \frac{1}{P_i \times P_{k\bigvee \overset{\circ}{j}}} \quad \Big( \text{since} P_{\overset{\circ}{j}\bigvee i} \text{is identical in all towns} \Big) \\
-  &= \frac{n_{i\overset{\circ}{j}}}{n_i} N
+  &= \Big[ P_{i\overset{\circ}{j}k} \Big]^{-1} \\
+  &= \Big[ P_i \times P_{\overset{\circ}{j}\bigvee i} \times P_{k\bigvee \overset{\circ}{j}} \Big]^{-1} \\
+  &= \frac{n_{i\overset{\circ}{j}}NA_t}{n_in_cA_c}
 \end{aligned}
 $$
+where $n_{i\overset{\circ}{j}}=$ number of households in circle $\overset{\circ}{j}$,
+  $n_i=$ population of town i, 
+  $n_c$ is the number of circles chosen within the town,
+  $N=$ total population,
+  $A_t=$ area of a town,
+  $A_c=$ area of the sampling circle

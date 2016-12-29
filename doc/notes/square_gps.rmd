@@ -7,12 +7,12 @@ Algorithm
 Once a town has been selected for sampling the following algorithm is performed on that town:
 
 1. determine width of squares based on user input "number of squares per side"^\*^
-1. select random point in town and identify square, $S$, the point falls into
-2. make a set of all unselected buildings, $B$, which fall in square $S$
-3. if $B$ is empty then go back to step 2 (if this happens 1000 times then quit with an error)
-4. select a random building, $b$, in set $B$
-5. add all individuals^\*\*^ in all households in building $b$ to the sample
-6. if number of individuals in the sample is less than the sample size return to step 2
+2. select random point in town and identify square, $S$, the point falls into
+3. make a set of all unselected buildings, $B$, which fall in square $S$
+4. if $B$ is empty then go back to step 2 (if this happens 1000 times then quit with an error)
+5. select a random building, $b$, in set $B$
+6. add all individuals^\*\*^ in all households in building $b$ to the sample
+7. if number of individuals in the sample is less than the sample size return to step 2
 
 \* "number of squares per side" is a parameter defined by the user when running the sampler and corresponds to how many squares there are along any one axis for all towns (eg: 10 would mean that every town is divided into $10 \times 10 = 100$ squares total since there are always exactly the same number of squares along the X and Y axes )
 
@@ -32,7 +32,7 @@ $$
 P_{\overset{\scriptscriptstyle\square}{j}\bigvee i} = P\big(\text{select square}\ \overset{\scriptscriptstyle\square}{j}\ \text{within town}\ i\big) = \frac{n_s}{S}
 $$
 where $n_s=$ number of squares chosen within the town, and $S=$ number of squares in the town.
-Since all towns always have the same number of squares we do not have to include $P_{\overset{\scriptscriptstyle\square}{j}\bigvee i}$ when determining sampling weights.
+The number of squares chosen will vary depending on the size of squares and population density.
 
 Probability of selecting household $k$ in square $\overset{\scriptscriptstyle\square}{j}$ is:
 $$
@@ -49,8 +49,13 @@ Making the weight for household $i\overset{\scriptscriptstyle\square}{j}k$ equal
 $$
 \begin{aligned}
 w_{i\overset{\scriptscriptstyle\square}{j}k}
-  &= \frac{1}{P_{i\overset{\scriptscriptstyle\square}{j}k}} \\
-  &= \frac{1}{P_i \times P_{k\bigvee \overset{\scriptscriptstyle\square}{j}}} \quad \Big( \text{since} P_{\overset{\scriptscriptstyle\square}{j}\bigvee i} \text{is identical in all towns} \Big) \\
-  &= \frac{n_{i\overset{\scriptscriptstyle\square}{j}}}{n_i} N
+  &= \Big[ P_{i\overset{\scriptscriptstyle\square}{j}k} \Big]^{-1} \\
+  &= \Big[ P_i \times P_{\overset{\scriptscriptstyle\square}{j}\bigvee i} \times P_{k\bigvee \overset{\scriptscriptstyle\square}{j}} \Big]^{-1} \\
+  &= \frac{n_{i\overset{\scriptscriptstyle\square}{j}}NS}{n_i n_s}
 \end{aligned}
 $$
+where $n_{i\overset{\scriptscriptstyle\square}{j}}=$ number of households in square $\overset{\scriptscriptstyle\square}{j}$,
+  $n_i=$ population of town i,
+  $n_s=$ number of squares chosen within the town,
+  $S=$ number of squares in the town and
+  $N=$ total population.
