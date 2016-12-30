@@ -71,6 +71,7 @@ namespace sampsim
     void from_json( const Json::Value& );
     void to_json( Json::Value& ) const;
     void to_csv( std::ostream&, std::ostream& ) const;
+    unsigned int get_number_of_individuals() const { return this->number_of_individuals; }
     std::vector< std::pair<unsigned int, unsigned int> >count_individuals() const;
     void select();
     void unselect();
@@ -283,6 +284,12 @@ namespace sampsim
      * Whether the has_river cache has been determined yet
      */
     bool has_river_cached;
+
+    /**
+     * The number of individuals in this tile.  This is determined the first time that count_individuals()
+     * is called (and used as a cache for performance reasons).
+     */
+    unsigned int number_of_individuals;
   };
 }
 

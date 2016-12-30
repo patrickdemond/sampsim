@@ -52,6 +52,7 @@ namespace sampsim
     this->town_size_min = 0.0;
     this->town_size_max = 0.0;
     this->town_size_shape = 0.0;
+    this->number_of_individuals = 0;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -120,6 +121,7 @@ namespace sampsim
 
       t->create();
       this->town_list.push_back( t );
+      this->number_of_individuals += t->get_number_of_individuals();
     }
 
     utilities::output( "finished creating population" );

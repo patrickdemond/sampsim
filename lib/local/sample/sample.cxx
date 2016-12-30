@@ -313,11 +313,10 @@ namespace sample
   double sample::get_sample_weight( const sampsim::individual* individual ) const
   {
     // return the ratio of the number of individuals in the individual's population to town
-    auto town_count_vector = individual->get_town()->count_individuals();
-    auto pop_count_vector = individual->get_population()->count_individuals();
+    unsigned int population_total = individual->get_population()->get_number_of_individuals();
 
-    return ( pop_count_vector[0].first + pop_count_vector[0].second ) /
-           ( town_count_vector[0].first + town_count_vector[0].second );
+    return 0 == population_total ? 0 :
+           population_total / individual->get_town()->get_number_of_individuals();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

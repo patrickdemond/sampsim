@@ -44,7 +44,7 @@ namespace sample
     /**
      * Construction
      */
-    circle_gps() : radius( 0 ) {}
+    circle_gps() : radius( 0 ), number_of_circles( 0 ) {}
 
     // defining pure abstract methods
     std::string get_name() const { return "circle_gps"; }
@@ -91,6 +91,11 @@ namespace sample
      * What distance (in meters) from a GPS point to include when searching for households
      */
     double radius;
+
+    /**
+     * The total number of circles used to select the current building
+     */
+    unsigned int number_of_circles;
   };
 }
 

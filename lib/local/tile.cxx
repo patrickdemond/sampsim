@@ -26,6 +26,7 @@ namespace sampsim
     this->set_index( index );
     this->has_river = false;
     this->has_river_cached = false;
+    this->number_of_individuals = 0;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -56,7 +57,6 @@ namespace sampsim
     // they meet the density and the other half to stop adding buildings just before they meet the
     // density
     unsigned int count = 0;
-    unsigned int total_individuals = 0;
     double current_density = 0;
     double area = this->get_area();
     bool stop_after = 0 != ( this->index.first + this->index.second ) % 2;
@@ -68,8 +68,8 @@ namespace sampsim
       building *b = new building( this );
       b->create();
       count_vector = b->count_individuals();
-      total_individuals += ( count_vector[0].first + count_vector[0].second );
-      current_density = static_cast< double >( total_individuals ) / area;
+      this->number_of_individuals += ( count_vector[0].first + count_vector[0].second );
+      current_density = static_cast< double >( this->number_of_individuals ) / area;
 
       // store it in the building list, but not if we are not stopping after the density is met
       // and this is the last building to be added

@@ -189,6 +189,12 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  unsigned int household::get_number_of_individuals() const
+  {
+    return this->individual_list.size();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   std::vector< std::pair<unsigned int, unsigned int> > household::count_individuals() const
   {
     bool sample_mode = this->get_population()->get_sample_mode();

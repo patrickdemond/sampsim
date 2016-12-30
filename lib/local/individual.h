@@ -69,6 +69,7 @@ namespace sampsim
     void from_json( const Json::Value& );
     void to_json( Json::Value& ) const;
     void to_csv( std::ostream&, std::ostream& ) const;
+    unsigned int get_number_of_individuals() const { return 1; }
     std::vector< std::pair<unsigned int, unsigned int> >count_individuals() const;
     void select() { this->select( 1.0 ); }
     void select( const double sample_weight );

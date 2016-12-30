@@ -24,6 +24,7 @@ namespace sampsim
   building::building( tile *parent )
   {
     this->parent = parent;
+    this->number_of_individuals = 0;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -86,6 +87,9 @@ namespace sampsim
     household *h = new household( this );
     h->create();
     this->household_list.push_back( h );
+
+    // cache the number-of-individuals
+    this->number_of_individuals = h->get_number_of_individuals();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

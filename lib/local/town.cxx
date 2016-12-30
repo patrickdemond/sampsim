@@ -41,6 +41,7 @@ namespace sampsim
     this->mean_disease = new trend;
     this->sd_disease = new trend;
     this->population_density = new trend;
+    this->number_of_individuals = 0;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -116,6 +117,7 @@ namespace sampsim
 
         t->create();
         this->tile_list[index] = t;
+        this->number_of_individuals += t->get_number_of_individuals();
       }
     }
 

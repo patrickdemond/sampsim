@@ -140,8 +140,19 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   double square_gps::get_sample_weight( const sampsim::individual* individual ) const
   {
-    // TODO: multiply by total_squares / selected_squares
-    return gps::get_sample_weight( individual );
+    // multiply by total_squares / selected_squares
+    unsigned int total = 0, selected = 0;
+    for( auto itx = this->selected_squares.cbegin(); itx != this->selected_squares.cend(); ++itx )
+    {
+      for( auto ity = itx->cbegin(); ity != itx->cend(); ++ity )
+      {
+        if( *ity ) selected++;
+        total++;
+      }
+    }
+
+    return gps::get_sample_weight( individual ) *
+           static_cast< double >( total ) / static_cast< double >( selected );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

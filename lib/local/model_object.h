@@ -46,6 +46,14 @@ namespace sampsim
     model_object() : selected( false ) {}
 
     /**
+     * Get the number of individuals in the model
+     * 
+     * This is much faster than count_individuals and should be used if you only need the total number of
+     * individuals in the model.
+     */
+    virtual unsigned int get_number_of_individuals() const = 0;
+
+    /**
      * Get the number of diseased and non-diseased individuals in the model
      * 
      * Returns a vector of pairs containing the total number of individuals who do and do not have disease.

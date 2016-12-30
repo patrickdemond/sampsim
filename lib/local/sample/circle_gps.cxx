@@ -9,6 +9,7 @@
 #include "circle_gps.h"
 
 #include "building_tree.h"
+#include "individual.h"
 #include "town.h"
 
 #include <json/value.h>
@@ -35,16 +36,16 @@ namespace sample
     building_list_type circle_building_list;
     coordinate centroid = ( *building_list.cbegin() )->get_town()->get_centroid();
 
-    int iteration = 0;
+    this->number_of_circles = 0;
     // keep selecting a random point until there is at least one building found in the resulting circle
-    while( 0 == circle_building_list.size() && iteration < 1000 )
+    while( 0 == circle_building_list.size() && this->number_of_circles < 1000 )
     {
       // select a random point within the population's bounds
       coordinate p( 2 * centroid.x * utilities::random(), 2 * centroid.y * utilities::random() );
       if( utilities::verbose )
         utilities::output(
           "iteration #%d: searching circle at %0.3f, %0.3f with radius %0.3f",
-          iteration + 1,
+          this->number_of_circles + 1,
           p.x, p.y,
           this->radius );
 
@@ -58,7 +59,7 @@ namespace sample
       if( 0 == circle_building_list.size() && utilities::verbose )
         utilities::output( "no buildings found in GPS circle" );
 
-      iteration++;
+      this->number_of_circles++;
     }
 
     this->number_of_buildings = circle_building_list.size();
@@ -84,8 +85,11 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   double circle_gps::get_sample_weight( const sampsim::individual* individual ) const
   {
-    // TODO: multiply by area_of_town / ( area_of_circle * number_of_circles )
-    return gps::get_sample_weight( individual );
+    // multiply by area_of_town / ( area_of_circle * number_of_circles )
+    double area_of_town = individual->get_town()->get_area();
+    double area_of_circles = M_PI * this->radius * this->radius * this->number_of_circles;
+
+    return gps::get_sample_weight( individual ) * area_of_town / area_of_circles;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
