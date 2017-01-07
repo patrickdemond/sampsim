@@ -24,13 +24,13 @@ $$
 P_i = P\big(\text{select town i}\big) = \frac{n_i}{N}
 $$
 where $n_i=$ population of town i, and $N=$ total population.
-Strictly, it's number of buildings or households, but we ignore that, and assume the number of people per household is constant.
+Strictly, it's number of buildings or households, but we ignore that, and assume the number of people per household in the different towns is constant.
 
 Probability of selecting circle $\overset{\circ}{j}$ is:
 $$
 P_{\overset{\circ}{j}\bigvee i} = P\big(\text{select circle}\ \overset{\circ}{j}\ \text{within town}\ i\big) = \frac{A_c}{A_t} n_c
 $$
-where $A_c=$ area of the sampling circle (all circles will have the same radius defined by the "sampling radius" parameter set when running a sampler), $A_t=$ area of a town (all towns have the same area) and $n_c$ is the number of circles chosen within the town.
+where $A_c=$ area of the sampling circle (all circles will have the same radius defined by the "sampling radius" parameter set when running a sampler), $A_t=$ area of a town (all towns have the same area) and $n_c$ is the number of circles chosen within the town (including empty circles).
 The number of circles chosen will vary depending on the sampling radius and population density.
 
 Probability of selecting household $k$ in circle $\overset{\circ}{j}$ is:
@@ -59,3 +59,21 @@ where $n_{i\overset{\circ}{j}}=$ number of households in circle $\overset{\circ}
   $N=$ total population,
   $A_t=$ area of a town,
   $A_c=$ area of the sampling circle
+
+If all eligible people in the household are chosen, then this is the weight for all those individuals.  When only one person per household is selected, let $n_{kl}$ be the number of eligible people in the household (e.g.: the number of children or number of adults):
+
+$$
+P_{l\bigvee k} = P\big(\text{select person} l \text{within household} k\big) = \frac{1}{n_{kl}}
+$$
+
+Therefore the probability of sampling an individual $l$ is:
+
+$$
+P(\text{select individiual}) = P_{i\overset{\circ}{j}kl} = P_{l\bigvee k} \times P_{i\overset{\circ}{j}k}
+$$
+
+Making the weight for individual $ij\overset{\circ}{k}l$ equal to:
+
+$$
+w_{i\overset{\circ}{j}kl} = \frac{n_{i\overset{\circ}{j}}n_{kl}NA_t}{n_in_cA_c}
+$$

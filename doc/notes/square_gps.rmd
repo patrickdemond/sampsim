@@ -25,13 +25,13 @@ $$
 P_i = P\big(\text{select town i}\big) = \frac{n_i}{N}
 $$
 where $n_i=$ population of town i, and $N=$ total population.
-Strictly, it's number of buildings or households, but we ignore that, and assume the number of people per household is constant.
+Strictly, it's number of buildings or households, but we ignore that, and assume the number of people per household in the different towns is constant.
 
 Probability of selecting square $\overset{\scriptscriptstyle\square}{j}$ is:
 $$
 P_{\overset{\scriptscriptstyle\square}{j}\bigvee i} = P\big(\text{select square}\ \overset{\scriptscriptstyle\square}{j}\ \text{within town}\ i\big) = \frac{n_s}{S}
 $$
-where $n_s=$ number of squares chosen within the town, and $S=$ number of squares in the town.
+where $n_s=$ number of squares chosen within the town (including empty squares), and $S=$ number of squares in the town.
 The number of squares chosen will vary depending on the size of squares and population density.
 
 Probability of selecting household $k$ in square $\overset{\scriptscriptstyle\square}{j}$ is:
@@ -59,3 +59,21 @@ where $n_{i\overset{\scriptscriptstyle\square}{j}}=$ number of households in squ
   $n_s=$ number of squares chosen within the town,
   $S=$ number of squares in the town and
   $N=$ total population.
+
+If all eligible people in the household are chosen, then this is the weight for all those individuals.  When only one person per household is selected, let $n_{kl}$ be the number of eligible people in the household (e.g.: the number of children or number of adults): 
+
+$$
+P_{l\bigvee k} = P\big(\text{select person} l \text{within household} k\big) = \frac{1}{n_{kl}}
+$$
+
+Therefore the probability of sampling an individual $l$ is: 
+
+$$
+P(\text{select individiual}) = P_{i\overset{\scriptscriptstyle\square}{j}kl} = P_{l\bigvee k} \times P_{i\overset{\scriptscriptstyle\square}{j}k}
+$$
+
+Making the weight for individual $ij\overset{\scriptscriptstyle\square}{k}l$ equal to:
+
+$$
+w_{i\overset{\scriptscriptstyle\square}{j}kl} = \frac{n_{i\overset{\scriptscriptstyle\square}{j}}n_{kl}NA_t}{n_in_cA_c}
+$$
