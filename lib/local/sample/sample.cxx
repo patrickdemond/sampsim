@@ -312,11 +312,18 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   double sample::get_sample_weight( const sampsim::individual* individual ) const
   {
-    // return the ratio of the number of individuals in the individual's population to town
     unsigned int population_total = individual->get_population()->get_number_of_individuals();
+    // return the ratio of the number of individuals in the individual's population to town
+    double population_to_town_ratio =
+      static_cast< double >( population_total ) /
+      static_cast< double >( individual->get_town()->get_number_of_individuals() );
 
-    return 0 == population_total ? 0 :
-           population_total / individual->get_town()->get_number_of_individuals();
+    // when choosing one individual per household include ratio of household size to (one) individual
+    double household_to_individual_ratio = this->one_per_household ?
+      static_cast< double >( individual->get_household()->get_number_of_individuals() ) :
+      1.0;
+
+    return 0 == population_total ? 0 : population_to_town_ratio * household_to_individual_ratio;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
