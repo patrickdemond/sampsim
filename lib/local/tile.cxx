@@ -60,16 +60,14 @@ namespace sampsim
     double current_density = 0;
     double area = this->get_area();
     bool stop_after = 0 != ( this->index.first + this->index.second ) % 2;
-    std::vector< std::pair<unsigned int, unsigned int> > count_vector;
 
     while( current_density < this->population_density )
     {
       // create the building
       building *b = new building( this );
       b->create();
-      count_vector = b->count_individuals();
-      this->number_of_individuals += ( count_vector[0].first + count_vector[0].second );
-      current_density = static_cast< double >( this->number_of_individuals ) / area;
+      unsigned int new_number_of_individuals = this->number_of_individuals + b->get_number_of_individuals();
+      current_density = static_cast< double >( new_number_of_individuals ) / area;
 
       // store it in the building list, but not if we are not stopping after the density is met
       // and this is the last building to be added
@@ -80,6 +78,7 @@ namespace sampsim
       else
       {
         this->building_list.push_back( b );
+        this->number_of_individuals += b->get_number_of_individuals();
       }
     }
 

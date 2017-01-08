@@ -137,8 +137,7 @@ namespace sampsim
     std::vector< double > town_log_individual_count;
     for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
     {
-      std::vector< std::pair<unsigned int, unsigned int> > count_vector = (*it)->count_individuals();
-      double log_individuals = log10( count_vector[0].first + count_vector[0].second );
+      double log_individuals = log10( this->number_of_individuals );
       town_log_individual_count.push_back( log_individuals );
       sum_log_individual_count += log_individuals;
     }
@@ -169,9 +168,7 @@ namespace sampsim
       ++log_it;
     }
 
-    std::vector< std::pair<unsigned int, unsigned int> > count_vector = this->count_individuals();
-    unsigned int total_individuals = count_vector[0].first + count_vector[0].second;
-    utilities::output( "finished defining population, %d individuals generated", total_individuals );
+    utilities::output( "finished defining population, %d individuals generated", this->number_of_individuals );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

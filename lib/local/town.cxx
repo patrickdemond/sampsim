@@ -155,17 +155,15 @@ namespace sampsim
     // function of the various contributing factors
 
     // create a matrix of all individuals (rows) and their various disease predictor factors
-    std::vector< std::pair<unsigned int, unsigned int> > count_vector = this->count_individuals();
-    const unsigned int total_individuals = ( count_vector[0].first + count_vector[0].second );
     const unsigned int number_of_disease_weights = pop->get_number_of_disease_weights();
     double value[number_of_disease_weights], total[number_of_disease_weights];
     for( unsigned int c = 0; c < number_of_disease_weights; c++ ) total[c] = 0;
 
     std::vector< double > matrix[number_of_disease_weights];
     for( unsigned int c = 0; c < number_of_disease_weights; c++ )
-      matrix[c].resize( total_individuals );
+      matrix[c].resize( this->number_of_individuals );
     individual_list_type individual_list;
-    individual_list.resize( total_individuals );
+    individual_list.resize( this->number_of_individuals );
 
     unsigned int individual_index = 0;
 
@@ -182,8 +180,7 @@ namespace sampsim
              household_it != ( *building_it )->get_household_list_cend();
              ++household_it )
         {
-          count_vector = ( *household_it )->count_individuals();
-          value[0] = count_vector[0].first + count_vector[0].second;
+          value[0] = ( *household_it )->get_number_of_individuals();
           value[1] = ( *household_it )->get_income();
           value[2] = ( *household_it )->get_disease_risk();
 
@@ -214,16 +211,16 @@ namespace sampsim
 
     for( unsigned int c = 0; c < number_of_disease_weights; c++ )
     {
-      mean[c] = total[c] / total_individuals;
+      mean[c] = total[c] / this->number_of_individuals;
       sd[c] = 0;
-      for( unsigned int i = 0; i < total_individuals; i++ )
+      for( unsigned int i = 0; i < this->number_of_individuals; i++ )
       {
         double diff = safe_subtract( matrix[c][i], mean[c] );
         sd[c] += diff*diff;
       }
-      sd[c] = sqrt( sd[c] / ( total_individuals - 1 ) );
+      sd[c] = sqrt( sd[c] / ( this->number_of_individuals - 1 ) );
 
-      for( unsigned int i = 0; i < total_individuals; i++ )
+      for( unsigned int i = 0; i < this->number_of_individuals; i++ )
       {
         matrix[c][i] = 0 == sd[c]
                      ? 0.0 // avoid division by 0
@@ -238,7 +235,7 @@ namespace sampsim
     double target_prevalence_factor = log( 1/adjusted_prevalence_factor - 1 );
 
     // factor in weights, compute disease probability then set disease status for all individuals
-    for( unsigned int i = 0; i < total_individuals; i++ )
+    for( unsigned int i = 0; i < this->number_of_individuals; i++ )
     {
       double eta = 0, probability;
 
@@ -252,7 +249,7 @@ namespace sampsim
 
     stream.str( "" );
     stream << "finished defining town #" << ( this->index + 1 ) << ", "
-           << total_individuals << " individuals generated";
+           << this->number_of_individuals << " individuals generated";
     utilities::output( stream.str() );
   }
 

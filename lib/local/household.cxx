@@ -64,6 +64,7 @@ namespace sampsim
 
     // We'll use 1 + distribution so that there are no empty households
     int size = this->get_town()->get_population_distribution()->generate_value() + 1;
+    this->individual_list.reserve( size );
 
     // create the first individual an adult of random sex
     bool male = 0 == utilities::random( 0, 1 );
@@ -159,11 +160,9 @@ namespace sampsim
     unsigned int town_index = this->get_town()->get_index();
 
     // write the household index and position to the household stream
-    std::vector< std::pair<unsigned int, unsigned int> > count_vector = this->count_individuals();
-    unsigned int total_individuals = count_vector[0].first + count_vector[0].second;
     household_stream << town_index << "," << utilities::household_index << ",";
     this->get_building()->get_position().to_csv( household_stream, individual_stream );
-    household_stream << "," << total_individuals
+    household_stream << "," << this->individual_list.size()
                      << "," << this->income << ","
                      << this->disease_risk;
 
