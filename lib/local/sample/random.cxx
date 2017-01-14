@@ -26,5 +26,14 @@ namespace sample
     std::advance( building_it, utilities::random( 0, list.size() - 1 ) );
     return *building_it;
   }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  double random::get_sample_weight( const sampsim::individual* individual ) const
+  {
+    // Since towns are chosen using PPS, and there is a fixed number of people sampled per town, the
+    // samples are "self-weighted" (ie: the probability of any person being chosen is the same for
+    // everyone in the sample)
+    return 1.0;
+  }
 }
 }

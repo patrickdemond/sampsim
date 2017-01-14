@@ -112,6 +112,11 @@ namespace sample
     void unset_start_angle() { this->start_angle_defined = false; }
 
     /**
+     * Determines an individual's sample weight
+     */
+    virtual double get_sample_weight( const sampsim::individual* ) const;
+
+    /**
      * Returns the header for generated CSV files
      * 
      * The header includes all parameters used by the sampling method

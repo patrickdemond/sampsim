@@ -51,6 +51,11 @@ namespace sample
      */
     virtual std::string get_type() const { return "random"; }
 
+    /**
+     * Determines an individual's sample weight
+     */
+    virtual double get_sample_weight( const sampsim::individual* ) const;
+
   protected:
     /**
      * Algorithm which selects buildings based on the sampling method

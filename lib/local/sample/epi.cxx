@@ -149,6 +149,15 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  double epi::get_sample_weight( const sampsim::individual* individual ) const
+  {
+    // Since towns are chosen using PPS, and there is a fixed number of people sampled per town, the
+    // samples are "self-weighted" (ie: the probability of any person being chosen is the same for
+    // everyone in the sample)
+    return 1.0;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void epi::from_json( const Json::Value &json )
   {
     sized_sample::from_json( json );
