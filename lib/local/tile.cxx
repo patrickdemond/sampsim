@@ -10,6 +10,7 @@
 
 #include "building.h"
 #include "population.h"
+#include "summary.h"
 #include "town.h"
 #include "utilities.h"
 
@@ -177,6 +178,19 @@ namespace sampsim
 
     this->extent = std::pair< coordinate, coordinate >( lower, upper );
     this->centroid = ( lower + upper ) / 2;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  summary* tile::get_summary() const
+  {
+    if( this->sum->is_expired() )
+    {
+      for( auto it = this->building_list.cbegin(); it != this->building_list.cend(); ++it )
+        this->sum->add( (*it)->get_summary() );
+      this->sum->set_expired( false );
+    }
+
+    return this->sum;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

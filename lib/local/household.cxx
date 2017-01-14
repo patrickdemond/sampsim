@@ -12,6 +12,7 @@
 #include "household.h"
 #include "individual.h"
 #include "population.h"
+#include "summary.h"
 #include "town.h"
 #include "trend.h"
 #include "utilities.h"
@@ -191,6 +192,19 @@ namespace sampsim
   unsigned int household::get_number_of_individuals() const
   {
     return this->individual_list.size();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  summary* household::get_summary() const
+  {
+    if( this->sum->is_expired() )
+    {
+      for( auto it = this->individual_list.cbegin(); it != this->individual_list.cend(); ++it )
+        this->sum->add( (*it)->get_summary() );
+      this->sum->set_expired( false );
+    }
+
+    return this->sum;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

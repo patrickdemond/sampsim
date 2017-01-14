@@ -10,6 +10,7 @@
 
 #include "household.h"
 #include "population.h"
+#include "summary.h"
 #include "town.h"
 #include "tile.h"
 #include "utilities.h"
@@ -171,6 +172,19 @@ namespace sampsim
       household *h = *it;
       if( !sample_mode || h->is_selected() ) h->to_csv( household_stream, individual_stream );
     }
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  summary* building::get_summary() const
+  {
+    if( this->sum->is_expired() )
+    {
+      for( auto it = this->household_list.cbegin(); it != this->household_list.cend(); ++it )
+        this->sum->add( (*it)->get_summary() );
+      this->sum->set_expired( false );
+    }
+
+    return this->sum;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

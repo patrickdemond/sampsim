@@ -11,6 +11,7 @@
 #include "building.h"
 #include "household.h"
 #include "individual.h"
+#include "summary.h"
 #include "town.h"
 #include "trend.h"
 #include "utilities.h"
@@ -253,61 +254,43 @@ namespace sampsim
   {
     std::ofstream stream( filename + ".txt", std::ofstream::out );
 
-    std::vector< std::pair<unsigned int, unsigned int> > count_vector = this->count_individuals();
+    summary* sum = this->get_summary();
 
-    stream << "individual count: " << count_vector[0].first << " diseased of "
-           << ( count_vector[0].first + count_vector[0].second ) << " total "
-           << "(prevalence " << static_cast< double >( count_vector[0].first ) /
-                                static_cast< double >( count_vector[0].first + count_vector[0].second )
-           << ")" << std::endl;
+    stream << "total count: " << sum->get_count( summary::all, summary::diseased )
+           << " diseased of " << sum->get_count( summary::all, summary::all ) << " total "
+           << "(prevalence " << sum->get_count_fraction( summary::all ) << ")" << std::endl;
 
-    stream << "adult count: " << count_vector[1].first << " diseased of "
-           << ( count_vector[1].first + count_vector[1].second ) << " total "
-           << "(prevalence " << static_cast< double >( count_vector[1].first ) /
-                                static_cast< double >( count_vector[1].first + count_vector[1].second )
-           << ")" << std::endl;
+    stream << "adult count: " << sum->get_count( summary::adult, summary::diseased )
+           << " diseased of " << sum->get_count( summary::adult, summary::all ) << " total "
+           << "(prevalence " << sum->get_count_fraction( summary::adult ) << ")" << std::endl;
 
-    stream << "child count: " << count_vector[2].first << " diseased of "
-           << ( count_vector[2].first + count_vector[2].second ) << " total "
-           << "(prevalence " << static_cast< double >( count_vector[2].first ) /
-                                static_cast< double >( count_vector[2].first + count_vector[2].second )
-           << ")" << std::endl;
+    stream << "child count: " << sum->get_count( summary::child, summary::diseased )
+           << " diseased of " << sum->get_count( summary::child, summary::all ) << " total "
+           << "(prevalence " << sum->get_count_fraction( summary::child ) << ")" << std::endl;
 
-    stream << "male count: " << count_vector[3].first << " diseased of "
-           << ( count_vector[3].first + count_vector[3].second ) << " total "
-           << "(prevalence " << static_cast< double >( count_vector[3].first ) /
-                                static_cast< double >( count_vector[3].first + count_vector[3].second )
-           << ")" << std::endl;
+    stream << "male count: " << sum->get_count( summary::male, summary::diseased )
+           << " diseased of " << sum->get_count( summary::male, summary::all ) << " total "
+           << "(prevalence " << sum->get_count_fraction( summary::male ) << ")" << std::endl;
 
-    stream << "female count: " << count_vector[4].first << " diseased of "
-           << ( count_vector[4].first + count_vector[4].second ) << " total "
-           << "(prevalence " << static_cast< double >( count_vector[4].first ) /
-                                static_cast< double >( count_vector[4].first + count_vector[4].second )
-           << ")" << std::endl;
+    stream << "female count: " << sum->get_count( summary::female, summary::diseased )
+           << " diseased of " << sum->get_count( summary::female, summary::all ) << " total "
+           << "(prevalence " << sum->get_count_fraction( summary::female ) << ")" << std::endl;
 
-    stream << "male adult count: " << count_vector[5].first << " diseased of "
-           << ( count_vector[5].first + count_vector[5].second ) << " total "
-           << "(prevalence " << static_cast< double >( count_vector[5].first ) /
-                                static_cast< double >( count_vector[5].first + count_vector[5].second )
-           << ")" << std::endl;
+    stream << "adult male count: " << sum->get_count( summary::adult_male, summary::diseased )
+           << " diseased of " << sum->get_count( summary::adult_male, summary::all ) << " total "
+           << "(prevalence " << sum->get_count_fraction( summary::adult_male ) << ")" << std::endl;
 
-    stream << "female adult count: " << count_vector[6].first << " diseased of "
-           << ( count_vector[6].first + count_vector[6].second ) << " total "
-           << "(prevalence " << static_cast< double >( count_vector[6].first ) /
-                                static_cast< double >( count_vector[6].first + count_vector[6].second )
-           << ")" << std::endl;
+    stream << "adult female count: " << sum->get_count( summary::adult_female, summary::diseased )
+           << " diseased of " << sum->get_count( summary::adult_female, summary::all ) << " total "
+           << "(prevalence " << sum->get_count_fraction( summary::adult_female ) << ")" << std::endl;
 
-    stream << "male child count: " << count_vector[7].first << " diseased of "
-           << ( count_vector[7].first + count_vector[7].second ) << " total "
-           << "(prevalence " << static_cast< double >( count_vector[7].first ) /
-                                static_cast< double >( count_vector[7].first + count_vector[7].second )
-           << ")" << std::endl;
+    stream << "child male count: " << sum->get_count( summary::child_male, summary::diseased )
+           << " diseased of " << sum->get_count( summary::child_male, summary::all ) << " total "
+           << "(prevalence " << sum->get_count_fraction( summary::child_male ) << ")" << std::endl;
 
-    stream << "female child count: " << count_vector[8].first << " diseased of "
-           << ( count_vector[8].first + count_vector[8].second ) << " total "
-           << "(prevalence " << static_cast< double >( count_vector[8].first ) /
-                                static_cast< double >( count_vector[8].first + count_vector[8].second )
-           << ")" << std::endl;
+    stream << "child female count: " << sum->get_count( summary::child_female, summary::diseased )
+           << " diseased of " << sum->get_count( summary::child_female, summary::all ) << " total "
+           << "(prevalence " << sum->get_count_fraction( summary::child_female ) << ")" << std::endl;
 
     stream.close();
   }
@@ -630,6 +613,19 @@ namespace sampsim
     }
     this->mean_disease->copy( mean );
     this->sd_disease->copy( sd );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  summary* population::get_summary() const
+  {
+    if( this->sum->is_expired() )
+    {
+      for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
+        this->sum->add( (*it)->get_summary() );
+      this->sum->set_expired( false );
+    }
+
+    return this->sum;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

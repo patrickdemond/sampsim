@@ -75,6 +75,7 @@ namespace sampsim
     void to_csv( std::ostream&, std::ostream& ) const;
     unsigned int get_number_of_individuals() const;
     std::vector< std::pair<unsigned int, unsigned int> >count_individuals() const;
+    summary* get_summary() const;
     void select();
     void unselect();
 

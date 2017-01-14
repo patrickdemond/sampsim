@@ -65,6 +65,7 @@ namespace sampsim
     void to_csv( std::ostream&, std::ostream& ) const;
     unsigned int get_number_of_individuals() const { return this->number_of_individuals; }
     std::vector< std::pair<unsigned int, unsigned int> >count_individuals() const;
+    summary* get_summary() const;
     void select();
     void unselect();
 
@@ -138,7 +139,7 @@ namespace sampsim
      * Returns whether the population is in sample mode or not
      * 
      * When a population is in sample mode then only selected buildings, households and individuals are
-     * included in all count_individuals(), to_json() and to_csv() methods (including this class' write()
+     * included in all get_summary(), to_json() and to_csv() methods (including this class' write()
      * method).
      */
     bool get_sample_mode() { return this->sample_mode; }
@@ -147,7 +148,7 @@ namespace sampsim
      * Sets the sample mode
      * 
      * When a population is in sample mode then only selected buildings, households and individuals are
-     * included in all copy(), count_individuals(), to_json() and to_csv() methods (including this class' write()
+     * included in all copy(), get_summary(), to_json() and to_csv() methods (including this class' write()
      * method).
      */
     void set_sample_mode( bool sample_mode ) { this->sample_mode = sample_mode; }
@@ -545,7 +546,7 @@ namespace sampsim
     town_list_type town_list;
 
     /**
-     * The number of individuals in the population.  This is determined the first time that count_individuals()
+     * The number of individuals in the population.  This is determined the first time that get_summary()
      * is called (and used as a cache for performance reasons).
      */
     unsigned int number_of_individuals;

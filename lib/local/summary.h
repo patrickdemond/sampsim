@@ -11,8 +11,6 @@
 
 #include "base_object.h"
 
-#include <vector>
-
 namespace Json { class Value; }
 
 /**
@@ -22,6 +20,8 @@ namespace Json { class Value; }
 
 namespace sampsim
 {
+  class individual;
+
   /**
    * @class summary
    * @author Patrick Emond <emondpd@mcmaster.ca>
@@ -30,71 +30,112 @@ namespace sampsim
    */
   class summary
   {
+    friend individual;
+
   public:
     /**
      * Constructor
      */
-    summary();
+    summary()
+    {
+      this->set_expired( true );
+    }
+
+    /**
+     * Determines whether or not the summary has expired
+     */
+    bool is_expired() const { return this->expired; }
 
     /**
      * Mark the summary as expired, meaning that data will need to be re-calculated
      */
-    void expire();
+    void set_expired( const bool expired )
+    {
+      this->expired = expired;
+      if( this->expired ) this->reset();
+    }
 
     /**
-     * 
+     * Adds a summary's values to this one
      */
-    void calculate();
+    void add( summary* sum );
+
+    /**
+     * Method for getting count data
+     */
+    unsigned int get_count( const int category = all, const int state = all ) const
+    {
+      unsigned int count = 0;
+
+      if( all == category && all == state )
+      {
+        count += this->count[adult][diseased];
+        count += this->count[adult][healthy];
+        count += this->count[child][diseased];
+        count += this->count[child][healthy];
+      }
+      else if( all == category )
+      {
+        count += this->count[adult][state];
+        count += this->count[child][state];
+      }
+      else if( all == state )
+      {
+        count += this->count[category][diseased];
+        count += this->count[category][healthy];
+      }
+      else
+      {
+        count += this->count[category][state];
+      }
+
+      return count;
+    };
+
+    /**
+     * Method for getting count faction data
+     */
+    double get_count_fraction( const int category = all ) const
+    {
+      return static_cast< double >( this->get_count( category, diseased ) ) /
+             static_cast< double >( this->get_count( category, all ) );
+    };
+
+    enum
+    {
+      diseased = 0, healthy = 1, all = -1
+    };
+
+    enum
+    {
+      adult = 0, child = 1,
+      male = 2, female = 3,
+      adult_male = 4, adult_female = 5,
+      child_male = 6, child_female = 7
+    };
 
   private:
+    enum { category_size = 8, state_size = 2 };
+
+    /**
+     * Returns all values to 0
+     */
+    void reset();
+
     /**
      * Whether or not the data is out of date
      */
-    bool out_of_date;
+    bool expired;
 
     /**
      * Individual count values
      */
-    unsigned int count;
-    unsigned int selected_count;
-    unsigned int adult_count;
-    unsigned int adult_selected_count;
-    unsigned int child_count;
-    unsigned int child_selected_count;
-    unsigned int male_count;
-    unsigned int male_selected_count;
-    unsigned int female_count;
-    unsigned int female_selected_count;
-    unsigned int adult_male_count;
-    unsigned int adult_male_selected_count;
-    unsigned int adult_female_count;
-    unsigned int adult_female_selected_count;
-    unsigned int child_male_count;
-    unsigned int child_male_selected_count;
-    unsigned int child_female_count;
-    unsigned int child_female_selected_count;
+    unsigned int count[category_size][state_size];
 
     /**
      * Individual weight values
      */
-    double weight;
-    double selected_weight;
-    double adult_weight;
-    double adult_selected_weight;
-    double child_weight;
-    double child_selected_weight;
-    double male_weight;
-    double male_selected_weight;
-    double female_weight;
-    double female_selected_weight;
-    double adult_male_weight;
-    double adult_male_selected_weight;
-    double adult_female_weight;
-    double adult_female_selected_weight;
-    double child_male_weight;
-    double child_male_selected_weight;
-    double child_female_weight;
-    double child_female_selected_weight;
+    double weight[category_size][state_size];
   };
 }
 

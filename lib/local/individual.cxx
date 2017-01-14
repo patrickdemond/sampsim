@@ -10,6 +10,7 @@
 
 #include "household.h"
 #include "population.h"
+#include "summary.h"
 
 #include <json/value.h>
 
@@ -100,6 +101,51 @@ namespace sampsim
     individual_stream << sampsim::get_age_type_name( this->age ) << ","
                       << sampsim::get_sex_type_name( this->sex ) << ","
                       << ( this->disease ? 1 : 0 );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  summary* individual::get_summary() const
+  {
+    if( this->sum->is_expired() )
+    {
+      bool sample_mode = this->get_population()->get_sample_mode();
+      if( !sample_mode || this->is_selected() )
+      {
+        if( this->is_disease() )
+        {
+          if( ADULT == this->get_age() ) this->sum->count[summary::adult][summary::diseased]++;
+          else if( CHILD == this->get_age() ) this->sum->count[summary::child][summary::diseased]++;
+          if( MALE == this->get_sex() ) this->sum->count[summary::male][summary::diseased]++;
+          else if( FEMALE == this->get_sex() ) this->sum->count[summary::female][summary::diseased]++;
+          if( ADULT == this->get_age() && MALE == this->get_sex() )
+            this->sum->count[summary::adult_male][summary::diseased]++;
+          if( ADULT == this->get_age() && FEMALE == this->get_sex() )
+            this->sum->count[summary::adult_female][summary::diseased]++;
+          if( CHILD == this->get_age() && MALE == this->get_sex() )
+            this->sum->count[summary::child_male][summary::diseased]++;
+          if( CHILD == this->get_age() && FEMALE == this->get_sex() )
+            this->sum->count[summary::child_female][summary::diseased]++;
+        }
+        else
+        {
+          if( ADULT == this->get_age() ) this->sum->count[summary::adult][summary::healthy]++;
+          else if( CHILD == this->get_age() ) this->sum->count[summary::child][summary::healthy]++;
+          if( MALE == this->get_sex() ) this->sum->count[summary::male][summary::healthy]++;
+          else if( FEMALE == this->get_sex() ) this->sum->count[summary::female][summary::healthy]++;
+          if( ADULT == this->get_age() && MALE == this->get_sex() )
+            this->sum->count[summary::adult_male][summary::healthy]++;
+          if( ADULT == this->get_age() && FEMALE == this->get_sex() )
+            this->sum->count[summary::adult_female][summary::healthy]++;
+          if( CHILD == this->get_age() && MALE == this->get_sex() )
+            this->sum->count[summary::child_male][summary::healthy]++;
+          if( CHILD == this->get_age() && FEMALE == this->get_sex() )
+            this->sum->count[summary::child_female][summary::healthy]++;
+        }
+      }
+      this->sum->set_expired( false );
+    }
+
+    return this->sum;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

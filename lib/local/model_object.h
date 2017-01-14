@@ -21,6 +21,8 @@ namespace Json { class Value; }
 
 namespace sampsim
 {
+  class summary;
+
   /**
    * @class model_object
    * @author Patrick Emond <emondpd@mcmaster.ca>
@@ -48,7 +50,7 @@ namespace sampsim
     /**
      * Get the number of individuals in the model
      * 
-     * This is much faster than count_individuals and should be used if you only need the total number of
+     * This is much faster than get_summary() and should be used if you only need the total number of
      * individuals in the model.
      */
     virtual unsigned int get_number_of_individuals() const = 0;
@@ -70,6 +72,7 @@ namespace sampsim
      * This method iterates over all child models every time it is called, so it should only be used when
      * re-counting is necessary.  Do not call this method until the create() method has been called.
      */
+    virtual summary* get_summary() const = 0;
     virtual std::vector< std::pair<unsigned int, unsigned int> >count_individuals() const = 0;
 
     /**
@@ -116,6 +119,11 @@ namespace sampsim
      * Whether the model is selected
      */
     bool selected;
+
+    /**
+     * A summary object which tracks a summary of the object's data
+     */
+    summary *sum;
   };
 }
 

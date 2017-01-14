@@ -12,6 +12,7 @@
 #include "household.h"
 #include "individual.h"
 #include "population.h"
+#include "summary.h"
 #include "tile.h"
 #include "trend.h"
 #include "utilities.h"
@@ -423,6 +424,19 @@ namespace sampsim
     for( unsigned int i = 0; i < count; i++ )
       this->disease_pocket_list.push_back(
         coordinate( 2 * c.x * utilities::random(), 2 * c.y * utilities::random() ) );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  summary* town::get_summary() const
+  {
+    if( this->sum->is_expired() )
+    {
+      for( auto it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it )
+        this->sum->add( (*it).second->get_summary() );
+      this->sum->set_expired( false );
+    }
+
+    return this->sum;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
