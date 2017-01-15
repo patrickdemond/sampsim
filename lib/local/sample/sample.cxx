@@ -13,6 +13,7 @@
 #include "household.h"
 #include "individual.h"
 #include "population.h"
+#include "summary.h"
 #include "tile.h"
 #include "town.h"
 
@@ -122,8 +123,7 @@ namespace sample
 
     // get the population's total number of individuals
     this->population->set_sample_mode( false );
-    std::vector< std::pair<unsigned int, unsigned int> > count_vector = this->population->count_individuals();
-    unsigned int total_individuals = count_vector[0].first + count_vector[0].second;
+    unsigned int total_individuals = this->population->get_number_of_individuals();
 
     // create look-up table of towns based on their first and last individual number (sequentially)
     unsigned int town_index = 0;
@@ -135,8 +135,7 @@ namespace sample
          ++town_it )
     {
       sampsim::town *town = *town_it;
-      count_vector = town->count_individuals();
-      cumulative_individuals += ( count_vector[0].first + count_vector[0].second );
+      cumulative_individuals += town->get_number_of_individuals();
       town_lookup[town_index] = std::pair< unsigned int, sampsim::town* >( cumulative_individuals, town );
       town_index++;
     }
@@ -384,78 +383,101 @@ namespace sample
 
     std::ofstream stream( filename + ".txt", std::ofstream::app );
 
-    std::vector< std::pair<unsigned int, unsigned int> > total_vector;
+    sampsim::summary total_summary;
     std::vector< double > mean_vector, stdev_vector, squared_sum_vector;
-    std::vector< std::vector< std::pair<unsigned int, unsigned int> > > sample_count_vector;
+    std::vector< sampsim::summary* > summary_vector;
 
-    mean_vector.resize( 9, 0 );
-    stdev_vector.resize( 9, 0 );
-    total_vector.resize( 9, std::pair<unsigned int, unsigned int>( 0, 0 ) );
-    squared_sum_vector.resize( 9, 0 );
-    sample_count_vector.reserve( this->sampled_population_list.size() );
+    mean_vector.resize( sampsim::summary::category_size, 0 );
+    stdev_vector.resize( sampsim::summary::category_size, 0 );
+    squared_sum_vector.resize( sampsim::summary::category_size, 0 );
+    summary_vector.reserve( this->sampled_population_list.size() );
 
-    for( unsigned int s = 0; s < this->sampled_population_list.size(); s++ )
+    // get summaries of all populations and add them up as we go
+    for( unsigned int samp_index = 0; samp_index < this->sampled_population_list.size(); samp_index++ )
     {
-      sample_count_vector.push_back( this->sampled_population_list[s]->count_individuals() );
-      for( std::vector< std::pair<unsigned int, unsigned int> >::size_type i = 0; i < 9; i++ )
-      {
-        total_vector[i].first += sample_count_vector[s][i].first;
-        total_vector[i].second += sample_count_vector[s][i].second;
-      }
+      sampsim::summary *sum = this->sampled_population_list[samp_index]->get_summary();
+      total_summary.add( sum );
+      summary_vector.push_back( sum );
     }
 
     // determine standard deviations for all prevalences
-    for( std::vector< std::pair<unsigned int, unsigned int> >::size_type i = 0; i < 9; i++ )
+    for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
     {
-      mean_vector[i] = ( static_cast<double>( total_vector[i].first ) /
-                         static_cast<double>( total_vector[i].first + total_vector[i].second ) );
-      for( unsigned int s = 0; s < this->sampled_population_list.size(); s++ )
+      mean_vector[cat_index] = total_summary.get_count_fraction( cat_index );
+
+      for( unsigned int samp_index = 0; samp_index < this->sampled_population_list.size(); samp_index++ )
       {
         double diff = 
-          ( static_cast<double>( sample_count_vector[s][i].first ) /
-            static_cast<double>( sample_count_vector[s][i].first + sample_count_vector[s][i].second ) ) -
-          mean_vector[i];
-        squared_sum_vector[i] += diff*diff;
+          summary_vector[samp_index]->get_count_fraction( cat_index ) - mean_vector[cat_index];
+        squared_sum_vector[cat_index] += diff*diff;
       }
-      stdev_vector[i] = sqrt(
-        squared_sum_vector[i] /
-        static_cast<double>( this->sampled_population_list.size() - 1 ) );
+      stdev_vector[cat_index] = sqrt(
+        squared_sum_vector[cat_index] /
+        static_cast<double>( this->sampled_population_list.size() - 1 )
+      );
     }
 
-    stream << "sampled individual count: " << total_vector[0].first << " diseased of "
-           << ( total_vector[0].first + total_vector[0].second ) << " total "
+    stream << "sampled total count: "
+           << total_summary.get_count( sampsim::summary::all, sampsim::summary::diseased )
+           << " diseased of "
+           << total_summary.get_count( sampsim::summary::all, sampsim::summary::all )
+           << " total "
            << "(prevalence " << mean_vector[0] << " (" << stdev_vector[0] << "))" << std::endl;
 
-    stream << "sampled adult count: " << total_vector[1].first << " diseased of "
-           << ( total_vector[1].first + total_vector[1].second ) << " total "
+    stream << "sampled adult count: "
+           << total_summary.get_count( sampsim::summary::adult, sampsim::summary::diseased )
+           << " diseased of "
+           << total_summary.get_count( sampsim::summary::adult, sampsim::summary::all )
+           << " total "
            << "(prevalence " << mean_vector[1] << " (" << stdev_vector[1] << "))" << std::endl;
 
-    stream << "sampled child count: " << total_vector[2].first << " diseased of "
-           << ( total_vector[2].first + total_vector[2].second ) << " total "
+    stream << "sampled child count: "
+           << total_summary.get_count( sampsim::summary::child, sampsim::summary::diseased )
+           << " diseased of "
+           << total_summary.get_count( sampsim::summary::child, sampsim::summary::all )
+           << " total "
            << "(prevalence " << mean_vector[2] << " (" << stdev_vector[2] << "))" << std::endl;
 
-    stream << "sampled male count: " << total_vector[3].first << " diseased of "
-           << ( total_vector[3].first + total_vector[3].second ) << " total "
+    stream << "sampled male count: "
+           << total_summary.get_count( sampsim::summary::male, sampsim::summary::diseased )
+           << " diseased of "
+           << total_summary.get_count( sampsim::summary::male, sampsim::summary::all )
+           << " total "
            << "(prevalence " << mean_vector[3] << " (" << stdev_vector[3] << "))" << std::endl;
 
-    stream << "sampled female count: " << total_vector[4].first << " diseased of "
-           << ( total_vector[4].first + total_vector[4].second ) << " total "
+    stream << "sampled female count: "
+           << total_summary.get_count( sampsim::summary::female, sampsim::summary::diseased )
+           << " diseased of "
+           << total_summary.get_count( sampsim::summary::female, sampsim::summary::all )
+           << " total "
            << "(prevalence " << mean_vector[4] << " (" << stdev_vector[4] << "))" << std::endl;
 
-    stream << "sampled male adult count: " << total_vector[5].first << " diseased of "
-           << ( total_vector[5].first + total_vector[5].second ) << " total "
+    stream << "sampled male adult count: "
+           << total_summary.get_count( sampsim::summary::adult_male, sampsim::summary::diseased )
+           << " diseased of "
+           << total_summary.get_count( sampsim::summary::adult_male, sampsim::summary::all )
+           << " total "
            << "(prevalence " << mean_vector[5] << " (" << stdev_vector[5] << "))" << std::endl;
 
-    stream << "sampled female adult count: " << total_vector[6].first << " diseased of "
-           << ( total_vector[6].first + total_vector[6].second ) << " total "
+    stream << "sampled female adult count: "
+           << total_summary.get_count( sampsim::summary::adult_female, sampsim::summary::diseased )
+           << " diseased of "
+           << total_summary.get_count( sampsim::summary::adult_female, sampsim::summary::all )
+           << " total "
            << "(prevalence " << mean_vector[6] << " (" << stdev_vector[6] << "))" << std::endl;
 
-    stream << "sampled male child count: " << total_vector[7].first << " diseased of "
-           << ( total_vector[7].first + total_vector[7].second ) << " total "
+    stream << "sampled male child count: "
+           << total_summary.get_count( sampsim::summary::child_male, sampsim::summary::diseased )
+           << " diseased of "
+           << total_summary.get_count( sampsim::summary::child_male, sampsim::summary::all )
+           << " total "
            << "(prevalence " << mean_vector[7] << " (" << stdev_vector[7] << "))" << std::endl;
 
-    stream << "sampled female child count: " << total_vector[8].first << " diseased of "
-           << ( total_vector[8].first + total_vector[8].second ) << " total "
+    stream << "sampled female child count: "
+           << total_summary.get_count( sampsim::summary::child_female, sampsim::summary::diseased )
+           << " diseased of "
+           << total_summary.get_count( sampsim::summary::child_female, sampsim::summary::all )
+           << " total "
            << "(prevalence " << mean_vector[8] << " (" << stdev_vector[8] << "))" << std::endl;
 
     stream.close();

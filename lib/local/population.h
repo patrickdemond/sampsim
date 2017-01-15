@@ -65,7 +65,7 @@ namespace sampsim
     void to_csv( std::ostream&, std::ostream& ) const;
     unsigned int get_number_of_individuals() const { return this->number_of_individuals; }
     std::vector< std::pair<unsigned int, unsigned int> >count_individuals() const;
-    summary* get_summary() const;
+    summary* get_summary();
     void select();
     void unselect();
 
@@ -133,7 +133,7 @@ namespace sampsim
      * 
      * This method opens and writes a brief summary of the population
      */
-    void write_summary( const std::string filename ) const;
+    void write_summary( const std::string filename );
 
     /**
      * Returns whether the population is in sample mode or not

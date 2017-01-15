@@ -181,16 +181,16 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  summary* tile::get_summary() const
+  summary* tile::get_summary()
   {
-    if( this->sum->is_expired() )
+    if( this->sum.is_expired() )
     {
       for( auto it = this->building_list.cbegin(); it != this->building_list.cend(); ++it )
-        this->sum->add( (*it)->get_summary() );
-      this->sum->set_expired( false );
+        this->sum.add( (*it)->get_summary() );
+      this->sum.set_expired( false );
     }
 
-    return this->sum;
+    return &( this->sum );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

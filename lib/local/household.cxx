@@ -195,16 +195,16 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  summary* household::get_summary() const
+  summary* household::get_summary()
   {
-    if( this->sum->is_expired() )
+    if( this->sum.is_expired() )
     {
       for( auto it = this->individual_list.cbegin(); it != this->individual_list.cend(); ++it )
-        this->sum->add( (*it)->get_summary() );
-      this->sum->set_expired( false );
+        this->sum.add( (*it)->get_summary() );
+      this->sum.set_expired( false );
     }
 
-    return this->sum;
+    return &( this->sum );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

@@ -13,12 +13,12 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void summary::reset()
   {
-    for( int i = 0; i < category_size; i++ )
+    for( int cat_index = 0; cat_index < category_size; cat_index++ )
     {
-      for( int j = 0; j < state_size; j++ )
+      for( int state_index = 0; state_index < state_size; state_index++ )
       {
-        this->count[i][j] = 0;
-        this->weight[i][j] = 0.0;
+        this->count[cat_index][state_index] = 0;
+        this->weight[cat_index][state_index] = 0.0;
       }
     }
   }
@@ -26,12 +26,12 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void summary::add( summary* sum )
   {
-    for( int i = 0; i < category_size; i++ )
+    for( int cat_index = 0; cat_index < category_size; cat_index++ )
     {
-      for( int j = 0; j < state_size; j++ )
+      for( int state_index = 0; state_index < state_size; state_index++ )
       {
-        this->count[i][j] += sum->count[i][j];
-        this->weight[i][j] += sum->weight[i][j];
+        this->count[cat_index][state_index] += sum->count[cat_index][state_index];
+        this->weight[cat_index][state_index] += sum->weight[cat_index][state_index];
       }
     }
   }

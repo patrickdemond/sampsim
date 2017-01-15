@@ -101,21 +101,29 @@ namespace sampsim
              static_cast< double >( this->get_count( category, all ) );
     };
 
-    enum
-    {
-      diseased = 0, healthy = 1, all = -1
-    };
+    /**
+     * Enumeration defining the number of categories and states
+     */
+    enum { category_size = 8, state_size = 2 };
 
+    /**
+     * Enumeration defining category and state indeces
+     */
     enum
     {
+      // categories
       adult = 0, child = 1,
       male = 2, female = 3,
       adult_male = 4, adult_female = 5,
-      child_male = 6, child_female = 7
+      child_male = 6, child_female = 7,
+
+      // states
+      diseased = 0, healthy = 1,
+      
+      all = -1
     };
 
   private:
-    enum { category_size = 8, state_size = 2 };
 
     /**
      * Returns all values to 0

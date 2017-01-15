@@ -250,7 +250,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void population::write_summary( const std::string filename ) const
+  void population::write_summary( const std::string filename )
   {
     std::ofstream stream( filename + ".txt", std::ofstream::out );
 
@@ -616,16 +616,16 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  summary* population::get_summary() const
+  summary* population::get_summary()
   {
-    if( this->sum->is_expired() )
+    if( this->sum.is_expired() )
     {
       for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
-        this->sum->add( (*it)->get_summary() );
-      this->sum->set_expired( false );
+        this->sum.add( (*it)->get_summary() );
+      this->sum.set_expired( false );
     }
 
-    return this->sum;
+    return &( this->sum );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

@@ -71,7 +71,7 @@ namespace sampsim
     void to_csv( std::ostream&, std::ostream& ) const;
     unsigned int get_number_of_individuals() const { return 1; }
     std::vector< std::pair<unsigned int, unsigned int> >count_individuals() const;
-    summary* get_summary() const;
+    summary* get_summary();
     void select() { this->select( 1.0 ); }
     void select( const double sample_weight );
     void unselect() { this->selected = false; this->sample_weight = 0.0; }

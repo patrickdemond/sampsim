@@ -17,6 +17,7 @@
 #include "household.h"
 #include "individual.h"
 #include "population.h"
+#include "summary.h"
 #include "tile.h"
 #include "town.h"
 
@@ -37,56 +38,56 @@ TEST( test_population )
   sampsim::household *household = *building->get_household_list_begin();
   sampsim::individual *individual = *household->get_individual_list_begin();
 
-  std::vector< std::pair<unsigned int, unsigned int> > count_vector = population->count_individuals();
+  sampsim::summary *sum = population->get_summary();
 
   cout << "Testing population size..." << endl;
-  CHECK( town_size_min * number_of_towns <= ( count_vector[0].first + count_vector[0].second ) );
-  CHECK( town_size_max * number_of_towns >= ( count_vector[0].first + count_vector[0].second ) );
+  CHECK( town_size_min * number_of_towns <= sum->get_count() );
+  CHECK( town_size_max * number_of_towns >= sum->get_count() );
 
   cout << "Testing population prevalence..." << endl;
-  for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
+  for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
   {
-    CHECK( (*it).first <= ( (*it).first + (*it).second ) );
-    CHECK( 0 <= (*it).first );
-    CHECK( town_size_max * number_of_towns >= (*it).first );
+    CHECK( sum->get_count( cat_index, sampsim::summary::diseased ) <= sum->get_count( cat_index ) );
+    CHECK( 0 <= sum->get_count( cat_index, sampsim::summary::diseased ) );
+    CHECK( town_size_max * number_of_towns >= sum->get_count( cat_index, sampsim::summary::diseased ) );
   }
 
   cout << "Turning on sample mode" << endl;
   population->set_sample_mode( true );
 
-  count_vector = population->count_individuals();
+  sum = population->get_summary();
 
   cout << "Testing that population now has a count of zero..." << endl;
-  for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
-    CHECK_EQUAL( 0, (*it).first + (*it).second );
+  for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
+    CHECK_EQUAL( 0, sum->get_count( cat_index ) );
 
   cout << "Testing that population prevalence now has a count of zero..." << endl;
-  for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
-    CHECK_EQUAL( 0, (*it).first );
+  for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
+    CHECK_EQUAL( 0, sum->get_count( cat_index, sampsim::summary::diseased ) );
 
   cout << "Testing that population with selected individual has non-zero count..." << endl;
   individual->select();
-  count_vector = population->count_individuals();
-  CHECK( 0 != ( count_vector[0].first + count_vector[0].second ) );
+  sum = population->get_summary();
+  CHECK( 0 != sum->get_count() );
 
   cout << "Testing that population with unselected individual has a count of zero..." << endl;
   individual->unselect();
-  count_vector = population->count_individuals();
-  for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
-    CHECK_EQUAL( 0, (*it).first + (*it).second );
+  sum = population->get_summary();
+  for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
+    CHECK_EQUAL( 0, sum->get_count( cat_index ) );
 
   cout << "Turning off sample mode" << endl;
   population->set_sample_mode( false );
 
-  count_vector = population->count_individuals();
+  sum = population->get_summary();
 
   cout << "Testing population size..." << endl;
-  for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
-    CHECK( 0 != ( (*it).first + (*it).second ) );
+  for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
+    CHECK( 0 != sum->get_count( cat_index ) );
 
   cout << "Testing population prevalence..." << endl;
-  for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
-    CHECK( 0 != (*it).first );
+  for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
+    CHECK( 0 != sum->get_count( cat_index, sampsim::summary::diseased ) );
 
   stringstream temp_filename;
   temp_filename << "/tmp/sampsim" << sampsim::utilities::random( 1000000, 9999999 );
@@ -115,12 +116,14 @@ TEST( test_population )
   temp_filename << ".json";
   sampsim::population *population_read = new sampsim::population;
   CHECK( population_read->read( temp_filename.str() ) );
-  count_vector = population->count_individuals();
-  std::vector< std::pair<unsigned int, unsigned int> > count_vector_read = population_read->count_individuals();
-  for( unsigned int i = 0; i < 9; i++ )
+  sum = population->get_summary();
+  sampsim::summary *read_sum = population_read->get_summary();
+  for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
   {
-    CHECK_EQUAL( count_vector[i].first, count_vector_read[i].first );
-    CHECK_EQUAL( count_vector[i].second, count_vector_read[i].second );
+    CHECK_EQUAL( sum->get_count( cat_index, sampsim::summary::diseased ),
+                 read_sum->get_count( cat_index, sampsim::summary::diseased ) );
+    CHECK_EQUAL( sum->get_count( cat_index, sampsim::summary::healthy ),
+                 read_sum->get_count( cat_index, sampsim::summary::healthy ) );
   }
 
   // clean up

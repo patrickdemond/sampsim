@@ -18,6 +18,7 @@
 #include "household.h"
 #include "individual.h"
 #include "population.h"
+#include "summary.h"
 #include "tile.h"
 #include "town.h"
 #include "utilities.h"
@@ -62,8 +63,7 @@ TEST( test_sample_random )
     for( auto it = pop->get_town_list_cbegin(); it != pop->get_town_list_cend(); ++it )
     {
       sampsim::town *town = *it;
-      std::vector< std::pair<unsigned int, unsigned int> > count_vector = town->count_individuals();
-      CHECK( 10 <= count_vector[0].first + count_vector[0].second );
+      CHECK( 10 <= town->get_summary()->get_count() );
       number_of_towns++;
     }
     CHECK_EQUAL( number_of_towns, sample1->get_number_of_towns() );
@@ -72,10 +72,8 @@ TEST( test_sample_random )
 
   CHECK_EQUAL( number_of_samples, sample1->get_number_of_samples() );
 
-  std::vector< std::pair<unsigned int, unsigned int> > count_vector =
-    sample1->get_population()->count_individuals();
-  CHECK( ( sample1->get_number_of_towns() * sample1->get_size() ) <=
-         ( count_vector[0].first + count_vector[1].second ) );
+  sampsim::summary *sum = sample1->get_population()->get_summary();
+  CHECK( ( sample1->get_number_of_towns() * sample1->get_size() ) <= sum->get_count() );
 
   // clean up
   remove( temp_population_filename.str().c_str() );

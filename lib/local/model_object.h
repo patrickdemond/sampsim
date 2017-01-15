@@ -10,6 +10,7 @@
 #define __sampsim_model_object_h
 
 #include "base_object.h"
+#include "summary.h"
 #include "utilities.h"
 
 namespace Json { class Value; }
@@ -21,8 +22,6 @@ namespace Json { class Value; }
 
 namespace sampsim
 {
-  class summary;
-
   /**
    * @class model_object
    * @author Patrick Emond <emondpd@mcmaster.ca>
@@ -72,7 +71,7 @@ namespace sampsim
      * This method iterates over all child models every time it is called, so it should only be used when
      * re-counting is necessary.  Do not call this method until the create() method has been called.
      */
-    virtual summary* get_summary() const = 0;
+    virtual summary* get_summary() = 0;
     virtual std::vector< std::pair<unsigned int, unsigned int> >count_individuals() const = 0;
 
     /**
@@ -123,7 +122,7 @@ namespace sampsim
     /**
      * A summary object which tracks a summary of the object's data
      */
-    summary *sum;
+    summary sum;
   };
 }
 
