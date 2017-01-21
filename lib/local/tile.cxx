@@ -86,6 +86,8 @@ namespace sampsim
     if( utilities::verbose )
       utilities::output( "finished creating tile: %d buildings created",
                          this->building_list.size() );
+
+    this->expire_summary();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -287,6 +289,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void tile::unselect()
   {
+    this->get_population()->expire_summary();
     this->selected = false;
     for( auto it = this->building_list.begin(); it != this->building_list.end(); ++it )
       (*it)->unselect();

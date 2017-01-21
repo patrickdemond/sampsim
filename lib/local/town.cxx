@@ -131,6 +131,8 @@ namespace sampsim
     stream.str( "" );
     stream << "finished creating town #" << ( this->index + 1 );
     utilities::output( stream.str() );
+
+    this->expire_summary();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -496,6 +498,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void town::unselect()
   {
+    this->get_population()->expire_summary();
     this->selected = false;
 
     // unselect all buildings

@@ -71,6 +71,7 @@ namespace sampsim
      * This method iterates over all child models every time it is called, so it should only be used when
      * re-counting is necessary.  Do not call this method until the create() method has been called.
      */
+    virtual void expire_summary() { this->sum.set_expired( true ); };
     virtual summary* get_summary() = 0;
     virtual std::vector< std::pair<unsigned int, unsigned int> >count_individuals() const = 0;
 

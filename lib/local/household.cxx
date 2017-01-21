@@ -94,6 +94,8 @@ namespace sampsim
 
       this->individual_list.push_back( i );
     }
+
+    this->expire_summary();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -241,6 +243,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void household::unselect()
   {
+    this->get_population()->expire_summary();
     this->selected = false;
     for( auto it = this->individual_list.begin(); it != this->individual_list.end(); ++it )
       (*it)->unselect();

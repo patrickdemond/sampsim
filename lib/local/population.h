@@ -151,7 +151,7 @@ namespace sampsim
      * included in all copy(), get_summary(), to_json() and to_csv() methods (including this class' write()
      * method).
      */
-    void set_sample_mode( bool sample_mode ) { this->sample_mode = sample_mode; }
+    void set_sample_mode( const bool sample_mode );
 
     /**
      * Returns the next household index (while internally incrementing the current index)

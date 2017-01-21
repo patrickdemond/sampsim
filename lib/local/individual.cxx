@@ -48,6 +48,8 @@ namespace sampsim
   {
     // make sure the individual has a parent
     if( NULL == this->parent ) throw std::runtime_error( "Tried to create an orphaned individual" );
+
+    this->expire_summary();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -196,5 +198,13 @@ namespace sampsim
     this->sample_weight = sample_weight;
     this->selected = true;
     this->parent->select();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void individual::unselect()
+  {
+    this->selected = false;
+    this->sample_weight = 0.0;
+    this->get_population()->expire_summary();
   }
 }

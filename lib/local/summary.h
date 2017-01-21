@@ -11,6 +11,8 @@
 
 #include "base_object.h"
 
+#include <vector>
+
 namespace Json { class Value; }
 
 /**
@@ -38,7 +40,9 @@ namespace sampsim
      */
     summary()
     {
+      this->parent = NULL;
       this->set_expired( true );
+      this->reset();
     }
 
     /**
@@ -51,8 +55,16 @@ namespace sampsim
      */
     void set_expired( const bool expired )
     {
-      this->expired = expired;
-      if( this->expired ) this->reset();
+      if( expired != this->expired )
+      {
+        this->expired = expired;
+        if( this->expired )
+        {
+          this->reset();
+          for( auto it = this->child_list.begin(); it != this->child_list.end(); ++it )
+            (*it)->set_expired( expired );
+        }
+      }
     }
 
     /**
@@ -124,6 +136,15 @@ namespace sampsim
     };
 
   private:
+    /**
+     * The summary's parent
+     */
+    summary *parent;
+
+    /**
+     * A list of all child summaries added to this summary
+     */
+    std::vector< summary* > child_list;
 
     /**
      * Returns all values to 0

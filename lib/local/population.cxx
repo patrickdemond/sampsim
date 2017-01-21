@@ -73,6 +73,13 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::set_sample_mode( const bool sample_mode )
+  {
+    this->sample_mode = sample_mode;
+    this->expire_summary();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::create()
   {
     utilities::output( "creating population" );
@@ -130,6 +137,8 @@ namespace sampsim
     }
 
     utilities::output( "finished creating population" );
+
+    this->expire_summary();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -342,6 +351,8 @@ namespace sampsim
       t->from_json( json["town_list"][c] );
       this->town_list.push_back( t );
     }
+
+    this->expire_summary();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -696,11 +707,13 @@ namespace sampsim
   void population::select()
   {
     this->selected = true;
+    this->expire_summary();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::unselect()
   {
+    this->expire_summary();
     this->selected = false;
     for( auto town_it = this->get_town_list_cbegin(); town_it != this->get_town_list_cend(); ++town_it )
       (*town_it)->unselect();

@@ -74,7 +74,7 @@ namespace sampsim
     summary* get_summary();
     void select() { this->select( 1.0 ); }
     void select( const double sample_weight );
-    void unselect() { this->selected = false; this->sample_weight = 0.0; }
+    void unselect();
 
     /**
      * Returns the individual's parent household

@@ -91,6 +91,8 @@ namespace sampsim
 
     // cache the number-of-individuals
     this->number_of_individuals = h->get_number_of_individuals();
+
+    this->expire_summary();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -219,6 +221,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void building::unselect()
   {
+    this->get_population()->expire_summary();
     this->selected = false;
     for( auto it = this->household_list.begin(); it != this->household_list.end(); ++it )
       (*it)->unselect();
