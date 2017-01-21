@@ -154,6 +154,32 @@ namespace sampsim
     void set_sample_mode( bool sample_mode ) { this->sample_mode = sample_mode; }
 
     /**
+     * Returns the next household index (while internally incrementing the current index)
+     */
+    unsigned int get_next_household_index() { return this->current_household_index++; }
+
+    /**
+     * Makes sure that the index is included in the current household index (used when loading populations)
+     */
+    void assert_household_index( const unsigned int index )
+    {
+      if( index >= this->current_household_index ) this->current_household_index = index + 1;
+    }
+
+    /**
+     * Returns the next individual index (while internally incrementing the current index)
+     */
+    unsigned int get_next_individual_index() { return this->current_individual_index++; }
+
+    /**
+     * Makes sure that the index is included in the current individual index (used when loading populations)
+     */
+    void assert_individual_index( const unsigned int index )
+    {
+      if( index >= this->current_individual_index ) this->current_individual_index = index + 1;
+    }
+
+    /**
      * Sets the random generator's seed
      */
     void set_seed( const std::string seed );
@@ -418,6 +444,16 @@ namespace sampsim
      * Whether the population is in sample mode or not
      */
     bool sample_mode;
+
+    /**
+     * Used to provide unique indeces for all households in the population
+     */
+    unsigned int current_household_index;
+
+    /**
+     * Used to provide unique indeces for all individuals in the population
+     */
+    unsigned int current_individual_index;
 
     /**
      * The population's current seed value

@@ -30,6 +30,8 @@ namespace sampsim
   population::population()
   {
     this->sample_mode = false;
+    this->current_household_index = 0;
+    this->current_individual_index = 0;
     this->seed = "";
     this->number_of_towns = 1;
     this->number_of_tiles_x = 0;
@@ -76,6 +78,8 @@ namespace sampsim
     utilities::output( "creating population" );
 
     // delete all towns and turn off sample mode (in case it is on)
+    this->current_household_index = 0;
+    this->current_individual_index = 0;
     std::for_each( this->town_list.begin(), this->town_list.end(), utilities::safe_delete_type() );
     this->town_list.clear();
     this->set_sample_mode( false );
@@ -385,9 +389,6 @@ namespace sampsim
   void population::to_csv(
     std::ostream &household_stream, std::ostream &individual_stream ) const
   {
-    // need to reset the static household indexing variable
-    utilities::household_index = 0;
-
     // put in the parameters
     std::stringstream stream;
     stream << "#" << std::endl
@@ -424,7 +425,7 @@ namespace sampsim
     // put in the csv headers
     household_stream << "town_index,household_index,x,y,r,a,individuals,income,disease_risk,disease"
                      << std::endl;
-    individual_stream << "town_index,household_index,sex,age,disease" << std::endl;
+    individual_stream << "town_index,household_index,individual_index,sex,age,disease" << std::endl;
 
     for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
       ( *it )->to_csv( household_stream, individual_stream );

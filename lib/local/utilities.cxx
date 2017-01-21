@@ -17,6 +17,5 @@ namespace sampsim
   sampsim::utilities::safe_delete_type sampsim::utilities::safe_delete;
   bool sampsim::utilities::verbose = false; 
   bool sampsim::utilities::quiet = false; 
-  unsigned int sampsim::utilities::household_index = 0;
   clock_t sampsim::utilities::start_time = clock();
 }

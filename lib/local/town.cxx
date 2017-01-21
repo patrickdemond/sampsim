@@ -28,10 +28,16 @@
 namespace sampsim
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  town::town( population *parent, const unsigned int index )
+  town::town(
+    population *parent,
+    const unsigned int index,
+    const unsigned int start_household_index,
+    const unsigned int start_individual_index )
   {
     this->parent = parent;
     this->index = index;
+    this->current_household_index = start_household_index;
+    this->current_individual_index = start_individual_index;
     this->number_of_tiles_x = 0;
     this->number_of_tiles_y = 0;
     this->has_river = false;
@@ -323,9 +329,6 @@ namespace sampsim
   void town::to_csv(
     std::ostream &household_stream, std::ostream &individual_stream ) const
   {
-    // need to reset the static household indexing variable
-    utilities::household_index = 0;
-
     // put in the parameters
     std::stringstream stream;
     stream << "#" << std::endl

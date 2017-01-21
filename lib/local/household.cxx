@@ -26,6 +26,7 @@ namespace sampsim
   household::household( building *parent )
   {
     this->parent = parent;
+    this->index = this->get_population()->get_next_household_index();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -120,8 +121,10 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void household::from_json( const Json::Value &json )
   {
+    this->index = json["index"].asUInt();
     this->income = json["income"].asDouble();
     this->disease_risk = json["disease_risk"].asDouble();
+    this->get_population()->assert_household_index( this->index );
 
     this->individual_list.reserve( json["individual_list"].size() );
     for( unsigned int c = 0; c < json["individual_list"].size(); c++ )
@@ -137,6 +140,7 @@ namespace sampsim
   {
     json = Json::Value( Json::objectValue );
 
+    json["index"] = this->index;
     json["income"] = this->income;
     json["disease_risk"] = this->disease_risk;
     json["individual_list"] = Json::Value( Json::arrayValue );
@@ -161,7 +165,7 @@ namespace sampsim
     unsigned int town_index = this->get_town()->get_index();
 
     // write the household index and position to the household stream
-    household_stream << town_index << "," << utilities::household_index << ",";
+    household_stream << town_index << "," << this->index << ",";
     this->get_building()->get_position().to_csv( household_stream, individual_stream );
     household_stream << "," << this->individual_list.size()
                      << "," << this->income << ","
@@ -175,7 +179,7 @@ namespace sampsim
       individual *i = *it;
       if( !sample_mode || i->is_selected() )
       {
-        individual_stream << town_index << "," << utilities::household_index << ",";
+        individual_stream << town_index << "," << this->index << ",";
         if( !disease ) disease = i->is_disease();
         i->to_csv( household_stream, individual_stream );
         individual_stream << std::endl;
@@ -184,8 +188,6 @@ namespace sampsim
 
     // finish writing the household stream
     household_stream << "," << ( disease ? "1" : "0" ) << std::endl;
-
-    utilities::household_index++;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

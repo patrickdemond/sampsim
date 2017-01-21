@@ -152,6 +152,11 @@ namespace sampsim
     building *parent;
 
     /**
+     * The household's 0-based index within its parent population
+     */
+    unsigned int index;
+
+    /**
      * The household's income
      */
     double income;

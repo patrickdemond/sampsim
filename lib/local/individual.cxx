@@ -20,6 +20,7 @@ namespace sampsim
   individual::individual( household *parent )
   {
     this->parent = parent;
+    this->index = this->get_population()->get_next_individual_index();
     this->age = UNKNOWN_AGE_TYPE;
     this->sex = UNKNOWN_SEX_TYPE;
     this->disease = false;
@@ -81,15 +82,18 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void individual::from_json( const Json::Value &json )
   {
+    this->index = json["index"].asUInt();
     this->age = sampsim::get_age_type( json["age"].asString() );
     this->sex = sampsim::get_sex_type( json["sex"].asString() );
     this->disease = 1 == json["disease"].asUInt();
+    this->get_population()->assert_individual_index( this->index );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void individual::to_json( Json::Value &json ) const
   {
     json = Json::Value( Json::objectValue );
+    json["index"] = this->index;
     json["age"] = Json::Value( sampsim::get_age_type_name( this->age ) );
     json["sex"] = Json::Value( sampsim::get_sex_type_name( this->sex ) );
     json["disease"] = this->disease ? 1 : 0;
@@ -98,7 +102,8 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void individual::to_csv( std::ostream &household_stream, std::ostream &individual_stream ) const
   {
-    individual_stream << sampsim::get_age_type_name( this->age ) << ","
+    individual_stream << this->index << ","
+                      << sampsim::get_age_type_name( this->age ) << ","
                       << sampsim::get_sex_type_name( this->sex ) << ","
                       << ( this->disease ? 1 : 0 );
   }

@@ -142,6 +142,11 @@ namespace sampsim
     household *parent;
 
     /**
+     * The individual's 0-based index within its parent population
+     */
+    unsigned int index;
+
+    /**
      * The individual's age
      */
     age_type age;
