@@ -108,6 +108,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void tile::from_json( const Json::Value &json )
   {
+    this->number_of_individuals = 0;
     this->index.first = json["x_index"].asUInt();
     this->index.second = json["y_index"].asUInt();
     this->mean_income = json["mean_income"].asDouble();
@@ -122,7 +123,12 @@ namespace sampsim
       building *b = new building( this );
       b->from_json( json["building_list"][c] );
       this->building_list.push_back( b );
+      this->number_of_individuals += b->get_number_of_individuals();
     }
+
+    if( utilities::verbose )
+      utilities::output( "finished reading tile: %d buildings loaded",
+                         this->building_list.size() );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

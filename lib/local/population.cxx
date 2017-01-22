@@ -323,6 +323,7 @@ namespace sampsim
       throw std::runtime_error( stream.str() );
     }
 
+    this->number_of_individuals = 0;
     this->seed = json["seed"].asString();
     this->number_of_towns = json["number_of_towns"].asUInt();
     this->town_size_min = json["town_size_min"].asDouble();
@@ -350,9 +351,12 @@ namespace sampsim
       town *t = new town( this, c );
       t->from_json( json["town_list"][c] );
       this->town_list.push_back( t );
+      this->number_of_individuals += t->get_number_of_individuals();
     }
 
     this->expire_summary();
+
+    utilities::output( "finished reading population, %d individuals loaded", this->number_of_individuals );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

@@ -277,6 +277,7 @@ namespace sampsim
       throw std::runtime_error( stream.str() );
     }
 
+    this->number_of_individuals = 0;
     this->index = json["index"].asUInt();
     this->number_of_tiles_x = json["number_of_tiles_x"].asUInt();
     this->number_of_tiles_y = json["number_of_tiles_y"].asUInt();
@@ -300,7 +301,13 @@ namespace sampsim
       tile *t = new tile( this, index );
       t->from_json( tile_json );
       this->tile_list[index] = t;
+      this->number_of_individuals += t->get_number_of_individuals();
     }
+
+    std::stringstream stream( "" );
+    stream << "finished reading town #" << ( this->index + 1 ) << ", "
+           << this->number_of_individuals << " individuals loading";
+    utilities::output( stream.str() );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

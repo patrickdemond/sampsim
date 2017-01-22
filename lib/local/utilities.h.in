@@ -366,6 +366,13 @@ namespace sampsim
      */
     inline static unsigned int random( unsigned int min, unsigned int max )
     {
+      if( max < min )
+      {
+        std::stringstream stream;
+        stream << "Called random() with min and max being " << min << " and " << max << ", respectively";
+        throw std::runtime_error( stream.str() );
+      }
+
       return random_engine() % ( max - min + 1 ) + min;
     }
 

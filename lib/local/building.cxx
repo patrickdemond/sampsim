@@ -132,6 +132,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void building::from_json( const Json::Value &json )
   {
+    this->number_of_individuals = 0;
     this->position.from_json( json["position"] );
     this->position.set_centroid( this->get_town()->get_centroid() );
 
@@ -141,6 +142,7 @@ namespace sampsim
       household *h = new household( this );
       h->from_json( json["household_list"][c] );
       this->household_list.push_back( h );
+      this->number_of_individuals = h->get_number_of_individuals();
     }
   }
 

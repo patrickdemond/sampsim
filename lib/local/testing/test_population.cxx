@@ -116,6 +116,8 @@ TEST( test_population )
   temp_filename << ".json";
   sampsim::population *population_read = new sampsim::population;
   CHECK( population_read->read( temp_filename.str() ) );
+
+  CHECK_EQUAL( population->get_number_of_individuals(), population_read->get_number_of_individuals() );
   sum = population->get_summary();
   sampsim::summary *read_sum = population_read->get_summary();
   for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
