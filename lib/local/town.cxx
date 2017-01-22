@@ -132,7 +132,7 @@ namespace sampsim
     stream << "finished creating town #" << ( this->index + 1 );
     utilities::output( stream.str() );
 
-    this->expire_summary();
+    this->get_population()->expire_summary();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -439,34 +439,20 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  summary* town::get_summary()
+  void town::assert_summary()
   {
-    if( this->sum.is_expired() )
-    {
-      for( auto it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it )
-        this->sum.add( (*it).second->get_summary() );
-      this->sum.set_expired( false );
-    }
-
-    return &( this->sum );
+    this->get_population()->assert_summary();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  std::vector< std::pair<unsigned int, unsigned int> > town::count_individuals() const
+  void town::rebuild_summary()
   {
-    std::vector< std::pair<unsigned int, unsigned int> > count_vector;
-    count_vector.resize( 9, std::pair<unsigned int, unsigned int>( 0, 0 ) );
-    for( auto it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it )
+    this->sum.reset();
+    for( auto it = this->tile_list.begin(); it != this->tile_list.end(); ++it )
     {
-      std::vector< std::pair<unsigned int, unsigned int> > sub_count_vector = (*it).second->count_individuals();
-      for( std::vector< std::pair<unsigned int, unsigned int> >::size_type i = 0; i < 9; i++ )
-      {
-        count_vector[i].first += sub_count_vector[i].first;
-        count_vector[i].second += sub_count_vector[i].second;
-      }
+      it->second->rebuild_summary();
+      this->sum.add( it->second );
     }
-
-    return count_vector;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

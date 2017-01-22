@@ -17,6 +17,7 @@
 #include "household.h"
 #include "individual.h"
 #include "population.h"
+#include "summary.h"
 #include "tile.h"
 #include "town.h"
 #include "utilities.h"
@@ -30,7 +31,7 @@ TEST( test_building )
   // create a population
   sampsim::population *population = new sampsim::population;
   create_test_population( population );
-  std::vector< std::pair<unsigned int, unsigned int> > count_vector;
+  sampsim::summary *sum;
 
   for( auto town_it = population->get_town_list_begin();
        town_it != population->get_town_list_end();
@@ -61,48 +62,47 @@ TEST( test_building )
         CHECK( position.y < extent.second.y );
 
         cout << "Testing building population..." << endl;
-        count_vector = building->count_individuals();
-        CHECK( 0 != ( count_vector[0].first + count_vector[0].second ) );
+        sum = building->get_summary();
+        CHECK( 0 != sum->get_count() );
 
         cout << "Turning on sample mode" << endl;
         population->set_sample_mode( true );
 
         cout << "Testing that building now has no population..." << endl;
-        count_vector = building->count_individuals();
-        for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
-          CHECK_EQUAL( 0, ( (*it).first + (*it).second ) );
+        sum = building->get_summary();
+        for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
+          CHECK_EQUAL( 0, sum->get_count( cat_index ) );
 
         cout << "Testing that building with selected individual has population..." << endl;
         individual->select();
-        count_vector = building->count_individuals();
-        CHECK( 0 != ( count_vector[0].first + count_vector[0].second ) );
+        sum = building->get_summary();
+        CHECK( 0 != sum->get_count() );
 
         cout << "Testing that building with unselected individual has no population..." << endl;
         individual->unselect();
-        count_vector = building->count_individuals();
-        for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
-          CHECK_EQUAL( 0, ( (*it).first + (*it).second ) );
+        sum = building->get_summary();
+        for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
+          CHECK_EQUAL( 0, sum->get_count( cat_index ) );
 
         cout << "Testing that unselected building has no population..." << endl;
         individual->select();
         building->unselect();
-        count_vector = building->count_individuals();
-        for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
-          CHECK_EQUAL( 0, ( (*it).first + (*it).second ) );
+        sum = building->get_summary();
+        for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
+          CHECK_EQUAL( 0, sum->get_count( cat_index ) );
 
         cout << "Turning off sample mode" << endl;
         population->set_sample_mode( false );
 
         cout << "Testing building population..." << endl;
-        count_vector = building->count_individuals();
-        CHECK( 0 != ( count_vector[0].first + count_vector[0].second ) );
-          CHECK( 0 != ( count_vector[1].first + count_vector[1].second ) );
-        if( 2 < count_vector[0].first + count_vector[0].second )
-          CHECK( 0 != ( count_vector[2].first + count_vector[2].second ) );
-        if( 1 < count_vector[0].first + count_vector[0].second )
+        sum = building->get_summary();
+        CHECK( 0 != sum->get_count() );
+        CHECK( 0 != sum->get_count( sampsim::summary::adult ) );
+        if( 2 < sum->get_count() ) CHECK( 0 != sum->get_count( sampsim::summary::child ) );
+        if( 1 < sum->get_count() )
         {
-          CHECK( 0 != ( count_vector[3].first + count_vector[3].second ) );
-          CHECK( 0 != ( count_vector[4].first + count_vector[4].second ) );
+          CHECK( 0 != sum->get_count( sampsim::summary::male ) );
+          CHECK( 0 != sum->get_count( sampsim::summary::female ) );
         }
       }
     }

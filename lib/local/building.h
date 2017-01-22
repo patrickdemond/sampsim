@@ -74,8 +74,8 @@ namespace sampsim
     void to_json( Json::Value& ) const;
     void to_csv( std::ostream&, std::ostream& ) const;
     unsigned int get_number_of_individuals() const { return this->number_of_individuals; }
-    std::vector< std::pair<unsigned int, unsigned int> >count_individuals() const;
-    summary* get_summary();
+    void assert_summary();
+    void rebuild_summary();
     void select();
     void unselect();
 
@@ -188,8 +188,7 @@ namespace sampsim
     household_list_type household_list;
 
     /**
-     * The number of individuals in this building.  This is determined the first time that get_summary()
-     * is called (and used as a cache for performance reasons).
+     * The number of individuals in this building.
      */
     unsigned int number_of_individuals;
   };

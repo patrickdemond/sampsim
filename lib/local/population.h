@@ -64,8 +64,9 @@ namespace sampsim
     void to_json( Json::Value& ) const;
     void to_csv( std::ostream&, std::ostream& ) const;
     unsigned int get_number_of_individuals() const { return this->number_of_individuals; }
-    std::vector< std::pair<unsigned int, unsigned int> >count_individuals() const;
-    summary* get_summary();
+    void assert_summary();
+    void rebuild_summary();
+    void expire_summary() { this->expired = true; }
     void select();
     void unselect();
 
@@ -582,10 +583,14 @@ namespace sampsim
     town_list_type town_list;
 
     /**
-     * The number of individuals in the population.  This is determined the first time that get_summary()
-     * is called (and used as a cache for performance reasons).
+     * The number of individuals in the population.
      */
     unsigned int number_of_individuals;
+
+    /**
+     * The master expired variable for the population's summaries
+     */
+    bool expired;
   };
 }
 

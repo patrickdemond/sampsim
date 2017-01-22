@@ -49,7 +49,7 @@ namespace sampsim
     // make sure the individual has a parent
     if( NULL == this->parent ) throw std::runtime_error( "Tried to create an orphaned individual" );
 
-    this->expire_summary();
+    this->get_population()->expire_summary();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -111,85 +111,49 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  summary* individual::get_summary()
+  void individual::assert_summary()
   {
-    if( this->sum.is_expired() )
-    {
-      bool sample_mode = this->get_population()->get_sample_mode();
-      if( !sample_mode || this->is_selected() )
-      {
-        if( this->is_disease() )
-        {
-          if( ADULT == this->get_age() ) this->sum.count[summary::adult][summary::diseased]++;
-          else if( CHILD == this->get_age() ) this->sum.count[summary::child][summary::diseased]++;
-          if( MALE == this->get_sex() ) this->sum.count[summary::male][summary::diseased]++;
-          else if( FEMALE == this->get_sex() ) this->sum.count[summary::female][summary::diseased]++;
-          if( ADULT == this->get_age() && MALE == this->get_sex() )
-            this->sum.count[summary::adult_male][summary::diseased]++;
-          if( ADULT == this->get_age() && FEMALE == this->get_sex() )
-            this->sum.count[summary::adult_female][summary::diseased]++;
-          if( CHILD == this->get_age() && MALE == this->get_sex() )
-            this->sum.count[summary::child_male][summary::diseased]++;
-          if( CHILD == this->get_age() && FEMALE == this->get_sex() )
-            this->sum.count[summary::child_female][summary::diseased]++;
-        }
-        else
-        {
-          if( ADULT == this->get_age() ) this->sum.count[summary::adult][summary::healthy]++;
-          else if( CHILD == this->get_age() ) this->sum.count[summary::child][summary::healthy]++;
-          if( MALE == this->get_sex() ) this->sum.count[summary::male][summary::healthy]++;
-          else if( FEMALE == this->get_sex() ) this->sum.count[summary::female][summary::healthy]++;
-          if( ADULT == this->get_age() && MALE == this->get_sex() )
-            this->sum.count[summary::adult_male][summary::healthy]++;
-          if( ADULT == this->get_age() && FEMALE == this->get_sex() )
-            this->sum.count[summary::adult_female][summary::healthy]++;
-          if( CHILD == this->get_age() && MALE == this->get_sex() )
-            this->sum.count[summary::child_male][summary::healthy]++;
-          if( CHILD == this->get_age() && FEMALE == this->get_sex() )
-            this->sum.count[summary::child_female][summary::healthy]++;
-        }
-      }
-      this->sum.set_expired( false );
-    }
-
-    return &( this->sum );
+    this->get_population()->assert_summary();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  std::vector< std::pair<unsigned int, unsigned int> > individual::count_individuals() const
+  void individual::rebuild_summary()
   {
-    bool sample_mode = this->get_population()->get_sample_mode();
-    std::vector< std::pair<unsigned int, unsigned int> > count_vector;
-    count_vector.resize( 9, std::pair<unsigned int, unsigned int>( 0, 0 ) );
-    if( !sample_mode || this->is_selected() )
+    this->sum.reset();
+
+    if( this->get_population()->get_sample_mode() || this->is_selected() )
     {
       if( this->is_disease() )
       {
-        count_vector[0].first++;
-        if( ADULT == this->get_age() ) count_vector[1].first++;
-        else if( CHILD == this->get_age() ) count_vector[2].first++;
-        if( MALE == this->get_sex() ) count_vector[3].first++;
-        else if( FEMALE == this->get_sex() ) count_vector[4].first++;
-        if( ADULT == this->get_age() && MALE == this->get_sex() ) count_vector[5].first++;
-        if( ADULT == this->get_age() && FEMALE == this->get_sex() ) count_vector[6].first++;
-        if( CHILD == this->get_age() && MALE == this->get_sex() ) count_vector[7].first++;
-        if( CHILD == this->get_age() && FEMALE == this->get_sex() ) count_vector[8].first++;
+        if( ADULT == this->get_age() ) this->sum.count[summary::adult][summary::diseased]++;
+        else if( CHILD == this->get_age() ) this->sum.count[summary::child][summary::diseased]++;
+        if( MALE == this->get_sex() ) this->sum.count[summary::male][summary::diseased]++;
+        else if( FEMALE == this->get_sex() ) this->sum.count[summary::female][summary::diseased]++;
+        if( ADULT == this->get_age() && MALE == this->get_sex() )
+          this->sum.count[summary::adult_male][summary::diseased]++;
+        if( ADULT == this->get_age() && FEMALE == this->get_sex() )
+          this->sum.count[summary::adult_female][summary::diseased]++;
+        if( CHILD == this->get_age() && MALE == this->get_sex() )
+          this->sum.count[summary::child_male][summary::diseased]++;
+        if( CHILD == this->get_age() && FEMALE == this->get_sex() )
+          this->sum.count[summary::child_female][summary::diseased]++;
       }
       else
       {
-        count_vector[0].second++;
-        if( ADULT == this->get_age() ) count_vector[1].second++;
-        else if( CHILD == this->get_age() ) count_vector[2].second++;
-        if( MALE == this->get_sex() ) count_vector[3].second++;
-        else if( FEMALE == this->get_sex() ) count_vector[4].second++;
-        if( ADULT == this->get_age() && MALE == this->get_sex() ) count_vector[5].second++;
-        if( ADULT == this->get_age() && FEMALE == this->get_sex() ) count_vector[6].second++;
-        if( CHILD == this->get_age() && MALE == this->get_sex() ) count_vector[7].second++;
-        if( CHILD == this->get_age() && FEMALE == this->get_sex() ) count_vector[8].second++;
+        if( ADULT == this->get_age() ) this->sum.count[summary::adult][summary::healthy]++;
+        else if( CHILD == this->get_age() ) this->sum.count[summary::child][summary::healthy]++;
+        if( MALE == this->get_sex() ) this->sum.count[summary::male][summary::healthy]++;
+        else if( FEMALE == this->get_sex() ) this->sum.count[summary::female][summary::healthy]++;
+        if( ADULT == this->get_age() && MALE == this->get_sex() )
+          this->sum.count[summary::adult_male][summary::healthy]++;
+        if( ADULT == this->get_age() && FEMALE == this->get_sex() )
+          this->sum.count[summary::adult_female][summary::healthy]++;
+        if( CHILD == this->get_age() && MALE == this->get_sex() )
+          this->sum.count[summary::child_male][summary::healthy]++;
+        if( CHILD == this->get_age() && FEMALE == this->get_sex() )
+          this->sum.count[summary::child_female][summary::healthy]++;
       }
     }
-
-    return count_vector;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

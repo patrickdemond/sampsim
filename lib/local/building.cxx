@@ -91,8 +91,6 @@ namespace sampsim
 
     // cache the number-of-individuals
     this->number_of_individuals = h->get_number_of_individuals();
-
-    this->expire_summary();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -179,38 +177,20 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  summary* building::get_summary()
+  void building::assert_summary()
   {
-    if( this->sum.is_expired() )
-    {
-      for( auto it = this->household_list.cbegin(); it != this->household_list.cend(); ++it )
-        this->sum.add( (*it)->get_summary() );
-      this->sum.set_expired( false );
-    }
-
-    return &( this->sum );
+    this->get_population()->assert_summary();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  std::vector< std::pair<unsigned int, unsigned int> > building::count_individuals() const
+  void building::rebuild_summary()
   {
-    bool sample_mode = this->get_population()->get_sample_mode();
-    std::vector< std::pair<unsigned int, unsigned int> > count_vector;
-    count_vector.resize( 9, std::pair<unsigned int, unsigned int>( 0, 0 ) );
+    this->sum.reset();
     for( auto it = this->household_list.begin(); it != this->household_list.end(); ++it )
     {
-      if( !sample_mode || (*it)->is_selected() )
-      {
-        std::vector< std::pair<unsigned int, unsigned int> > sub_count_vector = (*it)->count_individuals();
-        for( std::vector< std::pair<unsigned int, unsigned int> >::size_type i = 0; i < 9; i++ )
-        {
-          count_vector[i].first += sub_count_vector[i].first;
-          count_vector[i].second += sub_count_vector[i].second;
-        }
-      }
+      (*it)->rebuild_summary();
+      this->sum.add( (*it) );
     }
-
-    return count_vector;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

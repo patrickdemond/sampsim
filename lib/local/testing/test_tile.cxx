@@ -17,6 +17,7 @@
 #include "household.h"
 #include "individual.h"
 #include "population.h"
+#include "summary.h"
 #include "tile.h"
 #include "town.h"
 #include "utilities.h"
@@ -28,7 +29,7 @@ TEST( test_tile )
   // create a population
   sampsim::population *population = new sampsim::population;
   create_test_population( population );
-  std::vector< std::pair<unsigned int, unsigned int> > count_vector;
+  sampsim::summary *sum;
 
   for( auto town_it = population->get_town_list_begin();
        town_it != population->get_town_list_end();
@@ -60,36 +61,36 @@ TEST( test_tile )
       CHECK_EQUAL( ( y + 1 ) * width, extent.second.y );
 
       cout << "Testing tile population..." << endl;
-      count_vector = tile->count_individuals();
-      for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
-        CHECK( 0 != ( (*it).first + (*it).second ) );
+      sum = tile->get_summary();
+      for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
+        CHECK( 0 != sum->get_count( cat_index ) );
 
       cout << "Turning on sample mode" << endl;
       population->set_sample_mode( true );
 
       cout << "Testing that tile now has no population..." << endl;
-      count_vector = tile->count_individuals();
-      for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
-        CHECK_EQUAL( 0, (*it).first + (*it).second );
+      sum = tile->get_summary();
+      for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
+        CHECK_EQUAL( 0, sum->get_count( cat_index ) );
 
       cout << "Testing that tile with selected individual has population..." << endl;
       individual->select();
-      count_vector = tile->count_individuals();
-      CHECK( 0 != ( count_vector[0].first + count_vector[0].second ) );
+      sum = tile->get_summary();
+      CHECK( 0 != sum->get_count() );
 
       cout << "Testing that tile with unselected individual has no population..." << endl;
       individual->unselect();
-      count_vector = tile->count_individuals();
-      for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
-        CHECK_EQUAL( 0, (*it).first + (*it).second );
+      sum = tile->get_summary();
+      for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
+        CHECK_EQUAL( 0, sum->get_count( cat_index ) );
 
       cout << "Turning off sample mode" << endl;
       population->set_sample_mode( false );
 
       cout << "Testing tile population..." << endl;
-      count_vector = tile->count_individuals();
-      for( auto it = count_vector.begin(); it != count_vector.end(); it++ )
-        CHECK( 0 != ( (*it).first + (*it).second ) );
+      sum = tile->get_summary();
+      for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
+        CHECK( 0 != sum->get_count( cat_index ) );
     }
   }
 

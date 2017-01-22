@@ -56,6 +56,7 @@ namespace sampsim
     this->town_size_max = 0.0;
     this->town_size_shape = 0.0;
     this->number_of_individuals = 0;
+    this->expired = true;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -632,34 +633,21 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  summary* population::get_summary()
+  void population::assert_summary()
   {
-    if( this->sum.is_expired() )
-    {
-      for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
-        this->sum.add( (*it)->get_summary() );
-      this->sum.set_expired( false );
-    }
-
-    return &( this->sum );
+    if( this->expired ) this->rebuild_summary();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  std::vector< std::pair<unsigned int, unsigned int> > population::count_individuals() const
+  void population::rebuild_summary()
   {
-    std::vector< std::pair<unsigned int, unsigned int> > count_vector;
-    count_vector.resize( 9, std::pair<unsigned int, unsigned int>( 0, 0 ) );
-    for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
+    this->sum.reset();
+    for( auto it = this->town_list.begin(); it != this->town_list.end(); ++it )
     {
-      std::vector< std::pair<unsigned int, unsigned int> > sub_count_vector = (*it)->count_individuals();
-      for( std::vector< std::pair<unsigned int, unsigned int> >::size_type i = 0; i < 9; i++ )
-      {
-        count_vector[i].first += sub_count_vector[i].first;
-        count_vector[i].second += sub_count_vector[i].second;
-      }
+      (*it)->rebuild_summary();
+      this->sum.add( *it );
     }
-
-    return count_vector;
+    this->expired = false;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -710,8 +698,8 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::select()
   {
-    this->selected = true;
     this->expire_summary();
+    this->selected = true;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

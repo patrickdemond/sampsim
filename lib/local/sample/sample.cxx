@@ -396,8 +396,8 @@ namespace sample
     for( unsigned int samp_index = 0; samp_index < this->sampled_population_list.size(); samp_index++ )
     {
       sampsim::summary *sum = this->sampled_population_list[samp_index]->get_summary();
-      total_summary.add( sum );
       summary_vector.push_back( sum );
+      total_summary.add( this->sampled_population_list[samp_index] );
     }
 
     // determine standard deviations for all prevalences

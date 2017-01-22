@@ -22,6 +22,8 @@ namespace Json { class Value; }
 
 namespace sampsim
 {
+  class summary;
+
   /**
    * @class model_object
    * @author Patrick Emond <emondpd@mcmaster.ca>
@@ -40,6 +42,8 @@ namespace sampsim
    */
   class model_object : public base_object
   {
+    friend summary;
+
   public:
     /**
      * Constructor
@@ -71,9 +75,7 @@ namespace sampsim
      * This method iterates over all child models every time it is called, so it should only be used when
      * re-counting is necessary.  Do not call this method until the create() method has been called.
      */
-    virtual void expire_summary() { this->sum.set_expired( true ); };
-    virtual summary* get_summary() = 0;
-    virtual std::vector< std::pair<unsigned int, unsigned int> >count_individuals() const = 0;
+    virtual summary* get_summary() { this->assert_summary(); return &(this->sum); }
 
     /**
      * Returns whether the model is selected or not
@@ -114,6 +116,16 @@ namespace sampsim
      * have been created nothing will happen.
      */
     virtual void define() = 0;
+
+    /**
+     * TODO: document
+     */
+    virtual void assert_summary() = 0;
+
+    /**
+     * TODO: document
+     */
+    virtual void rebuild_summary() = 0;
 
     /**
      * Whether the model is selected

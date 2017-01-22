@@ -8,6 +8,8 @@
 
 #include "summary.h"
 
+#include "model_object.h"
+
 namespace sampsim
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -24,16 +26,14 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void summary::add( summary* sum )
+  void summary::add( model_object* model )
   {
-    this->child_list.push_back( sum );
-    sum->parent = this;
     for( int cat_index = 0; cat_index < category_size; cat_index++ )
     {
       for( int state_index = 0; state_index < state_size; state_index++ )
       {
-        this->count[cat_index][state_index] += sum->count[cat_index][state_index];
-        this->weight[cat_index][state_index] += sum->weight[cat_index][state_index];
+        this->count[cat_index][state_index] += model->sum.count[cat_index][state_index];
+        this->weight[cat_index][state_index] += model->sum.weight[cat_index][state_index];
       }
     }
   }

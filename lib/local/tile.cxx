@@ -87,7 +87,7 @@ namespace sampsim
       utilities::output( "finished creating tile: %d buildings created",
                          this->building_list.size() );
 
-    this->expire_summary();
+    this->get_population()->expire_summary();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -189,38 +189,20 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  summary* tile::get_summary()
+  void tile::assert_summary()
   {
-    if( this->sum.is_expired() )
-    {
-      for( auto it = this->building_list.cbegin(); it != this->building_list.cend(); ++it )
-        this->sum.add( (*it)->get_summary() );
-      this->sum.set_expired( false );
-    }
-
-    return &( this->sum );
+    this->get_population()->assert_summary();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  std::vector< std::pair<unsigned int, unsigned int> > tile::count_individuals() const
+  void tile::rebuild_summary()
   {
-    bool sample_mode = this->get_population()->get_sample_mode();
-    std::vector< std::pair<unsigned int, unsigned int> > count_vector;
-    count_vector.resize( 9, std::pair<unsigned int, unsigned int>( 0, 0 ) );
+    this->sum.reset();
     for( auto it = this->building_list.begin(); it != this->building_list.end(); ++it )
     {
-      if( !sample_mode || (*it)->is_selected() )
-      {
-        std::vector< std::pair<unsigned int, unsigned int> > sub_count_vector = (*it)->count_individuals();
-        for( std::vector< std::pair<unsigned int, unsigned int> >::size_type i = 0; i < 9; i++ )
-        {
-          count_vector[i].first += sub_count_vector[i].first;
-          count_vector[i].second += sub_count_vector[i].second;
-        }
-      }
+      (*it)->rebuild_summary();
+      this->sum.add( (*it) );
     }
-
-    return count_vector;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

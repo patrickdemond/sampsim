@@ -22,6 +22,7 @@ namespace Json { class Value; }
 
 namespace sampsim
 {
+  class model_object;
   class individual;
 
   /**
@@ -38,39 +39,17 @@ namespace sampsim
     /**
      * Constructor
      */
-    summary()
-    {
-      this->parent = NULL;
-      this->set_expired( true );
-      this->reset();
-    }
+    summary() { this->reset(); }
 
     /**
-     * Determines whether or not the summary has expired
+     * Returns all values to 0
      */
-    bool is_expired() const { return this->expired; }
+    void reset();
 
     /**
-     * Mark the summary as expired, meaning that data will need to be re-calculated
+     * Adds a model's summary totals to this one
      */
-    void set_expired( const bool expired )
-    {
-      if( expired != this->expired )
-      {
-        this->expired = expired;
-        if( this->expired )
-        {
-          this->reset();
-          for( auto it = this->child_list.begin(); it != this->child_list.end(); ++it )
-            (*it)->set_expired( expired );
-        }
-      }
-    }
-
-    /**
-     * Adds a summary's values to this one
-     */
-    void add( summary* sum );
+    void add( model_object* );
 
     /**
      * Method for getting count data
@@ -137,24 +116,9 @@ namespace sampsim
 
   private:
     /**
-     * The summary's parent
-     */
-    summary *parent;
-
-    /**
      * A list of all child summaries added to this summary
      */
     std::vector< summary* > child_list;
-
-    /**
-     * Returns all values to 0
-     */
-    void reset();
-
-    /**
-     * Whether or not the data is out of date
-     */
-    bool expired;
 
     /**
      * Individual count values
