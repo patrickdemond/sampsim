@@ -85,16 +85,12 @@ for income_type in flat bbb; do
           echo "  ${BOLD}$sample_type${NORMAL} sample (sample size $sample_size) ${BLUE}[skipping]${NORMAL}"
         else
           which sqsub > /dev/null
+          command="${!sample_dir} -F -d -s --seed $seed -c $sample_config_file $population_type.$income_type.json $sample_name"
           if [ $? -eq 0 ]; then
             sqsub -r 120m --mpp=4g -q serial -o $sample_name.log \
-              ${!sample_dir} -q -S --seed $seed -c $sample_config_file \
-              $population_type.$income_type.json $sample_name && \
-              touch $sample_name.done
+              $command && touch $sample_name.done
           else
-            ${!sample_dir} -F -d -s --seed $seed -c $sample_config_file \
-              $population_type.$income_type.json $sample_name \
-              > $sample_name.log && \
-              touch $sample_name.done && \
+            $command > $sample_name.log && touch $sample_name.done && \
               echo "  ${BOLD}$sample_type${NORMAL} sample (sample size $sample_size) ${GREEN}[done]${NORMAL}"
           fi
         fi
