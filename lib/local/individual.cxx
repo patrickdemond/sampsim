@@ -37,6 +37,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void individual::copy( const individual* i )
   {
+    this->index = i->index;
     this->selected = i->selected;
     this->age = i->age;
     this->sex = i->sex;
@@ -121,7 +122,7 @@ namespace sampsim
   {
     this->sum.reset();
 
-    if( this->get_population()->get_sample_mode() || this->is_selected() )
+    if( !this->get_population()->get_sample_mode() || this->is_selected() )
     {
       if( this->is_disease() )
       {

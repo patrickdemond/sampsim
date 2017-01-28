@@ -234,6 +234,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void household::copy( const household* object )
   {
+    this->index = object->index;
     this->income = object->income;
     this->disease_risk = object->disease_risk;
     this->selected = object->selected;
