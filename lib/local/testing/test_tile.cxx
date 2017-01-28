@@ -28,7 +28,7 @@ TEST( test_tile )
 {
   // create a population
   sampsim::population *population = new sampsim::population;
-  create_test_population( population );
+  create_test_population( population, 2, 10000, 25000 );
   sampsim::summary *sum;
 
   for( auto town_it = population->get_town_list_begin();

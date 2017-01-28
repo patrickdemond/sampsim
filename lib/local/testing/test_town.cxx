@@ -55,7 +55,6 @@ TEST( test_population )
 
     cout << "Testing that town now has a count of zero..." << endl;
     sum = town->get_summary();
-    CHECK_EQUAL( 0, sum->get_count() );
     for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
       CHECK_EQUAL( 0, sum->get_count( cat_index ) );
 

@@ -30,7 +30,7 @@ TEST( test_household )
 {
   // create a population
   sampsim::population *population = new sampsim::population;
-  create_test_population( population );
+  create_test_population( population, 8, 100, 250 );
   sampsim::summary *sum;
 
   for( auto town_it = population->get_town_list_begin();
