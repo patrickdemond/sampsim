@@ -141,6 +141,11 @@ namespace sampsim
      */
     double get_disease_risk() const { return this->disease_risk; }
 
+    /**
+     * Returns this household's index
+     */
+    unsigned int get_index() { return this->index; }
+
   protected:
     void create();
     void define();

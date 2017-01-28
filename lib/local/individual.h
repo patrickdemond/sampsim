@@ -131,6 +131,11 @@ namespace sampsim
      */
     void set_disease( const bool disease ) { this->disease = disease; }
 
+    /**
+     * Returns this individual's index
+     */
+    unsigned int get_index() { return this->index; }
+
   protected:
     void create();
     void define();
