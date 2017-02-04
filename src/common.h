@@ -122,6 +122,7 @@ void setup_sample( sampsim::options &opts )
   opts.add_heading( "Sampling parameters (overrides config files):" );
   opts.add_heading( "" );
   opts.add_option( "seed", "", "Seed used by the random generator" );
+  opts.add_flag( "use_sample_weights", "Whether to calculate and use sample weights" );
   opts.add_option( "age", "either", "Restricts sample by age (\"adult\", \"child\" or \"either\")" );
   opts.add_flag( "one_per_household", "Only sample one individual per household" );
   opts.add_option( "sex", "either", "Restricts sample by sex (\"male\", \"female\" or \"either\")" );
@@ -151,6 +152,7 @@ void process_sample( sampsim::options &opts, sampsim::sample::sized_sample *samp
     std::cout << "sampsim strip_epi_sample version " << sampsim::utilities::get_version() << std::endl;
 
   sample->set_seed( opts.get_option( "seed" ) );
+  sample->set_use_sample_weights( opts.get_flag( "use_sample_weights" ) );
   sample->set_age( sampsim::get_age_type( opts.get_option( "age" ) ) );
   sample->set_one_per_household( opts.get_flag( "one_per_household" ) );
   sample->set_sex( sampsim::get_sex_type( opts.get_option( "sex" ) ) );

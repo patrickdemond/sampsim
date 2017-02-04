@@ -29,6 +29,8 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   sample::sample()
   {
+    this->seed = "";
+    this->use_sample_weights = false;
     this->number_of_samples = 1;
     this->number_of_towns = 1;
     this->write_sample_number = 0; // 0 => all samples
@@ -46,6 +48,7 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sample::copy( const sample* object )
   {
+    this->use_sample_weights = object->use_sample_weights;
     this->number_of_samples = object->number_of_samples;
     this->number_of_towns = object->number_of_towns;
     this->write_sample_number = object->write_sample_number;
@@ -250,7 +253,8 @@ namespace sample
               if( ( ANY_AGE == this->get_age() || this->get_age() == i->get_age() ) &&
                   ( ANY_SEX == this->get_sex() || this->get_sex() == i->get_sex() ) )
               {
-                i->select( this->get_sample_weight( i ) );
+                if( this->use_sample_weights ) i->select( this->get_sample_weight( i ) );
+                else i->select();
                 count++;
                 if( this->get_one_per_household() ) break;
               }
@@ -508,6 +512,14 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void sample::set_use_sample_weights( const bool use_sample_weights )
+  {
+    if( utilities::verbose )
+      utilities::output( "setting use_sample_weights to %s", use_sample_weights ? "true" : "false" );
+    this->use_sample_weights = use_sample_weights;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sample::set_number_of_samples( const unsigned int samples )
   {
     if( utilities::verbose ) utilities::output( "setting number_of_samples to %d", samples );
@@ -573,6 +585,7 @@ namespace sample
     }
 
     this->seed = json["seed"].asString();
+    this->use_sample_weights = json["use_sample_weights"].asBool();
     this->number_of_samples = json["number_of_samples"].asUInt();
     this->number_of_towns = json["number_of_towns"].asUInt();
     this->one_per_household = json["one_per_household"].asBool();
@@ -595,6 +608,7 @@ namespace sample
     json = Json::Value( Json::objectValue );
     json["type"] = this->get_type().c_str();
     json["seed"] = this->seed;
+    json["use_sample_weights"] = this->use_sample_weights;
     json["number_of_samples"] = this->number_of_samples;
     json["number_of_towns"] = this->number_of_towns;
     json["one_per_household"] = this->one_per_household;
@@ -623,6 +637,7 @@ namespace sample
            << "." << SAMPSIM_VERSION_PATCH << std::endl;
     stream << "# type: " << this->get_type() << std::endl;
     stream << "# seed: " << this->seed << std::endl;
+    stream << "# use_sample_weights: " << ( this->use_sample_weights ? "true" : "false" ) << std::endl;
     stream << "# number_of_samples: " << this->number_of_samples << std::endl;
     stream << "# number_of_towns: " << this->number_of_towns << std::endl;
     stream << "# one_per_household: " << ( this->one_per_household ? "true" : "false" ) << std::endl;

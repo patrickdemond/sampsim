@@ -24,7 +24,7 @@ namespace sampsim
     this->age = UNKNOWN_AGE_TYPE;
     this->sex = UNKNOWN_SEX_TYPE;
     this->disease = false;
-    this->sample_weight = 0.0;
+    this->sample_weight = 1.0;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -42,6 +42,7 @@ namespace sampsim
     this->age = i->age;
     this->sex = i->sex;
     this->disease = i->disease;
+    this->sample_weight = i->sample_weight;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

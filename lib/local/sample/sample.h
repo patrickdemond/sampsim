@@ -154,6 +154,16 @@ namespace sample
     std::string get_seed() const { return this->seed; }
 
     /**
+     * Sets whether to calculate and use sampling weights
+     */
+    void set_use_sample_weights( const bool use_sample_weights );
+
+    /**
+     * Returns whether sampling weights are used
+     */
+    bool get_use_sample_weights() const { return this->use_sample_weights; }
+
+    /**
      * Sets the number of times to sample the population
      */
     void set_number_of_samples( const unsigned int number_of_samples );
@@ -314,6 +324,11 @@ namespace sample
      * The random generator's seed
      */
     std::string seed;
+
+    /**
+     * Whether to sample one individual per household
+     */
+    bool use_sample_weights;
 
     /**
      * The number of times to sample the population
