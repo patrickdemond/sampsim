@@ -45,11 +45,14 @@ TEST( test_population )
   CHECK( town_size_max * number_of_towns >= sum->get_count() );
 
   cout << "Testing population prevalence..." << endl;
-  for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
+  for( age_type a = sampsim::ADULT; a <= sampsim::CHILD; a++ )
   {
-    CHECK( sum->get_count( cat_index, sampsim::summary::diseased ) <= sum->get_count( cat_index ) );
-    CHECK( 0 <= sum->get_count( cat_index, sampsim::summary::diseased ) );
-    CHECK( town_size_max * number_of_towns >= sum->get_count( cat_index, sampsim::summary::diseased ) );
+    for( sex_type s = sampsim::MALE; s <= sampsim::FEMALE; s++ )
+    {
+      CHECK( sum->get_count( a, s, DISEASED ) <= sum->get_count( a, s ) );
+      CHECK( 0 <= sum->get_count( a, s, DISEASED ) );
+      CHECK( town_size_max * number_of_towns >= sum->get_count( a, s, DISEASED ) );
+    }
   }
 
   cout << "Turning on sample mode" << endl;
@@ -58,12 +61,20 @@ TEST( test_population )
   sum = population->get_summary();
 
   cout << "Testing that population now has a count of zero..." << endl;
-  for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
-    CHECK_EQUAL( 0, sum->get_count( cat_index ) );
+  CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::ANY_SEX ) );
+  CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::MALE ) );
+  CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::FEMALE ) );
+  CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::ANY_SEX ) );
+  CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::MALE ) );
+  CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::FEMALE ) );
+  CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::ANY_SEX ) );
+  CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::MALE ) );
+  CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::FEMALE ) );
 
   cout << "Testing that population prevalence now has a count of zero..." << endl;
-  for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
-    CHECK_EQUAL( 0, sum->get_count( cat_index, sampsim::summary::diseased ) );
+  for( age_type a = sampsim::ADULT; a <= sampsim::CHILD; a++ )
+    for( sex_type s = sampsim::MALE; s <= sampsim::FEMALE; s++ )
+      CHECK_EQUAL( 0, sum->get_count( a, s, DISEASED ) );
 
   cout << "Testing that population with selected individual has non-zero count..." << endl;
   individual->select();
@@ -73,8 +84,15 @@ TEST( test_population )
   cout << "Testing that population with unselected individual has a count of zero..." << endl;
   individual->unselect();
   sum = population->get_summary();
-  for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
-    CHECK_EQUAL( 0, sum->get_count( cat_index ) );
+  CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::ANY_SEX ) );
+  CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::MALE ) );
+  CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::FEMALE ) );
+  CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::ANY_SEX ) );
+  CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::MALE ) );
+  CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::FEMALE ) );
+  CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::ANY_SEX ) );
+  CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::MALE ) );
+  CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::FEMALE ) );
 
   cout << "Turning off sample mode" << endl;
   population->set_sample_mode( false );
@@ -82,12 +100,26 @@ TEST( test_population )
   sum = population->get_summary();
 
   cout << "Testing population size..." << endl;
-  for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
-    CHECK( 0 != sum->get_count( cat_index ) );
+  CHECK( 0 != sum->get_count( sampsim::ANY_AGE, sampsim::ANY_SEX ) );
+  CHECK( 0 != sum->get_count( sampsim::ANY_AGE, sampsim::MALE ) );
+  CHECK( 0 != sum->get_count( sampsim::ANY_AGE, sampsim::FEMALE ) );
+  CHECK( 0 != sum->get_count( sampsim::ADULT, sampsim::ANY_SEX ) );
+  CHECK( 0 != sum->get_count( sampsim::ADULT, sampsim::MALE ) );
+  CHECK( 0 != sum->get_count( sampsim::ADULT, sampsim::FEMALE ) );
+  CHECK( 0 != sum->get_count( sampsim::CHILD, sampsim::ANY_SEX ) );
+  CHECK( 0 != sum->get_count( sampsim::CHILD, sampsim::MALE ) );
+  CHECK( 0 != sum->get_count( sampsim::CHILD, sampsim::FEMALE ) );
 
   cout << "Testing population prevalence..." << endl;
-  for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
-    CHECK( 0 != sum->get_count( cat_index, sampsim::summary::diseased ) );
+  CHECK( 0 != sum->get_count( sampsim::ANY_AGE, sampsim::ANY_SEX, sampsim::DISEASED ) );
+  CHECK( 0 != sum->get_count( sampsim::ANY_AGE, sampsim::MALE, sampsim::DISEASED ) );
+  CHECK( 0 != sum->get_count( sampsim::ANY_AGE, sampsim::FEMALE, sampsim::DISEASED ) );
+  CHECK( 0 != sum->get_count( sampsim::ADULT, sampsim::ANY_SEX, sampsim::DISEASED ) );
+  CHECK( 0 != sum->get_count( sampsim::ADULT, sampsim::MALE, sampsim::DISEASED ) );
+  CHECK( 0 != sum->get_count( sampsim::ADULT, sampsim::FEMALE, sampsim::DISEASED ) );
+  CHECK( 0 != sum->get_count( sampsim::CHILD, sampsim::ANY_SEX, sampsim::DISEASED ) );
+  CHECK( 0 != sum->get_count( sampsim::CHILD, sampsim::MALE, sampsim::DISEASED ) );
+  CHECK( 0 != sum->get_count( sampsim::CHILD, sampsim::FEMALE, sampsim::DISEASED ) );
 
   stringstream temp_filename;
   temp_filename << "/tmp/sampsim" << sampsim::utilities::random( 1000000, 9999999 );
@@ -120,13 +152,24 @@ TEST( test_population )
   CHECK_EQUAL( population->get_number_of_individuals(), population_read->get_number_of_individuals() );
   sum = population->get_summary();
   sampsim::summary *read_sum = population_read->get_summary();
-  for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
-  {
-    CHECK_EQUAL( sum->get_count( cat_index, sampsim::summary::diseased ),
-                 read_sum->get_count( cat_index, sampsim::summary::diseased ) );
-    CHECK_EQUAL( sum->get_count( cat_index, sampsim::summary::healthy ),
-                 read_sum->get_count( cat_index, sampsim::summary::healthy ) );
-  }
+  CHECK_EQUAL( sum->get_count( ANY_AGE, ANY_SEX, DISEASED ), read_sum->get_count( ANY_AGE, ANY_SEX, DISEASED ) );
+  CHECK_EQUAL( sum->get_count( ANY_AGE, ANY_SEX, HEALTHY ), read_sum->get_count( ANY_AGE, ANY_SEX, HEALTHY ) );
+  CHECK_EQUAL( sum->get_count( ANY_AGE, MALE, DISEASED ), read_sum->get_count( ANY_AGE, MALE, DISEASED ) );
+  CHECK_EQUAL( sum->get_count( ANY_AGE, MALE, HEALTHY ), read_sum->get_count( ANY_AGE, MALE, HEALTHY ) );
+  CHECK_EQUAL( sum->get_count( ANY_AGE, FEMALE, DISEASED ), read_sum->get_count( ANY_AGE, FEMALE, DISEASED ) );
+  CHECK_EQUAL( sum->get_count( ANY_AGE, FEMALE, HEALTHY ), read_sum->get_count( ANY_AGE, FEMALE, HEALTHY ) );
+  CHECK_EQUAL( sum->get_count( ADULT, ANY_SEX, DISEASED ), read_sum->get_count( ADULT, ANY_SEX, DISEASED ) );
+  CHECK_EQUAL( sum->get_count( ADULT, ANY_SEX, HEALTHY ), read_sum->get_count( ADULT, ANY_SEX, HEALTHY ) );
+  CHECK_EQUAL( sum->get_count( ADULT, MALE, DISEASED ), read_sum->get_count( ADULT, MALE, DISEASED ) );
+  CHECK_EQUAL( sum->get_count( ADULT, MALE, HEALTHY ), read_sum->get_count( ADULT, MALE, HEALTHY ) );
+  CHECK_EQUAL( sum->get_count( ADULT, FEMALE, DISEASED ), read_sum->get_count( ADULT, FEMALE, DISEASED ) );
+  CHECK_EQUAL( sum->get_count( ADULT, FEMALE, HEALTHY ), read_sum->get_count( ADULT, FEMALE, HEALTHY ) );
+  CHECK_EQUAL( sum->get_count( CHILD, ANY_SEX, DISEASED ), read_sum->get_count( CHILD, ANY_SEX, DISEASED ) );
+  CHECK_EQUAL( sum->get_count( CHILD, ANY_SEX, HEALTHY ), read_sum->get_count( CHILD, ANY_SEX, HEALTHY ) );
+  CHECK_EQUAL( sum->get_count( CHILD, MALE, DISEASED ), read_sum->get_count( CHILD, MALE, DISEASED ) );
+  CHECK_EQUAL( sum->get_count( CHILD, MALE, HEALTHY ), read_sum->get_count( CHILD, MALE, HEALTHY ) );
+  CHECK_EQUAL( sum->get_count( CHILD, FEMALE, DISEASED ), read_sum->get_count( CHILD, FEMALE, DISEASED ) );
+  CHECK_EQUAL( sum->get_count( CHILD, FEMALE, HEALTHY ), read_sum->get_count( CHILD, FEMALE, HEALTHY ) );
 
   // clean up
   remove( temp_filename.str().c_str() );

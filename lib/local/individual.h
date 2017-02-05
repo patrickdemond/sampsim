@@ -122,14 +122,19 @@ namespace sampsim
     void set_age( const age_type age ) { this->age = age; }
 
     /**
-     * Returns whether the individual has a disease
+     * Returns the individual's state
      */
-    bool is_disease() const { return this->disease; }
+    state_type get_state() const { return this->state; }
 
     /**
      * Sets the individual's disease status
      */
-    void set_disease( const bool disease ) { this->disease = disease; }
+    void set_disease( const bool disease ) { this->state = disease ? DISEASED : HEALTHY; }
+
+    /**
+     * Returns whether the individual has a disease
+     */
+    bool is_disease() const { return DISEASED == this->state; }
 
     /**
      * Returns this individual's index
@@ -164,7 +169,7 @@ namespace sampsim
     /**
      * The individual's disease status
      */
-    bool disease;
+    state_type state;
 
     /**
      * When selected, the individual's sample weight

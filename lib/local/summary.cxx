@@ -13,28 +13,12 @@
 namespace sampsim
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void summary::reset()
-  {
-    for( int cat_index = 0; cat_index < category_size; cat_index++ )
-    {
-      for( int state_index = 0; state_index < state_size; state_index++ )
-      {
-        this->count[cat_index][state_index] = 0;
-        this->weight[cat_index][state_index] = 0.0;
-      }
-    }
-  }
-
-  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void summary::add( model_object* model )
   {
-    for( int cat_index = 0; cat_index < category_size; cat_index++ )
+    for( int i = 0; i < 8; i++ )
     {
-      for( int state_index = 0; state_index < state_size; state_index++ )
-      {
-        this->count[cat_index][state_index] += model->sum.count[cat_index][state_index];
-        this->weight[cat_index][state_index] += model->sum.weight[cat_index][state_index];
-      }
+      this->count[i] += model->sum.count[i];
+      this->weighted_count[i] += model->sum.weighted_count[i];
     }
   }
 }

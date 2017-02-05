@@ -94,15 +94,6 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void sample::create_population()
-  {
-    this->delete_population();
-    this->population = new sampsim::population;
-    this->population->set_sample_mode( true );
-    this->owns_population = true;
-  }
-
-  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sample::delete_population()
   {
     if( this->population )
@@ -388,12 +379,10 @@ namespace sample
     std::ofstream stream( filename + ".txt", std::ofstream::app );
 
     sampsim::summary total_summary;
-    std::vector< double > mean_vector, stdev_vector, squared_sum_vector;
+    double mean_array[9], stdev_array[9], squared_sum_array[9];
+    double wmean_array[9], wstdev_array[9], wsquared_sum_array[9];
     std::vector< sampsim::summary* > summary_vector;
 
-    mean_vector.resize( sampsim::summary::category_size, 0 );
-    stdev_vector.resize( sampsim::summary::category_size, 0 );
-    squared_sum_vector.resize( sampsim::summary::category_size, 0 );
     summary_vector.reserve( this->sampled_population_list.size() );
 
     // get summaries of all populations and add them up as we go
@@ -405,84 +394,106 @@ namespace sample
     }
 
     // determine standard deviations for all prevalences
-    for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
+    age_type a;
+    sex_type s;
+    for( unsigned int index = 0; index < 9; index++ )
     {
-      mean_vector[cat_index] = total_summary.get_count_fraction( cat_index );
+      if( 0 <= index && index < 3 ) a = ANY_AGE;
+      else if( 3 <= index && index < 6 ) a = ADULT;
+      else if( 6 <= index && index < 9 ) a = CHILD;
+
+      if( 0 == index % 3 ) s = ANY_SEX;
+      else if( 1 == index % 3 ) s = MALE;
+      else if( 2 == index % 3 ) s = FEMALE;
+
+      double diff;
+      mean_array[index] = total_summary.get_count_fraction( a, s );
+      if( this->use_sample_weights ) wmean_array[index] = total_summary.get_weighted_count_fraction( a, s );
 
       for( unsigned int samp_index = 0; samp_index < this->sampled_population_list.size(); samp_index++ )
       {
-        double diff = 
-          summary_vector[samp_index]->get_count_fraction( cat_index ) - mean_vector[cat_index];
-        squared_sum_vector[cat_index] += diff*diff;
+        diff = summary_vector[samp_index]->get_count_fraction( a, s ) - mean_array[index];
+        squared_sum_array[index] += diff*diff;
+        if( this->use_sample_weights )
+        {
+          diff = summary_vector[samp_index]->get_weighted_count_fraction( a, s ) - wmean_array[index];
+          wsquared_sum_array[index] += diff*diff;
+        }
       }
-      stdev_vector[cat_index] = sqrt(
-        squared_sum_vector[cat_index] /
-        static_cast<double>( this->sampled_population_list.size() - 1 )
+      stdev_array[index] = sqrt(
+        squared_sum_array[index] / static_cast<double>( this->sampled_population_list.size() - 1 )
       );
+      if( this->use_sample_weights )
+      {
+        wstdev_array[index] = sqrt(
+          wsquared_sum_array[index] / static_cast<double>( this->sampled_population_list.size() - 1 )
+        );
+      }
+      index++;
     }
 
-    stream << "sampled total count: "
-           << total_summary.get_count( sampsim::summary::all, sampsim::summary::diseased )
-           << " diseased of "
-           << total_summary.get_count( sampsim::summary::all, sampsim::summary::all )
-           << " total "
-           << "(prevalence " << mean_vector[0] << " (" << stdev_vector[0] << "))" << std::endl;
+    stream << "sampled total count: " << total_summary.get_count( ANY_AGE, ANY_SEX, DISEASED )
+           << " diseased of " << total_summary.get_count( ANY_AGE, ANY_SEX )
+           << " total (prevalence " << mean_array[0] << " (" << stdev_array[0] << "))";
+    if( this->use_sample_weights )
+      stream << " (weighted prevalence " << wmean_array[0] << " (" << wstdev_array[0] << "))";
+    stream << std::endl;
 
-    stream << "sampled adult count: "
-           << total_summary.get_count( sampsim::summary::adult, sampsim::summary::diseased )
-           << " diseased of "
-           << total_summary.get_count( sampsim::summary::adult, sampsim::summary::all )
-           << " total "
-           << "(prevalence " << mean_vector[1] << " (" << stdev_vector[1] << "))" << std::endl;
+    stream << "sampled adult count: " << total_summary.get_count( ADULT, ANY_SEX, DISEASED )
+           << " diseased of " << total_summary.get_count( ADULT, ANY_SEX )
+           << " total (prevalence " << mean_array[3] << " (" << stdev_array[3] << "))";
+    if( this->use_sample_weights )
+      stream << " (weighted prevalence " << wmean_array[3] << " (" << wstdev_array[3] << "))";
+    stream << std::endl;
 
-    stream << "sampled child count: "
-           << total_summary.get_count( sampsim::summary::child, sampsim::summary::diseased )
-           << " diseased of "
-           << total_summary.get_count( sampsim::summary::child, sampsim::summary::all )
-           << " total "
-           << "(prevalence " << mean_vector[2] << " (" << stdev_vector[2] << "))" << std::endl;
+    stream << "sampled child count: " << total_summary.get_count( CHILD, ANY_SEX, DISEASED )
+           << " diseased of " << total_summary.get_count( CHILD, ANY_SEX )
+           << " total (prevalence " << mean_array[6] << " (" << stdev_array[6] << "))";
+    if( this->use_sample_weights )
+      stream << " (weighted prevalence " << wmean_array[6] << " (" << wstdev_array[6] << "))";
+    stream << std::endl;
 
-    stream << "sampled male count: "
-           << total_summary.get_count( sampsim::summary::male, sampsim::summary::diseased )
-           << " diseased of "
-           << total_summary.get_count( sampsim::summary::male, sampsim::summary::all )
-           << " total "
-           << "(prevalence " << mean_vector[3] << " (" << stdev_vector[3] << "))" << std::endl;
+    stream << "sampled male count: " << total_summary.get_count( ANY_AGE, MALE, DISEASED )
+           << " diseased of " << total_summary.get_count( ANY_AGE, MALE )
+           << " total (prevalence " << mean_array[1] << " (" << stdev_array[1] << "))";
+    if( this->use_sample_weights )
+      stream << " (weighted prevalence " << wmean_array[1] << " (" << wstdev_array[1] << "))";
+    stream << std::endl;
 
-    stream << "sampled female count: "
-           << total_summary.get_count( sampsim::summary::female, sampsim::summary::diseased )
-           << " diseased of "
-           << total_summary.get_count( sampsim::summary::female, sampsim::summary::all )
-           << " total "
-           << "(prevalence " << mean_vector[4] << " (" << stdev_vector[4] << "))" << std::endl;
+    stream << "sampled female count: " << total_summary.get_count( ANY_AGE, FEMALE, DISEASED )
+           << " diseased of " << total_summary.get_count( ANY_AGE, FEMALE )
+           << " total (prevalence " << mean_array[2] << " (" << stdev_array[2] << "))";
+    if( this->use_sample_weights )
+      stream << " (weighted prevalence " << wmean_array[2] << " (" << wstdev_array[2] << "))";
+    stream << std::endl;
 
-    stream << "sampled male adult count: "
-           << total_summary.get_count( sampsim::summary::adult_male, sampsim::summary::diseased )
-           << " diseased of "
-           << total_summary.get_count( sampsim::summary::adult_male, sampsim::summary::all )
-           << " total "
-           << "(prevalence " << mean_vector[5] << " (" << stdev_vector[5] << "))" << std::endl;
+    stream << "sampled male adult count: " << total_summary.get_count( ADULT, MALE, DISEASED )
+           << " diseased of " << total_summary.get_count( ADULT, MALE )
+           << " total (prevalence " << mean_array[4] << " (" << stdev_array[4] << "))";
+    if( this->use_sample_weights )
+      stream << " (weighted prevalence " << wmean_array[4] << " (" << wstdev_array[4] << "))";
+    stream << std::endl;
 
-    stream << "sampled female adult count: "
-           << total_summary.get_count( sampsim::summary::adult_female, sampsim::summary::diseased )
-           << " diseased of "
-           << total_summary.get_count( sampsim::summary::adult_female, sampsim::summary::all )
-           << " total "
-           << "(prevalence " << mean_vector[6] << " (" << stdev_vector[6] << "))" << std::endl;
+    stream << "sampled female adult count: " << total_summary.get_count( ADULT, FEMALE, DISEASED )
+           << " diseased of " << total_summary.get_count( ADULT, FEMALE )
+           << " total (prevalence " << mean_array[5] << " (" << stdev_array[5] << "))";
+    if( this->use_sample_weights )
+      stream << " (weighted prevalence " << wmean_array[5] << " (" << wstdev_array[5] << "))";
+    stream << std::endl;
 
-    stream << "sampled male child count: "
-           << total_summary.get_count( sampsim::summary::child_male, sampsim::summary::diseased )
-           << " diseased of "
-           << total_summary.get_count( sampsim::summary::child_male, sampsim::summary::all )
-           << " total "
-           << "(prevalence " << mean_vector[7] << " (" << stdev_vector[7] << "))" << std::endl;
+    stream << "sampled male child count: " << total_summary.get_count( CHILD, MALE, DISEASED )
+           << " diseased of " << total_summary.get_count( CHILD, MALE )
+           << " total (prevalence " << mean_array[7] << " (" << stdev_array[7] << "))";
+    if( this->use_sample_weights )
+      stream << " (weighted prevalence " << wmean_array[7] << " (" << wstdev_array[7] << "))";
+    stream << std::endl;
 
-    stream << "sampled female child count: "
-           << total_summary.get_count( sampsim::summary::child_female, sampsim::summary::diseased )
-           << " diseased of "
-           << total_summary.get_count( sampsim::summary::child_female, sampsim::summary::all )
-           << " total "
-           << "(prevalence " << mean_vector[8] << " (" << stdev_vector[8] << "))" << std::endl;
+    stream << "sampled female child count: " << total_summary.get_count( CHILD, FEMALE, DISEASED )
+           << " diseased of " << total_summary.get_count( CHILD, FEMALE )
+           << " total (prevalence " << mean_array[8] << " (" << stdev_array[8] << "))";
+    if( this->use_sample_weights )
+      stream << " (weighted prevalence " << wmean_array[8] << " (" << wstdev_array[8] << "))";
+    stream << std::endl;
 
     stream.close();
   }
@@ -490,7 +501,11 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   bool sample::set_population( const std::string filename )
   {
-    this->create_population();
+    this->delete_population();
+    this->population = new sampsim::population;
+    this->population->set_sample_mode( true );
+    this->population->set_use_sample_weights( this->use_sample_weights );
+    this->owns_population = true;
     return this->population->read( filename );
   }
 
@@ -500,6 +515,8 @@ namespace sample
     this->delete_population();
     this->population = population; // copy pointer but do not delete when finished
     this->population->set_sample_mode( true );
+    this->population->set_use_sample_weights( this->use_sample_weights );
+    this->owns_population = false;
     return true;
   }
 

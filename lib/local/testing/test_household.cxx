@@ -64,8 +64,15 @@ TEST( test_household )
 
           cout << "Testing that household now has no population..." << endl;
           sum = household->get_summary();
-          for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
-            CHECK_EQUAL( 0, sum->get_count( cat_index ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::ANY_SEX ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::MALE ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::FEMALE ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::ANY_SEX ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::MALE ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::FEMALE ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::ANY_SEX ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::MALE ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::FEMALE ) );
 
           cout << "Testing that household with selected individual has population..." << endl;
           individual->select();
@@ -75,15 +82,29 @@ TEST( test_household )
           cout << "Testing that household with unselected individual has no population..." << endl;
           individual->unselect();
           sum = household->get_summary();
-          for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
-            CHECK_EQUAL( 0, sum->get_count( cat_index ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::ANY_SEX ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::MALE ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::FEMALE ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::ANY_SEX ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::MALE ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::FEMALE ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::ANY_SEX ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::MALE ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::FEMALE ) );
 
           cout << "Testing that unselected household has no population..." << endl;
           individual->select();
           household->unselect();
           sum = household->get_summary();
-          for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
-            CHECK_EQUAL( 0, sum->get_count( cat_index ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::ANY_SEX ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::MALE ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::FEMALE ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::ANY_SEX ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::MALE ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::FEMALE ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::ANY_SEX ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::MALE ) );
+          CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::FEMALE ) );
 
           cout << "Turning off sample mode" << endl;
           population->set_sample_mode( false );

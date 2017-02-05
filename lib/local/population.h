@@ -183,7 +183,17 @@ namespace sampsim
     /**
      * Sets the random generator's seed
      */
-    void set_seed( const std::string seed );
+    void set_seed( const std::string );
+
+    /**
+     * Sets whether to calculate sample weights
+     */
+    void set_use_sample_weights( const bool );
+
+    /**
+     * Gets whether to calculate sample weights
+     */
+    bool get_use_sample_weights() const { return this->use_sample_weights; }
 
     /**
      * Gets the number of towns to create
@@ -460,6 +470,11 @@ namespace sampsim
      * The population's current seed value
      */
     std::string seed;
+
+    /**
+     * Whether to calculate sample weights
+     */
+    bool use_sample_weights;
 
     /**
      * The total number of towns in the population

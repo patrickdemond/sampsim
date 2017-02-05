@@ -70,8 +70,15 @@ TEST( test_building )
 
         cout << "Testing that building now has no population..." << endl;
         sum = building->get_summary();
-        for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
-          CHECK_EQUAL( 0, sum->get_count( cat_index ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::ANY_SEX ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::MALE ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::FEMALE ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::ANY_SEX ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::MALE ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::FEMALE ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::ANY_SEX ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::MALE ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::FEMALE ) );
 
         cout << "Testing that building with selected individual has population..." << endl;
         individual->select();
@@ -81,15 +88,29 @@ TEST( test_building )
         cout << "Testing that building with unselected individual has no population..." << endl;
         individual->unselect();
         sum = building->get_summary();
-        for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
-          CHECK_EQUAL( 0, sum->get_count( cat_index ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::ANY_SEX ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::MALE ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::FEMALE ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::ANY_SEX ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::MALE ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::FEMALE ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::ANY_SEX ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::MALE ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::FEMALE ) );
 
         cout << "Testing that unselected building has no population..." << endl;
         individual->select();
         building->unselect();
         sum = building->get_summary();
-        for( int cat_index = 0; cat_index < sampsim::summary::category_size; cat_index++ )
-          CHECK_EQUAL( 0, sum->get_count( cat_index ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::ANY_SEX ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::MALE ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::FEMALE ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::ANY_SEX ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::MALE ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::FEMALE ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::ANY_SEX ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::MALE ) );
+        CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::FEMALE ) );
 
         cout << "Turning off sample mode" << endl;
         population->set_sample_mode( false );
@@ -97,12 +118,12 @@ TEST( test_building )
         cout << "Testing building population..." << endl;
         sum = building->get_summary();
         CHECK( 0 != sum->get_count() );
-        CHECK( 0 != sum->get_count( sampsim::summary::adult ) );
-        if( 2 < sum->get_count() ) CHECK( 0 != sum->get_count( sampsim::summary::child ) );
+        CHECK( 0 != sum->get_count( sampsim::ADULT ) );
+        if( 2 < sum->get_count() ) CHECK( 0 != sum->get_count( sampsim::CHILD ) );
         if( 1 < sum->get_count() )
         {
-          CHECK( 0 != sum->get_count( sampsim::summary::male ) );
-          CHECK( 0 != sum->get_count( sampsim::summary::female ) );
+          CHECK( 0 != sum->get_count( sampsim::ANY_SEX, sampsim::MALE ) );
+          CHECK( 0 != sum->get_count( sampsim::ANY_SEX, sampsim::FEMALE ) );
         }
       }
     }

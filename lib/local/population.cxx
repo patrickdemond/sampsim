@@ -33,6 +33,7 @@ namespace sampsim
     this->current_household_index = 0;
     this->current_individual_index = 0;
     this->seed = "";
+    this->use_sample_weights = false;
     this->number_of_towns = 1;
     this->number_of_tiles_x = 0;
     this->number_of_tiles_y = 0;
@@ -270,41 +271,44 @@ namespace sampsim
 
     summary* sum = this->get_summary();
 
-    stream << "total count: " << sum->get_count( summary::all, summary::diseased )
-           << " diseased of " << sum->get_count( summary::all, summary::all ) << " total "
-           << "(prevalence " << sum->get_count_fraction( summary::all ) << ")" << std::endl;
+    stream << "total count: " << sum->get_count( ANY_AGE, ANY_SEX, DISEASED )
+           << " diseased of " << sum->get_count() << " total "
+           << "(prevalence " << sum->get_count_fraction() << ")" << std::endl;
 
-    stream << "adult count: " << sum->get_count( summary::adult, summary::diseased )
-           << " diseased of " << sum->get_count( summary::adult, summary::all ) << " total "
-           << "(prevalence " << sum->get_count_fraction( summary::adult ) << ")" << std::endl;
+    stream << sampsim::get_age_type_name( ADULT ) << " count: "
+           << sum->get_count( ADULT, ANY_SEX, DISEASED )
+           << " diseased of " << sum->get_count( ADULT ) << " total "
+           << "(prevalence " << sum->get_count_fraction( ADULT ) << ")" << std::endl;
+    stream << sampsim::get_age_type_name( CHILD ) << " count: "
+           << sum->get_count( CHILD, ANY_SEX, DISEASED )
+           << " diseased of " << sum->get_count( CHILD ) << " total "
+           << "(prevalence " << sum->get_count_fraction( CHILD ) << ")" << std::endl;
 
-    stream << "child count: " << sum->get_count( summary::child, summary::diseased )
-           << " diseased of " << sum->get_count( summary::child, summary::all ) << " total "
-           << "(prevalence " << sum->get_count_fraction( summary::child ) << ")" << std::endl;
+    stream << sampsim::get_sex_type_name( MALE ) << " count: "
+           << sum->get_count( ANY_AGE, MALE, DISEASED )
+           << " diseased of " << sum->get_count( ANY_AGE, MALE ) << " total "
+           << "(prevalence " << sum->get_count_fraction( ANY_AGE, MALE ) << ")" << std::endl;
+    stream << sampsim::get_sex_type_name( FEMALE ) << " count: "
+           << sum->get_count( ANY_AGE, FEMALE, DISEASED )
+           << " diseased of " << sum->get_count( ANY_AGE, FEMALE ) << " total "
+           << "(prevalence " << sum->get_count_fraction( ANY_AGE, FEMALE ) << ")" << std::endl;
 
-    stream << "male count: " << sum->get_count( summary::male, summary::diseased )
-           << " diseased of " << sum->get_count( summary::male, summary::all ) << " total "
-           << "(prevalence " << sum->get_count_fraction( summary::male ) << ")" << std::endl;
-
-    stream << "female count: " << sum->get_count( summary::female, summary::diseased )
-           << " diseased of " << sum->get_count( summary::female, summary::all ) << " total "
-           << "(prevalence " << sum->get_count_fraction( summary::female ) << ")" << std::endl;
-
-    stream << "adult male count: " << sum->get_count( summary::adult_male, summary::diseased )
-           << " diseased of " << sum->get_count( summary::adult_male, summary::all ) << " total "
-           << "(prevalence " << sum->get_count_fraction( summary::adult_male ) << ")" << std::endl;
-
-    stream << "adult female count: " << sum->get_count( summary::adult_female, summary::diseased )
-           << " diseased of " << sum->get_count( summary::adult_female, summary::all ) << " total "
-           << "(prevalence " << sum->get_count_fraction( summary::adult_female ) << ")" << std::endl;
-
-    stream << "child male count: " << sum->get_count( summary::child_male, summary::diseased )
-           << " diseased of " << sum->get_count( summary::child_male, summary::all ) << " total "
-           << "(prevalence " << sum->get_count_fraction( summary::child_male ) << ")" << std::endl;
-
-    stream << "child female count: " << sum->get_count( summary::child_female, summary::diseased )
-           << " diseased of " << sum->get_count( summary::child_female, summary::all ) << " total "
-           << "(prevalence " << sum->get_count_fraction( summary::child_female ) << ")" << std::endl;
+    stream << sampsim::get_age_type_name( ADULT ) << " " << sampsim::get_sex_type_name( MALE ) << " count: "
+           << sum->get_count( ADULT, MALE, DISEASED )
+           << " diseased of " << sum->get_count( ADULT, MALE, ANY_STATE ) << " total "
+           << "(prevalence " << sum->get_count_fraction( ADULT, MALE ) << ")" << std::endl;
+    stream << sampsim::get_age_type_name( ADULT ) << " " << sampsim::get_sex_type_name( FEMALE ) << " count: "
+           << sum->get_count( ADULT, FEMALE, DISEASED )
+           << " diseased of " << sum->get_count( ADULT, FEMALE, ANY_STATE ) << " total "
+           << "(prevalence " << sum->get_count_fraction( ADULT, FEMALE ) << ")" << std::endl;
+    stream << sampsim::get_age_type_name( CHILD ) << " " << sampsim::get_sex_type_name( MALE ) << " count: "
+           << sum->get_count( CHILD, MALE, DISEASED )
+           << " diseased of " << sum->get_count( CHILD, MALE, ANY_STATE ) << " total "
+           << "(prevalence " << sum->get_count_fraction( CHILD, MALE ) << ")" << std::endl;
+    stream << sampsim::get_age_type_name( CHILD ) << " " << sampsim::get_sex_type_name( FEMALE ) << " count: "
+           << sum->get_count( CHILD, FEMALE, DISEASED )
+           << " diseased of " << sum->get_count( CHILD, FEMALE, ANY_STATE ) << " total "
+           << "(prevalence " << sum->get_count_fraction( CHILD, FEMALE ) << ")" << std::endl;
 
     stream.close();
   }
@@ -326,6 +330,7 @@ namespace sampsim
 
     this->number_of_individuals = 0;
     this->seed = json["seed"].asString();
+    this->use_sample_weights = json["use_sample_weights"].asBool();
     this->number_of_towns = json["number_of_towns"].asUInt();
     this->town_size_min = json["town_size_min"].asDouble();
     this->town_size_max = json["town_size_max"].asDouble();
@@ -366,6 +371,7 @@ namespace sampsim
     json = Json::Value( Json::objectValue );
     json["version"] = utilities::get_version();
     json["seed"] = this->seed;
+    json["use_sample_weights"] = this->use_sample_weights;
     json["number_of_towns"] = this->number_of_towns;
     json["town_size_min"] = this->town_size_min;
     json["town_size_max"] = this->town_size_max;
@@ -412,6 +418,7 @@ namespace sampsim
            << "# ---------------------" << std::endl
            << "# version: " << utilities::get_version() << std::endl
            << "# seed: " << this->seed << std::endl
+           << "# use_sample_weights: " << ( this->use_sample_weights ? "true" : "false" ) << std::endl
            << "# towns: " << this->number_of_towns << std::endl
            << "# town_size_min: " << this->town_size_min << std::endl
            << "# town_size_max: " << this->town_size_max << std::endl
@@ -441,7 +448,9 @@ namespace sampsim
     // put in the csv headers
     household_stream << "town_index,household_index,x,y,r,a,individuals,income,disease_risk,disease"
                      << std::endl;
-    individual_stream << "town_index,household_index,individual_index,sex,age,disease" << std::endl;
+    individual_stream << "town_index,household_index,individual_index,sex,age,disease";
+    if( this->use_sample_weights ) individual_stream << ",weight";
+    individual_stream << std::endl;
 
     for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
       ( *it )->to_csv( household_stream, individual_stream );
@@ -453,6 +462,14 @@ namespace sampsim
     if( utilities::verbose ) utilities::output( "setting seed to %s", seed.c_str() );
     this->seed = seed;
     utilities::random_engine.seed( atoi( this->seed.c_str() ) );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::set_use_sample_weights( const bool use_sample_weights )
+  {
+    if( utilities::verbose )
+      utilities::output( "setting use_sample_weights to %s", use_sample_weights ? "true" : "false" );
+    this->use_sample_weights = use_sample_weights;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -656,6 +673,7 @@ namespace sampsim
     // copy population parameters
     this->sample_mode = object->sample_mode;
     this->seed = object->seed;
+    this->use_sample_weights = object->use_sample_weights;
     this->number_of_tiles_x = object->number_of_tiles_x;
     this->number_of_tiles_y = object->number_of_tiles_y;
     this->tile_width = object->tile_width;

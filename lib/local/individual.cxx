@@ -23,7 +23,7 @@ namespace sampsim
     this->index = this->get_population()->get_next_individual_index();
     this->age = UNKNOWN_AGE_TYPE;
     this->sex = UNKNOWN_SEX_TYPE;
-    this->disease = false;
+    this->state = UNKNOWN_STATE_TYPE;
     this->sample_weight = 1.0;
   }
 
@@ -41,7 +41,7 @@ namespace sampsim
     this->selected = i->selected;
     this->age = i->age;
     this->sex = i->sex;
-    this->disease = i->disease;
+    this->state = i->state;
     this->sample_weight = i->sample_weight;
   }
 
@@ -86,11 +86,13 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void individual::from_json( const Json::Value &json )
   {
+    population *pop = this->get_population();
     this->index = json["index"].asUInt();
     this->age = sampsim::get_age_type( json["age"].asString() );
     this->sex = sampsim::get_sex_type( json["sex"].asString() );
-    this->disease = 1 == json["disease"].asUInt();
-    this->get_population()->assert_individual_index( this->index );
+    this->state = 1 == json["disease"].asUInt() ? DISEASED : HEALTHY;
+    this->sample_weight = pop->get_use_sample_weights() ? json["sample_weight"].asDouble() : 1.0;
+    pop->assert_individual_index( this->index );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -100,7 +102,8 @@ namespace sampsim
     json["index"] = this->index;
     json["age"] = Json::Value( sampsim::get_age_type_name( this->age ) );
     json["sex"] = Json::Value( sampsim::get_sex_type_name( this->sex ) );
-    json["disease"] = this->disease ? 1 : 0;
+    json["disease"] = DISEASED == this->state ? 1 : 0;
+    if( this->get_population()->get_use_sample_weights() ) json["sample_weight"] = this->sample_weight;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -109,7 +112,8 @@ namespace sampsim
     individual_stream << this->index << ","
                       << sampsim::get_age_type_name( this->age ) << ","
                       << sampsim::get_sex_type_name( this->sex ) << ","
-                      << ( this->disease ? 1 : 0 );
+                      << ( DISEASED == this->state ? 1 : 0 );
+    if( this->get_population()->get_use_sample_weights() ) individual_stream << "," << this->sample_weight;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -125,36 +129,20 @@ namespace sampsim
 
     if( !this->get_population()->get_sample_mode() || this->is_selected() )
     {
-      if( this->is_disease() )
-      {
-        if( ADULT == this->get_age() ) this->sum.count[summary::adult][summary::diseased]++;
-        else if( CHILD == this->get_age() ) this->sum.count[summary::child][summary::diseased]++;
-        if( MALE == this->get_sex() ) this->sum.count[summary::male][summary::diseased]++;
-        else if( FEMALE == this->get_sex() ) this->sum.count[summary::female][summary::diseased]++;
-        if( ADULT == this->get_age() && MALE == this->get_sex() )
-          this->sum.count[summary::adult_male][summary::diseased]++;
-        if( ADULT == this->get_age() && FEMALE == this->get_sex() )
-          this->sum.count[summary::adult_female][summary::diseased]++;
-        if( CHILD == this->get_age() && MALE == this->get_sex() )
-          this->sum.count[summary::child_male][summary::diseased]++;
-        if( CHILD == this->get_age() && FEMALE == this->get_sex() )
-          this->sum.count[summary::child_female][summary::diseased]++;
-      }
-      else
-      {
-        if( ADULT == this->get_age() ) this->sum.count[summary::adult][summary::healthy]++;
-        else if( CHILD == this->get_age() ) this->sum.count[summary::child][summary::healthy]++;
-        if( MALE == this->get_sex() ) this->sum.count[summary::male][summary::healthy]++;
-        else if( FEMALE == this->get_sex() ) this->sum.count[summary::female][summary::healthy]++;
-        if( ADULT == this->get_age() && MALE == this->get_sex() )
-          this->sum.count[summary::adult_male][summary::healthy]++;
-        if( ADULT == this->get_age() && FEMALE == this->get_sex() )
-          this->sum.count[summary::adult_female][summary::healthy]++;
-        if( CHILD == this->get_age() && MALE == this->get_sex() )
-          this->sum.count[summary::child_male][summary::healthy]++;
-        if( CHILD == this->get_age() && FEMALE == this->get_sex() )
-          this->sum.count[summary::child_female][summary::healthy]++;
-      }
+      int index = -1;
+      index = ADULT == this->get_age()
+            ? ( MALE == this->get_sex()
+              ? ( HEALTHY == this->get_state() ? summary::adult_male_healthy : summary::adult_male_diseased )
+              : ( HEALTHY == this->get_state() ? summary::adult_female_healthy : summary::adult_female_diseased )
+            ) : (
+                MALE == this->get_sex()
+              ? ( HEALTHY == this->get_state() ? summary::child_male_healthy : summary::child_male_diseased )
+              : ( HEALTHY == this->get_state() ? summary::child_female_healthy : summary::child_female_diseased )
+            );
+
+      this->sum.count[index]++;
+      if( this->get_population()->get_use_sample_weights() )
+        this->sum.weighted_count[index] += this->sample_weight;
     }
   }
 

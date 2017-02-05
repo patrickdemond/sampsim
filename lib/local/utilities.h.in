@@ -167,6 +167,40 @@ namespace sampsim
   }
 
   /**
+   * @enum state_type
+   * A list of all possible disease states
+   */
+  enum state_type
+  {
+    UNKNOWN_STATE_TYPE = 0,
+    ANY_STATE,
+    HEALTHY,
+    DISEASED
+  };
+
+  /**
+   * Converts the name of a disease type to its enum value
+   */
+  inline static state_type get_state_type( const std::string name )
+  {
+    if( "either" == name ) return ANY_STATE;
+    else if( "healthy" == name ) return HEALTHY;
+    else if( "diseased" == name ) return DISEASED;
+    return UNKNOWN_STATE_TYPE;
+  }
+
+  /**
+   * Converts the enum value of a disease type to its name
+   */
+  inline static std::string get_state_type_name( const state_type type )
+  {
+    if( ANY_STATE == type ) return "either";
+    else if( HEALTHY == type ) return "healthy";
+    else if( DISEASED == type ) return "diseased";
+    return "unknown";
+  }
+
+  /**
    * Safely compares if two doubles are equal (avoids CPU floating-point messiness)
    * @link http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html
    */

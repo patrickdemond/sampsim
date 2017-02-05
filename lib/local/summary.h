@@ -10,6 +10,7 @@
 #define __sampsim_summary_h
 
 #include "base_object.h"
+#include "utilities.h"
 
 #include <vector>
 
@@ -44,7 +45,14 @@ namespace sampsim
     /**
      * Returns all values to 0
      */
-    void reset();
+    void reset()
+    {
+      for( unsigned int i = 0; i < 8; i++ )
+      {
+        this->count[i] = 0;
+        this->weighted_count[i] = 0.0;
+      }
+    }
 
     /**
      * Adds a model's summary totals to this one
@@ -54,67 +62,125 @@ namespace sampsim
     /**
      * Method for getting count data
      */
-    unsigned int get_count( const int category = all, const int state = all ) const
+    unsigned int get_count(
+      const age_type age = ANY_AGE,
+      const sex_type sex = ANY_SEX,
+      const state_type state = ANY_STATE ) const
     {
       unsigned int count = 0;
 
-      if( all == category && all == state )
-      {
-        count += this->count[adult][diseased];
-        count += this->count[adult][healthy];
-        count += this->count[child][diseased];
-        count += this->count[child][healthy];
-      }
-      else if( all == category )
-      {
-        count += this->count[adult][state];
-        count += this->count[child][state];
-      }
-      else if( all == state )
-      {
-        count += this->count[category][diseased];
-        count += this->count[category][healthy];
-      }
-      else
-      {
-        count += this->count[category][state];
-      }
+      if( ( ANY_AGE == age || ADULT == age ) &&
+          ( ANY_SEX == sex || MALE == sex ) &&
+          ( ANY_STATE == state || HEALTHY == state ) )
+        count += this->count[adult_male_healthy];
+      if( ( ANY_AGE == age || ADULT == age ) &&
+          ( ANY_SEX == sex || MALE == sex ) &&
+          ( ANY_STATE == state || DISEASED == state ) )
+        count += this->count[adult_male_diseased];
+      if( ( ANY_AGE == age || ADULT == age ) &&
+          ( ANY_SEX == sex || FEMALE == sex ) &&
+          ( ANY_STATE == state || HEALTHY == state ) )
+        count += this->count[adult_female_healthy];
+      if( ( ANY_AGE == age || ADULT == age ) &&
+          ( ANY_SEX == sex || FEMALE == sex ) &&
+          ( ANY_STATE == state || DISEASED == state ) )
+        count += this->count[adult_female_diseased];
+      if( ( ANY_AGE == age || CHILD == age ) &&
+          ( ANY_SEX == sex || MALE == sex ) &&
+          ( ANY_STATE == state || HEALTHY == state ) )
+        count += this->count[child_male_healthy];
+      if( ( ANY_AGE == age || CHILD == age ) &&
+          ( ANY_SEX == sex || MALE == sex ) &&
+          ( ANY_STATE == state || DISEASED == state ) )
+        count += this->count[child_male_diseased];
+      if( ( ANY_AGE == age || CHILD == age ) &&
+          ( ANY_SEX == sex || FEMALE == sex ) &&
+          ( ANY_STATE == state || HEALTHY == state ) )
+        count += this->count[child_female_healthy];
+      if( ( ANY_AGE == age || CHILD == age ) &&
+          ( ANY_SEX == sex || FEMALE == sex ) &&
+          ( ANY_STATE == state || DISEASED == state ) )
+        count += this->count[child_female_diseased];
 
       return count;
     };
 
     /**
-     * Method for getting count faction data
+     * Method for getting weighted count data
      */
-    double get_count_fraction( const int category = all ) const
+    double get_weighted_count(
+      const age_type age = ANY_AGE,
+      const sex_type sex = ANY_SEX,
+      const state_type state = ANY_STATE ) const
     {
-      return static_cast< double >( this->get_count( category, diseased ) ) /
-             static_cast< double >( this->get_count( category, all ) );
+      double weighted_count = 0;
+
+      if( ( ANY_AGE == age || ADULT == age ) &&
+          ( ANY_SEX == sex || MALE == sex ) &&
+          ( ANY_STATE == state || HEALTHY == state ) )
+        weighted_count += this->weighted_count[adult_male_healthy];
+      if( ( ANY_AGE == age || ADULT == age ) &&
+          ( ANY_SEX == sex || MALE == sex ) &&
+          ( ANY_STATE == state || DISEASED == state ) )
+        weighted_count += this->weighted_count[adult_male_diseased];
+      if( ( ANY_AGE == age || ADULT == age ) &&
+          ( ANY_SEX == sex || FEMALE == sex ) &&
+          ( ANY_STATE == state || HEALTHY == state ) )
+        weighted_count += this->weighted_count[adult_female_healthy];
+      if( ( ANY_AGE == age || ADULT == age ) &&
+          ( ANY_SEX == sex || FEMALE == sex ) &&
+          ( ANY_STATE == state || DISEASED == state ) )
+        weighted_count += this->weighted_count[adult_female_diseased];
+      if( ( ANY_AGE == age || CHILD == age ) &&
+          ( ANY_SEX == sex || MALE == sex ) &&
+          ( ANY_STATE == state || HEALTHY == state ) )
+        weighted_count += this->weighted_count[child_male_healthy];
+      if( ( ANY_AGE == age || CHILD == age ) &&
+          ( ANY_SEX == sex || MALE == sex ) &&
+          ( ANY_STATE == state || DISEASED == state ) )
+        weighted_count += this->weighted_count[child_male_diseased];
+      if( ( ANY_AGE == age || CHILD == age ) &&
+          ( ANY_SEX == sex || FEMALE == sex ) &&
+          ( ANY_STATE == state || HEALTHY == state ) )
+        weighted_count += this->weighted_count[child_female_healthy];
+      if( ( ANY_AGE == age || CHILD == age ) &&
+          ( ANY_SEX == sex || FEMALE == sex ) &&
+          ( ANY_STATE == state || DISEASED == state ) )
+        weighted_count += this->weighted_count[child_female_diseased];
+
+      return weighted_count;
     };
 
     /**
-     * Enumeration defining the number of categories and states
+     * Method for getting count faction data
      */
-    enum { category_size = 8, state_size = 2 };
+    double get_count_fraction( const age_type age = ANY_AGE, const sex_type sex = ANY_SEX ) const
+    {
+      return static_cast< double >( this->get_count( age, sex, DISEASED ) ) /
+             static_cast< double >( this->get_count( age, sex, ANY_STATE ) );
+    };
 
     /**
-     * Enumeration defining category and state indeces
+     * Method for getting weighted count faction data
      */
-    enum
+    double get_weighted_count_fraction( const age_type age = ANY_AGE, const sex_type sex = ANY_SEX ) const
     {
-      // categories
-      adult = 0, child = 1,
-      male = 2, female = 3,
-      adult_male = 4, adult_female = 5,
-      child_male = 6, child_female = 7,
-
-      // states
-      diseased = 0, healthy = 1,
-      
-      all = -1
+      return this->get_weighted_count( age, sex, DISEASED ) / this->get_weighted_count( age, sex, ANY_STATE );
     };
 
   private:
+    enum 
+    {
+      adult_male_healthy = 0,
+      adult_male_diseased,
+      adult_female_healthy,
+      adult_female_diseased,
+      child_male_healthy,
+      child_male_diseased,
+      child_female_healthy,
+      child_female_diseased
+    };
+
     /**
      * A list of all child summaries added to this summary
      */
@@ -123,12 +189,12 @@ namespace sampsim
     /**
      * Individual count values
      */
-    unsigned int count[category_size][state_size];
+    unsigned int count[8];
 
     /**
-     * Individual weight values
+     * Individual weighted count values
      */
-    double weight[category_size][state_size];
+    double weighted_count[8];
   };
 }
 
