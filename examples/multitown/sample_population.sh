@@ -24,13 +24,11 @@ NORMAL=$(tput sgr0)
 build_dir="../.."
 
 generate="$build_dir/generate"
-arc_epi1_sample="$build_dir/arc_epi_sample"
-arc_epi3_sample="$build_dir/arc_epi_sample"
+arc_epi_sample="$build_dir/arc_epi_sample"
 circle_gps_sample="$build_dir/circle_gps_sample"
 random_sample="$build_dir/random_sample"
 square_gps_sample="$build_dir/square_gps_sample"
-strip_epi1_sample="$build_dir/strip_epi_sample"
-strip_epi3_sample="$build_dir/strip_epi_sample"
+strip_epi_sample="$build_dir/strip_epi_sample"
 
 # determine whether to replace existing files
 replace=0
