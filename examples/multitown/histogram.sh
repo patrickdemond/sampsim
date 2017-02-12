@@ -15,7 +15,7 @@ function histogram {
 for sampler in *_sample; do
   for pop in vanilla popdens; do
     for type in flat bbb; do
-      for size in 7 10 30; do
+      for size in 7 30; do
         echo $sampler $pop $type $size
         histogram $sampler/$pop.$type.$size
         echo
