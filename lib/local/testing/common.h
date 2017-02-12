@@ -22,6 +22,7 @@
 #include <sstream>
 
 using namespace std;
+using namespace sampsim;
 
 inline void create_test_population(
   sampsim::population *population,

@@ -62,30 +62,30 @@ TEST( test_tile )
 
       cout << "Testing tile population..." << endl;
       sum = tile->get_summary();
-      CHECK( 0 != sum->get_count( sampsim::ANY_AGE, sampsim::ANY_SEX ) );
-      CHECK( 0 != sum->get_count( sampsim::ANY_AGE, sampsim::MALE ) );
-      CHECK( 0 != sum->get_count( sampsim::ANY_AGE, sampsim::FEMALE ) );
-      CHECK( 0 != sum->get_count( sampsim::ADULT, sampsim::ANY_SEX ) );
-      CHECK( 0 != sum->get_count( sampsim::ADULT, sampsim::MALE ) );
-      CHECK( 0 != sum->get_count( sampsim::ADULT, sampsim::FEMALE ) );
-      CHECK( 0 != sum->get_count( sampsim::CHILD, sampsim::ANY_SEX ) );
-      CHECK( 0 != sum->get_count( sampsim::CHILD, sampsim::MALE ) );
-      CHECK( 0 != sum->get_count( sampsim::CHILD, sampsim::FEMALE ) );
+      CHECK( 0 != sum->get_count( ANY_AGE, ANY_SEX ) );
+      CHECK( 0 != sum->get_count( ANY_AGE, MALE ) );
+      CHECK( 0 != sum->get_count( ANY_AGE, FEMALE ) );
+      CHECK( 0 != sum->get_count( ADULT, ANY_SEX ) );
+      CHECK( 0 != sum->get_count( ADULT, MALE ) );
+      CHECK( 0 != sum->get_count( ADULT, FEMALE ) );
+      CHECK( 0 != sum->get_count( CHILD, ANY_SEX ) );
+      CHECK( 0 != sum->get_count( CHILD, MALE ) );
+      CHECK( 0 != sum->get_count( CHILD, FEMALE ) );
 
       cout << "Turning on sample mode" << endl;
       population->set_sample_mode( true );
 
       cout << "Testing that tile now has no population..." << endl;
       sum = tile->get_summary();
-      CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::ANY_SEX ) );
-      CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::MALE ) );
-      CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::FEMALE ) );
-      CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::ANY_SEX ) );
-      CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::MALE ) );
-      CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::FEMALE ) );
-      CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::ANY_SEX ) );
-      CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::MALE ) );
-      CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::FEMALE ) );
+      CHECK_EQUAL( 0, sum->get_count( ANY_AGE, ANY_SEX ) );
+      CHECK_EQUAL( 0, sum->get_count( ANY_AGE, MALE ) );
+      CHECK_EQUAL( 0, sum->get_count( ANY_AGE, FEMALE ) );
+      CHECK_EQUAL( 0, sum->get_count( ADULT, ANY_SEX ) );
+      CHECK_EQUAL( 0, sum->get_count( ADULT, MALE ) );
+      CHECK_EQUAL( 0, sum->get_count( ADULT, FEMALE ) );
+      CHECK_EQUAL( 0, sum->get_count( CHILD, ANY_SEX ) );
+      CHECK_EQUAL( 0, sum->get_count( CHILD, MALE ) );
+      CHECK_EQUAL( 0, sum->get_count( CHILD, FEMALE ) );
 
       cout << "Testing that tile with selected individual has population..." << endl;
       individual->select();
@@ -95,30 +95,30 @@ TEST( test_tile )
       cout << "Testing that tile with unselected individual has no population..." << endl;
       individual->unselect();
       sum = tile->get_summary();
-      CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::ANY_SEX ) );
-      CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::MALE ) );
-      CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::FEMALE ) );
-      CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::ANY_SEX ) );
-      CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::MALE ) );
-      CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::FEMALE ) );
-      CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::ANY_SEX ) );
-      CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::MALE ) );
-      CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::FEMALE ) );
+      CHECK_EQUAL( 0, sum->get_count( ANY_AGE, ANY_SEX ) );
+      CHECK_EQUAL( 0, sum->get_count( ANY_AGE, MALE ) );
+      CHECK_EQUAL( 0, sum->get_count( ANY_AGE, FEMALE ) );
+      CHECK_EQUAL( 0, sum->get_count( ADULT, ANY_SEX ) );
+      CHECK_EQUAL( 0, sum->get_count( ADULT, MALE ) );
+      CHECK_EQUAL( 0, sum->get_count( ADULT, FEMALE ) );
+      CHECK_EQUAL( 0, sum->get_count( CHILD, ANY_SEX ) );
+      CHECK_EQUAL( 0, sum->get_count( CHILD, MALE ) );
+      CHECK_EQUAL( 0, sum->get_count( CHILD, FEMALE ) );
 
       cout << "Turning off sample mode" << endl;
       population->set_sample_mode( false );
 
       cout << "Testing tile population..." << endl;
       sum = tile->get_summary();
-      CHECK( 0 != sum->get_count( sampsim::ANY_AGE, sampsim::ANY_SEX ) );
-      CHECK( 0 != sum->get_count( sampsim::ANY_AGE, sampsim::MALE ) );
-      CHECK( 0 != sum->get_count( sampsim::ANY_AGE, sampsim::FEMALE ) );
-      CHECK( 0 != sum->get_count( sampsim::ADULT, sampsim::ANY_SEX ) );
-      CHECK( 0 != sum->get_count( sampsim::ADULT, sampsim::MALE ) );
-      CHECK( 0 != sum->get_count( sampsim::ADULT, sampsim::FEMALE ) );
-      CHECK( 0 != sum->get_count( sampsim::CHILD, sampsim::ANY_SEX ) );
-      CHECK( 0 != sum->get_count( sampsim::CHILD, sampsim::MALE ) );
-      CHECK( 0 != sum->get_count( sampsim::CHILD, sampsim::FEMALE ) );
+      CHECK( 0 != sum->get_count( ANY_AGE, ANY_SEX ) );
+      CHECK( 0 != sum->get_count( ANY_AGE, MALE ) );
+      CHECK( 0 != sum->get_count( ANY_AGE, FEMALE ) );
+      CHECK( 0 != sum->get_count( ADULT, ANY_SEX ) );
+      CHECK( 0 != sum->get_count( ADULT, MALE ) );
+      CHECK( 0 != sum->get_count( ADULT, FEMALE ) );
+      CHECK( 0 != sum->get_count( CHILD, ANY_SEX ) );
+      CHECK( 0 != sum->get_count( CHILD, MALE ) );
+      CHECK( 0 != sum->get_count( CHILD, FEMALE ) );
     }
   }
 

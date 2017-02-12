@@ -45,15 +45,33 @@ TEST( test_population )
   CHECK( town_size_max * number_of_towns >= sum->get_count() );
 
   cout << "Testing population prevalence..." << endl;
-  for( age_type a = sampsim::ADULT; a <= sampsim::CHILD; a++ )
-  {
-    for( sex_type s = sampsim::MALE; s <= sampsim::FEMALE; s++ )
-    {
-      CHECK( sum->get_count( a, s, DISEASED ) <= sum->get_count( a, s ) );
-      CHECK( 0 <= sum->get_count( a, s, DISEASED ) );
-      CHECK( town_size_max * number_of_towns >= sum->get_count( a, s, DISEASED ) );
-    }
-  }
+  CHECK( sum->get_count( ANY_AGE, ANY_SEX, DISEASED ) <= sum->get_count( ANY_AGE, ANY_SEX ) );
+  CHECK( 0 <= sum->get_count( ANY_AGE, ANY_SEX, DISEASED ) );
+  CHECK( town_size_max * number_of_towns >= sum->get_count( ANY_AGE, ANY_SEX, DISEASED ) );
+  CHECK( sum->get_count( ANY_AGE, MALE, DISEASED ) <= sum->get_count( ANY_AGE, MALE ) );
+  CHECK( 0 <= sum->get_count( ANY_AGE, MALE, DISEASED ) );
+  CHECK( town_size_max * number_of_towns >= sum->get_count( ANY_AGE, MALE, DISEASED ) );
+  CHECK( sum->get_count( ANY_AGE, FEMALE, DISEASED ) <= sum->get_count( ANY_AGE, FEMALE ) );
+  CHECK( 0 <= sum->get_count( ANY_AGE, FEMALE, DISEASED ) );
+  CHECK( town_size_max * number_of_towns >= sum->get_count( ANY_AGE, FEMALE, DISEASED ) );
+  CHECK( sum->get_count( ADULT, ANY_SEX, DISEASED ) <= sum->get_count( ADULT, ANY_SEX ) );
+  CHECK( 0 <= sum->get_count( ADULT, ANY_SEX, DISEASED ) );
+  CHECK( town_size_max * number_of_towns >= sum->get_count( ADULT, ANY_SEX, DISEASED ) );
+  CHECK( sum->get_count( ADULT, MALE, DISEASED ) <= sum->get_count( ADULT, MALE ) );
+  CHECK( 0 <= sum->get_count( ADULT, MALE, DISEASED ) );
+  CHECK( town_size_max * number_of_towns >= sum->get_count( ADULT, MALE, DISEASED ) );
+  CHECK( sum->get_count( ADULT, FEMALE, DISEASED ) <= sum->get_count( ADULT, FEMALE ) );
+  CHECK( 0 <= sum->get_count( ADULT, FEMALE, DISEASED ) );
+  CHECK( town_size_max * number_of_towns >= sum->get_count( ADULT, FEMALE, DISEASED ) );
+  CHECK( sum->get_count( CHILD, ANY_SEX, DISEASED ) <= sum->get_count( CHILD, ANY_SEX ) );
+  CHECK( 0 <= sum->get_count( CHILD, ANY_SEX, DISEASED ) );
+  CHECK( town_size_max * number_of_towns >= sum->get_count( CHILD, ANY_SEX, DISEASED ) );
+  CHECK( sum->get_count( CHILD, MALE, DISEASED ) <= sum->get_count( CHILD, MALE ) );
+  CHECK( 0 <= sum->get_count( CHILD, MALE, DISEASED ) );
+  CHECK( town_size_max * number_of_towns >= sum->get_count( CHILD, MALE, DISEASED ) );
+  CHECK( sum->get_count( CHILD, FEMALE, DISEASED ) <= sum->get_count( CHILD, FEMALE ) );
+  CHECK( 0 <= sum->get_count( CHILD, FEMALE, DISEASED ) );
+  CHECK( town_size_max * number_of_towns >= sum->get_count( CHILD, FEMALE, DISEASED ) );
 
   cout << "Turning on sample mode" << endl;
   population->set_sample_mode( true );
@@ -61,20 +79,26 @@ TEST( test_population )
   sum = population->get_summary();
 
   cout << "Testing that population now has a count of zero..." << endl;
-  CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::ANY_SEX ) );
-  CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::MALE ) );
-  CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::FEMALE ) );
-  CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::ANY_SEX ) );
-  CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::MALE ) );
-  CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::FEMALE ) );
-  CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::ANY_SEX ) );
-  CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::MALE ) );
-  CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::FEMALE ) );
+  CHECK_EQUAL( 0, sum->get_count( ANY_AGE, ANY_SEX ) );
+  CHECK_EQUAL( 0, sum->get_count( ANY_AGE, MALE ) );
+  CHECK_EQUAL( 0, sum->get_count( ANY_AGE, FEMALE ) );
+  CHECK_EQUAL( 0, sum->get_count( ADULT, ANY_SEX ) );
+  CHECK_EQUAL( 0, sum->get_count( ADULT, MALE ) );
+  CHECK_EQUAL( 0, sum->get_count( ADULT, FEMALE ) );
+  CHECK_EQUAL( 0, sum->get_count( CHILD, ANY_SEX ) );
+  CHECK_EQUAL( 0, sum->get_count( CHILD, MALE ) );
+  CHECK_EQUAL( 0, sum->get_count( CHILD, FEMALE ) );
 
   cout << "Testing that population prevalence now has a count of zero..." << endl;
-  for( age_type a = sampsim::ADULT; a <= sampsim::CHILD; a++ )
-    for( sex_type s = sampsim::MALE; s <= sampsim::FEMALE; s++ )
-      CHECK_EQUAL( 0, sum->get_count( a, s, DISEASED ) );
+  CHECK_EQUAL( 0, sum->get_count( ANY_AGE, ANY_SEX, sampsim::DISEASED ) );
+  CHECK_EQUAL( 0, sum->get_count( ANY_AGE, MALE, sampsim::DISEASED ) );
+  CHECK_EQUAL( 0, sum->get_count( ANY_AGE, FEMALE, sampsim::DISEASED ) );
+  CHECK_EQUAL( 0, sum->get_count( ADULT, ANY_SEX, sampsim::DISEASED ) );
+  CHECK_EQUAL( 0, sum->get_count( ADULT, MALE, sampsim::DISEASED ) );
+  CHECK_EQUAL( 0, sum->get_count( ADULT, FEMALE, sampsim::DISEASED ) );
+  CHECK_EQUAL( 0, sum->get_count( CHILD, ANY_SEX, sampsim::DISEASED ) );
+  CHECK_EQUAL( 0, sum->get_count( CHILD, MALE, sampsim::DISEASED ) );
+  CHECK_EQUAL( 0, sum->get_count( CHILD, FEMALE, sampsim::DISEASED ) );
 
   cout << "Testing that population with selected individual has non-zero count..." << endl;
   individual->select();
@@ -84,15 +108,15 @@ TEST( test_population )
   cout << "Testing that population with unselected individual has a count of zero..." << endl;
   individual->unselect();
   sum = population->get_summary();
-  CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::ANY_SEX ) );
-  CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::MALE ) );
-  CHECK_EQUAL( 0, sum->get_count( sampsim::ANY_AGE, sampsim::FEMALE ) );
-  CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::ANY_SEX ) );
-  CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::MALE ) );
-  CHECK_EQUAL( 0, sum->get_count( sampsim::ADULT, sampsim::FEMALE ) );
-  CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::ANY_SEX ) );
-  CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::MALE ) );
-  CHECK_EQUAL( 0, sum->get_count( sampsim::CHILD, sampsim::FEMALE ) );
+  CHECK_EQUAL( 0, sum->get_count( ANY_AGE, ANY_SEX ) );
+  CHECK_EQUAL( 0, sum->get_count( ANY_AGE, MALE ) );
+  CHECK_EQUAL( 0, sum->get_count( ANY_AGE, FEMALE ) );
+  CHECK_EQUAL( 0, sum->get_count( ADULT, ANY_SEX ) );
+  CHECK_EQUAL( 0, sum->get_count( ADULT, MALE ) );
+  CHECK_EQUAL( 0, sum->get_count( ADULT, FEMALE ) );
+  CHECK_EQUAL( 0, sum->get_count( CHILD, ANY_SEX ) );
+  CHECK_EQUAL( 0, sum->get_count( CHILD, MALE ) );
+  CHECK_EQUAL( 0, sum->get_count( CHILD, FEMALE ) );
 
   cout << "Turning off sample mode" << endl;
   population->set_sample_mode( false );
@@ -100,26 +124,26 @@ TEST( test_population )
   sum = population->get_summary();
 
   cout << "Testing population size..." << endl;
-  CHECK( 0 != sum->get_count( sampsim::ANY_AGE, sampsim::ANY_SEX ) );
-  CHECK( 0 != sum->get_count( sampsim::ANY_AGE, sampsim::MALE ) );
-  CHECK( 0 != sum->get_count( sampsim::ANY_AGE, sampsim::FEMALE ) );
-  CHECK( 0 != sum->get_count( sampsim::ADULT, sampsim::ANY_SEX ) );
-  CHECK( 0 != sum->get_count( sampsim::ADULT, sampsim::MALE ) );
-  CHECK( 0 != sum->get_count( sampsim::ADULT, sampsim::FEMALE ) );
-  CHECK( 0 != sum->get_count( sampsim::CHILD, sampsim::ANY_SEX ) );
-  CHECK( 0 != sum->get_count( sampsim::CHILD, sampsim::MALE ) );
-  CHECK( 0 != sum->get_count( sampsim::CHILD, sampsim::FEMALE ) );
+  CHECK( 0 != sum->get_count( ANY_AGE, ANY_SEX ) );
+  CHECK( 0 != sum->get_count( ANY_AGE, MALE ) );
+  CHECK( 0 != sum->get_count( ANY_AGE, FEMALE ) );
+  CHECK( 0 != sum->get_count( ADULT, ANY_SEX ) );
+  CHECK( 0 != sum->get_count( ADULT, MALE ) );
+  CHECK( 0 != sum->get_count( ADULT, FEMALE ) );
+  CHECK( 0 != sum->get_count( CHILD, ANY_SEX ) );
+  CHECK( 0 != sum->get_count( CHILD, MALE ) );
+  CHECK( 0 != sum->get_count( CHILD, FEMALE ) );
 
   cout << "Testing population prevalence..." << endl;
-  CHECK( 0 != sum->get_count( sampsim::ANY_AGE, sampsim::ANY_SEX, sampsim::DISEASED ) );
-  CHECK( 0 != sum->get_count( sampsim::ANY_AGE, sampsim::MALE, sampsim::DISEASED ) );
-  CHECK( 0 != sum->get_count( sampsim::ANY_AGE, sampsim::FEMALE, sampsim::DISEASED ) );
-  CHECK( 0 != sum->get_count( sampsim::ADULT, sampsim::ANY_SEX, sampsim::DISEASED ) );
-  CHECK( 0 != sum->get_count( sampsim::ADULT, sampsim::MALE, sampsim::DISEASED ) );
-  CHECK( 0 != sum->get_count( sampsim::ADULT, sampsim::FEMALE, sampsim::DISEASED ) );
-  CHECK( 0 != sum->get_count( sampsim::CHILD, sampsim::ANY_SEX, sampsim::DISEASED ) );
-  CHECK( 0 != sum->get_count( sampsim::CHILD, sampsim::MALE, sampsim::DISEASED ) );
-  CHECK( 0 != sum->get_count( sampsim::CHILD, sampsim::FEMALE, sampsim::DISEASED ) );
+  CHECK( 0 != sum->get_count( ANY_AGE, ANY_SEX, sampsim::DISEASED ) );
+  CHECK( 0 != sum->get_count( ANY_AGE, MALE, sampsim::DISEASED ) );
+  CHECK( 0 != sum->get_count( ANY_AGE, FEMALE, sampsim::DISEASED ) );
+  CHECK( 0 != sum->get_count( ADULT, ANY_SEX, sampsim::DISEASED ) );
+  CHECK( 0 != sum->get_count( ADULT, MALE, sampsim::DISEASED ) );
+  CHECK( 0 != sum->get_count( ADULT, FEMALE, sampsim::DISEASED ) );
+  CHECK( 0 != sum->get_count( CHILD, ANY_SEX, sampsim::DISEASED ) );
+  CHECK( 0 != sum->get_count( CHILD, MALE, sampsim::DISEASED ) );
+  CHECK( 0 != sum->get_count( CHILD, FEMALE, sampsim::DISEASED ) );
 
   stringstream temp_filename;
   temp_filename << "/tmp/sampsim" << sampsim::utilities::random( 1000000, 9999999 );
