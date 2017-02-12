@@ -69,29 +69,27 @@ for income_type in flat bbb; do
       # get the sample type by removing the _method at the end of the sample directory
       len=${#sample_dir}
       let len=len-7
-      sample_type=${sample_dir:0:$len}
+      sampler=${sample_dir:0:$len}
 
       files=($sample_dir/*.conf)
       for ((i=${#files[@]}-1; i>=0; i--)); do
         # get the sample type by removing the .conf at the end of the sample config file
         sample_config_file="${files[$i]}"
-        slash=`expr index "$sample_config_file" /`
-        dot=`expr index "$sample_config_file" .`
-        let len=dot-slash-1
-        sample_size=${sample_config_file:$slash:$len}
-        sample_name=${sample_config_file:0:$slash}$population_type.$income_type.$sample_size
+        settings=`echo $sample_config_file | sed -e "s#.*/\([^.]\+\).*#\1#"`
+        size=`echo $sample_config_file | sed -e "s#.*/[^.]\+.\([0-9]\+\).conf#\1#"`
+        name=`echo $sample_config_file | sed -e "s#\(.*\)/\(.*\)\.conf#\1/$population_type.$income_type.\2#"`
 
-        if [ -f "$sample_name.done" ]; then
-          echo "  ${BOLD}$sample_type${NORMAL} sample (sample size $sample_size) ${BLUE}[skipping]${NORMAL}"
+        if [ -f "$name.done" ]; then
+          echo "  ${BOLD}$sampler${NORMAL} sample (sample size $size) ${BLUE}[skipping]${NORMAL}"
         else
           which sqsub > /dev/null
-          command="${!sample_dir} -F -d -s --seed $seed -c $sample_config_file $population_type.$income_type.json $sample_name"
+          command="${!sample_dir} -F -d -s --seed $seed -c $sample_config_file $population_type.$income_type.json $name"
           if [ $? -eq 0 ]; then
-            sqsub -r 120m --mpp=4g -q serial -o $sample_name.log \
-              $command && touch $sample_name.done
+            sqsub -r 120m --mpp=4g -q serial -o $name.log \
+              $command && touch $name.done
           else
-            $command > $sample_name.log && touch $sample_name.done && \
-              echo "  ${BOLD}$sample_type${NORMAL} sample (sample size $sample_size) ${GREEN}[done]${NORMAL}"
+            $command > $name.log && touch $name.done && \
+              echo "  ${BOLD}$sampler${NORMAL} sample (sample size $size) ${GREEN}[done]${NORMAL}"
           fi
         fi
       done
