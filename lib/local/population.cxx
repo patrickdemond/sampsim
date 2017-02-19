@@ -153,7 +153,7 @@ namespace sampsim
     std::vector< double > town_log_individual_count;
     for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
     {
-      double log_individuals = log10( this->number_of_individuals );
+      double log_individuals = log10( (*it)->get_number_of_individuals() );
       town_log_individual_count.push_back( log_individuals );
       sum_log_individual_count += log_individuals;
     }
