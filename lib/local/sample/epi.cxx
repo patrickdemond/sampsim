@@ -61,6 +61,12 @@ namespace sample
     // we do this step "skip" times, then select the last in the set
     building* b = NULL;
     coordinate position = this->current_building->get_position();
+
+    // first make sure we have enough buildings left
+    if( tree.get_building_list().size() <= this->skip )
+      throw std::runtime_error(
+        "Ran out of buildings to sample.  You must either lower the sample size or increase the lowest town population." );
+
     for( int i = 0; i < this->skip; i++ )
     {
       // find the nearest building, make note of its position and remove it if it isn't the
