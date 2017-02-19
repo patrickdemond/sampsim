@@ -76,8 +76,8 @@ for income_type in flat bbb; do
     if [ -f "$population_type.$income_type.json" ]; then
       echo "  ${BOLD}$population_type.$income_type${NORMAL} population ${BLUE}[skipping]${NORMAL}"
     else
-      which sqsub > /dev/null
       command="$generate -f -s --seed $seed -c $population_type.conf $population_type.$income_type --mean_income_b00 $mean_income_b00 --mean_income_b01 $mean_income_b01 --mean_income_b10 $mean_income_b10"
+      which sqsub > /dev/null
       if [ $? -eq 0 ]; then
         sqsub -r 10m --mpp=4g -q serial -o $population_type.$income_type.log $command
       else

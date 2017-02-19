@@ -82,8 +82,8 @@ for income_type in flat bbb; do
         if [ -f "$name.done" ]; then
           echo "  ${BOLD}$sampler${NORMAL} sample (sample size $size) ${BLUE}[skipping]${NORMAL}"
         else
-          which sqsub > /dev/null
           command="${!sample_dir} -F -d -s --seed $seed -c $sample_config_file $population_type.$income_type.json $name"
+          which sqsub > /dev/null
           if [ $? -eq 0 ]; then
             sqsub -r 120m --mpp=4g -q serial -o $name.log \
               $command && touch $name.done
