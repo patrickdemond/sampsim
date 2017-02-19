@@ -306,18 +306,25 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   double sample::get_sample_weight( const sampsim::individual* individual ) const
   {
-    unsigned int population_total = individual->get_population()->get_number_of_individuals();
-    // return the ratio of the number of individuals in the individual's population to town
-    double population_to_town_ratio =
-      static_cast< double >( population_total ) /
-      static_cast< double >( individual->get_town()->get_number_of_individuals() );
+    unsigned int pop_count = individual->get_population()->get_summary()->get_count( this->age, this->sex );
 
-    // when choosing one individual per household include ratio of household size to (one) individual
-    double household_to_individual_ratio = this->one_per_household ?
-      static_cast< double >( individual->get_household()->get_number_of_individuals() ) :
-      1.0;
+    if( 0 == pop_count )
+    {
+      return 0;
+    }
+    else
+    {
+      unsigned int town_count = individual->get_town()->get_summary()->get_count( this->age, this->sex );
 
-    return 0 == population_total ? 0 : population_to_town_ratio * household_to_individual_ratio;
+      return
+        // return the ratio of the number of individuals in the individual's population to town
+        static_cast< double >( pop_count ) / static_cast< double >( town_count )
+        *
+        // when choosing one individual per household include ratio of household size to (one) individual
+        this->one_per_household ?
+          static_cast< double >( individual->get_household()->get_summary()->get_count( this->age, this->sex ) ) :
+          1.0;
+    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
