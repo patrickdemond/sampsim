@@ -510,10 +510,11 @@ namespace sample
   {
     this->delete_population();
     this->population = new sampsim::population;
+    bool result = this->population->read( filename );
     this->population->set_sample_mode( true );
     this->population->set_use_sample_weights( this->use_sample_weights );
     this->owns_population = true;
-    return this->population->read( filename );
+    return result;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -541,6 +542,7 @@ namespace sample
     if( utilities::verbose )
       utilities::output( "setting use_sample_weights to %s", use_sample_weights ? "true" : "false" );
     this->use_sample_weights = use_sample_weights;
+    if( this->population ) this->population->set_use_sample_weights( this->use_sample_weights );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
