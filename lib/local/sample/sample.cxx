@@ -436,7 +436,6 @@ namespace sample
           wsquared_sum_array[index] / static_cast<double>( this->sampled_population_list.size() - 1 )
         );
       }
-      index++;
     }
 
     stream << "sampled total count: " << total_summary.get_count( ANY_AGE, ANY_SEX, DISEASED )

@@ -179,8 +179,8 @@ void process_sample( sampsim::options &opts, sampsim::sample::sized_sample *samp
       if( sample->get_number_of_towns() > number_of_towns )
       {
         std::cout << "ERROR: Trying to sample " << sample->get_number_of_towns()
-                  << "but the population only has " << number_of_towns << "."
-                  << std::endl;
+                  << " towns but the population only has " << number_of_towns
+                  << " towns in total." << std::endl;
       }
 
       int town_width = floor( log10( number_of_towns ) ) + 1;
