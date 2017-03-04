@@ -27,7 +27,18 @@ NORMAL=$(tput sgr0)
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
 echo "Analysing configuration tree..."
 
-conf_files=( $( find . -type f | grep "\.conf$" ) )
+# create symlinks to each configuration file to shorten path names
+index=0
+if [ -d links ]; then rm -rf links; fi
+mkdir links
+cd links
+find `ls -d ../*/ | grep -v links` -type f | sed -e 's#/[^/]\+$##' | while read directory; do
+  ln -s $directory $index
+  (( index++ ))
+done
+cd ..
+
+conf_files=( $( find -L links -type f | grep "\.conf$" ) )
 num_conf_files=${#conf_files[*]}
 int_greater_zero_pattern="^[1-9][0-9]*$" # any integer greater than 0
 
@@ -101,7 +112,7 @@ if [ true = "$multiprocess" ]; then
     job_commands[$job_index]="${job_commands[$job_index]} && $cmd"
   done
 
-  echo 
+  echo
   for index in ${!job_commands[*]}; do
     eval ${job_commands[$index]} && date +"[process $index]> finished process at %X" &
   done
@@ -110,10 +121,14 @@ if [ true = "$multiprocess" ]; then
 else
   # generate populations using serial farming
   # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  SAMPSIM=$( pwd )/generate
+  SAMPSIM=./generate
   RUNTIME=10m
   MEMORY=4g
   echo "Launching ${num_conf_files} jobs using sqsub"
+
+  # create symlinks to shorten the config file path lengths
+
+
   for index in ${!conf_files[*]}; do
     name=${conf_files[$index]%.conf}
     sqsub -r $RUNTIME --mpp=$MEMORY -q serial -o ${name}.log $SAMPSIM -c ${name}.conf $name
