@@ -472,6 +472,7 @@ cp build.sh $directory
 chmod 755 $directory/build.sh
       
 number_pattern="^-?((([0-9]|[1-9][0-9]*)(\.[0-9]*)?)|(\.[0-9]+))$" # any number
+number_with_comma_pattern="^-?((([0-9]|[1-9][0-9]*)(\.[0-9]*)?)|(\.[0-9]+))(,-?((([0-9]|[1-9][0-9]*)(\.[0-9]*)?)|(\.[0-9]+)))*$"
 non_zero_number_pattern="^-?((([1-9][0-9]*)(\.[0-9]*)?)|(0?\.[0-9]*[1-9]+[0-9]*))$" # any non-zero number
 
 # latin or full hypercube?
@@ -606,10 +607,20 @@ ${BOLD}${YELLOW}f${NORMAL}inish with default values> "
           # validate all inputs as numbers
           test=1
           for idx in ${!array[*]}; do
-            if [[ ! ${array[$idx]} =~ $number_pattern ]]; then
-              echo "${RED}ERROR: Array can only contain numbers${NORMAL}"
-              test=0
-              break
+            if [[ $name =~ ^(mean|sd)_ ]]; then
+              # mean/sd input (comma-separated numbers only)
+              if [[ ! ${array[$idx]} =~ $number_with_comma_pattern ]]; then
+                echo "${RED}ERROR: Array can only contain comma-separated numbers${NORMAL}"
+                test=0
+                break
+              fi
+            else
+              # normal input (numbers only)
+              if [[ ! ${array[$idx]} =~ $number_pattern ]]; then
+                echo "${RED}ERROR: Array can only contain numbers${NORMAL}"
+                test=0
+                break
+              fi
             fi
           done
           if [ $test -eq 1 ]; then
