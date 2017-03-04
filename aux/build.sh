@@ -32,7 +32,7 @@ index=0
 if [ -d links ]; then rm -rf links; fi
 mkdir links
 cd links
-find `ls -d ../*/ | grep -v links` -type f | sed -e 's#/[^/]\+$##' | while read directory; do
+find `ls -d ../*/ | grep -v links` -type f | grep "\.conf$" | sed -e 's#/[^/]\+$##' | while read directory; do
   ln -s $directory $index
   (( index++ ))
 done
@@ -126,12 +126,13 @@ else
   MEMORY=4g
   echo "Launching ${num_conf_files} jobs using sqsub"
 
-  # create symlinks to shorten the config file path lengths
-
-
   for index in ${!conf_files[*]}; do
     name=${conf_files[$index]%.conf}
-    sqsub -r $RUNTIME --mpp=$MEMORY -q serial -o ${name}.log $SAMPSIM -c ${name}.conf $name
+    if ! [[ -f "$name.json" ]] || ! [[ -s "$name.json" ]]; then
+      sqsub -r $RUNTIME --mpp=$MEMORY -q serial -o ${name}.log $SAMPSIM -c ${name}.conf $name
+    else
+      echo Skipping $name since .json file already exists
+    fi
   done
   echo "All jobs scheduled."
   echo "Use sqjobs to show jobs in progress or use the following command:"
