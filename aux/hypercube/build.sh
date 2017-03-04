@@ -23,6 +23,11 @@ UNDERLINE=$(tput smul)
 STANDOUT=$(tput smso)
 NORMAL=$(tput sgr0)
 
+# Paths to executables is assuming the build is parallel to source directory but
+# with source/ replaced with build/
+build_dir="../../.."
+generate="$build_dir/generate"
+
 # preamble
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
 echo "Analysing configuration tree..."
@@ -32,7 +37,7 @@ index=0
 if [ -d links ]; then rm -rf links; fi
 mkdir links
 cd links
-find `ls -d ../*/ | grep -v links` -type f | grep "\.conf$" | sed -e 's#/[^/]\+$##' | while read directory; do
+find ../populations/ -type f | grep "\.conf$" | sed -e 's#/[^/]\+$##' | while read directory; do
   ln -s $directory $index
   (( index++ ))
 done
@@ -107,7 +112,7 @@ if [ true = "$multiprocess" ]; then
   for index in ${!conf_files[*]}; do
     job_index=$( expr $index % $numjobs )
     name=${conf_files[$index]%.conf}
-    cmd="nice -10 ./generate $plot -c $name.conf $name > $name.log && \
+    cmd="nice -10 $generate $plot -c $name.conf $name > $name.log && \
          echo \"[process $job_index]> configuration $name complete\""
     job_commands[$job_index]="${job_commands[$job_index]} && $cmd"
   done
@@ -121,7 +126,6 @@ if [ true = "$multiprocess" ]; then
 else
   # generate populations using serial farming
   # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  SAMPSIM=./generate
   RUNTIME=10m
   MEMORY=4g
   echo "Launching ${num_conf_files} jobs using sqsub"
@@ -129,7 +133,7 @@ else
   for index in ${!conf_files[*]}; do
     name=${conf_files[$index]%.conf}
     if ! [[ -f "$name.json" ]] || ! [[ -s "$name.json" ]]; then
-      sqsub -r $RUNTIME --mpp=$MEMORY -q serial -o ${name}.log $SAMPSIM -c ${name}.conf $name
+      sqsub -r $RUNTIME --mpp=$MEMORY -q serial -o ${name}.log $generate -c ${name}.conf $name
     else
       echo Skipping $name since .json file already exists
     fi

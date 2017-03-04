@@ -24,6 +24,9 @@ UNDERLINE=$(tput smul)
 STANDOUT=$(tput smso)
 NORMAL=$(tput sgr0)
 
+build_dir="../.."
+latin_hypercube="$build_dir/latin_hypercube"
+
 # parameter values
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
 param_name=()
@@ -283,7 +286,7 @@ function progress_meter
   if [ $progress -eq 1 ]; then
     last_progress_meter_ticks=-1
   fi
-  
+
   if [ $ticks -ne $last_progress_meter_ticks ]; then
     local meter="";
     if [ $ticks -ne 0 ]; then
@@ -296,7 +299,7 @@ function progress_meter
     printf "\r%s%${COL}s" "$message" "[${MAGENTA}${meter}${NORMAL}]"
   fi
   last_progress_meter_ticks=$ticks
-} 
+}
 
 
 # Used to join the elements of an array into a string.
@@ -315,7 +318,7 @@ function join
 # arg5: total (the number of possible configuration files to be generated)
 function create_config_tree
 {
-  local directory=$1
+  local dir=$1
   local arr=$2"[*]"
   local name_array=(${!arr})
   local arr=$3"[*]"
@@ -330,13 +333,13 @@ function create_config_tree
 
   if [ $index -lt "${#name_array[@]}" ]; then
     # make the base directory
-    mkdir -p "$directory/${name_array[$index]}"
+    mkdir -p "$dir/${name_array[$index]}"
     local array=(${value_array[$index]//:/ })
     for val in "${array[@]}"; do
       # determine and display progress
       let "progress++"
       progress_meter "Creating configuration tree" $progress $total
-      sub_dir="$directory/${name_array[$index]}/v$val"
+      sub_dir="$dir/${name_array[$index]}/v$val"
       mkdir -p $sub_dir
       # go to the next parameter and repeat recursively
       create_config_tree $sub_dir name_array value_array $( echo "$index + 1" | bc ) $total
@@ -352,7 +355,7 @@ function create_config_tree
 # arg5: number_of_points (only used in first iteration and when latin is 1)
 function create_latin_config_tree
 {
-  local directory=$1
+  local dir=$1
   local arr=$2"[*]"
   local name_array=(${!arr})
   local arr=$3"[*]"
@@ -374,17 +377,17 @@ function create_latin_config_tree
     done
 
     declare -r latin_points=`\
-      ../latin_hypercube --index0 \
-                         --dims ${#value_array[@]} \
-                         --points $number_of_points \
-                         --maximums $maximums`
+      $latin_hypercube --index0 \
+                       --dims ${#value_array[@]} \
+                       --points $number_of_points \
+                       --maximums $maximums`
     root_array=(${value_array[0]//:/ })
     root_array_size=${#root_array[@]}
   fi
 
   if [ $index -lt "${#name_array[@]}" ]; then
     # make the base directory
-    mkdir -p "$directory/${name_array[$index]}"
+    mkdir -p "$dir/${name_array[$index]}"
     local array=(${value_array[$index]//:/ })
     local array_size=${#array[@]}
     local found=0
@@ -414,7 +417,7 @@ function create_latin_config_tree
 
         # only generate if we aren't using a latin hypercube, or the root/branch indeces match
         if [ "$root_index" -eq "$root_point_index" ] && [ "$val_index" -eq "$branch_point_index" ]; then
-          sub_dir="$directory/${name_array[$index]}/v$val"
+          sub_dir="$dir/${name_array[$index]}/v$val"
           mkdir -p $sub_dir
           # go to the next parameter and repeat recursively
           create_latin_config_tree $sub_dir name_array value_array $( echo "$index + 1" | bc ) $number_of_points
@@ -444,7 +447,7 @@ they fulfil a random latin hypercube."
 
 # get target directory
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-directory="./hypercube"
+directory="./run1"
 echo "What directory do you wish to create the hypercube in? (default: ${BLUE}$directory${NORMAL})
 ${RED}warning: this will overwrite any existing directory${NORMAL}"
 read -e -r -p "> " answer
@@ -465,12 +468,16 @@ if [ -d "$directory" ]; then
   rm -rf $directory
 fi
 
-# create directory and put the generate and build script in it
+# create directory and put the build and sample scripts in it
 mkdir -p $directory
-cp ../generate $directory
 cp build.sh $directory
 chmod 755 $directory/build.sh
-      
+cp -r samples $directory/
+chmod 755 $directory/samples/*.sh
+
+# now make populations directory
+population_dir="$directory/populations"
+
 number_pattern="^-?((([0-9]|[1-9][0-9]*)(\.[0-9]*)?)|(\.[0-9]+))$" # any number
 number_with_comma_pattern="^-?((([0-9]|[1-9][0-9]*)(\.[0-9]*)?)|(\.[0-9]+))(,-?((([0-9]|[1-9][0-9]*)(\.[0-9]*)?)|(\.[0-9]+)))*$"
 non_zero_number_pattern="^-?((([1-9][0-9]*)(\.[0-9]*)?)|(0?\.[0-9]*[1-9]+[0-9]*))$" # any non-zero number
@@ -684,9 +691,9 @@ if [ $size -eq 0 ]; then
 fi
 
 if [ $latin -eq 1 ]; then
-  create_latin_config_tree $directory name_array value_array 0 $number_of_points
+  create_latin_config_tree $population_dir name_array value_array 0 $number_of_points
 else
-  create_config_tree $directory name_array value_array 0 $size
+  create_config_tree $population_dir name_array value_array 0 $size
 fi
 echo
 
@@ -694,10 +701,10 @@ echo
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
 
 # convert all end-level directories into files
-depth=$( find $directory -printf '%d\n' | sort -n | tail -n 1 )
+depth=$( find $population_dir -printf '%d\n' | sort -n | tail -n 1 )
 ((depth++))
 search=$( seq -s "/*" $depth | sed 's/[0-9]//g' )
-search="$directory$search"
+search="$population_dir$search"
 dir_list=$( find $search )
 total=$( echo ${dir_list[@]} | wc -w )
 declare -i progress=0
@@ -713,7 +720,7 @@ for dir in $dir_list; do
 
   # get the variable parameters for this config file from the directory
   declare -A variable_params
-  sub_dir=${dir#$directory}
+  sub_dir=${dir#$population_dir}
   parts=(${sub_dir//\// })
   for (( index=0; index<${#parts[@]}; index+=2 )); do
     name=${parts[$index]}
