@@ -21,9 +21,8 @@ NORMAL=$(tput sgr0)
 
 # Paths to executables is assuming the build is parallel to source directory but
 # with source/ replaced with build/
-build_dir="../.."
+build_dir="../../../.."
 
-generate="$build_dir/generate"
 arc_epi_sample="$build_dir/arc_epi_sample"
 circle_gps_sample="$build_dir/circle_gps_sample"
 random_sample="$build_dir/random_sample"
@@ -58,42 +57,45 @@ fi
 # ignore file searches that come up empty
 shopt -s nullglob
 
-for income_type in flat bbb; do
-  for population_type in vanilla popdens; do
+for population in ../links/*/*.conf; do
 
-    echo ""
-    echo "Sampling $population_type.$income_type population"
+  index=`echo $population | sed -e 's#\.\./links/##' | sed -e 's#/.*##'`
+  echo ""
+  echo "Sampling population $index"
 
-    # loop over all samplers and process the population
-    for sample_dir in *_sample; do
-      # get the sample type by removing the _method at the end of the sample directory
-      len=${#sample_dir}
-      let len=len-7
-      sampler=${sample_dir:0:$len}
+  # loop over all samplers and process the population
+  for sample_dir in *_sample; do
+    # get the sample type by removing the _method at the end of the sample directory
+    len=${#sample_dir}
+    let len=len-7
+    sampler=${sample_dir:0:$len}
 
-      files=($sample_dir/*.conf)
-      for ((i=${#files[@]}-1; i>=0; i--)); do
-        # get the sample type by removing the .conf at the end of the sample config file
-        sample_config_file="${files[$i]}"
-        settings=`echo $sample_config_file | sed -e "s#.*/\([^.]\+\).*#\1#"`
-        size=`echo $sample_config_file | sed -e "s#.*/[^.]\+.\([0-9]\+\).conf#\1#"`
-        name=`echo $sample_config_file | sed -e "s#\(.*\)/\(.*\)\.conf#\1/$population_type.$income_type.\2#"`
+    # make sure this sampler's directory exists
+    sample_pop_dir=${population/v[a-z0-9.]*\.conf/$sample_dir}
+    if [ ! -d $sample_pop_dir ]; then mkdir $sample_pop_dir; fi
 
-        if [ -f "$name.done" ]; then
-          echo "  ${BOLD}$sampler${NORMAL} sample (sample size $size) ${BLUE}[skipping]${NORMAL}"
+    files=($sample_dir/*.conf)
+    for ((i=${#files[@]}-1; i>=0; i--)); do
+      # get the sample type by removing the .conf at the end of the sample config file
+      sample_config_file="${files[$i]}"
+      settings=`echo $sample_config_file | sed -e "s#.*/\([^.]\+\).*#\1#"`
+      size=`echo $sample_config_file | sed -e "s#.*/[^.]\+.\([0-9]\+\).conf#\1#"`
+      name=`echo $sample_config_file | sed -e "s#\(.*\)/\(.*\)\.conf#\1/\2#"`
+
+      if [ -f "$name.done" ]; then
+        echo "  ${BOLD}$sampler${NORMAL} sample (sample size $size) ${BLUE}[skipping]${NORMAL}"
+      else
+        command="${!sample_dir} -F -d -s --seed $seed -c $sample_config_file ${population/conf/json} ${population/v[a-z0-9.]*\.conf/$name}"
+        which sqsub > /dev/null
+        if [ $? -eq 0 ]; then
+          sqsub -r 120m --mpp=4g -q serial -o $name.log \
+            $command && touch $name.done
         else
-          command="${!sample_dir} -F -d -s --seed $seed -c $sample_config_file $population_type.$income_type.json $name"
-          which sqsub > /dev/null
-          if [ $? -eq 0 ]; then
-            sqsub -r 120m --mpp=4g -q serial -o $name.log \
-              $command && touch $name.done
-          else
-            $command > $name.log && touch $name.done && \
-              echo "  ${BOLD}$sampler${NORMAL} sample (sample size $size) ${GREEN}[done]${NORMAL}"
-          fi
+          $command > $name.log && touch $name.done && \
+            echo "  ${BOLD}$sampler${NORMAL} sample (sample size $size) ${GREEN}[done]${NORMAL}"
         fi
-      done
+      fi
     done
-
   done
+
 done
