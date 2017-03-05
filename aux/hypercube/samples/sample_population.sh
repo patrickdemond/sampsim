@@ -81,17 +81,18 @@ for population in ../links/*/*.conf; do
       settings=`echo $sample_config_file | sed -e "s#.*/\([^.]\+\).*#\1#"`
       size=`echo $sample_config_file | sed -e "s#.*/[^.]\+.\([0-9]\+\).conf#\1#"`
       name=`echo $sample_config_file | sed -e "s#\(.*\)/\(.*\)\.conf#\1/\2#"`
+      done_file=${population/v[a-z0-9.]*\.conf/$name}.done
 
-      if [ -f "$name.done" ]; then
+      if [ -f $done_file ]; then
         echo "  ${BOLD}$sampler${NORMAL} sample (sample size $size) ${BLUE}[skipping]${NORMAL}"
       else
         command="${!sample_dir} -F -d -s --seed $seed -c $sample_config_file ${population/conf/json} ${population/v[a-z0-9.]*\.conf/$name}"
         which sqsub > /dev/null
         if [ $? -eq 0 ]; then
           sqsub -r 120m --mpp=4g -q serial -o $name.log \
-            $command && touch $name.done
+            $command && touch $done_file
         else
-          $command > $name.log && touch $name.done && \
+          $command > $name.log && touch $done_file && \
             echo "  ${BOLD}$sampler${NORMAL} sample (sample size $size) ${GREEN}[done]${NORMAL}"
         fi
       fi
