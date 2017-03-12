@@ -15,7 +15,7 @@ for summary in $( ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f | gre
     pindex=0
 
     echo
-    echo ,,,#$population
+    echo ,,,\"sample $population\"
     echo ',,,"unweighted",,,,,,"weighted"'
     echo ',true,,7,,,30,,,7,,,30'
     echo ',mean,,mean,stdev,,mean,stdev,,mean,stdev,,mean,stdev'
