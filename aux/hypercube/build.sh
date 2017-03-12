@@ -112,7 +112,7 @@ if [ true = "$multiprocess" ]; then
   for index in ${!conf_files[*]}; do
     job_index=$( expr $index % $numjobs )
     name=${conf_files[$index]%.conf}
-    cmd="nice -10 $generate $plot -c $name.conf $name > $name.log && \
+    cmd="nice -10 $generate $plot -s -c $name.conf $name > $name.log && \
          echo \"[process $job_index]> configuration $name complete\""
     job_commands[$job_index]="${job_commands[$job_index]} && $cmd"
   done
@@ -133,7 +133,7 @@ else
   for index in ${!conf_files[*]}; do
     name=${conf_files[$index]%.conf}
     if ! [[ -f "$name.json" ]] || ! [[ -s "$name.json" ]]; then
-      sqsub -r $RUNTIME --mpp=$MEMORY -q serial -o ${name}.log $generate -c ${name}.conf $name
+      sqsub -r $RUNTIME --mpp=$MEMORY -q serial -o ${name}.log $generate -s -c ${name}.conf $name
     else
       echo Skipping $name since .json file already exists
     fi

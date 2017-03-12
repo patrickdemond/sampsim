@@ -472,6 +472,8 @@ fi
 mkdir -p $directory
 cp build.sh $directory
 chmod 755 $directory/build.sh
+cp summary.sh $directory
+chmod 755 $directory/summary.sh
 cp -r samples $directory/
 chmod 755 $directory/samples/*.sh
 

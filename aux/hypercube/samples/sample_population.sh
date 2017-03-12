@@ -82,17 +82,22 @@ for population in ../links/*/*.conf; do
       size=`echo $sample_config_file | sed -e "s#.*/[^.]\+.\([0-9]\+\).conf#\1#"`
       name=`echo $sample_config_file | sed -e "s#\(.*\)/\(.*\)\.conf#\1/\2#"`
       done_file=${population/v[a-z0-9.]*\.conf/$name}.done
+      log_file=${population/v[a-z0-9.]*\.conf/$name}.log
 
       if [ -f $done_file ]; then
         echo "  ${BOLD}$sampler${NORMAL} sample (sample size $size) ${BLUE}[skipping]${NORMAL}"
       else
-        command="${!sample_dir} -F -d -s --seed $seed -c $sample_config_file ${population/conf/json} ${population/v[a-z0-9.]*\.conf/$name}"
+        command="${!sample_dir} -S --seed $seed -c $sample_config_file ${population/conf/json} ${population/v[a-z0-9.]*\.conf/$name}"
         which sqsub > /dev/null
         if [ $? -eq 0 ]; then
-          sqsub -r 120m --mpp=4g -q serial -o $name.log \
-            $command && touch $done_file
+          time=120m
+          if [ "circle_gps" == $sampler ] || [ "square_gps" == $sampler ]; then
+            if [[ $sample_config_file == *"07"* ]]; then time="8h"; else time="24h"; fi
+          fi
+
+          sqsub -r $time --mpp=8g -q serial -o $log_file $command && touch $done_file
         else
-          $command > $name.log && touch $done_file && \
+          $command > $log_file && touch $done_file && \
             echo "  ${BOLD}$sampler${NORMAL} sample (sample size $size) ${GREEN}[done]${NORMAL}"
         fi
       fi
