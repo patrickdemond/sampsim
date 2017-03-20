@@ -214,6 +214,7 @@ namespace sample
           utilities::output( "selecting from a list of %d buildings", building_list.size() );
 
         // keep selecting buildings until the ending condition has been met
+        building* last_building = NULL;
         while( !this->is_sample_complete() )
         {
           if( tree.is_empty() )
@@ -223,6 +224,15 @@ namespace sample
           }
 
           building* b = this->select_next_building( tree );
+          if( b == last_building )
+          {
+            utilities::output( "there are %d buildings left in the tree", tree.get_building_list().size() );
+            std::cout << "WARNING: unable to fulfill the sample's ending condition ("
+                      << tree.get_building_list().size()
+                      << " buildings left)" << std::endl;
+            break;
+          }
+          last_building = b;
 
           // set the first building
           if( NULL == this->first_building ) this->first_building = b;
