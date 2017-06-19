@@ -378,6 +378,7 @@ function create_latin_config_tree
 
     declare -r latin_points=`\
       $latin_hypercube --index0 \
+                       --unique \
                        --dims ${#value_array[@]} \
                        --points $number_of_points \
                        --maximums $maximums`
@@ -487,10 +488,10 @@ non_zero_number_pattern="^-?((([1-9][0-9]*)(\.[0-9]*)?)|(0?\.[0-9]*[1-9]+[0-9]*)
 # latin or full hypercube?
 latin=1
 echo "You must now choose whether to create the full hypercube or a random latin hypercube subset of
-configurations.  The full hypercube option will generate every possible variation of all parameter sets
-provided, which, depending on the paramters you select may grow restrictively large.  The random latin
-hypercube option will create a reduced subset such that only one parameter value will be used for each
-hyperplane in the hypercube."
+configurations.  The full hypercube option will generate every possible variation of all parameter
+sets provided, which, depending on the paramters you select may grow restrictively large.  The
+random latin hypercube option will create a reduced subset such that only one parameter value will
+be used for each hyperplane in the hypercube."
 while true; do
   echo -n "Do you wish to only generate a random latin hypercube subset of configurations? (select ${BOLD}${YELLOW}y${NORMAL}es or ${BOLD}${YELLOW}n${NORMAL}o)> "
   read -s -n 1 answer
@@ -508,9 +509,9 @@ done
 
 # determine whether to use regular or short parameter names
 short=1
-echo "Depending on the number of variable parameters in the hypercube the full path and name of
-generated configuration files may become excessively long.  To mitigate this effect it is possible
-to use short forms of parameter names in configuration file paths.  This option is recommended for
+echo "Depending on the number of variable parameters in the hypercube the full path and name of generated
+configuration files may become excessively long.  To mitigate this effect it is possible to use
+short forms of parameter names in configuration file paths.  This option is recommended for
 hypercubes containing 4 or more variable parameters."
 while true; do
   echo -n "Do you wish to use short parameter names? (select ${BOLD}${YELLOW}y${NORMAL}es or ${BOLD}${YELLOW}n${NORMAL}o)> "
@@ -583,7 +584,7 @@ ${BOLD}${YELLOW}f${NORMAL}inish with default values> "
       # get the step value of the range
       while true; do
         read -p "Provide the step between values in the range: " step
-        if [[ ! $step =~ $non_zero_pattern ]]; then
+        if [[ ! $step =~ $non_zero_number_pattern ]]; then
           echo "${RED}ERROR: 'step' must be a non-zero number${NORMAL}"
         elif [ $( echo "($lower < $upper && $step > 0) || ($lower > $upper && $step < 0)" | bc ) -eq 0 ]; then
           echo "${RED}ERROR: 'step' is in the wrong direction${NORMAL}"
@@ -658,10 +659,8 @@ ${BOLD}${YELLOW}f${NORMAL}inish with default values> "
 done
 echo
 
-# create directory structure
-# -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-
 # make an array of all parameters with multiple values and count the total size of the hypercube
+# also determine the size and number_of_points parameters, used below
 idx=0
 size=0
 mult=1
@@ -691,6 +690,31 @@ if [ $size -eq 0 ]; then
   echo "${RED}ERROR: You have to specify at least one parameter to have multiple values!${NORMAL}"
   exit
 fi
+
+# if a latin hypercube was requested then determine how many points to use
+if [ $latin -eq 1 ]; then
+  echo "Based on the parameters you have choosen the latin hypercube will create $number_of_points configurations (the
+minimum number of required in order to have all parameter values used at least once).  If you wish
+to proceed with $number_of_points hit enter, otherwise provide the number of configurations you wish
+to generate."
+  while true; do
+    echo -n "Number of configuration files to generate? (default: ${BLUE}$number_of_points${NORMAL})"
+    read -e -r -p "> " answer
+
+    if [ "$answer" = "d" ] || [ -z "$answer" ]; then
+      # make empty responses the default
+      break;
+    elif [[ $answer =~ $non_zero_number_pattern ]]; then
+      number_of_points=$answer
+      break;
+    else
+      echo "${RED}ERROR: must be a non-zero number (or simply hit enter if you wish to use the default)${NORMAL}"
+    fi
+  done
+fi
+
+# create directory structure
+# -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
 
 if [ $latin -eq 1 ]; then
   create_latin_config_tree $population_dir name_array value_array 0 $number_of_points

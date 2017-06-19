@@ -12,6 +12,7 @@
 
 #include "options.h"
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -30,6 +31,7 @@ int main( const int argc, const char** argv )
   opts.add_option( 'm', "maximums", vector< string >(), "The maximum number of divisions for each dimension" );
   opts.add_flag( 'i', "index0", "Whether to output 0-based indeces instead of values between 0 and 1" );
   opts.add_flag( 'j', "index1", "Whether to output 1-based indeces instead of values between 0 and 1" );
+  opts.add_flag( 'u', "unique", "Whether to force all points to be unique" );
 
   try
   {
@@ -51,9 +53,7 @@ int main( const int argc, const char** argv )
         vector< int > maximums = opts.get_option_as_int_list( "maximums" );
         bool index0 = opts.get_flag( "index0" );
         bool index1 = opts.get_flag( "index1" );
-
-        std::vector<double> data( dims*points, 0.0 );
-        latin_center( dims, points, &seed, data.data() );
+        bool is_unique = opts.get_flag( "unique" );
 
         // make sure the number of maximums (if any) matches the number of dimensions
         if( 0 < maximums.size() && maximums.size() != dims )
@@ -63,40 +63,83 @@ int main( const int argc, const char** argv )
                << "list with one number per dimesion indicated by the \"dims\" option." << endl;
           status = EXIT_FAILURE;
         }
-        else
+        // if maximums and unique were selected, make sure there are enough points available
+        else if( 0 < maximums.size() && is_unique )
         {
-          for( int pnt = 0; pnt < points; pnt++ )
+          auto max_unique_points = accumulate( begin( maximums ), end( maximums ), 1, multiplies<int>() );
+
+          if( points > max_unique_points )
           {
-            for( int dim = 0; dim < dims; dim++ )
+            cerr << "ERROR: Impossible to generate " << points << " unique points." << endl
+                 << "The maximum number of unique points is limited to the product of the maximum number of "
+                 << "divisions (" << max_unique_points << ").  Make sure that the number of requested points "
+                 << "is equal to or smaller." << endl;
+            status = EXIT_FAILURE;
+          }
+        }
+
+        if( EXIT_SUCCESS == status )
+        {
+          bool complete = false;
+          vector<double> data( dims*points, 0.0 );
+          vector<string> point_list( points, "" );
+          auto it = point_list.begin();
+
+          while( !complete )
+          {
+            latin_center( dims, points, &seed, data.data() );
+            for( int pnt = 0; pnt < points && it != point_list.end(); pnt++ )
             {
-              // get the point and convert if the maximum number of divisions for this dimension is set
-              double val = data[pnt + points*dim];
-              double factor = points;
-              if( 0 < maximums.size() && maximums[dim] != points )
+              it->clear();
+              for( int dim = 0; dim < dims; dim++ )
               {
-                double m = static_cast<double>( maximums[dim] );
-                double p = static_cast<double>( points );
-                val = ceil( (val + 1/(2*p)) * m - 1E-10)/m - 1/(2*m);
-                factor = m;
+                if( 0 < dim ) it->append( "," );
+
+                // get the point and convert if the maximum number of divisions for this dimension is set
+                double val = data[pnt + points*dim];
+                double factor = points;
+                if( 0 < maximums.size() && maximums[dim] != points )
+                {
+                  double m = static_cast<double>( maximums[dim] );
+                  double p = static_cast<double>( points );
+                  val = ceil( (val + 1/(2*p)) * m - 1E-10)/m - 1/(2*m);
+                  factor = m;
+                }
+
+                if( index0 || index1 )
+                {
+                  // convert value to 0 or 1-based index
+                  int index = round( factor * ( val - 1/(2.0*factor) ) );
+                  it->append( to_string( index0 ? index : index+1 ) );
+                }
+                else
+                {
+                  it->append( to_string( val ) );
+                }
               }
 
-              if( 0 < dim ) cout << ",";
-              if( index0 || index1 )
-              {
-                int index = round( factor * ( val - 1/(2.0*factor) ) );
-                cout << ( index0 ? index : index+1 );
-              }
-              else cout << val;
+              it++; // move to the list's next point
             }
-            cout << endl;
+
+            sort( point_list.begin(), point_list.end() );
+
+            if( is_unique )
+            {
+              // remove non-unique values
+              it = unique( point_list.begin(), point_list.end() );
+              if( it == point_list.end() ) complete = true;
+            }
+            else complete = true;
           }
+
+          for( int pnt = 0; pnt < points; pnt++ ) cout << point_list[pnt] << endl;
         }
       }
     }
   }
-  catch( std::exception &e )
+  catch( exception &e )
   {
-    std::cerr << "Uncaught exception: " << e.what() << std::endl;
+    cerr << "Uncaught exception: " << e.what() << endl;
   }
 
   return status;
