@@ -3,9 +3,9 @@
 # Parses the simulation and outputs the mean and stdev prevalence results for each population and sample type.
 # Run this script after building the multitown simulation.
 
-for summary in $( ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f | grep '[^/]\\\\+_sample/nr.*\\\\.07\\\\.txt$'#" | /bin/bash ); do
+for summary in $( ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f | grep '[^/]\\\\+_sample/.*\\\\.07\\\\.txt$'#" | /bin/bash ); do
   population=$( echo $summary | sed -e "s#links/\([0-9]\+\)/.*#\1#" )
-  sampler=$( echo $summary | sed -e "s#links/[0-9]\+/\(.*\)_sample/nr\(\(-s[0-9]\)\?\).*#\1\2#" )
+  sampler=$( echo $summary | sed -e "s#links/[0-9]\+/\(.*\)_sample/\(\(s[0-9]\)\?\).*#\1\2#" )
 
   # print the title
   if [ "circle_gps" = "$sampler" ]; then
@@ -22,32 +22,24 @@ for summary in $( ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f | gre
   fi
   echo -n $sampler,
 
-  for resample in "nr" "r"; do
-    if [ "nr" == $resample ]; then
-      # print the population's true mean
-      grep "^child count:" $summary | sed -e "s#.*(prevalence \(.*\))#\1#" | tr '\n' ','
-      echo -n "no-resample,"
-    else
-      echo -n ',,resample,'
-    fi
+  # print the population's true mean
+  grep "^child count:" $summary | sed -e "s#.*(prevalence \(.*\))#\1#" | tr '\n' ','
 
-    for prevalence in "prevalence" "weighted prevalence"; do
-      for size in "07" "30"; do
-        sum=${summary/nr/$resample}
-        sum=${sum/07/$size}
-        if [ -e $sum ]; then
-          grep "^sampled child count:" $sum |
-            sed -e "s#.*($prevalence \([^ ]\+\) (\([^)]\+\))).*#\1,\2#" |
-           tr '\n' ','
-        else
-          echo -n 'na,na,'
-        fi
-        echo -n ','
-      done
+  for prevalence in "prevalence" "weighted prevalence"; do
+    for size in "07" "30"; do
+      sum=${sum/07/$size}
+      if [ -e $sum ]; then
+        grep "^sampled child count:" $sum |
+          sed -e "s#.*($prevalence \([^ ]\+\) (\([^)]\+\))).*#\1,\2#" |
+         tr '\n' ','
+      else
+        echo -n 'na,na,'
+      fi
+      echo -n ','
     done
-    echo -n ${params[$pindex]},
-    ((pindex++))
-    echo ${params[$pindex]}
-    ((pindex++))
   done
+  echo -n ${params[$pindex]},
+  ((pindex++))
+  echo ${params[$pindex]}
+  ((pindex++))
 done
