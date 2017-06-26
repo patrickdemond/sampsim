@@ -17,7 +17,7 @@ if [ $# -ge 1 ]; then
   while read line; do
     name=${line%:*}
     value=${line##*:}
-    param_predefined[$name]=$value
+    if [ -n "$name" ]; then param_predefined[$name]=$value; fi
   done < $config_file
 fi
 
@@ -295,18 +295,12 @@ function progress_meter
   local ticks=$( echo "$percent * $width" | bc | awk '{printf "%.0f", $0}' )
   local spaces=$( echo "$width - $ticks" | bc )
 
-  if [ $progress -eq 1 ]; then
-    last_progress_meter_ticks=-1
-  fi
+  if [ $progress -eq 1 ]; then last_progress_meter_ticks=-1; fi
 
   if [ $ticks -ne $last_progress_meter_ticks ]; then
     local meter="";
-    if [ $ticks -ne 0 ]; then
-      meter+=`printf "%0.s#" $(seq 1 $ticks)`
-    fi
-    if [ $spaces -ne 0 ]; then
-      meter+=`printf "%0.s " $(seq 1 $spaces)`
-    fi
+    if [ $ticks -ne 0 ]; then meter+=`printf "%0.s#" $(seq 1 $ticks)`; fi
+    if [ $spaces -ne 0 ]; then meter+=`printf "%0.s " $(seq 1 $spaces)`; fi
     let COL=$(tput cols)-${#message}+${#MAGENTA}+${#NORMAL}
     printf "\r%s%${COL}s" "$message" "[${MAGENTA}${meter}${NORMAL}]"
   fi
@@ -339,9 +333,7 @@ function create_config_tree
   local total=$5
 
   # initialize when in the root of the tree
-  if [ $index -eq 0 ]; then
-    progress=0
-  fi
+  if [ $index -eq 0 ]; then progress=0; fi
 
   if [ $index -lt "${#name_array[@]}" ]; then
     # make the base directory
@@ -364,7 +356,7 @@ function create_config_tree
 # arg2: name_array (the name of the name array)
 # arg3: value_array (the name of the value array)
 # arg4: index (start with 0, the recursion takes care of the rest)
-# arg5: number_of_points (only used in first iteration and when latin is 1)
+# arg5: number_of_populations (only used in first iteration and when latin is 1)
 function create_latin_config_tree
 {
   local dir=$1
@@ -373,18 +365,19 @@ function create_latin_config_tree
   local arr=$3"[*]"
   local value_array=(${!arr})
   local index=$4
-  local number_of_points=$5
+  local number_of_populations=$5
+  local total=$6
 
   # initialize when in the root of the tree
   if [ $index -eq 0 ]; then
+    progress=0
+
     # determine the maximum number of values in each index of the value array
     maximums="";
     for value in "${value_array[@]}"; do
       local array=(${value//:/ })
       local array_size=${#array[@]}
-      if [ "" != "$maximums" ]; then
-        maximums="$maximums,"
-      fi
+      if [ "" != "$maximums" ]; then maximums="$maximums,"; fi
       maximums="$maximums$array_size"
     done
 
@@ -392,7 +385,7 @@ function create_latin_config_tree
       $latin_hypercube --index0 \
                        --unique \
                        --dims ${#value_array[@]} \
-                       --points $number_of_points \
+                       --points $number_of_populations \
                        --maximums $maximums`
     root_array=(${value_array[0]//:/ })
     root_array_size=${#root_array[@]}
@@ -414,6 +407,9 @@ function create_latin_config_tree
       else # otherwise only continue if the non-root point matches the root point
         if [ "$point" != "$root_point" ]; then continue; fi
       fi;
+      
+      let "progress++"
+      progress_meter "Creating configuration tree" $progress $total
       local val_index=0
       for val in "${array[@]}"; do
         # get the indeces of the points corresponding to the root and current branches of the tree
@@ -433,7 +429,7 @@ function create_latin_config_tree
           sub_dir="$dir/${name_array[$index]}/v$val"
           mkdir -p $sub_dir
           # go to the next parameter and repeat recursively
-          create_latin_config_tree $sub_dir name_array value_array $( echo "$index + 1" | bc ) $number_of_points
+          create_latin_config_tree $sub_dir name_array value_array $( echo "$index + 1" | bc ) $number_of_populations $total
           found=1
           if [ $found -eq 1 ]; then break; fi;
         fi
@@ -451,12 +447,7 @@ function create_latin_config_tree
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
 echo This script will create a hypercube of configurations into a directory tree.
 echo
-echo \
-"For every parameter you may select either the default value, a custom value or a
-range of values.  A hypercube of configurations will be created for every value
-of every parameter which has a range of values.  Or, if you choose the random latin
-hypercube sampling option, then a subset of configurations will be created such that
-they fulfil a random latin hypercube."
+echo "For every parameter you may select either the default value, a custom value or a range of values.  A hypercube of configurations will be created for every value of every parameter which has a range of values.  Or, if you choose the random latin hypercube sampling option, then a subset of configurations will be created such that they fulfil a random latin hypercube."
 
 # get target directory
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -464,27 +455,19 @@ if [ -n "${param_predefined[directory]}" ]; then
   directory=${param_predefined[directory]}
 else
   directory="./run1"
-  echo \
-"What directory do you wish to create the hypercube in? (default: ${BLUE}$directory${NORMAL})
-${RED}warning: this will overwrite any existing directory${NORMAL}"
+  echo "What directory do you wish to create the hypercube in? (default: ${BLUE}$directory${NORMAL}) ${RED}warning: this will overwrite any existing directory${NORMAL}"
   read -e -r -p "> " answer
 fi
 
 # make empty responses the default
-if [ "$answer" ]; then
-  directory=$answer
-fi
+if [ "$answer" ]; then directory=$answer; fi
 
 # append a ./ if there isn't one already and the path isn't absolute (starting with /)
-if [[ "${directory:0:1}" != "/" || ${directory:0:2} != "./" ]]; then
-  directory="./$directory"
-fi
+if [[ "${directory:0:1}" != "/" || ${directory:0:2} != "./" ]]; then directory="./$directory"; fi
 
 # fix spaces and backslashes
 directory=$( echo $directory | sed "s/ /\\\ /g" | sed "s/\\\\\+/\\\\/g" )
-if [ -d "$directory" ]; then
-  rm -rf $directory
-fi
+if [ -d "$directory" ]; then rm -rf $directory; fi
 
 # create directory and put the build and sample scripts in it
 mkdir -p $directory
@@ -518,12 +501,7 @@ fi
 
 if [ "$latin" = "undefined" ]; then
   latin=1
-  echo \
-"You must now choose whether to create the full hypercube or a random latin hypercube subset of
-configurations.  The full hypercube option will generate every possible variation of all parameter
-sets provided, which, depending on the paramters you select may grow restrictively large.  The
-random latin hypercube option will create a reduced subset such that only one parameter value will
-be used for each hyperplane in the hypercube."
+  echo "You must now choose whether to create the full hypercube or a random latin hypercube subset of configurations.  The full hypercube option will generate every possible variation of all parameter sets provided, which, depending on the paramters you select may grow restrictively large.  The random latin hypercube option will create a reduced subset such that only one parameter value will be used for each hyperplane in the hypercube."
   while true; do
     echo -n "Do you wish to only generate a random latin hypercube subset of configurations? (select ${BOLD}${YELLOW}y${NORMAL}es or ${BOLD}${YELLOW}n${NORMAL}o)> "
     read -s -n 1 answer
@@ -582,11 +560,7 @@ fi
 
 if [ "$short" = "undefined" ]; then
   short=1
-  echo \
-"Depending on the number of variable parameters in the hypercube the full path and name of generated
-configuration files may become excessively long.  To mitigate this effect it is possible to use
-short forms of parameter names in configuration file paths.  This option is recommended for
-hypercubes containing 4 or more variable parameters."
+  echo "Depending on the number of variable parameters in the hypercube the full path and name of generated configuration files may become excessively long.  To mitigate this effect it is possible to use short forms of parameter names in configuration file paths.  This option is recommended for hypercubes containing 4 or more variable parameters."
   while true; do
     echo -n "Do you wish to use short parameter names? (select ${BOLD}${YELLOW}y${NORMAL}es or ${BOLD}${YELLOW}n${NORMAL}o)> "
     read -s -n 1 answer
@@ -651,9 +625,7 @@ for index in ${!param_name[*]}; do
         value="$value:${current}"
         current=$( echo "$current + $step" | bc )
         # add the leading 0 if the number starts with .
-        if [ '.' = "${current:0:1}" ]; then
-          current="0$current"
-        fi
+        if [ '.' = "${current:0:1}" ]; then current="0$current"; fi
       done
       param_value[$index]=${value:1} # remove the first character
     elif [ "${values[0]}" = "a" ]; then
@@ -753,9 +725,7 @@ ${BOLD}${YELLOW}f${NORMAL}inish with default values> "
           value="$value:${current}"
           current=$( echo "$current + $step" | bc )
           # add the leading 0 if the number starts with .
-          if [ '.' = "${current:0:1}" ]; then
-            current="0$current"
-          fi
+          if [ '.' = "${current:0:1}" ]; then current="0$current"; fi
         done
         param_value[$index]=${value:1} # remove the first character
 
@@ -787,9 +757,7 @@ ${BOLD}${YELLOW}f${NORMAL}inish with default values> "
                 fi
               fi
             done
-            if [ $test -eq 1 ]; then
-              break
-            fi
+            if [ $test -eq 1 ]; then break; fi
           fi
         done
 
@@ -808,18 +776,16 @@ ${BOLD}${YELLOW}f${NORMAL}inish with default values> "
     done
   fi
 
-  if [ $skip -eq 1 ]; then
-    break
-  fi
+  if [ $skip -eq 1 ]; then break; fi
 done
 echo
 
 # make an array of all parameters with multiple values and count the total size of the hypercube
-# also determine the size and number_of_points parameters, used below
+# also determine the size and default_number_of_populations parameters, used below
 idx=0
 size=0
 mult=1
-number_of_points=0 # only used if using a latin hypercube
+default_number_of_populations=0 # only used if using a latin hypercube
 name_array=()
 value_array=()
 for index in ${!param_name[*]}; do
@@ -832,8 +798,8 @@ for index in ${!param_name[*]}; do
     value_array+=(${param_value[$index]})
     array=(${value_array[$idx]//:/ })
     array_size=${#array[@]}
-    if [ $array_size -gt $number_of_points ]; then
-      number_of_points=$array_size
+    if [ $array_size -gt $default_number_of_populations ]; then
+      default_number_of_populations=$array_size
     fi
     mult=$(( $mult * $array_size ))
     size=$(( $size + $mult ))
@@ -841,50 +807,49 @@ for index in ${!param_name[*]}; do
   fi
 done
 
-if [ $size -eq 0 ]; then
-  echo "${RED}ERROR: You have to specify at least one parameter to have multiple values!${NORMAL}"
-  exit
-fi
-
 # if a latin hypercube was requested then determine how many points to use
 if [ $latin -eq 1 ]; then
-  number_of_points="undefined"
-  if [ -n "${param_predefined[number_of_points]}" ]; then
-    answer=${param_predefined[number_of_points]}
+  number_of_populations="undefined"
+  if [ -n "${param_predefined[number_of_populations]}" ]; then
+    answer=${param_predefined[number_of_populations]}
     if [[ ! $answer =~ $non_negative_integer_pattern ]]; then
       echo "${RED}ERROR (in config file): must be a non-zero integer${NORMAL}"
     else
-      number_of_points=$answer
+      number_of_populations=$answer
     fi
   fi
 
-  if [ "$number_of_points" = "undefined" ]; then
-    echo \
-"Based on the parameters you have choosen the latin hypercube will create $number_of_points configurations
-(the minimum number of required in order to have all parameter values used at least once).  If you wish to
-proceed with $number_of_points hit enter, otherwise provide the number of configurations you wish to generate."
+  if [ "$number_of_populations" = "undefined" ]; then
+    echo "Based on the parameters you have choosen the latin hypercube will create $default_number_of_populations configurations (the minimum number of required in order to have all parameter values used at least once).  If you wish to proceed with $default_number_of_populations hit enter, otherwise provide the number of configurations you wish to generate."
     while true; do
-      echo -n "Number of configuration files to generate? (default: ${BLUE}$number_of_points${NORMAL})"
+      echo -n "Number of configuration files to generate? (default: ${BLUE}$default_number_of_populations${NORMAL})"
       read -e -r -p "> " answer
 
       if [ "$answer" = "d" ] || [ -z "$answer" ]; then
         # make empty responses the default
+        number_of_populations=$default_number_of_populations
         break;
       elif [[ $answer =~ $non_negative_integer_pattern ]]; then
-        number_of_points=$answer
+        number_of_populations=$answer
         break;
       else
         echo "${RED}ERROR: must be a non-zero integer (or simply hit enter if you wish to use the default)${NORMAL}"
       fi
     done
   fi
+
+  size=$(( $idx * $number_of_populations ))
+fi
+
+if [ $size -eq 0 ]; then
+  echo "${RED}ERROR: You have to specify at least one parameter to have multiple values!${NORMAL}"
+  exit
 fi
 
 # create directory structure
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-
 if [ $latin -eq 1 ]; then
-  create_latin_config_tree $population_dir name_array value_array 0 $number_of_points
+  create_latin_config_tree $population_dir name_array value_array 0 $number_of_populations $size
 else
   create_config_tree $population_dir name_array value_array 0 $size
 fi
