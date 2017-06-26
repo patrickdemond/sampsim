@@ -66,10 +66,12 @@ int main( const int argc, const char** argv )
         // if maximums and unique were selected, make sure there are enough points available
         else if( 0 < maximums.size() && is_unique )
         {
-          auto max_unique_points = accumulate( begin( maximums ), end( maximums ), 1, multiplies<int>() );
+          int max_unique_points = accumulate( begin( maximums ), end( maximums ), 1, multiplies<int>() );
 
-          if( points > max_unique_points )
+          // if the maximum is VERY high then it will be negative (so we can ignore the following test)
+          if( 0 <= max_unique_points && points > max_unique_points )
           {
+            cout << "points: " << points << ", max_unique_points: " << max_unique_points << endl;
             cerr << "ERROR: Impossible to generate " << points << " unique points." << endl
                  << "The maximum number of unique points is limited to the product of the maximum number of "
                  << "divisions (" << max_unique_points << ").  Make sure that the number of requested points "
