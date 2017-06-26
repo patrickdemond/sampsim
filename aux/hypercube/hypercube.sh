@@ -5,9 +5,21 @@
 # Program:  sampsim
 # Module:   hypercube.sh
 # Language: bash
-# TODO:     Latin hypercube isn't using a seed
 # 
 #########################################################################################
+
+# arguments
+# -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+# first argument is a path to a config file (optional)
+declare -A param_predefined
+if [ $# -ge 1 ]; then
+  config_file=$1
+  while read line; do
+    name=${line%:*}
+    value=${line##*:}
+    param_predefined[$name]=$value
+  done < $config_file
+fi
 
 # colors
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -448,10 +460,14 @@ they fulfil a random latin hypercube."
 
 # get target directory
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-directory="./run1"
-echo "What directory do you wish to create the hypercube in? (default: ${BLUE}$directory${NORMAL})
-${RED}warning: this will overwrite any existing directory${NORMAL}"
-read -e -r -p "> " answer
+if [ -n "${param_predefined[directory]}" ]; then
+  directory=${param_predefined[directory]}
+else
+  directory="./run1"
+  echo "What directory do you wish to create the hypercube in? (default: ${BLUE}$directory${NORMAL})
+  ${RED}warning: this will overwrite any existing directory${NORMAL}"
+  read -e -r -p "> " answer
+fi
 
 # make empty responses the default
 if [ "$answer" ]; then
@@ -481,52 +497,108 @@ chmod 755 $directory/samples/*.sh
 # now make populations directory
 population_dir="$directory/populations"
 
+non_negative_integer_pattern="^((([0-9]|[1-9][0-9]*)))$" # any non-negative integer
 number_pattern="^-?((([0-9]|[1-9][0-9]*)(\.[0-9]*)?)|(\.[0-9]+))$" # any number
 number_with_comma_pattern="^-?((([0-9]|[1-9][0-9]*)(\.[0-9]*)?)|(\.[0-9]+))(,-?((([0-9]|[1-9][0-9]*)(\.[0-9]*)?)|(\.[0-9]+)))*$"
 non_zero_number_pattern="^-?((([1-9][0-9]*)(\.[0-9]*)?)|(0?\.[0-9]*[1-9]+[0-9]*))$" # any non-zero number
 
 # latin or full hypercube?
-latin=1
-echo "You must now choose whether to create the full hypercube or a random latin hypercube subset of
-configurations.  The full hypercube option will generate every possible variation of all parameter
-sets provided, which, depending on the paramters you select may grow restrictively large.  The
-random latin hypercube option will create a reduced subset such that only one parameter value will
-be used for each hyperplane in the hypercube."
-while true; do
-  echo -n "Do you wish to only generate a random latin hypercube subset of configurations? (select ${BOLD}${YELLOW}y${NORMAL}es or ${BOLD}${YELLOW}n${NORMAL}o)> "
-  read -s -n 1 answer
-  echo
+latin="undefined"
+if [ -n "${param_predefined[latin]}" ]; then
+  answer=${param_predefined[latin]}
   if [ "$answer" = "y" ]; then
     latin=1
-    break;
   elif [ "$answer" = "n" ]; then
     latin=0
-    break;
   else
-    echo "${RED}Invalid input, please select ${BOLD}${YELLOW}y${NORMAL}${RED} or ${BOLD}${YELLOW}n${NORMAL}"
+    echo "${RED}ERROR (in config file): latin must either be ${BOLD}${YELLOW}y${NORMAL}${RED} or ${BOLD}${YELLOW}n${NORMAL}"
   fi
-done
+fi
+
+if [ "$latin" = "undefined" ]; then
+  latin=1
+  echo "You must now choose whether to create the full hypercube or a random latin hypercube subset of
+  configurations.  The full hypercube option will generate every possible variation of all parameter
+  sets provided, which, depending on the paramters you select may grow restrictively large.  The
+  random latin hypercube option will create a reduced subset such that only one parameter value will
+  be used for each hyperplane in the hypercube."
+  while true; do
+    echo -n "Do you wish to only generate a random latin hypercube subset of configurations? (select ${BOLD}${YELLOW}y${NORMAL}es or ${BOLD}${YELLOW}n${NORMAL}o)> "
+    read -s -n 1 answer
+    echo
+    if [ "$answer" = "y" ]; then
+      latin=1
+      break;
+    elif [ "$answer" = "n" ]; then
+      latin=0
+      break;
+    else
+      echo "${RED}Invalid input, please select ${BOLD}${YELLOW}y${NORMAL}${RED} or ${BOLD}${YELLOW}n${NORMAL}"
+    fi
+  done
+fi
+
+# if using a latin hypercube then get a seed for it
+if [ $latin -eq 1 ]; then
+  latin_seed="undefined"
+  if [ -n "${param_predefined[latin_seed]}" ]; then
+    answer=${param_predefined[latin_seed]}
+    if [[ ! $answer =~ $non_negative_integer_pattern ]]; then
+      echo "${RED}ERROR (in config file): the latin seed must be a non-negative integer${NORMAL}"
+    else
+      latin_seed=$answer
+    fi
+  fi
+
+  if [ "$latin_seed" = "undefined" ]; then
+    while true; do
+      read -p "Provide an integer which will be used as the latin hypercube's seed value: " latin_seed
+      if [ -z "$latin_seed" ]; then
+        latin_seed=1
+        break
+      elif [[ ! $latin_seed =~ $non_negative_integer_pattern ]]; then
+        echo "${RED}ERROR: the latin seed must be a non-negative integer${NORMAL}"
+      else
+        break
+      fi
+    done
+  fi
+fi
 
 # determine whether to use regular or short parameter names
-short=1
-echo "Depending on the number of variable parameters in the hypercube the full path and name of generated
-configuration files may become excessively long.  To mitigate this effect it is possible to use
-short forms of parameter names in configuration file paths.  This option is recommended for
-hypercubes containing 4 or more variable parameters."
-while true; do
-  echo -n "Do you wish to use short parameter names? (select ${BOLD}${YELLOW}y${NORMAL}es or ${BOLD}${YELLOW}n${NORMAL}o)> "
-  read -s -n 1 answer
-  echo
+short="undefined"
+if [ -n "${param_predefined[short]}" ]; then
+  answer=${param_predefined[short]}
   if [ "$answer" = "y" ]; then
     short=1
-    break;
   elif [ "$answer" = "n" ]; then
     short=0
-    break;
   else
-    echo "${RED}Invalid input, please select ${BOLD}${YELLOW}y${NORMAL}${RED} or ${BOLD}${YELLOW}n${NORMAL}"
+    echo "${RED}ERROR (in config file): short must either be ${BOLD}${YELLOW}y${NORMAL}${RED} or ${BOLD}${YELLOW}n${NORMAL}"
   fi
-done
+fi
+
+if [ "$short" = "undefined" ]; then
+  short=1
+  echo "Depending on the number of variable parameters in the hypercube the full path and name of generated
+  configuration files may become excessively long.  To mitigate this effect it is possible to use
+  short forms of parameter names in configuration file paths.  This option is recommended for
+  hypercubes containing 4 or more variable parameters."
+  while true; do
+    echo -n "Do you wish to use short parameter names? (select ${BOLD}${YELLOW}y${NORMAL}es or ${BOLD}${YELLOW}n${NORMAL}o)> "
+    read -s -n 1 answer
+    echo
+    if [ "$answer" = "y" ]; then
+      short=1
+      break;
+    elif [ "$answer" = "n" ]; then
+      short=0
+      break;
+    else
+      echo "${RED}Invalid input, please select ${BOLD}${YELLOW}y${NORMAL}${RED} or ${BOLD}${YELLOW}n${NORMAL}"
+    fi
+  done
+fi
 
 # get parameter values
 # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -536,62 +608,39 @@ for index in ${!param_name[*]}; do
   default=${param_value[$index]}
   help=${param_help[$index]}
 
-  echo
-  echo "Which parameter do you wish to use for ${BOLD}${CYAN}${name}${NORMAL}? \
-(default: ${BLUE}${default}${NORMAL})"
-  echo "Description: ${MAGENTA}${help}${NORMAL}"
-
-  while true; do
-    echo -n "Please select \
-${BOLD}${YELLOW}d${NORMAL}efault, \
-${BOLD}${YELLOW}c${NORMAL}ustom, \
-${BOLD}${YELLOW}r${NORMAL}ange, \
-${BOLD}${YELLOW}a${NORMAL}rray or \
-${BOLD}${YELLOW}f${NORMAL}inish with default values> "
-    read -s -n 1 answer
-    echo
-    if [ "$answer" = "d" ] || [ -z "$answer" ]; then
+  if [ -n "${param_predefined[$name]}" ]; then
+    values=(${param_predefined[$name]})
+    if [ "${values[0]}" = "d" ]; then
       # do nothing
-      break;
-    elif [ "$answer" = "c" ]; then
-      # get the custom value
-      read -p "Provide a custom value: " param_value[$index]
-
-      break;
-    elif [ "$answer" = "r" ]; then
-      # get the lower value in the range
-      while true; do
-        read -p "Provide the lowest value in the range: " lower
-        if [[ ! $lower =~ $number_pattern ]]; then
-          echo "${RED}ERROR: 'lower' must be a number${NORMAL}"
-        else
-          break
-        fi
-      done
+      :
+    elif [ "${values[0]}" = "c" ]; then
+      param_value[$index]=${values[1]}
+    elif [ "${values[0]}" = "r" ]; then
+      lower=${values[1]}
+      upper=${values[2]}
+      step=${values[3]}
+      if [[ ! $lower =~ $number_pattern ]]; then
+        echo "${RED}ERROR (in config file): 'lower' must be a number${NORMAL}"
+        exit 2
+      fi
 
       # get the upper value in the range
-      while true; do
-        read -p "Provide the highest value in the range: " upper
-        if [[ ! $upper =~ $number_pattern ]]; then
-          echo "${RED}ERROR: 'upper' must be a number${NORMAL}"
-        elif [ $( echo "$lower == $upper" | bc ) -eq 1 ]; then
-          echo "${RED}ERROR: 'upper' cannot be the same value as 'lower'${NORMAL}"
-        else
-          break
-        fi
-      done
+      if [[ ! $upper =~ $number_pattern ]]; then
+        echo "${RED}ERROR (in config file): 'upper' must be a number${NORMAL}"
+        exit 3
+      elif [ $( echo "$lower == $upper" | bc ) -eq 1 ]; then
+        echo "${RED}ERROR (in config file): 'upper' cannot be the same value as 'lower'${NORMAL}"
+        exit 4
+      fi
 
       # get the step value of the range
-      while true; do
-        read -p "Provide the step between values in the range: " step
-        if [[ ! $step =~ $non_zero_number_pattern ]]; then
-          echo "${RED}ERROR: 'step' must be a non-zero number${NORMAL}"
-        elif [ $( echo "($lower < $upper && $step > 0) || ($lower > $upper && $step < 0)" | bc ) -eq 0 ]; then
-          echo "${RED}ERROR: 'step' is in the wrong direction${NORMAL}"
-        else
-          break
-        fi
-      done
+      if [[ ! $step =~ $non_zero_number_pattern ]]; then
+        echo "${RED}ERROR (in config file): 'step' must be a non-zero number${NORMAL}"
+        exit 5
+      elif [ $( echo "($lower < $upper && $step > 0) || ($lower > $upper && $step < 0)" | bc ) -eq 0 ]; then
+        echo "${RED}ERROR (in config file): 'step' is in the wrong direction${NORMAL}"
+        exit 6
+      fi
 
       value=""
       current=$lower
@@ -604,54 +653,156 @@ ${BOLD}${YELLOW}f${NORMAL}inish with default values> "
         fi
       done
       param_value[$index]=${value:1} # remove the first character
-
-      break;
-    elif [ "$answer" = "a" ]; then
-
-      while true; do
-        read -a array -p "Provide a list of values delimited by a space: "
-
-        if [ ${#array[@]} -eq 0 ]; then
-          echo "${RED}ERROR: The array cannot be empty${NORMAL}"
-        else
-          # validate all inputs as numbers
-          test=1
-          for idx in ${!array[*]}; do
-            if [[ $name =~ ^(mean|sd)_ ]]; then
-              # mean/sd input (comma-separated numbers only)
-              if [[ ! ${array[$idx]} =~ $number_with_comma_pattern ]]; then
-                echo "${RED}ERROR: Array can only contain comma-separated numbers${NORMAL}"
-                test=0
-                break
-              fi
-            else
-              # normal input (numbers only)
-              if [[ ! ${array[$idx]} =~ $number_pattern ]]; then
-                echo "${RED}ERROR: Array can only contain numbers${NORMAL}"
-                test=0
-                break
-              fi
+    elif [ "${values[0]}" = "a" ]; then
+      array=("${values[@]:1}") # remove the "a" from the values array
+      if [ ${#array[@]} -eq 0 ]; then
+        echo "${RED}ERROR (in config file): The array cannot be empty${NORMAL}"
+        exit 7
+      else
+        # validate all inputs as numbers
+        for idx in ${!array[*]}; do
+          if [[ $name =~ ^(mean|sd)_ ]]; then
+            # mean/sd input (comma-separated numbers only)
+            if [[ ! ${array[$idx]} =~ $number_with_comma_pattern ]]; then
+              echo "${RED}ERROR (in config file): Array can only contain comma-separated numbers${NORMAL}"
+              exit 8
             fi
-          done
-          if [ $test -eq 1 ]; then
-            break
+          else
+            # normal input (numbers only)
+            if [[ ! ${array[$idx]} =~ $number_pattern ]]; then
+              echo "${RED}ERROR (in config file): Array can only contain numbers${NORMAL}"
+              exit 9
+            fi
           fi
-        fi
-      done
+        done
+      fi
 
       # the array is now valid, put into a string deliminating by :
       param_value[$index]=$(join : ${array[@]})
-
-      break;
-    elif [ "$answer" = "f" ]; then
-      # get the custom value
-      echo "Proceeding with default values for remaining parameters"
+    elif [ "${values[0]}" = "f" ]; then
       skip=1
-      break;
     else
-      echo "${RED}Invalid input, please select d, c, r, a or f${NORMAL}"
+      echo "${RED}ERROR (in config file): value must start with d, c, r, a or f${NORMAL}"
+      exit 10
     fi
-  done
+  else
+    echo
+    echo "Which parameter do you wish to use for ${BOLD}${CYAN}${name}${NORMAL}? \
+  (default: ${BLUE}${default}${NORMAL})"
+    echo "Description: ${MAGENTA}${help}${NORMAL}"
+
+    while true; do
+      echo -n "Please select \
+${BOLD}${YELLOW}d${NORMAL}efault, \
+${BOLD}${YELLOW}c${NORMAL}ustom, \
+${BOLD}${YELLOW}r${NORMAL}ange, \
+${BOLD}${YELLOW}a${NORMAL}rray or \
+${BOLD}${YELLOW}f${NORMAL}inish with default values> "
+      read -s -n 1 answer
+      echo
+      if [ "$answer" = "d" ] || [ -z "$answer" ]; then
+        # do nothing
+        break;
+      elif [ "$answer" = "c" ]; then
+        # get the custom value
+        read -p "Provide a custom value: " param_value[$index]
+
+        break;
+      elif [ "$answer" = "r" ]; then
+        # get the lower value in the range
+        while true; do
+          read -p "Provide the lowest value in the range: " lower
+          if [[ ! $lower =~ $number_pattern ]]; then
+            echo "${RED}ERROR: 'lower' must be a number${NORMAL}"
+          else
+            break
+          fi
+        done
+
+        # get the upper value in the range
+        while true; do
+          read -p "Provide the highest value in the range: " upper
+          if [[ ! $upper =~ $number_pattern ]]; then
+            echo "${RED}ERROR: 'upper' must be a number${NORMAL}"
+          elif [ $( echo "$lower == $upper" | bc ) -eq 1 ]; then
+            echo "${RED}ERROR: 'upper' cannot be the same value as 'lower'${NORMAL}"
+          else
+            break
+          fi
+        done
+
+        # get the step value of the range
+        while true; do
+          read -p "Provide the step between values in the range: " step
+          if [[ ! $step =~ $non_zero_number_pattern ]]; then
+            echo "${RED}ERROR: 'step' must be a non-zero number${NORMAL}"
+          elif [ $( echo "($lower < $upper && $step > 0) || ($lower > $upper && $step < 0)" | bc ) -eq 0 ]; then
+            echo "${RED}ERROR: 'step' is in the wrong direction${NORMAL}"
+          else
+            break
+          fi
+        done
+
+        value=""
+        current=$lower
+        while [ $( echo "$current <= $upper" | bc ) -eq 1 ]; do
+          value="$value:${current}"
+          current=$( echo "$current + $step" | bc )
+          # add the leading 0 if the number starts with .
+          if [ '.' = "${current:0:1}" ]; then
+            current="0$current"
+          fi
+        done
+        param_value[$index]=${value:1} # remove the first character
+
+        break;
+      elif [ "$answer" = "a" ]; then
+
+        while true; do
+          read -a array -p "Provide a list of values delimited by a space: "
+
+          if [ ${#array[@]} -eq 0 ]; then
+            echo "${RED}ERROR: The array cannot be empty${NORMAL}"
+          else
+            # validate all inputs as numbers
+            test=1
+            for idx in ${!array[*]}; do
+              if [[ $name =~ ^(mean|sd)_ ]]; then
+                # mean/sd input (comma-separated numbers only)
+                if [[ ! ${array[$idx]} =~ $number_with_comma_pattern ]]; then
+                  echo "${RED}ERROR: Array can only contain comma-separated numbers${NORMAL}"
+                  test=0
+                  break
+                fi
+              else
+                # normal input (numbers only)
+                if [[ ! ${array[$idx]} =~ $number_pattern ]]; then
+                  echo "${RED}ERROR: Array can only contain numbers${NORMAL}"
+                  test=0
+                  break
+                fi
+              fi
+            done
+            if [ $test -eq 1 ]; then
+              break
+            fi
+          fi
+        done
+
+        # the array is now valid, put into a string deliminating by :
+        param_value[$index]=$(join : ${array[@]})
+
+        break;
+      elif [ "$answer" = "f" ]; then
+        # get the custom value
+        echo "Proceeding with default values for remaining parameters"
+        skip=1
+        break;
+      else
+        echo "${RED}Invalid input, please select d, c, r, a or f${NORMAL}"
+      fi
+    done
+  fi
 
   if [ $skip -eq 1 ]; then
     break
