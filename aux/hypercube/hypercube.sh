@@ -464,8 +464,9 @@ if [ -n "${param_predefined[directory]}" ]; then
   directory=${param_predefined[directory]}
 else
   directory="./run1"
-  echo "What directory do you wish to create the hypercube in? (default: ${BLUE}$directory${NORMAL})
-  ${RED}warning: this will overwrite any existing directory${NORMAL}"
+  echo \
+"What directory do you wish to create the hypercube in? (default: ${BLUE}$directory${NORMAL})
+${RED}warning: this will overwrite any existing directory${NORMAL}"
   read -e -r -p "> " answer
 fi
 
@@ -517,11 +518,12 @@ fi
 
 if [ "$latin" = "undefined" ]; then
   latin=1
-  echo "You must now choose whether to create the full hypercube or a random latin hypercube subset of
-  configurations.  The full hypercube option will generate every possible variation of all parameter
-  sets provided, which, depending on the paramters you select may grow restrictively large.  The
-  random latin hypercube option will create a reduced subset such that only one parameter value will
-  be used for each hyperplane in the hypercube."
+  echo \
+"You must now choose whether to create the full hypercube or a random latin hypercube subset of
+configurations.  The full hypercube option will generate every possible variation of all parameter
+sets provided, which, depending on the paramters you select may grow restrictively large.  The
+random latin hypercube option will create a reduced subset such that only one parameter value will
+be used for each hyperplane in the hypercube."
   while true; do
     echo -n "Do you wish to only generate a random latin hypercube subset of configurations? (select ${BOLD}${YELLOW}y${NORMAL}es or ${BOLD}${YELLOW}n${NORMAL}o)> "
     read -s -n 1 answer
@@ -580,10 +582,11 @@ fi
 
 if [ "$short" = "undefined" ]; then
   short=1
-  echo "Depending on the number of variable parameters in the hypercube the full path and name of generated
-  configuration files may become excessively long.  To mitigate this effect it is possible to use
-  short forms of parameter names in configuration file paths.  This option is recommended for
-  hypercubes containing 4 or more variable parameters."
+  echo \
+"Depending on the number of variable parameters in the hypercube the full path and name of generated
+configuration files may become excessively long.  To mitigate this effect it is possible to use
+short forms of parameter names in configuration file paths.  This option is recommended for
+hypercubes containing 4 or more variable parameters."
   while true; do
     echo -n "Do you wish to use short parameter names? (select ${BOLD}${YELLOW}y${NORMAL}es or ${BOLD}${YELLOW}n${NORMAL}o)> "
     read -s -n 1 answer
@@ -692,7 +695,8 @@ for index in ${!param_name[*]}; do
     echo "Description: ${MAGENTA}${help}${NORMAL}"
 
     while true; do
-      echo -n "Please select \
+      echo -n \
+"Please select \
 ${BOLD}${YELLOW}d${NORMAL}efault, \
 ${BOLD}${YELLOW}c${NORMAL}ustom, \
 ${BOLD}${YELLOW}r${NORMAL}ange, \
@@ -844,24 +848,36 @@ fi
 
 # if a latin hypercube was requested then determine how many points to use
 if [ $latin -eq 1 ]; then
-  echo "Based on the parameters you have choosen the latin hypercube will create $number_of_points configurations (the
-minimum number of required in order to have all parameter values used at least once).  If you wish
-to proceed with $number_of_points hit enter, otherwise provide the number of configurations you wish
-to generate."
-  while true; do
-    echo -n "Number of configuration files to generate? (default: ${BLUE}$number_of_points${NORMAL})"
-    read -e -r -p "> " answer
-
-    if [ "$answer" = "d" ] || [ -z "$answer" ]; then
-      # make empty responses the default
-      break;
-    elif [[ $answer =~ $non_zero_number_pattern ]]; then
-      number_of_points=$answer
-      break;
+  number_of_points="undefined"
+  if [ -n "${param_predefined[number_of_points]}" ]; then
+    answer=${param_predefined[number_of_points]}
+    if [[ ! $answer =~ $non_negative_integer_pattern ]]; then
+      echo "${RED}ERROR (in config file): must be a non-zero integer${NORMAL}"
     else
-      echo "${RED}ERROR: must be a non-zero number (or simply hit enter if you wish to use the default)${NORMAL}"
+      number_of_points=$answer
     fi
-  done
+  fi
+
+  if [ "$number_of_points" = "undefined" ]; then
+    echo \
+"Based on the parameters you have choosen the latin hypercube will create $number_of_points configurations
+(the minimum number of required in order to have all parameter values used at least once).  If you wish to
+proceed with $number_of_points hit enter, otherwise provide the number of configurations you wish to generate."
+    while true; do
+      echo -n "Number of configuration files to generate? (default: ${BLUE}$number_of_points${NORMAL})"
+      read -e -r -p "> " answer
+
+      if [ "$answer" = "d" ] || [ -z "$answer" ]; then
+        # make empty responses the default
+        break;
+      elif [[ $answer =~ $non_negative_integer_pattern ]]; then
+        number_of_points=$answer
+        break;
+      else
+        echo "${RED}ERROR: must be a non-zero integer (or simply hit enter if you wish to use the default)${NORMAL}"
+      fi
+    done
+  fi
 fi
 
 # create directory structure
