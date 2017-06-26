@@ -1,9 +1,9 @@
 directory:lh3
 latin:y
 latin_seed:1
-short:y
+short:n
 seed:d
-target_prevalence:r 0.1 0.9 0.05
+target_prevalence:r 0.1 0.5 0.1
 towns:r 100 300 20
 town_size_min:c 400
 town_size_max:d
