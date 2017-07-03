@@ -15,6 +15,7 @@ declare -A param_predefined
 if [ $# -ge 1 ]; then
   config_file=$1
   while read line; do
+    line=$(echo $line | sed 's/#.*//') # remove comments
     name=${line%:*}
     value=${line##*:}
     if [ -n "$name" ]; then param_predefined[$name]=$value; fi
