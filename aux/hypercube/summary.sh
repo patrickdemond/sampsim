@@ -12,7 +12,7 @@ for summary in $( ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f | gre
   # print the title
   if [ "arc_epi-s1" = "$sampler" ]; then
     link=$( echo $summary | sed -e 's#/[^/]\+_sample.*##' )
-    params=( $( readlink $link | sed -e 's#\.\./populations/##' | sed -e 's#\/v\?# #g' ) )
+    params=( $( readlink $link | sed -e 's#\.\./populations/##' | sed -e 's#\/v\?# #g' | sed -e 's#,#;#g' ) )
     params+=( $( ls $link/*.conf | sed -e 's#.*v\(.*\)\.conf#\1#' ) )
     pindex=0
 
@@ -40,8 +40,6 @@ for summary in $( ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f | gre
       echo -n ','
     done
   done
-  echo -n ${params[$pindex]},
-  ((pindex++))
-  echo ${params[$pindex]}
-  ((pindex++))
+  echo ${params[$pindex]},${params[$pindex+1]},${params[$pindex+14]},${params[$pindex+15]}
+  ((pindex+=2))
 done
