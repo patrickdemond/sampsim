@@ -3,24 +3,24 @@
 # Parses the simulation and outputs the mean and stdev prevalence results for each population and sample type.
 # Run this script after building the multitown simulation.
 
-for summary in $( ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f | grep '[^/]\\\\+_sample/.*07\\\\.txt$'#" | /bin/bash ); do
+for summary in $( ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f | grep '[^/]\\\\+_sample/.*07\\\\.txt$' | sort#" | /bin/bash ); do
   population=$( echo $summary | sed -e "s#links/\([0-9]\+\)/.*#\1#" )
   sampler=$( echo $summary |
                sed -e "s#links/[0-9]\+/\(.*\)_sample/\(\(s[0-9]\)\?\).*#\1-\2#" |
                sed -e "s#\(.*\)\-\$#\1#" )
 
   # print the title
-  if [ "circle_gps" = "$sampler" ]; then
+  if [ "arc_epi-s1" = "$sampler" ]; then
     link=$( echo $summary | sed -e 's#/[^/]\+_sample.*##' )
     params=( $( readlink $link | sed -e 's#\.\./populations/##' | sed -e 's#\/v\?# #g' ) )
     params+=( $( ls $link/*.conf | sed -e 's#.*v\(.*\)\.conf#\1#' ) )
     pindex=0
 
     echo
-    echo ,,,\"sample $population\"
-    echo ',,,"unweighted",,,,,,"weighted"'
-    echo ',true,,7,,,30,,,7,,,30'
-    echo ',mean,,mean,stdev,,mean,stdev,,mean,stdev,,mean,stdev'
+    echo ,,\"sample $population\"
+    echo ',,"unweighted",,,,,,"weighted"'
+    echo ',true,7,,,30,,,7,,,30'
+    echo ',mean,mean,stdev,,mean,stdev,,mean,stdev,,mean,stdev'
   fi
   echo -n $sampler,
 
