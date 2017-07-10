@@ -127,7 +127,7 @@ else
   # generate populations using serial farming
   # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   RUNTIME=10m
-  MEMORY=4g
+  MEMORY=8g
   echo "Launching ${num_conf_files} jobs using sqsub"
 
   for index in ${!conf_files[*]}; do

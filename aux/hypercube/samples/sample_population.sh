@@ -90,9 +90,9 @@ for population in ../links/*/*.conf; do
         command="${!sample_dir} -S --seed $seed -c $sample_config_file ${population/conf/json} ${population/v[a-z0-9.]*\.conf/$name}"
         which sqsub > /dev/null
         if [ $? -eq 0 ]; then
-          time=120m
+          time=4h
           if [ "circle_gps" == $sampler ] || [ "square_gps" == $sampler ]; then
-            if [[ $sample_config_file == *"07"* ]]; then time="8h"; else time="24h"; fi
+            if [[ $sample_config_file == *"07"* ]]; then time="16h"; else time="48h"; fi
           fi
 
           sqsub -r $time --mpp=8g -q serial -o $log_file $command && touch $done_file
