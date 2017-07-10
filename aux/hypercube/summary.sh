@@ -3,9 +3,11 @@
 # Parses the simulation and outputs the mean and stdev prevalence results for each population and sample type.
 # Run this script after building the multitown simulation.
 
-for summary in $( ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f | grep '[^/]\\\\+_sample/.*\\\\.07\\\\.txt$'#" | /bin/bash ); do
+for summary in $( ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f | grep '[^/]\\\\+_sample/.*07\\\\.txt$'#" | /bin/bash ); do
   population=$( echo $summary | sed -e "s#links/\([0-9]\+\)/.*#\1#" )
-  sampler=$( echo $summary | sed -e "s#links/[0-9]\+/\(.*\)_sample/\(\(s[0-9]\)\?\).*#\1\2#" )
+  sampler=$( echo $summary |
+               sed -e "s#links/[0-9]\+/\(.*\)_sample/\(\(s[0-9]\)\?\).*#\1-\2#" |
+               sed -e "s#\(.*\)\-\$#\1#" )
 
   # print the title
   if [ "circle_gps" = "$sampler" ]; then
@@ -27,11 +29,11 @@ for summary in $( ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f | gre
 
   for prevalence in "prevalence" "weighted prevalence"; do
     for size in "07" "30"; do
-      sum=${sum/07/$size}
+      sum=${summary/07/$size}
       if [ -e $sum ]; then
         grep "^sampled child count:" $sum |
           sed -e "s#.*($prevalence \([^ ]\+\) (\([^)]\+\))).*#\1,\2#" |
-         tr '\n' ','
+          tr '\n' ','
       else
         echo -n 'na,na,'
       fi
