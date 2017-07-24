@@ -35,7 +35,8 @@ TEST( test_sample_strip_epi )
   create_test_population( population );
 
   stringstream temp_population_filename;
-  temp_population_filename << "/tmp/sampsim" << sampsim::utilities::random( 1000000, 9999999 );
+  unsigned int random1 = sampsim::utilities::random( 1000000, 9999999 );
+  temp_population_filename << "/tmp/sampsim" << random1;
   population->write( temp_population_filename.str(), false );
    
   cout << "Testing reading population from memory..." << endl;
@@ -43,7 +44,7 @@ TEST( test_sample_strip_epi )
   CHECK( sample1->set_population( population ) );
 
   cout << "Testing reading population from disk..." << endl;
-  temp_population_filename << ".json";
+  temp_population_filename << ".json.tar.gz";
   sampsim::sample::strip_epi *sample2 = new sampsim::sample::strip_epi;
   CHECK( sample2->set_population( temp_population_filename.str() ) );
 
@@ -57,20 +58,29 @@ TEST( test_sample_strip_epi )
   sample1->generate();
 
   stringstream temp_sample_filename;
-  temp_sample_filename << "/tmp/sampsim" << sampsim::utilities::random( 1000000, 9999999 );
+  unsigned int random2 = sampsim::utilities::random( 1000000, 9999999 );
+  temp_sample_filename << "/tmp/sampsim" << random2;
 
   cout << "Testing writing sample to disk in csv format..." << endl;
   try { sample1->write( temp_sample_filename.str(), true ); }
   catch(...) { CHECK( false ); }
   stringstream command;
+  command << "tar -zxvf " << temp_sample_filename.str() + ".individual.csv.tar.gz -C /";
+  sampsim::utilities::exec( command.str() );
   vector<string> parts;
   string individual_filename = temp_sample_filename.str() + ".individual.csv";
+  command.str( "" );
+  command.clear();
   command << "wc -l " << individual_filename;
   parts = sampsim::utilities::explode( sampsim::utilities::exec( command.str() ), " " );
   CHECK( 100 < atoi( parts[0].c_str() ) ); // at least 100 lines
   command.str( "" );
   command.clear();
+  command << "tar -zxvf " << temp_sample_filename.str() + ".household.csv.tar.gz -C /";
+  sampsim::utilities::exec( command.str() );
   string household_filename = temp_sample_filename.str() + ".household.csv";
+  command.str( "" );
+  command.clear();
   command << "wc -l " << household_filename;
   parts = sampsim::utilities::explode( sampsim::utilities::exec( command.str() ), " " );
   CHECK( 100 < atoi( parts[0].c_str() ) ); // at least 100 lines
@@ -78,7 +88,6 @@ TEST( test_sample_strip_epi )
   cout << "Testing writing sample to disk in json format..." << endl;
   try { sample1->write( temp_sample_filename.str(), false ); }
   catch(...) { CHECK( false ); }
-  temp_sample_filename << ".json";
 
   for( double start_angle = -M_PI; start_angle <= M_PI; start_angle += M_PI / 9 )
   {
@@ -337,10 +346,10 @@ TEST( test_sample_strip_epi )
   CHECK_EQUAL( sample_size, household_count );
 
   // clean up
-  remove( temp_population_filename.str().c_str() );
-  remove( temp_sample_filename.str().c_str() );
-  remove( individual_filename.c_str() );
-  remove( household_filename.c_str() );
+  command.str( "" );
+  command.clear();
+  command << "rm " << "/tmp/sampsim" << random1 << "* " << "/tmp/sampsim" << random2 << "*";
+  sampsim::utilities::exec( command.str() );
   sampsim::utilities::safe_delete( population );
   sampsim::utilities::safe_delete( sample1 );
   sampsim::utilities::safe_delete( sample2 );

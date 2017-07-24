@@ -8,6 +8,8 @@
 
 #include "sample.h"
 
+#include "archive.h"
+#include "archive_entry.h"
 #include "building.h"
 #include "building_tree.h"
 #include "household.h"
@@ -348,41 +350,17 @@ namespace sample
 
     if( flat_file )
     {
-      std::ofstream household_stream( filename + ".household.csv", std::ofstream::out );
-      if( !household_stream.is_open() )
-      {
-        std::stringstream stream;
-        stream << "Unable to open \"" << filename << ".household.csv\" for writing";
-        throw std::runtime_error( stream.str() );
-      }
-
-      std::ofstream individual_stream( filename + ".individual.csv", std::ofstream::out );
-      if( !individual_stream.is_open() )
-      {
-        std::stringstream stream;
-        stream << "Unable to open \"" << filename << ".individual.csv\" for writing";
-        throw std::runtime_error( stream.str() );
-      }
-
+      std::stringstream household_stream, individual_stream;
       this->to_csv( household_stream, individual_stream );
-      household_stream.close();
-      individual_stream.close();
+      utilities::write_gzip( filename + ".household.csv", household_stream.str() );
+      utilities::write_gzip( filename + ".individual.csv", individual_stream.str() );
     }
     else
     {
-      std::ofstream json_stream( filename + ".json", std::ofstream::out );
-      if( !json_stream.is_open() )
-      {
-        std::stringstream stream;
-        stream << "Unable to open \"" << filename << ".json\" for writing";
-        throw std::runtime_error( stream.str() );
-      }
-
       Json::Value root;
       this->to_json( root );
       Json::StyledWriter writer;
-      json_stream << writer.write( root );
-      json_stream.close();
+      utilities::write_gzip( filename + ".json", writer.write( root ) );
     }
 
     utilities::output( "finished writing %s sample", this->get_type().c_str() );

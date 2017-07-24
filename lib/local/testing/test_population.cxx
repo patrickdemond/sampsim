@@ -146,20 +146,29 @@ TEST( test_population )
   CHECK( 0 != sum->get_count( CHILD, FEMALE, sampsim::DISEASED ) );
 
   stringstream temp_filename;
-  temp_filename << "/tmp/sampsim" << sampsim::utilities::random( 1000000, 9999999 );
+  unsigned int random1 = sampsim::utilities::random( 1000000, 9999999 );
+  temp_filename << "/tmp/sampsim" << random1;
 
   cout << "Testing writing population to disk in csv format..." << endl;
   try { population->write( temp_filename.str(), true ); }
   catch(...) { CHECK( false ); }
   stringstream command;
+  command << "tar -zxvf " << temp_filename.str() + ".individual.csv.tar.gz -C /";
+  sampsim::utilities::exec( command.str() );
   vector<string> parts;
   string individual_filename = temp_filename.str() + ".individual.csv";
+  command.str( "" );
+  command.clear();
   command << "wc -l " << individual_filename;
   parts = sampsim::utilities::explode( sampsim::utilities::exec( command.str() ), " " );
   CHECK( 5000 < atoi( parts[0].c_str() ) ); // at least 10000 lines
   command.str( "" );
   command.clear();
+  command << "tar -zxvf " << temp_filename.str() + ".household.csv.tar.gz -C /";
+  sampsim::utilities::exec( command.str() );
   string household_filename = temp_filename.str() + ".household.csv";
+  command.str( "" );
+  command.clear();
   command << "wc -l " << household_filename;
   parts = sampsim::utilities::explode( sampsim::utilities::exec( command.str() ), " " );
   CHECK( 1000 < atoi( parts[0].c_str() ) ); // at least 2500 lines
@@ -169,7 +178,7 @@ TEST( test_population )
   catch(...) { CHECK( false ); }
 
   cout << "Testing reading population from disk..." << endl;
-  temp_filename << ".json";
+  temp_filename << ".json.tar.gz";
   sampsim::population *population_read = new sampsim::population;
   CHECK( population_read->read( temp_filename.str() ) );
 
@@ -196,9 +205,10 @@ TEST( test_population )
   CHECK_EQUAL( sum->get_count( CHILD, FEMALE, HEALTHY ), read_sum->get_count( CHILD, FEMALE, HEALTHY ) );
 
   // clean up
-  remove( temp_filename.str().c_str() );
-  remove( individual_filename.c_str() );
-  remove( household_filename.c_str() );
+  command.str( "" );
+  command.clear();
+  command << "rm " << "/tmp/sampsim" << random1 << "*";
+  sampsim::utilities::exec( command.str() );
   sampsim::utilities::safe_delete( population );
   sampsim::utilities::safe_delete( population_read );
 }

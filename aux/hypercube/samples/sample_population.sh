@@ -32,7 +32,7 @@ strip_epi_sample="$build_dir/strip_epi_sample"
 # determine whether to replace existing files
 replace=0
 while true; do
-  echo -n "Do you wish to replace existing data (.json) files? (select ${BOLD}${YELLOW}y${NORMAL}es or ${BOLD}${YELLOW}n${NORMAL}o)> "
+  echo -n "Do you wish to replace existing data files? (select ${BOLD}${YELLOW}y${NORMAL}es or ${BOLD}${YELLOW}n${NORMAL}o)> "
   read -s -n 1 answer
   echo
   if [ "$answer" = "y" ]; then
@@ -49,7 +49,7 @@ done
 # determine the seed
 read -p "What seed would you like to use? (any number or string is permitted)> " seed
 
-# delete all existing csv, json, log, done and png files if we are replacing them
+# delete all existing sample files if we are replacing them
 if [ $replace -eq 1 ]; then
   rm -f ../links/*/*_sample/*
 fi
@@ -87,7 +87,7 @@ for population in ../links/*/*.conf; do
       if [ -f $done_file ]; then
         echo "  ${BOLD}$sampler${NORMAL} sample (sample size $size) ${BLUE}[skipping]${NORMAL}"
       else
-        command="${!sample_dir} -S --seed $seed -c $sample_config_file ${population/conf/json} ${population/v[a-z0-9.]*\.conf/$name}"
+        command="${!sample_dir} -S --seed $seed -c $sample_config_file ${population/conf/json.tar.gz} ${population/v[a-z0-9.]*\.conf/$name}"
         which sqsub > /dev/null
         if [ $? -eq 0 ]; then
           time=4h

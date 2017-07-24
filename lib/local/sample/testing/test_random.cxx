@@ -34,7 +34,8 @@ TEST( test_sample_random )
   create_test_population( population, 250, 250, 2500 );
 
   stringstream temp_population_filename;
-  temp_population_filename << "/tmp/sampsim" << sampsim::utilities::random( 1000000, 9999999 );
+  unsigned int random1 = sampsim::utilities::random( 1000000, 9999999 );
+  temp_population_filename << "/tmp/sampsim" << random1;
   population->write( temp_population_filename.str(), false );
    
   cout << "Testing reading population from memory..." << endl;
@@ -42,7 +43,7 @@ TEST( test_sample_random )
   CHECK( sample1->set_population( population ) );
 
   cout << "Testing reading population from disk..." << endl;
-  temp_population_filename << ".json";
+  temp_population_filename << ".json.tar.gz";
   sampsim::sample::random *sample2 = new sampsim::sample::random;
   CHECK( sample2->set_population( temp_population_filename.str() ) );
 
@@ -76,7 +77,9 @@ TEST( test_sample_random )
   CHECK( ( sample1->get_number_of_towns() * sample1->get_size() ) <= sum->get_count() );
 
   // clean up
-  remove( temp_population_filename.str().c_str() );
+  stringstream command;
+  command << "rm " << "/tmp/sampsim" << random1 << "*";
+  sampsim::utilities::exec( command.str() );
   sampsim::utilities::safe_delete( population );
   sampsim::utilities::safe_delete( sample1 );
   sampsim::utilities::safe_delete( sample2 );

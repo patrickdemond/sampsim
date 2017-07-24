@@ -29,6 +29,9 @@
 
 #define GNUPLOT_AVAILABLE @GNUPLOT_AVAILABLE@
 
+#include "archive.h"
+#include "archive_entry.h"
+
 #include <algorithm>
 #include <ctime>
 #include <cctype>
@@ -347,6 +350,116 @@ namespace sampsim
     }
 
     /**
+     * Reads the contents of a gzip file into a string
+     */
+    inline static std::string read_gzip( std::string filename )
+    {
+      std::stringstream stream;
+      bool error = false;
+      struct archive *archive = archive_read_new();
+      struct archive_entry *entry;
+      std::string data;
+
+      FILE *fp = fopen( filename.c_str(), "r" );
+      if( NULL == fp )
+      {
+        stream << "Unable to open file \"" << filename << "\"";
+        error = true;
+      }
+
+      if( !error )
+      {
+        archive_read_support_format_tar( archive );
+        archive_read_support_filter_gzip( archive );
+
+        if( ARCHIVE_OK != archive_read_open_FILE( archive, fp ) )
+        {
+          stream << "Cannot read gzip file \"" << filename << "\", file is not in gzip format";
+          error = true;
+        }
+
+        if( !error )
+        {
+          if( ARCHIVE_OK != archive_read_next_header( archive, &entry ) )
+          {
+            stream << "Archived file \"" << filename << "\", is empty";
+            error = true;
+          }
+          else
+          {
+            int size = archive_entry_size( entry );
+            data.resize( size );
+            if( ARCHIVE_OK > archive_read_data( archive, &data[0], size ) )
+            {
+              stream << "Error while reading archive data from \"" << filename << "\"";
+              error = true;
+            }
+          }
+
+          if( ARCHIVE_OK != archive_read_free( archive ) )
+            std::cout << "WARNING: There was a problem freeing archive memory" << std::endl;
+        }
+
+        fclose( fp );
+      }
+
+      if( error ) throw stream.str();
+
+      return data;
+    }
+
+    /**
+     * Writes the contents of a string into a gzip file
+     */
+    inline static void write_gzip( std::string filename, std::string data )
+    {
+      std::string tar_filename = filename + ".tar.gz";
+      struct archive *archive = archive_write_new();
+      struct archive_entry *entry;
+      time_t timer;
+      time( &timer );
+
+      archive_write_add_filter_gzip( archive );
+      archive_write_set_format_pax_restricted( archive );
+      if( ARCHIVE_OK != archive_write_open_filename( archive, tar_filename.c_str() ) )
+      {
+        std::stringstream stream;
+        stream << "Unable to open \"" << tar_filename << "\" for writing" << std::endl;
+        throw std::runtime_error( stream.str() );
+      }
+
+      entry = archive_entry_new();
+      archive_entry_set_pathname( entry, filename.c_str() );
+      archive_entry_set_size( entry, data.size() );
+      archive_entry_set_filetype( entry, AE_IFREG );
+      archive_entry_set_atime( entry, timer, 0 ); 
+      archive_entry_set_ctime( entry, timer, 0 ); 
+      archive_entry_set_mtime( entry, timer, 0 );
+      archive_entry_set_perm( entry, 0644 ); 
+
+      int result = archive_write_header( archive, entry );
+      if( ARCHIVE_OK != result )
+      {
+        std::stringstream stream;
+        stream << "Unable to write archive header to \"" << tar_filename
+               << "\" (error code " << result << ")" << std::endl;
+        throw std::runtime_error( stream.str() );
+      }
+
+      if( 0 > archive_write_data( archive, data.c_str(), data.size() ) )
+      {
+        std::stringstream stream;
+        stream << "Unable to write archive data to \"" << tar_filename << "\"" << std::endl;
+        throw std::runtime_error( stream.str() );
+      }
+
+      archive_entry_free( entry );
+      archive_write_close( archive );
+      if( ARCHIVE_OK != archive_write_free( archive ) )
+        std::cout << "WARNING: There was a problem freeing archive memory" << std::endl;
+    }
+
+    /**
      * Divides a string by the provided separator, returning the results as a vector of strings
      */
     inline static std::vector< std::string > explode( std::string str, std::string separator )
@@ -437,17 +550,17 @@ namespace sampsim
      * The random engine used by the random functions
      */
     static std::mt19937 random_engine;
-    
+
     /**
      * A struct instance used to safely delete memory
      */
     static safe_delete_type safe_delete;
-    
+
     /**
      * Whether to output additional messages during execution
      */
     static bool verbose;
-    
+
     /**
      * Whether to prevent all output
      */

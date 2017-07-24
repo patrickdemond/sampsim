@@ -1,3 +1,4 @@
+ADD_SUBDIRECTORY( libarchive )
 ADD_SUBDIRECTORY( jburkardt )
 ADD_SUBDIRECTORY( local )
 IF( BUILD_TESTING )

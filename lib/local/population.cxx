@@ -8,6 +8,8 @@
 
 #include "population.h"
 
+#include "archive.h"
+#include "archive_entry.h"
 #include "building.h"
 #include "household.h"
 #include "individual.h"
@@ -104,7 +106,7 @@ namespace sampsim
       t->set_number_of_tiles_x( this->number_of_tiles_x );
       t->set_number_of_tiles_y( this->number_of_tiles_y );
       t->set_mean_household_population( this->mean_household_population );
-      
+
       // determine whether to add a river to this town
       bool has_river = 0 < this->river_width && utilities::random() < this->river_probability;
       t->set_has_river( has_river );
@@ -192,28 +194,28 @@ namespace sampsim
   {
     utilities::output( "reading population from %s", filename.c_str() );
 
-    std::ifstream stream( filename, std::ifstream::in );
-
-    Json::Value root;
-    Json::Reader reader;
-    bool success = reader.parse( stream, root, false );
-
-    if( !success )
+    bool success = true;
+    try
     {
-      std::cout << "ERROR: failed to parse population file \"" << filename << "\"" << std::endl
-                << reader.getFormattedErrorMessages();
-    }
-    else try
-    {
-      this->from_json( root );
+      Json::Value root;
+      Json::Reader reader;
+      success = reader.parse( utilities::read_gzip( filename ), root, false );
+
+      if( !success )
+      {
+        std::cout << "ERROR: failed to parse file \"" << filename << "\"" << std::endl
+                  << reader.getFormattedErrorMessages();
+      }
+      else
+      {
+        this->from_json( root );
+      }
     }
     catch( std::runtime_error &e )
     {
-      std::cout << e.what() << std::endl;
+      std::cout << "ERROR: " << e.what() << std::endl;
       success = false;
     }
-
-    stream.close();
 
     return success;
   }
@@ -225,40 +227,17 @@ namespace sampsim
 
     if( flat_file )
     {
-      std::ofstream household_stream( filename + ".household.csv", std::ofstream::out );
-      if( !household_stream.is_open() )
-      {
-        std::stringstream stream;
-        stream << "Unable to open \"" << filename << ".household.csv\" for writing";
-        throw std::runtime_error( stream.str() );
-      }
-
-      std::ofstream individual_stream( filename + ".individual.csv", std::ofstream::out );
-      if( !individual_stream.is_open() )
-      {
-        std::stringstream stream;
-        stream << "Unable to open \"" << filename << ".individual.csv\" for writing";
-        throw std::runtime_error( stream.str() );
-      }
-
+      std::stringstream household_stream, individual_stream;
       this->to_csv( household_stream, individual_stream );
-      household_stream.close();
-      individual_stream.close();
+      utilities::write_gzip( filename + ".household.csv", household_stream.str() );
+      utilities::write_gzip( filename + ".individual.csv", individual_stream.str() );
     }
     else
     {
-      std::ofstream json_stream( filename + ".json", std::ofstream::out );
-      if( !json_stream.is_open() )
-      {
-        std::stringstream stream;
-        stream << "Unable to open \"" << filename << ".json\" for writing";
-        throw std::runtime_error( stream.str() );
-      }
       Json::Value root;
       this->to_json( root );
       Json::StyledWriter writer;
-      json_stream << writer.write( root );
-      json_stream.close();
+      utilities::write_gzip( filename + ".json", writer.write( root ) );
     }
 
     utilities::output( "finished writing population" );

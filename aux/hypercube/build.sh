@@ -132,13 +132,13 @@ else
 
   for index in ${!conf_files[*]}; do
     name=${conf_files[$index]%.conf}
-    if ! [[ -f "$name.json" ]] || ! [[ -s "$name.json" ]]; then
+    if ! [[ -f "$name.json.tar.gz" ]] || ! [[ -s "$name.json.tar.gz" ]]; then
       sqsub -r $RUNTIME --mpp=$MEMORY -q serial -o ${name}.log $generate -s -c ${name}.conf $name
     else
-      echo Skipping $name since .json file already exists
+      echo Skipping $name since .json.tar.gz file already exists
     fi
   done
   echo "All jobs scheduled."
   echo "Use sqjobs to show jobs in progress or use the following command:"
-  echo '  echo $(find|grep "\.json"|wc -l) of $(find|grep "\.conf"|wc -l)'
+  echo '  echo $(find|grep "\.json.tar.gz"|wc -l) of $(find|grep "\.conf"|wc -l)'
 fi
