@@ -3,11 +3,14 @@ SET( SAMPSIM_LIB_NAME "${PROJECT_NAME}" )
 # Find required packages
 FIND_PACKAGE( JSONCpp REQUIRED )
 
-IF( GNUPLOT_FOUND )
-  SET( GNUPLOT_AVAILABLE "true" )
-ELSE( GNUPLOT_FOUND )
-  SET( GNUPLOT_AVAILABLE "false" )
-ENDIF( GNUPLOT_FOUND )
+# NOTE: gnuplot is currently disabled because this feature is not full implemented
+#IF( GNUPLOT_FOUND )
+#  SET( GNUPLOT_AVAILABLE "true" )
+#ELSE( GNUPLOT_FOUND )
+#  SET( GNUPLOT_AVAILABLE "false" )
+#ENDIF( GNUPLOT_FOUND )
+
+SET( GNUPLOT_AVAILABLE "false" )
 
 # Configure the utitlities header
 CONFIGURE_FILE( utilities.h.in

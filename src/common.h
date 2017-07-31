@@ -24,6 +24,8 @@ std::string gnuplot(
   int town_index,
   std::string sample_name = "" )
 {
+  if( GNUPLOT_AVAILABLE ) return "";
+
   bool multitown = 0 <= town_index;
   if( !multitown ) town_index = 0; // there is only one town so its index is 0
   sampsim::population *population = town->get_population();
@@ -114,7 +116,6 @@ void setup_sample( sampsim::options &opts )
   opts.add_flag( 's', "summary_file", "Whether to output summary data of the sample" );
   opts.add_flag( 'S', "summary_file_only",
     "Whether to output summary data of the sample only, with no data output" );
-  opts.add_flag( 'd', "distinguish", "Write separate output files for each sample" );
   if( GNUPLOT_AVAILABLE ) opts.add_flag( 'p', "plot", "Plot all samples (will create a flat-file)" );
   opts.add_flag( 'v', "verbose", "Be verbose when generating sample" );
   opts.add_flag( 'q', "quiet", "Be quiet when generating sample" );
@@ -141,7 +142,6 @@ void process_sample( sampsim::options &opts, sampsim::sample::sized_sample *samp
   bool summary_only = opts.get_flag( "summary_file_only" );
   if( summary_only ) summary = true;
   bool plot = GNUPLOT_AVAILABLE ? opts.get_flag( "plot" ) : false;
-  bool distinguish = opts.get_flag( "distinguish" );
 
   std::string population_filename = opts.get_input( "population_file" );
   std::string output_filename = opts.get_input( "output_file" );
@@ -172,68 +172,48 @@ void process_sample( sampsim::options &opts, sampsim::sample::sized_sample *samp
     if( summary ) sample->write_summary( output_filename );
 
     // create a flat file if a flat file or plot was requested
-    if( !summary_only && ( flat || plot ) )
+    if( !summary_only && ( flat || plot ) ) sample->write( output_filename, true );
+      
+    /*
+    NOTE: plotting is currently disabled
+
+    if( plot )
     {
       sampsim::population *population = sample->get_population();
       unsigned int number_of_towns = population->get_number_of_towns();
-      if( sample->get_number_of_towns() > number_of_towns )
-      {
-        std::cout << "ERROR: Trying to sample " << sample->get_number_of_towns()
-                  << " towns but the population only has " << number_of_towns
-                  << " towns in total." << std::endl;
-      }
-
       int town_width = floor( log10( number_of_towns ) ) + 1;
       unsigned int number_of_samples = sample->get_number_of_samples();
-      int sample_width = floor( log10( number_of_samples ) ) + 1;
 
       std::stringstream stream;
       for( unsigned int s = 1; s <= number_of_samples; s++ )
       {
-        // write the flat file for every sample if we are distinguishing, or the first if we aren't
-        if( ( distinguish && 1 < number_of_samples ) || 1 == s )
+        // plot the flat file
+        unsigned int index = 0;
+        for( auto it = population->get_town_list_cbegin();
+             it != population->get_town_list_cend();
+             ++it, ++index )
         {
-          // create the sample filename and write the flat file
+          sampsim::town *town = *it;
+          std::string command = 1 < number_of_towns
+                              ? gnuplot( town, population_filename, index, sample_filename )
+                              : gnuplot( town, population_filename, sample_filename );
+          std::string result = sampsim::utilities::exec( command );
+
+          // create the image filename and create the plot file
           stream.str( "" );
-          stream << output_filename;
-          if( distinguish && 1 < number_of_samples )
-          {
-            stream << ".s" << std::setw( sample_width ) << std::setfill( '0' ) << s;
-            sample->set_write_sample_number( s );
-          }
-          std::string sample_filename = stream.str();
-          sample->write( sample_filename, true );
+          stream << sample_filename;
+          if( 1 < number_of_towns )
+            stream << ".t" << std::setw( town_width ) << std::setfill( '0' ) << ( index + 1 )
+                   << ".png";
+          std::string image_filename = stream.str();
 
-          // plot the flat file
-          if( plot )
-          {
-            unsigned int index = 0;
-            for( auto it = population->get_town_list_cbegin();
-                 it != population->get_town_list_cend();
-                 ++it, ++index )
-            {
-              sampsim::town *town = *it;
-              std::string command = 1 < number_of_towns
-                                  ? gnuplot( town, population_filename, index, sample_filename )
-                                  : gnuplot( town, population_filename, sample_filename );
-              std::string result = sampsim::utilities::exec( command );
-
-              // create the image filename and create the plot file
-              stream.str( "" );
-              stream << sample_filename;
-              if( 1 < number_of_towns )
-                stream << ".t" << std::setw( town_width ) << std::setfill( '0' ) << ( index + 1 )
-                       << ".png";
-              std::string image_filename = stream.str();
-
-              stream.str( "" );
-              if( "ERROR" == result ) stream << "warning: failed to create plot";
-              else stream << "creating plot file \"" << image_filename << "\"";
-              sampsim::utilities::output( stream.str() );
-            }
-          }
+          stream.str( "" );
+          if( "ERROR" == result ) stream << "warning: failed to create plot";
+          else stream << "creating plot file \"" << image_filename << "\"";
+          sampsim::utilities::output( stream.str() );
         }
       }
     }
+    */
   }
 }

@@ -409,11 +409,26 @@ namespace sampsim
     }
 
     /**
-     * Writes the contents of a string into a gzip file
+     * Convenience method, see other write_gzip method
      */
     inline static void write_gzip( std::string filename, std::string data )
     {
-      std::string tar_filename = filename + ".tar.gz";
+      std::vector< std::string > filename_list;
+      filename_list.push_back( filename );
+      std::vector< std::string > data_list;
+      data_list.push_back( data );
+      utilities::write_gzip( filename, filename_list, data_list );
+    }
+
+    /**
+     * Writes the contents of strings into a gzip file
+     */
+    inline static void write_gzip(
+      std::string tar_filename,
+      std::vector< std::string > filename_list,
+      std::vector< std::string > data_list )
+    {
+      tar_filename = tar_filename + ".tar.gz";
       struct archive *archive = archive_write_new();
       struct archive_entry *entry;
       time_t timer;
@@ -428,32 +443,43 @@ namespace sampsim
         throw std::runtime_error( stream.str() );
       }
 
-      entry = archive_entry_new();
-      archive_entry_set_pathname( entry, filename.c_str() );
-      archive_entry_set_size( entry, data.size() );
-      archive_entry_set_filetype( entry, AE_IFREG );
-      archive_entry_set_atime( entry, timer, 0 ); 
-      archive_entry_set_ctime( entry, timer, 0 ); 
-      archive_entry_set_mtime( entry, timer, 0 );
-      archive_entry_set_perm( entry, 0644 ); 
-
-      int result = archive_write_header( archive, entry );
-      if( ARCHIVE_OK != result )
+      auto data_it = data_list.cbegin();
+      auto filename_it = filename_list.cbegin();
+      while( filename_it != filename_list.cend() && data_it != data_list.cend() )
       {
-        std::stringstream stream;
-        stream << "Unable to write archive header to \"" << tar_filename
-               << "\" (error code " << result << ")" << std::endl;
-        throw std::runtime_error( stream.str() );
+        std::string filename = *filename_it;
+        std::string data = *data_it;
+        entry = archive_entry_new();
+        archive_entry_set_pathname( entry, filename.c_str() );
+        archive_entry_set_size( entry, data.size() );
+        archive_entry_set_filetype( entry, AE_IFREG );
+        archive_entry_set_atime( entry, timer, 0 );
+        archive_entry_set_ctime( entry, timer, 0 );
+        archive_entry_set_mtime( entry, timer, 0 );
+        archive_entry_set_perm( entry, 0644 );
+
+        int result = archive_write_header( archive, entry );
+        if( ARCHIVE_OK != result )
+        {
+          std::stringstream stream;
+          stream << "Unable to write archive header to \"" << tar_filename
+                 << "\" (error code " << result << ")" << std::endl;
+          throw std::runtime_error( stream.str() );
+        }
+
+        if( 0 > archive_write_data( archive, data.c_str(), data.size() ) )
+        {
+          std::stringstream stream;
+          stream << "Unable to write archive data to \"" << tar_filename << "\"" << std::endl;
+          throw std::runtime_error( stream.str() );
+        }
+
+        archive_entry_free( entry );
+
+        filename_it++;
+        data_it++;
       }
 
-      if( 0 > archive_write_data( archive, data.c_str(), data.size() ) )
-      {
-        std::stringstream stream;
-        stream << "Unable to write archive data to \"" << tar_filename << "\"" << std::endl;
-        throw std::runtime_error( stream.str() );
-      }
-
-      archive_entry_free( entry );
       archive_write_close( archive );
       if( ARCHIVE_OK != archive_write_free( archive ) )
         std::cout << "WARNING: There was a problem freeing archive memory" << std::endl;
@@ -565,11 +591,11 @@ namespace sampsim
      * Whether to prevent all output
      */
     static bool quiet;
-    
+
     /**
-     * A running household count used to identify households in CSV output files
+     * A running (1-based) sample count used to identify which sample is being written to CSV
      */
-    static unsigned int household_index;
+    static unsigned int write_sample_number;
 
     /**
      * A clock used to track execution time
