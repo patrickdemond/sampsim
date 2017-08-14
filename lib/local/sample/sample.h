@@ -164,6 +164,26 @@ namespace sample
     bool get_use_sample_weights() const { return this->use_sample_weights; }
 
     /**
+     * Sets the current sample part to process
+     */
+    void set_sample_part( const unsigned int sample_part );
+
+    /**
+     * Returns the current sample part to process
+     */
+    unsigned int get_sample_part() const { return this->sample_part; }
+
+    /**
+     * Sets the total number of parts to divide all samples into
+     */
+    void set_number_of_sample_parts( const unsigned int number_of_sample_parts );
+
+    /**
+     * Returns the total number of parts to divide all samples into
+     */
+    unsigned int get_number_of_sample_parts() const { return this->number_of_sample_parts; }
+
+    /**
      * Sets the number of times to sample the population
      */
     void set_number_of_samples( const unsigned int number_of_samples );
@@ -293,6 +313,11 @@ namespace sample
     void delete_population();
 
     /**
+     * Recalculates the first and last sample indeces
+     */
+    void recalculate_sample_indeces();
+
+    /**
      * Defines whether this class is reponsible for deleting the memory used by the population object
      */
     bool owns_population;
@@ -313,9 +338,31 @@ namespace sample
     bool use_sample_weights;
 
     /**
+     * The current sample part to process
+     */
+    unsigned int sample_part;
+
+    /**
+     * The total number of parts to divide all samples into
+     */
+    unsigned int number_of_sample_parts;
+
+    /**
      * The number of times to sample the population
      */
     unsigned int number_of_samples;
+
+    /**
+     * The current run's first sample index
+     * (based on sample_part, number_of_sample_parts and number_of_samples)
+     */
+    unsigned int first_sample_index;
+
+    /**
+     * The current run's last sample index
+     * (based on sample_part, number_of_sample_parts and number_of_samples)
+     */
+    unsigned int last_sample_index;
 
     /**
      * The number of towns to sample

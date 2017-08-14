@@ -119,6 +119,11 @@ void setup_sample( sampsim::options &opts )
   if( GNUPLOT_AVAILABLE ) opts.add_flag( 'p', "plot", "Plot all samples (will create a flat-file)" );
   opts.add_flag( 'v', "verbose", "Be verbose when generating sample" );
   opts.add_flag( 'q', "quiet", "Be quiet when generating sample" );
+
+  static const std::string array[] = { "1", "1" };
+  std::vector< std::string > vector( array, array + sizeof( array ) / sizeof( array[0] ) );
+  opts.add_option( "part", vector, "Dividing samples into a sub-batch, where \"part,total\"" );
+
   opts.add_heading( "" );
   opts.add_heading( "Sampling parameters (overrides config files):" );
   opts.add_heading( "" );
@@ -142,78 +147,94 @@ void process_sample( sampsim::options &opts, sampsim::sample::sized_sample *samp
   bool summary_only = opts.get_flag( "summary_file_only" );
   if( summary_only ) summary = true;
   bool plot = GNUPLOT_AVAILABLE ? opts.get_flag( "plot" ) : false;
+  int samples = opts.get_option_as_int( "samples" );
+  std::vector< int > part_list = opts.get_option_as_int_list( "part" );
 
-  std::string population_filename = opts.get_input( "population_file" );
-  std::string output_filename = opts.get_input( "output_file" );
-  sampsim::utilities::verbose = opts.get_flag( "verbose" );
-  sampsim::utilities::quiet = opts.get_flag( "quiet" );
-
-  if( !sampsim::utilities::quiet )
-    std::cout << "sampsim strip_epi_sample version " << sampsim::utilities::get_version() << std::endl;
-
-  sample->set_seed( opts.get_option( "seed" ) );
-  sample->set_use_sample_weights( opts.get_flag( "use_sample_weights" ) );
-  sample->set_age( sampsim::get_age_type( opts.get_option( "age" ) ) );
-  sample->set_one_per_household( opts.get_flag( "one_per_household" ) );
-  sample->set_sex( sampsim::get_sex_type( opts.get_option( "sex" ) ) );
-  sample->set_number_of_samples( opts.get_option_as_int( "samples" ) );
-  sample->set_number_of_towns( opts.get_option_as_int( "towns" ) );
-  sample->set_size( opts.get_option_as_int( "size" ) );
-  sample->set_resample_towns( opts.get_flag( "resample_towns" ) );
-
-  if( sample->set_population( population_filename ) )
+  if( samples < part_list[1] )
   {
-    sample->generate();
+    std::cout << "ERROR: cannot divide " << samples << " samples into " << part_list[1] << " parts" << std::endl;
+  }
+  else if( 0 >= part_list[0] || part_list[0] > part_list[1] )
+  {
+    std::cout << "ERROR: requested part " << part_list[0] << " must be between 1 and the total number of parts ("
+              << part_list[1] << ")" << std::endl;
+  }
+  else
+  {
+    std::string population_filename = opts.get_input( "population_file" );
+    std::string output_filename = opts.get_input( "output_file" );
+    sampsim::utilities::verbose = opts.get_flag( "verbose" );
+    sampsim::utilities::quiet = opts.get_flag( "quiet" );
 
-    // create a json file unless a flat file only was requested
-    if( !flat_only && !summary_only ) sample->write( output_filename, false );
+    if( !sampsim::utilities::quiet )
+      std::cout << "sampsim strip_epi_sample version " << sampsim::utilities::get_version() << std::endl;
 
-    // create a summary file if requested
-    if( summary ) sample->write_summary( output_filename );
+    sample->set_seed( opts.get_option( "seed" ) );
+    sample->set_use_sample_weights( opts.get_flag( "use_sample_weights" ) );
+    sample->set_age( sampsim::get_age_type( opts.get_option( "age" ) ) );
+    sample->set_one_per_household( opts.get_flag( "one_per_household" ) );
+    sample->set_sex( sampsim::get_sex_type( opts.get_option( "sex" ) ) );
+    sample->set_number_of_samples( samples );
+    sample->set_sample_part( part_list.at( 0 ) );
+    sample->set_number_of_sample_parts( part_list.at( 1 ) );
+    sample->set_number_of_towns( opts.get_option_as_int( "towns" ) );
+    sample->set_size( opts.get_option_as_int( "size" ) );
+    sample->set_resample_towns( opts.get_flag( "resample_towns" ) );
 
-    // create a flat file if a flat file or plot was requested
-    if( !summary_only && ( flat || plot ) ) sample->write( output_filename, true );
-      
-    /*
-    NOTE: plotting is currently disabled
-
-    if( plot )
+    if( sample->set_population( population_filename ) )
     {
-      sampsim::population *population = sample->get_population();
-      unsigned int number_of_towns = population->get_number_of_towns();
-      int town_width = floor( log10( number_of_towns ) ) + 1;
-      unsigned int number_of_samples = sample->get_number_of_samples();
+      sample->generate();
 
-      std::stringstream stream;
-      for( unsigned int s = 1; s <= number_of_samples; s++ )
+      // create a json file unless a flat file only was requested
+      if( !flat_only && !summary_only ) sample->write( output_filename, false );
+
+      // create a summary file if requested
+      if( summary ) sample->write_summary( output_filename );
+
+      // create a flat file if a flat file or plot was requested
+      if( !summary_only && ( flat || plot ) ) sample->write( output_filename, true );
+        
+      /*
+      NOTE: plotting is currently disabled
+
+      if( plot )
       {
-        // plot the flat file
-        unsigned int index = 0;
-        for( auto it = population->get_town_list_cbegin();
-             it != population->get_town_list_cend();
-             ++it, ++index )
+        sampsim::population *population = sample->get_population();
+        unsigned int number_of_towns = population->get_number_of_towns();
+        int town_width = floor( log10( number_of_towns ) ) + 1;
+        unsigned int number_of_samples = sample->get_number_of_samples();
+
+        std::stringstream stream;
+        for( unsigned int s = 1; s <= number_of_samples; s++ )
         {
-          sampsim::town *town = *it;
-          std::string command = 1 < number_of_towns
-                              ? gnuplot( town, population_filename, index, sample_filename )
-                              : gnuplot( town, population_filename, sample_filename );
-          std::string result = sampsim::utilities::exec( command );
+          // plot the flat file
+          unsigned int index = 0;
+          for( auto it = population->get_town_list_cbegin();
+               it != population->get_town_list_cend();
+               ++it, ++index )
+          {
+            sampsim::town *town = *it;
+            std::string command = 1 < number_of_towns
+                                ? gnuplot( town, population_filename, index, sample_filename )
+                                : gnuplot( town, population_filename, sample_filename );
+            std::string result = sampsim::utilities::exec( command );
 
-          // create the image filename and create the plot file
-          stream.str( "" );
-          stream << sample_filename;
-          if( 1 < number_of_towns )
-            stream << ".t" << std::setw( town_width ) << std::setfill( '0' ) << ( index + 1 )
-                   << ".png";
-          std::string image_filename = stream.str();
+            // create the image filename and create the plot file
+            stream.str( "" );
+            stream << sample_filename;
+            if( 1 < number_of_towns )
+              stream << ".t" << std::setw( town_width ) << std::setfill( '0' ) << ( index + 1 )
+                     << ".png";
+            std::string image_filename = stream.str();
 
-          stream.str( "" );
-          if( "ERROR" == result ) stream << "warning: failed to create plot";
-          else stream << "creating plot file \"" << image_filename << "\"";
-          sampsim::utilities::output( stream.str() );
+            stream.str( "" );
+            if( "ERROR" == result ) stream << "warning: failed to create plot";
+            else stream << "creating plot file \"" << image_filename << "\"";
+            sampsim::utilities::output( stream.str() );
+          }
         }
       }
+      */
     }
-    */
   }
 }

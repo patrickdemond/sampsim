@@ -33,7 +33,11 @@ namespace sample
   {
     this->seed = "";
     this->use_sample_weights = false;
+    this->sample_part = 1;
+    this->number_of_sample_parts = 1;
     this->number_of_samples = 1;
+    this->first_sample_index = 0;
+    this->last_sample_index = 0;
     this->number_of_towns = 1;
     this->current_size = 0;
     this->current_town_size = 0;
@@ -50,6 +54,8 @@ namespace sample
   void sample::copy( const sample* object )
   {
     this->use_sample_weights = object->use_sample_weights;
+    this->sample_part = object->sample_part;
+    this->number_of_sample_parts = object->number_of_sample_parts;
     this->number_of_samples = object->number_of_samples;
     this->number_of_towns = object->number_of_towns;
     this->current_size = object->current_size;
@@ -137,10 +143,10 @@ namespace sample
     // now sample towns
     unsigned int individual_chunk = floor( total_individuals / this->number_of_towns );
     std::vector< town_list_type > sampled_town_list;
-    for( unsigned int iteration = 0; iteration < this->number_of_samples; iteration++ )
+    for( unsigned int iteration = this->first_sample_index; iteration <= this->last_sample_index; iteration++ )
     {
       town_list_type town_list;
-      if( 0 == iteration || this->resample_towns )
+      if( this->first_sample_index == iteration || this->resample_towns )
       {
         unsigned int select_individual = utilities::random( 1, individual_chunk );
         for( unsigned int town_index = 0; town_index < this->number_of_towns; town_index++ )
@@ -176,18 +182,21 @@ namespace sample
       this->sampled_population_list.end(),
       utilities::safe_delete_type() );
     this->sampled_population_list.clear();
-    this->sampled_population_list.reserve( this->number_of_samples );
+    this->sampled_population_list.reserve( this->last_sample_index - this->first_sample_index + 1 );
 
-    // run selection number_of_samples times
-    for( unsigned int iteration = 0; iteration < this->number_of_samples; iteration++ )
+    // run selection from the first to the last sample index
+    for( unsigned int iteration = this->first_sample_index; iteration <= this->last_sample_index; iteration++ )
     {
-      if( 0 < iteration ) this->reset_for_next_sample();
+      if( this->first_sample_index < iteration ) this->reset_for_next_sample();
 
       bool first = true;
       int household_count = 0;
 
       // sample each town in the sampled town list
-      for( auto it = sampled_town_list[iteration].cbegin(); it != sampled_town_list[iteration].cend(); ++it )
+      int sampled_town_list_index = iteration - this->first_sample_index;
+      for( auto it = sampled_town_list[sampled_town_list_index].cbegin();
+           it != sampled_town_list[sampled_town_list_index].cend();
+           ++it )
       {
         sampsim::town *town = *it;
         if( first ) first = false;
@@ -350,9 +359,9 @@ namespace sample
     {
       int sample_width = floor( log10( this->number_of_samples ) ) + 1;
       std::stringstream stream, household_stream, individual_stream;
-      std::vector< std::string > filename_list;
-      std::vector< std::string > data_list;
-      for( unsigned int s = 1; s <= this->number_of_samples; s++ )
+      std::map< std::string, std::string > files;
+
+      for( unsigned int s = this->first_sample_index + 1; s < this->last_sample_index + 2; s++ )
       {
         stream.str( "" );
         household_stream.str( "" );
@@ -362,12 +371,10 @@ namespace sample
         utilities::write_sample_number = s;
         this->to_csv( household_stream, individual_stream );
 
-        filename_list.push_back( stream.str() + ".household.csv" );
-        data_list.push_back( household_stream.str() );
-        filename_list.push_back( stream.str() + ".individual.csv" );
-        data_list.push_back( individual_stream.str() );
+        files[stream.str() + ".household.csv"] = household_stream.str();
+        files[stream.str() + ".individual.csv"] = individual_stream.str();
       }
-      utilities::write_gzip( filename + ".flat", filename_list, data_list );
+      utilities::write_gzip( filename + ".flat", files, true );
     }
     else
     {
@@ -547,10 +554,36 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void sample::recalculate_sample_indeces()
+  {
+    double fraction = static_cast< double >( this->number_of_samples ) /
+                      static_cast< double >( this->number_of_sample_parts );
+    this->first_sample_index = floor( fraction * ( this->sample_part - 1 ) );
+    this->last_sample_index = floor( fraction * this->sample_part ) - 1;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void sample::set_sample_part( const unsigned int samples )
+  {
+    if( utilities::verbose ) utilities::output( "setting sample_part to %d", samples );
+    this->sample_part = samples;
+    this->recalculate_sample_indeces();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void sample::set_number_of_sample_parts( const unsigned int samples )
+  {
+    if( utilities::verbose ) utilities::output( "setting number_of_sample_parts to %d", samples );
+    this->number_of_sample_parts = samples;
+    this->recalculate_sample_indeces();
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sample::set_number_of_samples( const unsigned int samples )
   {
     if( utilities::verbose ) utilities::output( "setting number_of_samples to %d", samples );
     this->number_of_samples = samples;
+    this->recalculate_sample_indeces();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -671,16 +704,8 @@ namespace sample
   {
     household_stream << this->get_csv_header() << std::endl;
     individual_stream << this->get_csv_header() << std::endl;
-
-    if( utilities::write_sample_number > this->sampled_population_list.size() )
-    {
-      std::stringstream stream;
-      stream << "Told to write sample #" << utilities::write_sample_number << " but only "
-             << this->sampled_population_list.size() << " samples exist.";
-      throw std::runtime_error( stream.str() );
-    }
-
-    this->sampled_population_list[utilities::write_sample_number-1]->to_csv( household_stream, individual_stream );
+    int index = utilities::write_sample_number - this->first_sample_index - 1;
+    this->sampled_population_list[index]->to_csv( household_stream, individual_stream );
   }
 }
 }
