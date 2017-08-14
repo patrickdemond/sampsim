@@ -55,7 +55,7 @@ TEST( test_sample_square_gps )
   try { sample1->write( temp_sample_filename.str(), true ); }
   catch(...) { CHECK( false ); }
   stringstream command;
-  command << "tar -zxvf " << temp_sample_filename.str() + ".individual.csv.tar.gz -C /";
+  command << "tar -zxvf " << temp_sample_filename.str() + ".flat.tar.gz -C /";
   sampsim::utilities::exec( command.str() );
   vector<string> parts;
   string individual_filename = temp_sample_filename.str() + ".individual.csv";
@@ -66,8 +66,6 @@ TEST( test_sample_square_gps )
   CHECK( 100 < atoi( parts[0].c_str() ) ); // at least 100 lines
   command.str( "" );
   command.clear();
-  command << "tar -zxvf " << temp_sample_filename.str() + ".household.csv.tar.gz -C /";
-  sampsim::utilities::exec( command.str() );
   string household_filename = temp_sample_filename.str() + ".household.csv";
   command.str( "" );
   command.clear();

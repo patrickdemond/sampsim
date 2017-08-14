@@ -153,7 +153,7 @@ TEST( test_population )
   try { population->write( temp_filename.str(), true ); }
   catch(...) { CHECK( false ); }
   stringstream command;
-  command << "tar -zxvf " << temp_filename.str() + ".individual.csv.tar.gz -C /";
+  command << "tar -zxvf " << temp_filename.str() + ".flat.tar.gz -C /";
   sampsim::utilities::exec( command.str() );
   vector<string> parts;
   string individual_filename = temp_filename.str() + ".individual.csv";
@@ -164,8 +164,6 @@ TEST( test_population )
   CHECK( 5000 < atoi( parts[0].c_str() ) ); // at least 10000 lines
   command.str( "" );
   command.clear();
-  command << "tar -zxvf " << temp_filename.str() + ".household.csv.tar.gz -C /";
-  sampsim::utilities::exec( command.str() );
   string household_filename = temp_filename.str() + ".household.csv";
   command.str( "" );
   command.clear();
