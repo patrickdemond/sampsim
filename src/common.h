@@ -122,7 +122,7 @@ void setup_sample( sampsim::options &opts )
 
   static const std::string array[] = { "1", "1" };
   std::vector< std::string > vector( array, array + sizeof( array ) / sizeof( array[0] ) );
-  opts.add_option( "part", vector, "Dividing samples into a sub-batch, where \"part,total\"" );
+  opts.add_option( 'p', "part", vector, "Divide samples into sub-batches, where \"part,total\"" );
 
   opts.add_heading( "" );
   opts.add_heading( "Sampling parameters (overrides config files):" );
@@ -150,7 +150,15 @@ void process_sample( sampsim::options &opts, sampsim::sample::sized_sample *samp
   int samples = opts.get_option_as_int( "samples" );
   std::vector< int > part_list = opts.get_option_as_int_list( "part" );
 
-  if( samples < part_list[1] )
+  // can't get a summary if run is done in parts
+  if( 1 < part_list[1] && ( summary || summary_only ) )
+  {
+    std::cout << "ERROR: generating summaries and dividing samples into sub-batches are mutually exclusive. "
+              << "If you wish to get a summary of a sample which was generated using sub-batches run the "
+              << "summary program on the generated sample files."
+              << std::endl;
+  }
+  else if( samples < part_list[1] )
   {
     std::cout << "ERROR: cannot divide " << samples << " samples into " << part_list[1] << " parts" << std::endl;
   }
