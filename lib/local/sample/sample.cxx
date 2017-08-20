@@ -121,6 +121,10 @@ namespace sample
     if( UNKNOWN_SEX_TYPE == this->get_sex() )
       throw std::runtime_error( "Cannot generate sample, sex type is unknown" );
 
+    // modify the seed if we are running the sample in parts
+    if( 1 < this->number_of_sample_parts && 1 < this->sample_part )
+      this->set_seed( std::to_string( atoi( this->get_seed().c_str() ) + this->sample_part - 1 ) );
+
     // get the population's total number of individuals
     this->population->set_sample_mode( false );
     unsigned int total_individuals = this->population->get_number_of_individuals();
