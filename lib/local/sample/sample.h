@@ -108,6 +108,15 @@ namespace sample
     { return this->sampled_population_list.cend(); }
 
     /**
+     * Reads a sample from disk
+     * 
+     * This method opens and reads a text file containing a serialized population object stored in JSON
+     * format.  It returns true if the sample has been successuflly unserialized or false if an
+     * error occurred.
+     */
+    bool read( const std::string filename );
+
+    /**
      * Writes the sample to disk
      * 
      * This method opens and writes a serialization of the selected inviduals in the sample's population.

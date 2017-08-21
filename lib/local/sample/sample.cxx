@@ -20,6 +20,7 @@
 #include "town.h"
 
 #include <fstream>
+#include <json/reader.h>
 #include <json/value.h>
 #include <json/writer.h>
 #include <stdexcept>
@@ -351,6 +352,79 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  bool sample::read( const std::string filename )
+  {
+    utilities::output( "reading %s sample from %s", this->get_type().c_str(), filename.c_str() );
+
+    bool success = true;
+    try
+    {
+      Json::Value sampler_root, population_root;
+      Json::Reader reader;
+      file_list_type files = utilities::read_gzip( filename );
+
+      for( auto it = files.cbegin(); it != files.cend() && success; ++it )
+      {
+        std::vector< std::string > parts = utilities::explode( it->first, "." );
+        if( "sampler" == parts.at(1) )
+        {
+          success = reader.parse( it->second, sampler_root, false );
+          if( success ) this->from_json( sampler_root );
+        }
+        else if( "population" == parts.at(1) )
+        {
+          success = reader.parse( it->second, population_root, false );
+          if( success )
+          {
+            this->population = new sampsim::population;
+            this->population->from_json( population_root );
+            this->population->set_sample_mode( true );
+            this->owns_population = true;
+          }
+        }
+      }
+
+      if( success )
+      {
+        this->population->set_use_sample_weights( this->use_sample_weights );
+        this->sampled_population_list.reserve( this->number_of_samples );
+
+        for( auto it = files.cbegin(); it != files.cend() && success; ++it )
+        {
+          // now get all sampled populations
+          std::vector< std::string > parts = utilities::explode( it->first, "." );
+          if( "sampler" != parts.at(1) && "population" != parts.at(1) )
+          {
+            unsigned int index = atoi( parts.at(1).substr(1).c_str() ) - 1;
+
+            Json::Value sampled_population_root;
+            success = reader.parse( it->second, sampled_population_root, false );
+            if( success )
+            {
+              sampsim::population* sampled_population = new sampsim::population;
+              sampled_population->from_json( sampled_population_root );
+              this->sampled_population_list[index] = sampled_population;
+            }
+          }
+        }
+      }
+
+      if( !success )
+      {
+        std::cout << "ERROR: failed to parse file \"" << filename << "\"" << std::endl
+                  << reader.getFormattedErrorMessages();
+      }
+    }
+    catch( std::runtime_error &e )
+    {
+      std::cout << "ERROR: " << e.what() << std::endl;
+      success = false;
+    }
+
+    return success;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sample::write( const std::string filename, const bool flat_file ) const
   {
     utilities::output(
@@ -378,14 +452,39 @@ namespace sample
         files[stream.str() + ".household.csv"] = household_stream.str();
         files[stream.str() + ".individual.csv"] = individual_stream.str();
       }
+
       utilities::write_gzip( filename + ".flat", files, true );
     }
     else
     {
-      Json::Value root;
-      this->to_json( root );
+      int sample_width = floor( log10( this->number_of_samples ) ) + 1;
+      std::stringstream stream;
+      file_list_type files;
       Json::StyledWriter writer;
-      utilities::write_gzip( filename + ".json", writer.write( root ) );
+      Json::Value sampler_root, population_root;
+
+      // write the sampler's data
+      this->to_json( sampler_root );
+      files[filename + ".sampler.json"] = writer.write( sampler_root );
+
+      // write the population's data
+      this->population->to_json( population_root );
+      files[filename + ".population.json"] = writer.write( population_root );
+
+      // write the sampled populations' data
+      unsigned int s = this->first_sample_index + 1;
+      for( auto it = this->sampled_population_list.cbegin(); it != this->sampled_population_list.cend(); ++it )
+      {
+        stream.str( "" );
+        stream << filename;
+        if( 1 < this->number_of_samples ) stream << ".s" << std::setw( sample_width ) << std::setfill( '0' ) << s;
+        Json::Value sampled_population_root;
+        (*it)->to_json( sampled_population_root );
+        files[stream.str() + ".json"] = writer.write( sampled_population_root );
+        s++;
+      }
+
+      utilities::write_gzip( filename + ".json", files, true );
     }
 
     utilities::output( "finished writing %s sample", this->get_type().c_str() );
@@ -636,8 +735,8 @@ namespace sample
     if( this->get_type() != json["type"].asString() )
     {
       std::stringstream stream;
-      stream << "Tried to unserialize " << json["type"].asString() << " sample as a "
-             << this->get_type() << " sample";
+      stream << "Tried to unserialize \"" << json["type"].asString() << "\" sample as a \""
+             << this->get_type() << "\" sample";
       throw std::runtime_error( stream.str() );
     }
 
@@ -648,15 +747,6 @@ namespace sample
     this->one_per_household = json["one_per_household"].asBool();
     this->age = sampsim::get_age_type( json["age"].asString() );
     this->sex = sampsim::get_sex_type( json["sex"].asString() );
-    this->population->from_json( json["population"] );
-
-    this->sampled_population_list.reserve( json["sampled_population_list"].size() );
-    for( unsigned int c = 0; c < json["sampled_population_list"].size(); c++ )
-    {
-      sampsim::population *p = new sampsim::population();
-      p->from_json( json["sampled_population_list"][c] );
-      this->sampled_population_list.push_back( p );
-    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -671,17 +761,6 @@ namespace sample
     json["one_per_household"] = this->one_per_household;
     json["age"] = sampsim::get_age_type_name( this->age );
     json["sex"] = sampsim::get_sex_type_name( this->sex );
-
-    json["population"] = Json::Value( Json::objectValue );
-    this->population->to_json( json["population"] );
-
-    json["sampled_population_list"] = Json::Value( Json::arrayValue );
-    for( auto it = this->sampled_population_list.cbegin(); it != this->sampled_population_list.cend(); ++it )
-    {
-      Json::Value child;
-      (*it)->to_json( child );
-      json["sampled_population_list"].append( child );
-    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

@@ -300,12 +300,12 @@ namespace sampsim
   {
     // check to make sure the version is compatible
     if( !json.isMember( "version" ) )
-      throw std::runtime_error( "ERROR: Cannot determine population generator version" );
+      throw std::runtime_error( "Cannot determine population generator version" );
     std::string version = json["version"].asString();
     if( version != utilities::get_version() )
     {
       std::stringstream stream;
-      stream << "ERROR: Cannot read population, incompatible version ("
+      stream << "Cannot read population, incompatible version ("
              << version << " != " << utilities::get_version() << ")";
       throw std::runtime_error( stream.str() );
     }
