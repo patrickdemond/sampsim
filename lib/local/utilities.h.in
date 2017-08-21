@@ -68,6 +68,7 @@ namespace sampsim
   class household;
   class individual;
 
+  typedef std::map< std::string, std::string > file_list_type;
   /**
    * @typedef population_list_type
    */
@@ -355,7 +356,7 @@ namespace sampsim
      * Reads the contents of a gzip file into a string
      * If no fd parameter is passed the funciton will open the file itself
      */
-    inline static std::map< std::string, std::string > read_gzip( const std::string filename, int fd = 0 )
+    inline static file_list_type read_gzip( const std::string filename, int fd = 0 )
     {
       int result;
       std::stringstream stream;
@@ -363,7 +364,7 @@ namespace sampsim
       bool close_file = false;
       struct archive *archive = archive_read_new();
       struct archive_entry *entry;
-      std::map< std::string, std::string > files;
+      file_list_type files;
 
       if( 0 == fd )
       {
@@ -431,7 +432,7 @@ namespace sampsim
      */
     inline static void write_gzip( const std::string filename, const std::string data, const bool append = false )
     {
-      std::map< std::string, std::string > files;
+      file_list_type files;
       files[filename] = data;
       utilities::write_gzip( filename, files, append );
     }
@@ -441,10 +442,10 @@ namespace sampsim
      */
     inline static void write_gzip(
       const std::string filename,
-      const std::map< std::string, std::string > files,
+      const file_list_type files,
       const bool append = false )
     {
-      std::map< std::string, std::string > working_files;
+      file_list_type working_files;
       std::string tar_filename = filename + ".tar.gz";
       struct archive *archive = archive_write_new();
       struct archive_entry *entry;
@@ -468,7 +469,7 @@ namespace sampsim
         try
         {
           // open the tar file and read its existing contents
-          std::map< std::string, std::string > existing_files = read_gzip( tar_filename, fd );
+          file_list_type existing_files = read_gzip( tar_filename, fd );
           working_files.insert( existing_files.begin(), existing_files.end() );
         }
         catch( std::runtime_error &e ) {} // do nothing if file is invalid

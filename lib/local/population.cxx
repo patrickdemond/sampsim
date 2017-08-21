@@ -199,7 +199,7 @@ namespace sampsim
     {
       Json::Value root;
       Json::Reader reader;
-      std::map< std::string, std::string > files = utilities::read_gzip( filename );
+      file_list_type files = utilities::read_gzip( filename );
       success = reader.parse( files.cbegin()->second, root, false );
 
       if( !success )
@@ -230,7 +230,7 @@ namespace sampsim
     {
       std::stringstream household_stream, individual_stream;
       this->to_csv( household_stream, individual_stream );
-      std::map< std::string, std::string > files;
+      file_list_type files;
       files[filename + ".household.csv"] = household_stream.str();
       files[filename + ".individual.csv"] = individual_stream.str();
       utilities::write_gzip( filename + ".flat", files, true );

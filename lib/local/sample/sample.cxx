@@ -363,7 +363,7 @@ namespace sample
     {
       int sample_width = floor( log10( this->number_of_samples ) ) + 1;
       std::stringstream stream, household_stream, individual_stream;
-      std::map< std::string, std::string > files;
+      file_list_type files;
 
       for( unsigned int s = this->first_sample_index + 1; s < this->last_sample_index + 2; s++ )
       {
