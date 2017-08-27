@@ -1,6 +1,6 @@
 #!/bin/bash
 # 
-# This script creates a number of sample populations and samples
+# This script creates a number of sample multi-town populations
 # 
 ####################################################
 
@@ -21,14 +21,11 @@ NORMAL=$(tput sgr0)
 
 # Paths to executables is assuming the build is parallel to source directory but
 # with source/ replaced with build/
-build_dir="../.."
+sbatch=$( command -v sbatch )
+sqsub=$( command -v sqsub )
 
+build_dir="../.."
 generate="$build_dir/generate"
-arc_epi_sample="$build_dir/arc_epi_sample"
-circle_gps_sample="$build_dir/circle_gps_sample"
-random_sample="$build_dir/random_sample"
-square_gps_sample="$build_dir/square_gps_sample"
-strip_epi_sample="$build_dir/strip_epi_sample"
 
 # determine whether to replace existing files
 replace=0
@@ -77,8 +74,12 @@ for income_type in flat bbb; do
       echo "  ${BOLD}$population_type.$income_type${NORMAL} population ${BLUE}[skipping]${NORMAL}"
     else
       command="$generate -f -s --seed $seed -c $population_type.conf $population_type.$income_type --mean_income_b00 $mean_income_b00 --mean_income_b01 $mean_income_b01 --mean_income_b10 $mean_income_b10"
-      which sqsub > /dev/null
-      if [ $? -eq 0 ]; then
+
+      if [ ! -z $sbatch ]; then
+        batch_file=${population_type}__${income_type}.sh
+        printf "#!/bin/bash\n#SBATCH --time=00:10:00\n#SBATCH --mem=8000M\n#SBATCH --output=$population_type.$income_type.log\n$command" > $batch_file
+        sbatch $batch_file
+      elif [ ! -z $sqsub ]; then
         sqsub -r 10m --mpp=4g -q serial -o $population_type.$income_type.log $command
       else
         $command > $population_type.$income_type.log && \

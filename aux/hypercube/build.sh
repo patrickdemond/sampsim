@@ -25,6 +25,9 @@ NORMAL=$(tput sgr0)
 
 # Paths to executables is assuming the build is parallel to source directory but
 # with source/ replaced with build/
+sbatch=$( command -v sbatch )
+sqsub=$( command -v sqsub )
+
 build_dir="../../.."
 generate="$build_dir/generate"
 
@@ -126,19 +129,25 @@ if [ true = "$multiprocess" ]; then
 else
   # generate populations using serial farming
   # -+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  RUNTIME=10m
-  MEMORY=8g
-  echo "Launching ${num_conf_files} jobs using sqsub"
+  if [ -z $sbatch ] && [ -z $sqsub ]; then
+    echo "Cannot proceed with serial farming, neither sbatch or sqsub is found."
+    exit 1
+  fi
 
   for index in ${!conf_files[*]}; do
     name=${conf_files[$index]%.conf}
+
     if ! [[ -f "$name.json.tar.gz" ]] || ! [[ -s "$name.json.tar.gz" ]]; then
-      sqsub -r $RUNTIME --mpp=$MEMORY -q serial -o ${name}.log $generate -s -c ${name}.conf $name
+      if [ ! -z $sbatch ]; then
+        batch_file=${index}.sh
+        printf "#!/bin/bash\n#SBATCH --time=00:10:00\n#SBATCH --mem=8000M\n#SBATCH --output=${name}.log\n$generate -s -c ${name}.conf $name\n" > $batch_file
+        sbatch $batch_file
+      elif [ ! -z $sqsub ]; then
+        sqsub -r 10m --mpp=8g -q serial -o ${name}.log $generate -s -c ${name}.conf $name
+      fi
     else
       echo Skipping $name since .json.tar.gz file already exists
     fi
   done
   echo "All jobs scheduled."
-  echo "Use sqjobs to show jobs in progress or use the following command:"
-  echo '  echo $(find|grep "\.json.tar.gz"|wc -l) of $(find|grep "\.conf"|wc -l)'
 fi

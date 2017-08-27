@@ -21,8 +21,10 @@ NORMAL=$(tput sgr0)
 
 # Paths to executables is assuming the build is parallel to source directory but
 # with source/ replaced with build/
-build_dir="../../../.."
+sbatch=$( command -v sbatch )
+sqsub=$( command -v sqsub )
 
+build_dir="../../../.."
 arc_epi_sample="$build_dir/arc_epi_sample"
 circle_gps_sample="$build_dir/circle_gps_sample"
 random_sample="$build_dir/random_sample"
@@ -88,13 +90,20 @@ for population in ../links/*/*.conf; do
         echo "  ${BOLD}$sampler${NORMAL} sample (sample size $size) ${BLUE}[skipping]${NORMAL}"
       else
         command="${!sample_dir} -S --seed $seed -c $sample_config_file ${population/conf/json.tar.gz} ${population/v[a-z0-9.]*\.conf/$name}"
-        which sqsub > /dev/null
-        if [ $? -eq 0 ]; then
-          time=4h
+
+        if [ ! -z $sbatch ]; then
+          batch_file=${index}__${sampler}__${name}.sh
+          time="04:00:00"
+          if [ "circle_gps" == $sampler ] || [ "square_gps" == $sampler ]; then
+            if [[ $sample_config_file == *"07"* ]]; then time="16:00:00"; else time="2-00:00"; fi
+          fi
+          printf "#!/bin/bash\n#SBATCH --time=$time\n#SBATCH --mem=8000M\n#SBATCH --output=$log_file\n$command" > $batch_file
+          sbatch $batch_file && touch $done_file
+        elif [ ! -z $sqsub ]; then
+          time="4h"
           if [ "circle_gps" == $sampler ] || [ "square_gps" == $sampler ]; then
             if [[ $sample_config_file == *"07"* ]]; then time="16h"; else time="48h"; fi
           fi
-
           sqsub -r $time --mpp=8g -q serial -o $log_file $command && touch $done_file
         else
           $command > $log_file && touch $done_file && \
