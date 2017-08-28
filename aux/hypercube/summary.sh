@@ -8,15 +8,23 @@
 build_dir="../../.."
 summarize=$( which $build_dir/summarize )
 
+stop=false
+
 for sample_file in $( ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f | grep '[^/]\\\\+_sample/.*07\\\\.json.tar.gz$' | sort#" | /bin/bash ); do
   summary_file=`echo $sample_file | sed -e "s#\.json\.tar\.gz#.txt#"`
   if [ ! -e $summary_file ]; then
     type=`echo $sample_file | sed -e "s#links/[0-9]\+/\([a-z_]\+\)_sample/.*#\1#"`
-    printf "Building missing summary file for $sample_file"
-    $summarize -q --type $type $sample_file
-    printf " ...done\n"
+    echo "Adding job: building missing summary file for $sample_file"
+    batch_file=${index}.sh
+    printf "#!/bin/bash\n#SBATCH --time=00:05:00\n#SBATCH --mem=8000M\n $summarize -q --type $type $sample_file\n" > $batch_file
+    sbatch $batch_file
+    stop=true
   fi
 done
+
+if [ $stop ]; then
+  exit
+fi
 
 for summary in $( ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f | grep '[^/]\\\\+_sample/.*07\\\\.txt$' | sort#" | /bin/bash ); do
   population=$( echo $summary | sed -e "s#links/\([0-9]\+\)/.*#\1#" )
