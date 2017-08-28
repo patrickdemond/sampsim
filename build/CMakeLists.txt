@@ -21,6 +21,7 @@ SET( SAMPSIM_TESTING_DIR  ${PROJECT_BINARY_DIR}/Testing )
 
 # See if gnuplot is installed
 FIND_PACKAGE( Gnuplot QUIET )
+FIND_PACKAGE( LibArchive REQUIRED )
 
 # Build libs
 SUBDIRS( ${SAMPSIM_LIB_DIR} )
@@ -57,6 +58,7 @@ INCLUDE_DIRECTORIES(
   ${SAMPSIM_LIB_DIR}/jburkardt
   ${PROJECT_BINARY_DIR}/lib/local
   ${PROJECT_BINARY_DIR}/lib/local/sample
+  ${LibArchive_INCLUDE_DIRS}
 )
 
 # We're using <random>, the auto keyword, constant iterators, etc, so we need c++11
@@ -66,8 +68,8 @@ SET( CMAKE_CXX_FLAGS "-std=c++0x " )
 FOREACH( EXECUTABLE ${SAMPSIM_EXECUTABLES} )
   ADD_EXECUTABLE( ${EXECUTABLE} ${SAMPSIM_SRC_DIR}/${EXECUTABLE}.cxx )
   TARGET_LINK_LIBRARIES( ${EXECUTABLE}
-    archive
     jburkardt
+    ${LibArchive_LIBRARIES}
     ${PROJECT_NAME}
     ${PROJECT_NAME}_sample
   )

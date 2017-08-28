@@ -29,10 +29,9 @@
 
 #define GNUPLOT_AVAILABLE @GNUPLOT_AVAILABLE@
 
-#include "archive.h"
-#include "archive_entry.h"
-
 #include <algorithm>
+#include <archive.h>
+#include <archive_entry.h>
 #include <ctime>
 #include <cctype>
 #include <fcntl.h>
