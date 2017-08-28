@@ -362,16 +362,19 @@ namespace sample
       Json::Value sampler_root, population_root;
       Json::Reader reader;
       file_list_type files = utilities::read_gzip( filename );
+      bool sampler_loaded = false, population_loaded = false;
 
       for( auto it = files.cbegin(); it != files.cend() && success; ++it )
       {
         std::vector< std::string > parts = utilities::explode( it->first, "." );
-        if( "sampler" == parts.at(1) )
+        int size = parts.size();
+        if( "sampler" == parts.at( size-2 ) )
         {
           success = reader.parse( it->second, sampler_root, false );
           if( success ) this->from_json( sampler_root );
+          sampler_loaded = true;
         }
-        else if( "population" == parts.at(1) )
+        else if( "population" == parts.at( size-2 ) )
         {
           success = reader.parse( it->second, population_root, false );
           if( success )
@@ -380,10 +383,19 @@ namespace sample
             this->population->from_json( population_root );
             this->owns_population = true;
           }
+          population_loaded = true;
         }
       }
 
-      if( success )
+      if( !sampler_loaded )
+      {
+        std::cout << "ERROR: sample file \"" << filename << "\" is missing its .sampler file" << std::endl;
+      }
+      else if( !population_loaded )
+      {
+        std::cout << "ERROR: sample file \"" << filename << "\" is missing its .population file" << std::endl;
+      }
+      else if( success )
       {
         this->population->set_use_sample_weights( this->use_sample_weights );
         this->sampled_population_list.resize( this->number_of_samples, NULL );
@@ -392,9 +404,10 @@ namespace sample
         {
           // now get all sampled populations
           std::vector< std::string > parts = utilities::explode( it->first, "." );
-          if( "sampler" != parts.at(1) && "population" != parts.at(1) )
+          int size = parts.size();
+          if( "sampler" != parts.at( size-2 ) && "population" != parts.at( size-2 ) )
           {
-            unsigned int index = atoi( parts.at(1).substr(1).c_str() ) - 1;
+            unsigned int index = atoi( parts.at( size-2 ).substr(1).c_str() ) - 1;
 
             Json::Value sampled_population_root;
             success = reader.parse( it->second, sampled_population_root, false );
