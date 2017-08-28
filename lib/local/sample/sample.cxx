@@ -378,7 +378,6 @@ namespace sample
           {
             this->population = new sampsim::population;
             this->population->from_json( population_root );
-            this->population->set_sample_mode( true );
             this->owns_population = true;
           }
         }
@@ -387,7 +386,7 @@ namespace sample
       if( success )
       {
         this->population->set_use_sample_weights( this->use_sample_weights );
-        this->sampled_population_list.reserve( this->number_of_samples );
+        this->sampled_population_list.resize( this->number_of_samples, NULL );
 
         for( auto it = files.cbegin(); it != files.cend() && success; ++it )
         {
