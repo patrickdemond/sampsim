@@ -92,12 +92,12 @@ for population in ../links/*/*.conf; do
         command="${!sample_dir} -S --seed $seed -c $sample_config_file ${population/conf/json.tar.gz} ${population/v[a-z0-9.]*\.conf/$name}"
 
         if [ ! -z $sbatch ]; then
-          batch_file=${index}__${sampler}__${name}.sh
-          time="04:00:00"
+          batch_file=`echo ${index}__${name}.sh | sed -e "s#/#__#"`
+          time="00:15:00"
           if [ "circle_gps" == $sampler ] || [ "square_gps" == $sampler ]; then
-            if [[ $sample_config_file == *"07"* ]]; then time="16:00:00"; else time="2-00:00"; fi
+            if [[ $sample_config_file == *"07"* ]]; then time="02:00:00"; else time="10:00:00"; fi
           fi
-          printf "#!/bin/bash\n#SBATCH --time=$time\n#SBATCH --mem=8000M\n#SBATCH --output=$log_file\n$command" > $batch_file
+          printf "#!/bin/bash\n#SBATCH --time=$time\n#SBATCH --mem=32G\n#SBATCH --output=$log_file\n$command" > $batch_file
           sbatch $batch_file && touch $done_file
         elif [ ! -z $sqsub ]; then
           time="4h"
