@@ -54,7 +54,6 @@ SET( SAMPSIM_EXECUTABLES
 INCLUDE_DIRECTORIES(
   ${SAMPSIM_SRC_DIR}
   ${SAMPSIM_LIB_DIR}/local
-  ${SAMPSIM_LIB_DIR}/libarchive/libarchive
   ${SAMPSIM_LIB_DIR}/jburkardt
   ${PROJECT_BINARY_DIR}/lib/local
   ${PROJECT_BINARY_DIR}/lib/local/sample
