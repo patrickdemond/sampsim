@@ -3,6 +3,21 @@
 # Parses the simulation and outputs the mean and stdev prevalence results for each population and sample type.
 # Run this script after building the multitown simulation.
 
+# Paths to executables is assuming the build is parallel to source directory but
+# with source/ replaced with build/
+build_dir="../../.."
+summarize=$( which $build_dir/summarize )
+
+for sample_file in $( ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f | grep '[^/]\\\\+_sample/.*07\\\\.json.tar.gz$' | sort#" | /bin/bash ); do
+  summary_file=`echo $sample_file | sed -e "s#\.json\.tar\.gz#.txt#"`
+  if [ ! -e $summary_file ]; then
+    type=`echo $sample_file | sed -e "s#links/[0-9]\+/\([a-z_]\+\)_sample/.*#\1#"`
+    printf "Building missing summary file for $sample_file"
+    $summarize -q --type $type $sample_file
+    printf " ...done\n"
+  fi
+done
+
 for summary in $( ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f | grep '[^/]\\\\+_sample/.*07\\\\.txt$' | sort#" | /bin/bash ); do
   population=$( echo $summary | sed -e "s#links/\([0-9]\+\)/.*#\1#" )
   sampler=$( echo $summary |
