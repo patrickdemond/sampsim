@@ -31,6 +31,7 @@ int main( const int argc, const char** argv )
   opts.add_input( "input_file" );
   opts.add_option(
     't', "type", "population", "Identifies the input file's data type (population, arc_epi, circle_gps, etc)" );
+  opts.add_flag( 'q', "quiet", "Do not generate any output" );
 
   try
   {
@@ -47,6 +48,7 @@ int main( const int argc, const char** argv )
       {
         std::string input_filename = opts.get_input( "input_file" );
         std::string type = opts.get_option( "type" );
+        sampsim::utilities::quiet = opts.get_flag( "quiet" );
 
         // determine what to do with the input file based on its extention(s)
         std::vector< std::string > parts = sampsim::utilities::explode( input_filename, "." );
