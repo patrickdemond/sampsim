@@ -10,7 +10,7 @@ summarize=$( which $build_dir/summarize )
 
 stop=false
 
-for sample_file in $( ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f | grep '[^/]\\\\+_sample/.*07\\\\.json.tar.gz$' | sort#" | /bin/bash ); do
+for sample_file in $( ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f | grep '[^/]\\\\+_sample/.*\\\\.json.tar.gz$' | sort#" | /bin/bash ); do
   summary_file=`echo $sample_file | sed -e "s#\.json\.tar\.gz#.txt#"`
   if [ ! -e $summary_file ]; then
     type=`echo $sample_file | sed -e "s#links/[0-9]\+/\([a-z_]\+\)_sample/.*#\1#"`
