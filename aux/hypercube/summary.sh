@@ -16,13 +16,13 @@ for sample_file in $( ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f |
     type=`echo $sample_file | sed -e "s#links/[0-9]\+/\([a-z_]\+\)_sample/.*#\1#"`
     echo "Adding job: building missing summary file for $sample_file"
     batch_file=${index}.sh
-    printf "#!/bin/bash\n#SBATCH --time=00:05:00\n#SBATCH --mem=8000M\n $summarize -q --type $type $sample_file\n" > $batch_file
+    printf "#!/bin/bash\n#SBATCH --time=00:10:00\n#SBATCH --mem=32G\n $summarize -q --type $type $sample_file\n" > $batch_file
     sbatch $batch_file
     stop=true
   fi
 done
 
-if [ $stop ]; then
+if [ "$stop" = true ]; then
   exit
 fi
 
