@@ -97,6 +97,7 @@ namespace sample
   {
     sized_sample::from_json( json );
     this->radius = json["radius"].asDouble();
+    this->number_of_circles = json["number_of_circles"].asDouble();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -104,6 +105,7 @@ namespace sample
   {
     sized_sample::to_json( json );
     json["radius"] = this->radius;
+    json["number_of_circles"] = this->number_of_circles;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -112,6 +114,7 @@ namespace sample
     std::stringstream stream;
     stream << sized_sample::get_csv_header();
     stream << "# radius: " << this->radius << std::endl;
+    stream << "# number_of_circles: " << this->number_of_circles << std::endl;
     return stream.str();
   }
 }
