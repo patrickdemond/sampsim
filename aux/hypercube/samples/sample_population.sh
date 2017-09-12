@@ -93,9 +93,9 @@ for population in ../links/*/*.conf; do
 
         if [ ! -z $sbatch ]; then
           batch_file=`echo ${index}__${name}.sh | sed -e "s#/#__#"`
-          time="00:15:00"
+          time="01:00:00"
           if [ "circle_gps" == $sampler ] || [ "square_gps" == $sampler ]; then
-            if [[ $sample_config_file == *"07"* ]]; then time="02:00:00"; else time="10:00:00"; fi
+            if [[ $sample_config_file == *"07"* ]]; then time="05:00:00"; else time="15:00:00"; fi
           fi
           printf "#!/bin/bash\n#SBATCH --time=$time\n#SBATCH --mem=32G\n#SBATCH --output=$log_file\n$command" > $batch_file
           sbatch $batch_file && touch $done_file
