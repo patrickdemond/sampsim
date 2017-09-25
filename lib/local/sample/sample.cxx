@@ -207,6 +207,9 @@ namespace sample
         if( first ) first = false;
         else this->reset_for_next_sample( false );
 
+        // create a list of all sampled individuals so that we can weight them after selection is done
+        individual_list_type selected_individual_list;
+
         // create a building-tree from a list of all buildings in the town
         building_list_type building_list;
         for( auto tile_it = town->get_tile_list_cbegin();
@@ -268,8 +271,8 @@ namespace sample
               if( ( ANY_AGE == this->get_age() || this->get_age() == i->get_age() ) &&
                   ( ANY_SEX == this->get_sex() || this->get_sex() == i->get_sex() ) )
               {
-                if( this->use_sample_weights ) i->select( this->get_sample_weight( i ) );
-                else i->select();
+                if( this->use_sample_weights ) selected_individual_list.push_back( i );
+                i->select();
                 count++;
                 if( this->get_one_per_household() ) break;
               }
@@ -286,6 +289,18 @@ namespace sample
             }
           }
           tree.remove( b );
+        }
+
+        if( this->use_sample_weights )
+        {
+          // now determine the sample weight for all selected individuals
+          for( auto individual_it = selected_individual_list.begin();
+               individual_it != selected_individual_list.end();
+               ++individual_it )
+          {
+            individual *i = *individual_it;
+            i->set_sample_weight( this->get_sample_weight( i ) );
+          }
         }
       }
 

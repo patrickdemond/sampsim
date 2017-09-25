@@ -15,6 +15,9 @@
 #include <json/value.h>
 #include <json/writer.h>
 
+// TODO: remove once removing debug statements in get_sample_weight()
+#include "tile.h"
+
 namespace sampsim
 {
 namespace sample
@@ -24,6 +27,13 @@ namespace sample
   {
     this->radius = object->radius;
   }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void circle_gps::reset_for_next_sample( const bool full )
+  {
+    sized_sample::reset_for_next_sample( full );
+    this->number_of_circles = 0;
+  };
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   building* circle_gps::select_next_building( sampsim::building_tree& tree )
@@ -36,7 +46,6 @@ namespace sample
     building_list_type circle_building_list;
     coordinate centroid = ( *building_list.cbegin() )->get_town()->get_centroid();
 
-    this->number_of_circles = 0;
     // keep selecting a random point until there is at least one building found in the resulting circle
     while( 0 == circle_building_list.size() && this->number_of_circles < 1000 )
     {
@@ -44,7 +53,8 @@ namespace sample
       coordinate p( 2 * centroid.x * utilities::random(), 2 * centroid.y * utilities::random() );
       if( utilities::verbose )
         utilities::output(
-          "iteration #%d: searching circle at %0.3f, %0.3f with radius %0.3f",
+          "town %d, iteration #%d: searching circle at %0.3f, %0.3f with radius %0.3f",
+          building_list[0]->get_town()->get_index(),
           this->number_of_circles + 1,
           p.x, p.y,
           this->radius );
@@ -88,6 +98,17 @@ namespace sample
     // multiply by area_of_town / ( area_of_circle * number_of_circles )
     double area_of_town = individual->get_town()->get_area();
     double area_of_circles = M_PI * this->radius * this->radius * this->number_of_circles;
+
+    utilities::output(
+      "town: %d  pop: %d  tile: %d,%d  building: %f,%f  GPS circles: %d",
+      individual->get_town()->get_index(),
+      individual->get_town()->get_number_of_individuals(),
+      individual->get_tile()->get_index().first,
+      individual->get_tile()->get_index().second,
+      individual->get_building()->get_position().x,
+      individual->get_building()->get_position().y,
+      this->number_of_circles
+    );
 
     return gps::get_sample_weight( individual ) * area_of_town / area_of_circles;
   }

@@ -202,6 +202,8 @@ namespace sampsim
      */
     bool get_has_river();
 
+    std::pair< unsigned int, unsigned int > get_index() { return this->index; }
+
   protected:
     void create();
     void define();
