@@ -47,7 +47,7 @@ namespace sample
     coordinate centroid = ( *building_list.cbegin() )->get_town()->get_centroid();
 
     // keep selecting a random point until there is at least one building found in the resulting circle
-    while( 0 == circle_building_list.size() && this->number_of_circles < 1000 )
+    while( 0 == circle_building_list.size() && this->number_of_circles < 100000 )
     {
       // select a random point within the population's bounds
       coordinate p( 2 * centroid.x * utilities::random(), 2 * centroid.y * utilities::random() );
@@ -76,7 +76,7 @@ namespace sample
 
     if( 0 == this->number_of_buildings )
       throw std::runtime_error(
-        "Unable to find building in GPS circle after 1000 attempts.  You must either lower the sample size or increase the radius." );
+        "Unable to find building in GPS circle after 100000 attempts.  You must either lower the sample size or increase the radius." );
 
     // select a random building from the list of those in the circle
     int index = utilities::random( 0, this->number_of_buildings - 1 );
