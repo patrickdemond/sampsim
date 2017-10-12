@@ -89,17 +89,15 @@ for population in ../links/*/*.conf; do
       if [ -f $done_file ]; then
         echo "  ${BOLD}$sampler${NORMAL} sample (sample size $size) ${BLUE}[skipping]${NORMAL}"
       else
-        command="${!sample_dir} -S --seed $seed -c $sample_config_file ${population/conf/json.tar.gz} ${population/v[a-z0-9.]*\.conf/$name}"
-
         if [ ! -z $sbatch ]; then
           batch_file=`echo ${index}__${name}.sh | sed -e "s#/#__#"`
           time="01:00:00"
           if [ "circle_gps" == $sampler ] || [ "square_gps" == $sampler ]; then
             # since the GPS samplers run so long we cut them into 10 parts
             if [[ $sample_config_file == *"07"* ]]; then time="00:30:00"; else time="01:00:00"; fi
-            printf "#!/bin/bash\n#SBATCH --array=1-10\n#SBATCH --time=$time\n#SBATCH --mem=16G\n#SBATCH --output=$log_file\n$command --part \$SLURM_ARRAY_TASK_ID,\$SLURM_ARRAY_TASK_COUNT" > $batch_file
+            printf "#!/bin/bash\n#SBATCH --array=1-10\n#SBATCH --time=$time\n#SBATCH --mem=16G\n#SBATCH --output=$log_file\n${!sample_dir} --seed $seed -c $sample_config_file ${population/conf/json.tar.gz} ${population/v[a-z0-9.]*\.conf/$name} --part \$SLURM_ARRAY_TASK_ID,\$SLURM_ARRAY_TASK_COUNT" > $batch_file
           else
-            printf "#!/bin/bash\n#SBATCH --time=$time\n#SBATCH --mem=16G\n#SBATCH --output=$log_file\n$command" > $batch_file
+            printf "#!/bin/bash\n#SBATCH --time=$time\n#SBATCH --mem=16G\n#SBATCH --output=$log_file\n${!sample_dir} -S --seed $seed -c $sample_config_file ${population/conf/json.tar.gz} ${population/v[a-z0-9.]*\.conf/$name}" > $batch_file
           fi
           sbatch $batch_file && touch $done_file
         elif [ ! -z $sqsub ]; then
