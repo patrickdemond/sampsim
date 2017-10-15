@@ -156,7 +156,7 @@ namespace sample
       }
     }
 
-    utilities::output(
+    this->debug(
       "town: %d  pop: %d  tile: %d,%d  building: %f,%f  GPS squares: %d of %d",
       individual->get_town()->get_index(),
       individual->get_town()->get_number_of_individuals(),

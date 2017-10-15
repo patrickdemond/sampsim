@@ -99,7 +99,7 @@ namespace sample
     double area_of_town = individual->get_town()->get_area();
     double area_of_circles = M_PI * this->radius * this->radius * this->number_of_circles;
 
-    utilities::output(
+    this->debug(
       "town: %d  pop: %d  tile: %d,%d  building: %f,%f  GPS circles: %d",
       individual->get_town()->get_index(),
       individual->get_town()->get_number_of_individuals(),
