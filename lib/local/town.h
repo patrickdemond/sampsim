@@ -224,9 +224,25 @@ namespace sampsim
     trend* get_sd_disease() { return this->sd_disease; }
 
     /**
+     * Returns a reference to the trend defining the town's mean exposure risk factor
+     */
+    trend* get_mean_exposure() { return this->mean_exposure; }
+
+    /**
+     * Returns a reference to the trend defining the standard deviation of the town's
+     * exposure risk factor
+     */
+    trend* get_sd_exposure() { return this->sd_exposure; }
+
+    /**
      * Sets the trends defining the town's mean and standard deviation disease risk factor
      */
     void set_disease( trend *mean, trend *sd );
+
+    /**
+     * Sets the trends defining the town's mean and standard deviation exposure risk factor
+     */
+    void set_exposure( trend *mean, trend *sd );
 
     /**
      * Returns a reference to the trend defining the town's population density
@@ -346,6 +362,20 @@ namespace sampsim
      * Standard deviation of disease risk factor is determined by tile position according to this trend.
      */
     trend *sd_disease;
+
+    /**
+     * The trend defining the town's mean exposure risk factor
+     * 
+     * Mean exposure risk factor is determined by tile position according to this trend.
+     */
+    trend *mean_exposure;
+
+    /**
+     * The trend defining the standard deviation of the town's exposure risk factor
+     * 
+     * Standard deviation of exposure risk factor is determined by tile position according to this trend.
+     */
+    trend *sd_exposure;
 
     /**
      * The trend defining the town's population density

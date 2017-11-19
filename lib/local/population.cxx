@@ -53,6 +53,8 @@ namespace sampsim
     this->sd_income = new trend;
     this->mean_disease = new trend;
     this->sd_disease = new trend;
+    this->mean_exposure = new trend;
+    this->sd_exposure = new trend;
     this->pocket_kernel_type = "exponential";
     this->pocket_scaling = 1.0;
     this->town_size_min = 0.0;
@@ -74,6 +76,8 @@ namespace sampsim
     utilities::safe_delete( this->sd_income );
     utilities::safe_delete( this->mean_disease );
     utilities::safe_delete( this->sd_disease );
+    utilities::safe_delete( this->mean_exposure );
+    utilities::safe_delete( this->sd_exposure );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -179,6 +183,10 @@ namespace sampsim
       t->get_mean_disease()->set_regression_factor( factor );
       t->get_sd_disease()->copy( this->sd_disease );
       t->get_sd_disease()->set_regression_factor( factor );
+      t->get_mean_exposure()->copy( this->mean_exposure );
+      t->get_mean_exposure()->set_regression_factor( factor );
+      t->get_sd_exposure()->copy( this->sd_exposure );
+      t->get_sd_exposure()->set_regression_factor( factor );
 
       t->set_number_of_disease_pockets( this->number_of_disease_pockets );
       t->define();
@@ -331,6 +339,8 @@ namespace sampsim
     this->sd_income->from_json( json["sd_income"] );
     this->mean_disease->from_json( json["mean_disease"] );
     this->sd_disease->from_json( json["sd_disease"] );
+    this->mean_exposure->from_json( json["mean_exposure"] );
+    this->sd_exposure->from_json( json["sd_exposure"] );
 
     if( utilities::verbose ) utilities::output( "reading %d towns", json["town_list"].size() );
     this->town_list.reserve( json["town_list"].size() );
@@ -375,6 +385,8 @@ namespace sampsim
     this->sd_income->to_json( json["sd_income"] );
     this->mean_disease->to_json( json["mean_disease"] );
     this->sd_disease->to_json( json["sd_disease"] );
+    this->mean_exposure->to_json( json["mean_exposure"] );
+    this->sd_exposure->to_json( json["sd_exposure"] );
     json["town_list"] = Json::Value( Json::arrayValue );
 
     for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
@@ -422,13 +434,15 @@ namespace sampsim
            << "# sd_income trend: " << this->sd_income->to_string() << std::endl
            << "# mean_disease trend: " << this->mean_disease->to_string() << std::endl
            << "# sd_disease trend: " << this->sd_disease->to_string() << std::endl
+           << "# mean_exposure trend: " << this->mean_exposure->to_string() << std::endl
+           << "# sd_exposure trend: " << this->sd_exposure->to_string() << std::endl
            << "#" << std::endl << std::endl;
 
     household_stream << stream.str();
     individual_stream << stream.str();
 
     // put in the csv headers
-    household_stream << "town_index,household_index,x,y,r,a,individuals,income,disease_risk,disease"
+    household_stream << "town_index,household_index,x,y,r,a,individuals,income,disease_risk,exposure_risk,disease"
                      << std::endl;
     individual_stream << "town_index,household_index,individual_index,sex,age,disease";
     if( this->use_sample_weights ) individual_stream << ",weight";
@@ -629,6 +643,8 @@ namespace sampsim
     }
     this->mean_disease->copy( mean );
     this->sd_disease->copy( sd );
+    this->mean_exposure->copy( mean );
+    this->sd_exposure->copy( sd );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -672,6 +688,8 @@ namespace sampsim
     this->sd_income->copy( object->sd_income );
     this->mean_disease->copy( object->mean_disease );
     this->sd_disease->copy( object->sd_disease );
+    this->mean_exposure->copy( object->mean_exposure );
+    this->sd_exposure->copy( object->sd_exposure );
     this->pocket_kernel_type = object->pocket_kernel_type;
     this->pocket_scaling = object->pocket_scaling;
     this->town_size_min =  object->town_size_min;

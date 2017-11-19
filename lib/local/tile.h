@@ -160,6 +160,26 @@ namespace sampsim
     void set_sd_disease( const double sd ) { this->sd_disease = sd; }
 
     /**
+     * Returns the tile's mean exposure risk factor
+     */
+    double get_mean_exposure() const { return this->mean_exposure; }
+
+    /**
+     * Sets the tile's mean exposure risk factor
+     */
+    void set_mean_exposure( const double mean ) { this->mean_exposure = mean; }
+
+    /**
+     * Returns the standard deviation of the tile's exposure risk factor
+     */
+    double get_sd_exposure() const { return this->sd_exposure; }
+
+    /**
+     * Sets the standard deviation of the tile's exposure risk factor
+     */
+    void set_sd_exposure( const double sd ) { this->sd_exposure = sd; }
+
+    /**
      * Sets the tile's population density (in individuals per square kilometer)
      */
     void set_population_density( const double population_density )
@@ -196,6 +216,11 @@ namespace sampsim
      * Returns a reference to the tile's disease risk distribution
      */
     distribution* get_disease_risk_distribution() { return &( this->disease_risk_distribution ); }
+
+    /**
+     * Returns a reference to the tile's exposure risk distribution
+     */
+    distribution* get_exposure_risk_distribution() { return &( this->exposure_risk_distribution ); }
 
     /**
      * Determines whether the tile has a river crossing through its boundaries
@@ -248,6 +273,16 @@ namespace sampsim
     double sd_disease;
 
     /**
+     * The tile's mean exposure risk factor
+     */
+    double mean_exposure;
+
+    /**
+     * The standard deviation of the tile's exposure risk factor
+     */
+    double sd_exposure;
+
+    /**
      * The tile's population density in individuals per square kilometer
      */
     double population_density;
@@ -277,6 +312,11 @@ namespace sampsim
      * The tile's disease risk distribution
      */
     distribution disease_risk_distribution;
+
+    /**
+     * The tile's exposure risk distribution
+     */
+    distribution exposure_risk_distribution;
 
     /**
      * A cache of whether this tile has a river running through it

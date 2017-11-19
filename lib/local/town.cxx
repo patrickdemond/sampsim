@@ -47,6 +47,8 @@ namespace sampsim
     this->sd_income = new trend;
     this->mean_disease = new trend;
     this->sd_disease = new trend;
+    this->mean_exposure = new trend;
+    this->sd_exposure = new trend;
     this->population_density = new trend;
     this->number_of_individuals = 0;
   }
@@ -64,6 +66,8 @@ namespace sampsim
     delete this->sd_income;
     delete this->mean_disease;
     delete this->sd_disease;
+    delete this->mean_exposure;
+    delete this->sd_exposure;
     delete this->population_density;
 
     // we're holding a light reference to the parent, don't delete it
@@ -156,6 +160,8 @@ namespace sampsim
       t->set_sd_income( this->sd_income->get_value( centroid ) );
       t->set_mean_disease( this->mean_disease->get_value( centroid ) );
       t->set_sd_disease( this->sd_disease->get_value( centroid ) );
+      t->set_mean_exposure( this->mean_exposure->get_value( centroid ) );
+      t->set_sd_exposure( this->sd_exposure->get_value( centroid ) );
       t->define();
     }
 
@@ -189,6 +195,7 @@ namespace sampsim
              household_it != ( *building_it )->get_household_list_cend();
              ++household_it )
         {
+          double exposure_risk = ( *household_it )->get_exposure_risk();
           value[0] = ( *household_it )->get_number_of_individuals();
           value[1] = ( *household_it )->get_income();
           value[2] = ( *household_it )->get_disease_risk();
@@ -197,6 +204,7 @@ namespace sampsim
                individual_it != ( *household_it )->get_individual_list_cend();
                ++individual_it )
           {
+            ( *individual_it )->set_exposure( utilities::random() < exposure_risk );
             value[3] = ADULT == ( *individual_it )->get_age() ? 1 : 0;
             value[4] = MALE == ( *individual_it )->get_sex() ? 1 : 0;
 
@@ -290,6 +298,8 @@ namespace sampsim
     this->sd_income->from_json( json["sd_income"] );
     this->mean_disease->from_json( json["mean_disease"] );
     this->sd_disease->from_json( json["sd_disease"] );
+    this->mean_exposure->from_json( json["mean_exposure"] );
+    this->sd_exposure->from_json( json["sd_exposure"] );
     this->population_density->from_json( json["population_density"] );
 
     std::pair< unsigned int, unsigned int > index;
@@ -327,6 +337,8 @@ namespace sampsim
     this->sd_income->to_json( json["sd_income"] );
     this->mean_disease->to_json( json["mean_disease"] );
     this->sd_disease->to_json( json["sd_disease"] );
+    this->mean_exposure->to_json( json["mean_exposure"] );
+    this->sd_exposure->to_json( json["sd_exposure"] );
     this->population_density->to_json( json["population_density"] );
 
     unsigned int index = 0;
@@ -357,6 +369,8 @@ namespace sampsim
            << "# sd_income trend: " << this->sd_income->to_string() << std::endl
            << "# mean_disease trend: " << this->mean_disease->to_string() << std::endl
            << "# sd_disease trend: " << this->sd_disease->to_string() << std::endl
+           << "# mean_exposure trend: " << this->mean_exposure->to_string() << std::endl
+           << "# sd_exposure trend: " << this->sd_exposure->to_string() << std::endl
            << "# population density trend: " << this->population_density->to_string() << std::endl
            << "#" << std::endl;
 
@@ -425,6 +439,20 @@ namespace sampsim
     }
     this->mean_disease->copy( mean );
     this->sd_disease->copy( sd );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void town::set_exposure( trend *mean, trend *sd )
+  {
+    if( utilities::verbose )
+    {
+      utilities::output( "setting exposure trend mean to %s", mean->to_string().c_str() );
+      utilities::output( "setting exposure trend sd to %s", sd->to_string().c_str() );
+      utilities::output( "setting exposure trend mean to %s", mean->to_string().c_str() );
+      utilities::output( "setting exposure trend sd to %s", sd->to_string().c_str() );
+    }
+    this->mean_exposure->copy( mean );
+    this->sd_exposure->copy( sd );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -514,6 +542,8 @@ namespace sampsim
     this->sd_income->copy( object->sd_income );
     this->mean_disease->copy( object->mean_disease );
     this->sd_disease->copy( object->sd_disease );
+    this->mean_exposure->copy( object->mean_exposure );
+    this->sd_exposure->copy( object->sd_exposure );
     this->population_density->copy( object->population_density );
 
     // delete all tiles

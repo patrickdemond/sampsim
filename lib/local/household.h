@@ -142,6 +142,11 @@ namespace sampsim
     double get_disease_risk() const { return this->disease_risk; }
 
     /**
+     * Returns the household's exposure risk factor
+     */
+    double get_exposure_risk() const { return this->exposure_risk; }
+
+    /**
      * Returns this household's index
      */
     unsigned int get_index() { return this->index; }
@@ -170,6 +175,11 @@ namespace sampsim
      * The household's disease risk factor
      */
     double disease_risk;
+
+    /**
+     * The household's exposure risk factor
+     */
+    double exposure_risk;
 
     /**
      * A container holding all individuals belonging to this household.  The household is responsible

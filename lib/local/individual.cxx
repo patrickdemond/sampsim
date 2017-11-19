@@ -24,6 +24,7 @@ namespace sampsim
     this->age = UNKNOWN_AGE_TYPE;
     this->sex = UNKNOWN_SEX_TYPE;
     this->state = UNKNOWN_STATE_TYPE;
+    this->exposure = UNKNOWN_EXPOSURE_TYPE;
     this->sample_weight = 1.0;
   }
 
@@ -42,6 +43,7 @@ namespace sampsim
     this->age = i->age;
     this->sex = i->sex;
     this->state = i->state;
+    this->exposure = i->exposure;
     this->sample_weight = i->sample_weight;
   }
 
@@ -91,6 +93,7 @@ namespace sampsim
     this->age = sampsim::get_age_type( json["age"].asString() );
     this->sex = sampsim::get_sex_type( json["sex"].asString() );
     this->state = 1 == json["disease"].asUInt() ? DISEASED : HEALTHY;
+    this->exposure = 1 == json["exposed"].asUInt() ? EXPOSED : NOT_EXPOSED;
     this->sample_weight = pop->get_use_sample_weights() ? json["sample_weight"].asDouble() : 1.0;
     pop->assert_individual_index( this->index );
   }
@@ -103,6 +106,7 @@ namespace sampsim
     json["age"] = Json::Value( sampsim::get_age_type_name( this->age ) );
     json["sex"] = Json::Value( sampsim::get_sex_type_name( this->sex ) );
     json["disease"] = DISEASED == this->state ? 1 : 0;
+    json["exposed"] = EXPOSED == this->exposure ? 1 : 0;
     if( this->get_population()->get_use_sample_weights() ) json["sample_weight"] = this->sample_weight;
   }
 
@@ -112,7 +116,8 @@ namespace sampsim
     individual_stream << this->index << ","
                       << sampsim::get_age_type_name( this->age ) << ","
                       << sampsim::get_sex_type_name( this->sex ) << ","
-                      << ( DISEASED == this->state ? 1 : 0 );
+                      << ( DISEASED == this->state ? 1 : 0 ) << ","
+                      << ( EXPOSED == this->exposure ? 1 : 0 );
     if( this->get_population()->get_use_sample_weights() ) individual_stream << "," << this->sample_weight;
   }
 

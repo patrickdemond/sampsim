@@ -99,6 +99,7 @@ namespace sampsim
     // create the needed distributions
     this->income_distribution.set_lognormal( this->mean_income, this->sd_income );
     this->disease_risk_distribution.set_normal( this->mean_disease, this->sd_disease );
+    this->exposure_risk_distribution.set_normal( this->mean_exposure, this->sd_exposure );
 
     for( auto it = this->building_list.begin(); it != this->building_list.end(); ++it ) (*it)->define();
 
@@ -115,6 +116,8 @@ namespace sampsim
     this->sd_income = json["sd_income"].asDouble();
     this->mean_disease = json["mean_disease"].asDouble();
     this->sd_disease = json["sd_disease"].asDouble();
+    this->mean_exposure = json["mean_exposure"].asDouble();
+    this->sd_exposure = json["sd_exposure"].asDouble();
     this->population_density = json["population_density"].asDouble();
 
     this->building_list.reserve( json["building_list"].size() );
@@ -141,6 +144,8 @@ namespace sampsim
     json["sd_income"] = this->sd_income;
     json["mean_disease"] = this->mean_disease;
     json["sd_disease"] = this->sd_disease;
+    json["mean_exposure"] = this->mean_exposure;
+    json["sd_exposure"] = this->sd_exposure;
     json["population_density"] = this->population_density;
     json["building_list"] = Json::Value( Json::arrayValue );
 
@@ -241,12 +246,15 @@ namespace sampsim
     this->sd_income = object->sd_income;
     this->mean_disease = object->mean_disease;
     this->sd_disease = object->sd_disease;
+    this->mean_exposure = object->mean_exposure;
+    this->sd_exposure = object->sd_exposure;
     this->population_density = object->population_density;
     this->extent.first.copy( &( object->extent.first ) );
     this->extent.second.copy( &( object->extent.second ) );
     this->centroid.copy( &( object->centroid ) );
     this->income_distribution.copy( &( object->income_distribution ) );
     this->disease_risk_distribution.copy( &( object->disease_risk_distribution ) );
+    this->exposure_risk_distribution.copy( &( object->exposure_risk_distribution ) );
     this->has_river = object->has_river;
     this->has_river_cached = object->has_river_cached;
     this->population_density = object->population_density;

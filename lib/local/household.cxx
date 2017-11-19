@@ -118,6 +118,13 @@ namespace sampsim
       town->get_sd_disease()->get_value( this->get_building()->get_position() ) );
     this->disease_risk = disease_risk_distribution.generate_value();
     this->debug( "setting disease risk to %f", this->disease_risk );
+
+    distribution exposure_risk_distribution;
+    exposure_risk_distribution.set_normal(
+      town->get_mean_exposure()->get_value( this->get_building()->get_position() ),
+      town->get_sd_exposure()->get_value( this->get_building()->get_position() ) );
+    this->exposure_risk = exposure_risk_distribution.generate_value();
+    this->debug( "setting exposure risk to %f", this->exposure_risk );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -126,6 +133,7 @@ namespace sampsim
     this->index = json["index"].asUInt();
     this->income = json["income"].asDouble();
     this->disease_risk = json["disease_risk"].asDouble();
+    this->exposure_risk = json["exposure_risk"].asDouble();
     this->get_population()->assert_household_index( this->index );
 
     this->individual_list.reserve( json["individual_list"].size() );
@@ -145,6 +153,7 @@ namespace sampsim
     json["index"] = this->index;
     json["income"] = this->income;
     json["disease_risk"] = this->disease_risk;
+    json["exposure_risk"] = this->exposure_risk;
     json["individual_list"] = Json::Value( Json::arrayValue );
 
     bool sample_mode = this->get_population()->get_sample_mode();
@@ -171,7 +180,8 @@ namespace sampsim
     this->get_building()->get_position().to_csv( household_stream, individual_stream );
     household_stream << "," << this->individual_list.size()
                      << "," << this->income << ","
-                     << this->disease_risk;
+                     << this->disease_risk << ","
+                     << this->exposure_risk;
 
     // write all individuals in this household to the individual stream
     bool disease = false;
@@ -237,6 +247,7 @@ namespace sampsim
     this->index = object->index;
     this->income = object->income;
     this->disease_risk = object->disease_risk;
+    this->exposure_risk = object->exposure_risk;
     this->selected = object->selected;
 
     // delete all individuals

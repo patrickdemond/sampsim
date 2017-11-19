@@ -112,6 +112,18 @@ int main( const int argc, const char** argv )
   opts.add_option( "sd_disease_b02", vector_xx, "SD disease trend's X^2 coefficient base value" );
   opts.add_option( "sd_disease_b20", vector_xx, "SD disease trend's Y^2 coefficient base value" );
   opts.add_option( "sd_disease_b11", vector_xx, "SD disease trend's XY coefficient base value" );
+  opts.add_option( "mean_exposure_b00", vector_00, "Mean exposure trend's independent coefficient base value" );
+  opts.add_option( "mean_exposure_b01", vector_xx, "Mean exposure trend's X coefficient base value" );
+  opts.add_option( "mean_exposure_b10", vector_xx, "Mean exposure trend's Y coefficient base value" );
+  opts.add_option( "mean_exposure_b02", vector_xx, "Mean exposure trend's X^2 coefficient base value" );
+  opts.add_option( "mean_exposure_b20", vector_xx, "Mean exposure trend's Y^2 coefficient base value" );
+  opts.add_option( "mean_exposure_b11", vector_xx, "Mean exposure trend's XY coefficient base value" );
+  opts.add_option( "sd_exposure_b00", vector_00, "SD exposure trend's independent coefficient base value" );
+  opts.add_option( "sd_exposure_b01", vector_xx, "SD exposure trend's X coefficient base value" );
+  opts.add_option( "sd_exposure_b10", vector_xx, "SD exposure trend's Y coefficient base value" );
+  opts.add_option( "sd_exposure_b02", vector_xx, "SD exposure trend's X^2 coefficient base value" );
+  opts.add_option( "sd_exposure_b20", vector_xx, "SD exposure trend's Y^2 coefficient base value" );
+  opts.add_option( "sd_exposure_b11", vector_xx, "SD exposure trend's XY coefficient base value" );
 
   // define disease parameters
   opts.add_heading( "" );
@@ -227,6 +239,21 @@ int main( const int argc, const char** argv )
           sd_disease->set_b02( opts.get_option_as_double_list( "sd_disease_b02" ) );
           sd_disease->set_b20( opts.get_option_as_double_list( "sd_disease_b20" ) );
           sd_disease->set_b11( opts.get_option_as_double_list( "sd_disease_b11" ) );
+
+          sampsim::trend *mean_exposure = population->get_mean_exposure();
+          mean_exposure->set_b00( opts.get_option_as_double_list( "mean_exposure_b00" ) );
+          mean_exposure->set_b01( opts.get_option_as_double_list( "mean_exposure_b01" ) );
+          mean_exposure->set_b10( opts.get_option_as_double_list( "mean_exposure_b10" ) );
+          mean_exposure->set_b02( opts.get_option_as_double_list( "mean_exposure_b02" ) );
+          mean_exposure->set_b20( opts.get_option_as_double_list( "mean_exposure_b20" ) );
+          mean_exposure->set_b11( opts.get_option_as_double_list( "mean_exposure_b11" ) );
+          sampsim::trend *sd_exposure = population->get_sd_exposure();
+          sd_exposure->set_b00( opts.get_option_as_double_list( "sd_exposure_b00" ) );
+          sd_exposure->set_b01( opts.get_option_as_double_list( "sd_exposure_b01" ) );
+          sd_exposure->set_b10( opts.get_option_as_double_list( "sd_exposure_b10" ) );
+          sd_exposure->set_b02( opts.get_option_as_double_list( "sd_exposure_b02" ) );
+          sd_exposure->set_b20( opts.get_option_as_double_list( "sd_exposure_b20" ) );
+          sd_exposure->set_b11( opts.get_option_as_double_list( "sd_exposure_b11" ) );
 
           std::string population_filename;
           for( int p = 0; p < populations; p++ )

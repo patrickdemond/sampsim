@@ -206,6 +206,40 @@ namespace sampsim
   }
 
   /**
+   * @enum exposure_type
+   * A list of all possible exposure states
+   */
+  enum exposure_type
+  {
+    UNKNOWN_EXPOSURE_TYPE = 0,
+    ANY_EXPOSURE,
+    NOT_EXPOSED,
+    EXPOSED
+  };
+
+  /**
+   * Converts the name of an exposure type to its enum value
+   */
+  inline static exposure_type get_exposure_type( const std::string name )
+  {
+    if( "either" == name ) return ANY_EXPOSURE;
+    else if( "not exposed" == name ) return NOT_EXPOSED;
+    else if( "exposed" == name ) return EXPOSED;
+    return UNKNOWN_EXPOSURE_TYPE;
+  }
+
+  /**
+   * Converts the enum value of an exposure type to its name
+   */
+  inline static std::string get_exposure_type_name( const exposure_type type )
+  {
+    if( ANY_EXPOSURE == type ) return "either";
+    else if( NOT_EXPOSED == type ) return "not exposed";
+    else if( EXPOSED == type ) return "exposed";
+    return "unknown";
+  }
+
+  /**
    * Safely compares if two doubles are equal (avoids CPU floating-point messiness)
    * @link http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html
    */

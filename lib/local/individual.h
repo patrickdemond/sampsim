@@ -138,6 +138,21 @@ namespace sampsim
     bool is_disease() const { return DISEASED == this->state; }
 
     /**
+     * Returns the individual's exposure
+     */
+    exposure_type get_exposure() const { return this->exposure; }
+
+    /**
+     * Sets the individual's exposure status
+     */
+    void set_exposure( const bool exposed ) { this->exposure = exposed ? EXPOSED : NOT_EXPOSED; }
+
+    /**
+     * Returns whether the individual has been exposed
+     */
+    bool is_exposed() const { return EXPOSED == this->exposure; }
+
+    /**
      * Returns this individual's index
      */
     unsigned int get_index() { return this->index; }
@@ -171,6 +186,11 @@ namespace sampsim
      * The individual's disease status
      */
     state_type state;
+
+    /**
+     * The individual's exposure status
+     */
+    exposure_type exposure;
 
     /**
      * When selected, the individual's sample weight
