@@ -261,44 +261,51 @@ namespace sampsim
 
     summary* sum = this->get_summary();
 
-    stream << "total count: " << sum->get_count( ANY_AGE, ANY_SEX, DISEASED )
-           << " diseased of " << sum->get_count() << " total "
-           << "(prevalence " << sum->get_count_fraction() << ")" << std::endl;
+    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+    {
+      std::string postfix = " RR";
+      postfix += utilities::rr[rr];
+      postfix += " count: ";
 
-    stream << sampsim::get_age_type_name( ADULT ) << " count: "
-           << sum->get_count( ADULT, ANY_SEX, DISEASED )
-           << " diseased of " << sum->get_count( ADULT ) << " total "
-           << "(prevalence " << sum->get_count_fraction( ADULT ) << ")" << std::endl;
-    stream << sampsim::get_age_type_name( CHILD ) << " count: "
-           << sum->get_count( CHILD, ANY_SEX, DISEASED )
-           << " diseased of " << sum->get_count( CHILD ) << " total "
-           << "(prevalence " << sum->get_count_fraction( CHILD ) << ")" << std::endl;
+      stream << "total" << postfix << sum->get_count( rr, ANY_AGE, ANY_SEX, DISEASED )
+             << " diseased of " << sum->get_count( rr ) << " total "
+             << "(prevalence " << sum->get_count_fraction( rr ) << ")" << std::endl;
 
-    stream << sampsim::get_sex_type_name( MALE ) << " count: "
-           << sum->get_count( ANY_AGE, MALE, DISEASED )
-           << " diseased of " << sum->get_count( ANY_AGE, MALE ) << " total "
-           << "(prevalence " << sum->get_count_fraction( ANY_AGE, MALE ) << ")" << std::endl;
-    stream << sampsim::get_sex_type_name( FEMALE ) << " count: "
-           << sum->get_count( ANY_AGE, FEMALE, DISEASED )
-           << " diseased of " << sum->get_count( ANY_AGE, FEMALE ) << " total "
-           << "(prevalence " << sum->get_count_fraction( ANY_AGE, FEMALE ) << ")" << std::endl;
+      stream << sampsim::get_age_type_name( ADULT ) << postfix
+             << sum->get_count( rr, ADULT, ANY_SEX, DISEASED )
+             << " diseased of " << sum->get_count( rr, ADULT ) << " total "
+             << "(prevalence " << sum->get_count_fraction( rr, ADULT ) << ")" << std::endl;
+      stream << sampsim::get_age_type_name( CHILD ) << postfix
+             << sum->get_count( rr, CHILD, ANY_SEX, DISEASED )
+             << " diseased of " << sum->get_count( rr, CHILD ) << " total "
+             << "(prevalence " << sum->get_count_fraction( rr, CHILD ) << ")" << std::endl;
 
-    stream << sampsim::get_age_type_name( ADULT ) << " " << sampsim::get_sex_type_name( MALE ) << " count: "
-           << sum->get_count( ADULT, MALE, DISEASED )
-           << " diseased of " << sum->get_count( ADULT, MALE, ANY_STATE ) << " total "
-           << "(prevalence " << sum->get_count_fraction( ADULT, MALE ) << ")" << std::endl;
-    stream << sampsim::get_age_type_name( ADULT ) << " " << sampsim::get_sex_type_name( FEMALE ) << " count: "
-           << sum->get_count( ADULT, FEMALE, DISEASED )
-           << " diseased of " << sum->get_count( ADULT, FEMALE, ANY_STATE ) << " total "
-           << "(prevalence " << sum->get_count_fraction( ADULT, FEMALE ) << ")" << std::endl;
-    stream << sampsim::get_age_type_name( CHILD ) << " " << sampsim::get_sex_type_name( MALE ) << " count: "
-           << sum->get_count( CHILD, MALE, DISEASED )
-           << " diseased of " << sum->get_count( CHILD, MALE, ANY_STATE ) << " total "
-           << "(prevalence " << sum->get_count_fraction( CHILD, MALE ) << ")" << std::endl;
-    stream << sampsim::get_age_type_name( CHILD ) << " " << sampsim::get_sex_type_name( FEMALE ) << " count: "
-           << sum->get_count( CHILD, FEMALE, DISEASED )
-           << " diseased of " << sum->get_count( CHILD, FEMALE, ANY_STATE ) << " total "
-           << "(prevalence " << sum->get_count_fraction( CHILD, FEMALE ) << ")" << std::endl;
+      stream << sampsim::get_sex_type_name( MALE ) << postfix
+             << sum->get_count( rr, ANY_AGE, MALE, DISEASED )
+             << " diseased of " << sum->get_count( rr, ANY_AGE, MALE ) << " total "
+             << "(prevalence " << sum->get_count_fraction( rr, ANY_AGE, MALE ) << ")" << std::endl;
+      stream << sampsim::get_sex_type_name( FEMALE ) << postfix
+             << sum->get_count( rr, ANY_AGE, FEMALE, DISEASED )
+             << " diseased of " << sum->get_count( rr, ANY_AGE, FEMALE ) << " total "
+             << "(prevalence " << sum->get_count_fraction( rr, ANY_AGE, FEMALE ) << ")" << std::endl;
+
+      stream << sampsim::get_age_type_name( ADULT ) << " " << sampsim::get_sex_type_name( MALE ) << postfix
+             << sum->get_count( rr, ADULT, MALE, DISEASED )
+             << " diseased of " << sum->get_count( rr, ADULT, MALE, ANY_STATE ) << " total "
+             << "(prevalence " << sum->get_count_fraction( rr, ADULT, MALE ) << ")" << std::endl;
+      stream << sampsim::get_age_type_name( ADULT ) << " " << sampsim::get_sex_type_name( FEMALE ) << postfix
+             << sum->get_count( rr, ADULT, FEMALE, DISEASED )
+             << " diseased of " << sum->get_count( rr, ADULT, FEMALE, ANY_STATE ) << " total "
+             << "(prevalence " << sum->get_count_fraction( rr, ADULT, FEMALE ) << ")" << std::endl;
+      stream << sampsim::get_age_type_name( CHILD ) << " " << sampsim::get_sex_type_name( MALE ) << postfix
+             << sum->get_count( rr, CHILD, MALE, DISEASED )
+             << " diseased of " << sum->get_count( rr, CHILD, MALE, ANY_STATE ) << " total "
+             << "(prevalence " << sum->get_count_fraction( rr, CHILD, MALE ) << ")" << std::endl;
+      stream << sampsim::get_age_type_name( CHILD ) << " " << sampsim::get_sex_type_name( FEMALE ) << postfix
+             << sum->get_count( rr, CHILD, FEMALE, DISEASED )
+             << " diseased of " << sum->get_count( rr, CHILD, FEMALE, ANY_STATE ) << " total "
+             << "(prevalence " << sum->get_count_fraction( rr, CHILD, FEMALE ) << ")" << std::endl;
+    }
 
     stream.close();
   }
@@ -442,9 +449,12 @@ namespace sampsim
     individual_stream << stream.str();
 
     // put in the csv headers
-    household_stream << "town_index,household_index,x,y,r,a,individuals,income,disease_risk,exposure_risk,disease"
-                     << std::endl;
-    individual_stream << "town_index,household_index,individual_index,sex,age,disease";
+    household_stream << "town_index,household_index,x,y,r,a,individuals,income,disease_risk,exposure_risk";
+    
+    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ ) household_stream << ",rr" << utilities::rr[rr];
+    household_stream << std::endl;
+    individual_stream << "town_index,household_index,individual_index,sex,age,exposed";
+    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ ) individual_stream << ",rr" << utilities::rr[rr];
     if( this->use_sample_weights ) individual_stream << ",weight";
     individual_stream << std::endl;
 

@@ -680,6 +680,12 @@ namespace sampsim
      * A clock used to track execution time
      */
     static clock_t start_time;
+
+    /**
+     * A list of disease relative risks (and the total number)
+     */
+    static double rr[4];
+    static const int rr_size;
   };
 }
 

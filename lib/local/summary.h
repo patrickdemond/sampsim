@@ -47,10 +47,13 @@ namespace sampsim
      */
     void reset()
     {
-      for( unsigned int i = 0; i < 8; i++ )
+      for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
       {
-        this->count[i] = 0;
-        this->weighted_count[i] = 0.0;
+        for( unsigned int i = 0; i < 8; i++ )
+        {
+          this->count[rr][i] = 0;
+          this->weighted_count[rr][i] = 0.0;
+        }
       }
     }
 
@@ -63,6 +66,7 @@ namespace sampsim
      * Method for getting count data
      */
     unsigned int get_count(
+      const unsigned int rr,
       const age_type age = ANY_AGE,
       const sex_type sex = ANY_SEX,
       const state_type state = ANY_STATE ) const
@@ -72,35 +76,35 @@ namespace sampsim
       if( ( ANY_AGE == age || ADULT == age ) &&
           ( ANY_SEX == sex || MALE == sex ) &&
           ( ANY_STATE == state || HEALTHY == state ) )
-        count += this->count[adult_male_healthy];
+        count += this->count[rr][adult_male_healthy];
       if( ( ANY_AGE == age || ADULT == age ) &&
           ( ANY_SEX == sex || MALE == sex ) &&
           ( ANY_STATE == state || DISEASED == state ) )
-        count += this->count[adult_male_diseased];
+        count += this->count[rr][adult_male_diseased];
       if( ( ANY_AGE == age || ADULT == age ) &&
           ( ANY_SEX == sex || FEMALE == sex ) &&
           ( ANY_STATE == state || HEALTHY == state ) )
-        count += this->count[adult_female_healthy];
+        count += this->count[rr][adult_female_healthy];
       if( ( ANY_AGE == age || ADULT == age ) &&
           ( ANY_SEX == sex || FEMALE == sex ) &&
           ( ANY_STATE == state || DISEASED == state ) )
-        count += this->count[adult_female_diseased];
+        count += this->count[rr][adult_female_diseased];
       if( ( ANY_AGE == age || CHILD == age ) &&
           ( ANY_SEX == sex || MALE == sex ) &&
           ( ANY_STATE == state || HEALTHY == state ) )
-        count += this->count[child_male_healthy];
+        count += this->count[rr][child_male_healthy];
       if( ( ANY_AGE == age || CHILD == age ) &&
           ( ANY_SEX == sex || MALE == sex ) &&
           ( ANY_STATE == state || DISEASED == state ) )
-        count += this->count[child_male_diseased];
+        count += this->count[rr][child_male_diseased];
       if( ( ANY_AGE == age || CHILD == age ) &&
           ( ANY_SEX == sex || FEMALE == sex ) &&
           ( ANY_STATE == state || HEALTHY == state ) )
-        count += this->count[child_female_healthy];
+        count += this->count[rr][child_female_healthy];
       if( ( ANY_AGE == age || CHILD == age ) &&
           ( ANY_SEX == sex || FEMALE == sex ) &&
           ( ANY_STATE == state || DISEASED == state ) )
-        count += this->count[child_female_diseased];
+        count += this->count[rr][child_female_diseased];
 
       return count;
     };
@@ -109,6 +113,7 @@ namespace sampsim
      * Method for getting weighted count data
      */
     double get_weighted_count(
+      const unsigned int rr,
       const age_type age = ANY_AGE,
       const sex_type sex = ANY_SEX,
       const state_type state = ANY_STATE ) const
@@ -118,35 +123,35 @@ namespace sampsim
       if( ( ANY_AGE == age || ADULT == age ) &&
           ( ANY_SEX == sex || MALE == sex ) &&
           ( ANY_STATE == state || HEALTHY == state ) )
-        weighted_count += this->weighted_count[adult_male_healthy];
+        weighted_count += this->weighted_count[rr][adult_male_healthy];
       if( ( ANY_AGE == age || ADULT == age ) &&
           ( ANY_SEX == sex || MALE == sex ) &&
           ( ANY_STATE == state || DISEASED == state ) )
-        weighted_count += this->weighted_count[adult_male_diseased];
+        weighted_count += this->weighted_count[rr][adult_male_diseased];
       if( ( ANY_AGE == age || ADULT == age ) &&
           ( ANY_SEX == sex || FEMALE == sex ) &&
           ( ANY_STATE == state || HEALTHY == state ) )
-        weighted_count += this->weighted_count[adult_female_healthy];
+        weighted_count += this->weighted_count[rr][adult_female_healthy];
       if( ( ANY_AGE == age || ADULT == age ) &&
           ( ANY_SEX == sex || FEMALE == sex ) &&
           ( ANY_STATE == state || DISEASED == state ) )
-        weighted_count += this->weighted_count[adult_female_diseased];
+        weighted_count += this->weighted_count[rr][adult_female_diseased];
       if( ( ANY_AGE == age || CHILD == age ) &&
           ( ANY_SEX == sex || MALE == sex ) &&
           ( ANY_STATE == state || HEALTHY == state ) )
-        weighted_count += this->weighted_count[child_male_healthy];
+        weighted_count += this->weighted_count[rr][child_male_healthy];
       if( ( ANY_AGE == age || CHILD == age ) &&
           ( ANY_SEX == sex || MALE == sex ) &&
           ( ANY_STATE == state || DISEASED == state ) )
-        weighted_count += this->weighted_count[child_male_diseased];
+        weighted_count += this->weighted_count[rr][child_male_diseased];
       if( ( ANY_AGE == age || CHILD == age ) &&
           ( ANY_SEX == sex || FEMALE == sex ) &&
           ( ANY_STATE == state || HEALTHY == state ) )
-        weighted_count += this->weighted_count[child_female_healthy];
+        weighted_count += this->weighted_count[rr][child_female_healthy];
       if( ( ANY_AGE == age || CHILD == age ) &&
           ( ANY_SEX == sex || FEMALE == sex ) &&
           ( ANY_STATE == state || DISEASED == state ) )
-        weighted_count += this->weighted_count[child_female_diseased];
+        weighted_count += this->weighted_count[rr][child_female_diseased];
 
       return weighted_count;
     };
@@ -154,18 +159,21 @@ namespace sampsim
     /**
      * Method for getting count faction data
      */
-    double get_count_fraction( const age_type age = ANY_AGE, const sex_type sex = ANY_SEX ) const
+    double get_count_fraction(
+      const unsigned int rr, const age_type age = ANY_AGE, const sex_type sex = ANY_SEX ) const
     {
-      return static_cast< double >( this->get_count( age, sex, DISEASED ) ) /
-             static_cast< double >( this->get_count( age, sex, ANY_STATE ) );
+      return static_cast< double >( this->get_count( rr, age, sex, DISEASED ) ) /
+             static_cast< double >( this->get_count( rr, age, sex, ANY_STATE ) );
     };
 
     /**
      * Method for getting weighted count faction data
      */
-    double get_weighted_count_fraction( const age_type age = ANY_AGE, const sex_type sex = ANY_SEX ) const
+    double get_weighted_count_fraction(
+      const unsigned int rr, const age_type age = ANY_AGE, const sex_type sex = ANY_SEX ) const
     {
-      return this->get_weighted_count( age, sex, DISEASED ) / this->get_weighted_count( age, sex, ANY_STATE );
+      return this->get_weighted_count( rr, age, sex, DISEASED ) /
+             this->get_weighted_count( rr, age, sex, ANY_STATE );
     };
 
   private:
@@ -189,12 +197,12 @@ namespace sampsim
     /**
      * Individual count values
      */
-    unsigned int count[8];
+    unsigned int count[4][8];
 
     /**
      * Individual weighted count values
      */
-    double weighted_count[8];
+    double weighted_count[4][8];
   };
 }
 

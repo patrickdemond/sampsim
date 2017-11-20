@@ -254,14 +254,21 @@ namespace sampsim
     // factor in weights, compute disease probability then set disease status for all individuals
     for( unsigned int i = 0; i < this->number_of_individuals; i++ )
     {
-      double eta = 0, probability;
+      double eta = 0, base_probability, probability, factor;
 
       for( unsigned int c = 0; c < number_of_disease_weights; c++ )
         eta += matrix[c][i] * pop->get_disease_weight_by_index( c );
 
       eta -= target_prevalence_factor;
       probability = 1 / ( 1 + exp( -eta ) );
-      individual_list[i]->set_disease( utilities::random() < probability );
+        std::cout << probability << std::endl;
+      for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+      {
+        // probability is equal to the base probability times the relative risk (max of 0.9)
+        probability = base_probability * utilities::rr[rr];
+        if( 0.9 > probability ) probability = 0.9;
+        individual_list[i]->set_disease( rr, utilities::random() < probability );
+      }
     }
 
     stream.str( "" );

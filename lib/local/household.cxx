@@ -184,7 +184,7 @@ namespace sampsim
                      << this->exposure_risk;
 
     // write all individuals in this household to the individual stream
-    bool disease = false;
+    bool disease[] = { false, false, false, false };
     bool sample_mode = this->get_population()->get_sample_mode();
     for( auto it = this->individual_list.begin(); it != this->individual_list.end(); ++it )
     {
@@ -192,14 +192,15 @@ namespace sampsim
       if( !sample_mode || i->is_selected() )
       {
         individual_stream << town_index << "," << this->index << ",";
-        if( !disease ) disease = i->is_disease();
+        for( unsigned int rr = 0; rr < utilities::rr_size; rr++ ) if( !disease[rr] ) disease[rr] = i->is_disease(rr);
         i->to_csv( household_stream, individual_stream );
         individual_stream << std::endl;
       }
     }
 
     // finish writing the household stream
-    household_stream << "," << ( disease ? "1" : "0" ) << std::endl;
+    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ ) household_stream << "," << ( disease[rr] ? "1" : "0" );
+    household_stream << std::endl;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
