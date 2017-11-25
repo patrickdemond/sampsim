@@ -261,7 +261,6 @@ namespace sampsim
 
       eta -= target_prevalence_factor;
       probability = 1 / ( 1 + exp( -eta ) );
-        std::cout << probability << std::endl;
       for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
       {
         // probability is equal to the base probability times the relative risk (max of 0.9)
