@@ -248,24 +248,24 @@ namespace sampsim
 
     // Determine the target_prevalence factor
     // This is an ad-hoc transformation described in the disease status documentation
+    double base_probability, probability;
     double adjusted_prevalence_factor = ( sin( (M_PI/2)*(2*pop->get_target_prevalence() - 1) ) + 1 )/2;
     double target_prevalence_factor = log( 1/adjusted_prevalence_factor - 1 );
 
     // factor in weights, compute disease probability then set disease status for all individuals
     for( unsigned int i = 0; i < this->number_of_individuals; i++ )
     {
-      double eta = 0, base_probability, probability, factor;
-
+      double eta = 0;
       for( unsigned int c = 0; c < number_of_disease_weights; c++ )
         eta += matrix[c][i] * pop->get_disease_weight_by_index( c );
 
       eta -= target_prevalence_factor;
-      probability = 1 / ( 1 + exp( -eta ) );
+      base_probability = 1 / ( 1 + exp( -eta ) );
       for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
       {
         // probability is equal to the base probability times the relative risk (max of 0.9)
-        probability = base_probability * utilities::rr[rr];
-        if( 0.9 > probability ) probability = 0.9;
+        probability = base_probability * ( individual_list[i]->is_exposed() ? utilities::rr[rr] : 1.0 );
+        if( 0.9 < probability ) probability = 0.9;
         individual_list[i]->set_disease( rr, utilities::random() < probability );
       }
     }
