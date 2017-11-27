@@ -684,8 +684,7 @@ namespace sampsim
     /**
      * A list of disease relative risks (and the total number)
      */
-    static double rr[4];
-    static const int rr_size;
+    static std::vector< double > rr;
   };
 }
 

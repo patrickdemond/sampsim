@@ -261,7 +261,7 @@ namespace sampsim
 
       eta -= target_prevalence_factor;
       base_probability = 1 / ( 1 + exp( -eta ) );
-      for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+      for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
       {
         // probability is equal to the base probability times the relative risk (max of 0.9)
         probability = base_probability * ( individual_list[i]->is_exposed() ? utilities::rr[rr] : 1.0 );

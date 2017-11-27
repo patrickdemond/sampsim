@@ -125,20 +125,20 @@ namespace sampsim
     /**
      * Returns the individual's state
      */
-    state_type get_state( unsigned int index ) const { return this->state[index]; }
+    state_type get_state( unsigned int index ) const { return this->state_list[index]; }
 
     /**
      * Sets the individual's disease status
      */
     void set_disease( unsigned int index, const bool disease )
     {
-      this->state[index] = disease ? DISEASED : HEALTHY;
+      this->state_list[index] = disease ? DISEASED : HEALTHY;
     }
 
     /**
      * Returns whether the individual has a disease
      */
-    bool is_disease( unsigned int index ) const { return DISEASED == this->state[index]; }
+    bool is_disease( unsigned int index ) const { return DISEASED == this->state_list[index]; }
 
     /**
      * Returns the individual's exposure
@@ -187,9 +187,8 @@ namespace sampsim
 
     /**
      * The individual's disease status
-     * TODONEXT: need to make this a vector is size utilities::rr_size
      */
-    state_type state[4];
+    std::vector<state_type> state_list;
 
     /**
      * The individual's exposure status

@@ -192,14 +192,14 @@ namespace sampsim
       if( !sample_mode || i->is_selected() )
       {
         individual_stream << town_index << "," << this->index << ",";
-        for( unsigned int rr = 0; rr < utilities::rr_size; rr++ ) if( !disease[rr] ) disease[rr] = i->is_disease(rr);
+        for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ ) if( !disease[rr] ) disease[rr] = i->is_disease(rr);
         i->to_csv( household_stream, individual_stream );
         individual_stream << std::endl;
       }
     }
 
     // finish writing the household stream
-    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ ) household_stream << "," << ( disease[rr] ? "1" : "0" );
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ ) household_stream << "," << ( disease[rr] ? "1" : "0" );
     household_stream << std::endl;
   }
 

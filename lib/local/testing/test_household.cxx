@@ -57,14 +57,14 @@ TEST( test_household )
 
           cout << "Testing household population..." << endl;
           sum = household->get_summary();
-          for( unsigned int rr = 0; rr < utilities::rr_size; rr++ ) CHECK( 0 != sum->get_count( rr ) );
+          for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ ) CHECK( 0 != sum->get_count( rr ) );
 
           cout << "Turning on sample mode" << endl;
           population->set_sample_mode( true );
 
           cout << "Testing that household now has no population..." << endl;
           sum = household->get_summary();
-          for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+          for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
           {
             CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, ANY_SEX ) );
             CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, MALE ) );
@@ -80,12 +80,12 @@ TEST( test_household )
           cout << "Testing that household with selected individual has population..." << endl;
           individual->select();
           sum = household->get_summary();
-          for( unsigned int rr = 0; rr < utilities::rr_size; rr++ ) CHECK( 0 != sum->get_count( rr ) );
+          for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ ) CHECK( 0 != sum->get_count( rr ) );
 
           cout << "Testing that household with unselected individual has no population..." << endl;
           individual->unselect();
           sum = household->get_summary();
-          for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+          for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
           {
             CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, ANY_SEX ) );
             CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, MALE ) );
@@ -102,7 +102,7 @@ TEST( test_household )
           individual->select();
           household->unselect();
           sum = household->get_summary();
-          for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+          for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
           {
             CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, ANY_SEX ) );
             CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, MALE ) );
@@ -120,7 +120,7 @@ TEST( test_household )
 
           cout << "Testing household population..." << endl;
           sum = household->get_summary();
-          for( unsigned int rr = 0; rr < utilities::rr_size; rr++ ) CHECK( 0 != sum->get_count( rr ) );
+          for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ ) CHECK( 0 != sum->get_count( rr ) );
         }
       }
     }

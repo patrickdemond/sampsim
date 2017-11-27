@@ -62,7 +62,7 @@ TEST( test_tile )
 
       cout << "Testing tile population..." << endl;
       sum = tile->get_summary();
-      for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+      for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
       {
         CHECK( 0 != sum->get_count( rr, ANY_AGE, ANY_SEX ) );
         CHECK( 0 != sum->get_count( rr, ANY_AGE, MALE ) );
@@ -80,7 +80,7 @@ TEST( test_tile )
 
       cout << "Testing that tile now has no population..." << endl;
       sum = tile->get_summary();
-      for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+      for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
       {
         CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, ANY_SEX ) );
         CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, MALE ) );
@@ -96,12 +96,12 @@ TEST( test_tile )
       cout << "Testing that tile with selected individual has population..." << endl;
       individual->select();
       sum = tile->get_summary();
-      for( unsigned int rr = 0; rr < utilities::rr_size; rr++ ) CHECK( 0 != sum->get_count( rr ) );
+      for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ ) CHECK( 0 != sum->get_count( rr ) );
 
       cout << "Testing that tile with unselected individual has no population..." << endl;
       individual->unselect();
       sum = tile->get_summary();
-      for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+      for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
       {
         CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, ANY_SEX ) );
         CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, MALE ) );
@@ -119,7 +119,7 @@ TEST( test_tile )
 
       cout << "Testing tile population..." << endl;
       sum = tile->get_summary();
-      for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+      for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
       {
         CHECK( 0 != sum->get_count( rr, ANY_AGE, ANY_SEX ) );
         CHECK( 0 != sum->get_count( rr, ANY_AGE, MALE ) );

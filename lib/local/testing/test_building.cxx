@@ -63,14 +63,14 @@ TEST( test_building )
 
         cout << "Testing building population..." << endl;
         sum = building->get_summary();
-        for( unsigned int rr = 0; rr < utilities::rr_size; rr++ ) CHECK( 0 != sum->get_count( rr ) );
+        for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ ) CHECK( 0 != sum->get_count( rr ) );
 
         cout << "Turning on sample mode" << endl;
         population->set_sample_mode( true );
 
         cout << "Testing that building now has no population..." << endl;
         sum = building->get_summary();
-        for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+        for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
         {
           CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, ANY_SEX ) );
           CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, MALE ) );
@@ -86,12 +86,12 @@ TEST( test_building )
         cout << "Testing that building with selected individual has population..." << endl;
         individual->select();
         sum = building->get_summary();
-        for( unsigned int rr = 0; rr < utilities::rr_size; rr++ ) CHECK( 0 != sum->get_count( rr ) );
+        for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ ) CHECK( 0 != sum->get_count( rr ) );
 
         cout << "Testing that building with unselected individual has no population..." << endl;
         individual->unselect();
         sum = building->get_summary();
-        for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+        for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
         {
           CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, ANY_SEX ) );
           CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, MALE ) );
@@ -108,7 +108,7 @@ TEST( test_building )
         individual->select();
         building->unselect();
         sum = building->get_summary();
-        for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+        for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
         {
           CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, ANY_SEX ) );
           CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, MALE ) );
@@ -126,7 +126,7 @@ TEST( test_building )
 
         cout << "Testing building population..." << endl;
         sum = building->get_summary();
-        for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+        for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
         {
           CHECK( 0 != sum->get_count( rr ) );
           CHECK( 0 != sum->get_count( rr, ADULT ) );

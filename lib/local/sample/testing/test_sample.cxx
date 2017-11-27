@@ -106,7 +106,7 @@ TEST( test_sample_sample )
                         );
                         CHECK_EQUAL( sampled_individual->get_sex(), individual->get_sex() );
                         CHECK_EQUAL( sampled_individual->get_age(), individual->get_age() );
-                        for( unsigned int rr = 0; rr < sampsim::utilities::rr_size; rr++ )
+                        for( unsigned int rr = 0; rr < sampsim::utilities::rr.size(); rr++ )
                           CHECK_EQUAL( sampled_individual->is_disease( rr ), individual->is_disease( rr ) );
                         done = true;
                       }

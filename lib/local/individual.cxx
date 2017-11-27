@@ -23,7 +23,7 @@ namespace sampsim
     this->index = this->get_population()->get_next_individual_index();
     this->age = UNKNOWN_AGE_TYPE;
     this->sex = UNKNOWN_SEX_TYPE;
-    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ ) this->state[rr] = UNKNOWN_STATE_TYPE;
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ ) this->state_list.push_back( UNKNOWN_STATE_TYPE );
     this->exposure = UNKNOWN_EXPOSURE_TYPE;
     this->sample_weight = 1.0;
   }
@@ -42,7 +42,8 @@ namespace sampsim
     this->selected = i->selected;
     this->age = i->age;
     this->sex = i->sex;
-    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ ) this->state[rr] = i->state[rr];
+    this->state_list.clear();
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ ) this->state_list.push_back( i->state_list[rr] );
     this->exposure = i->exposure;
     this->sample_weight = i->sample_weight;
   }
@@ -90,8 +91,9 @@ namespace sampsim
     this->index = json["index"].asUInt();
     this->age = sampsim::get_age_type( json["age"].asString() );
     this->sex = sampsim::get_sex_type( json["sex"].asString() );
-    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
-      this->state[rr] = 1 == json["disease"][rr].asUInt() ? DISEASED : HEALTHY;
+    this->state_list.resize( utilities::rr.size() );
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
+      this->state_list[rr] = 1 == json["disease"][rr].asUInt() ? DISEASED : HEALTHY;
     this->exposure = 1 == json["exposed"].asUInt() ? EXPOSED : NOT_EXPOSED;
     this->sample_weight = pop->get_use_sample_weights() ? json["sample_weight"].asDouble() : 1.0;
     pop->assert_individual_index( this->index );
@@ -106,8 +108,9 @@ namespace sampsim
     json["sex"] = Json::Value( sampsim::get_sex_type_name( this->sex ) );
     json["exposed"] = EXPOSED == this->exposure ? 1 : 0;
     json["disease"] = Json::Value( Json::arrayValue );
-    json["disease"].resize( utilities::rr_size );
-    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ ) json["disease"][rr] = DISEASED == this->state[rr] ? 1 : 0;
+    json["disease"].resize( utilities::rr.size() );
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
+      json["disease"][rr] = DISEASED == this->state_list[rr] ? 1 : 0;
     if( this->get_population()->get_use_sample_weights() ) json["sample_weight"] = this->sample_weight;
   }
 
@@ -118,7 +121,8 @@ namespace sampsim
                       << sampsim::get_age_type_name( this->age ) << ","
                       << sampsim::get_sex_type_name( this->sex ) << ","
                       << ( EXPOSED == this->exposure ? 1 : 0 );
-    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ ) individual_stream << "," << ( DISEASED == this->state[rr] ? 1 : 0 );
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
+      individual_stream << "," << ( DISEASED == this->state_list[rr] ? 1 : 0 );
     if( this->get_population()->get_use_sample_weights() ) individual_stream << "," << this->sample_weight;
   }
 
@@ -135,19 +139,19 @@ namespace sampsim
 
     if( !this->get_population()->get_sample_mode() || this->is_selected() )
     {
-      for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+      for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
       {
         int index = ADULT == this->get_age()
               ? ( MALE == this->get_sex()
-                ? ( HEALTHY == this->get_state(rr) ?
+                ? ( HEALTHY == this->state_list[rr] ?
                     summary::adult_male_healthy : summary::adult_male_diseased )
-                : ( HEALTHY == this->get_state(rr) ?
+                : ( HEALTHY == this->state_list[rr] ?
                     summary::adult_female_healthy : summary::adult_female_diseased )
               ) : (
                   MALE == this->get_sex()
-                ? ( HEALTHY == this->get_state(rr) ?
+                ? ( HEALTHY == this->state_list[rr] ?
                     summary::child_male_healthy : summary::child_male_diseased )
-                : ( HEALTHY == this->get_state(rr) ?
+                : ( HEALTHY == this->state_list[rr] ?
                     summary::child_female_healthy : summary::child_female_diseased )
               );
 

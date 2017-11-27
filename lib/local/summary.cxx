@@ -15,7 +15,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void summary::add( model_object* model )
   {
-    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
     {
       for( unsigned int i = 0; i < 8; i++ )
       {

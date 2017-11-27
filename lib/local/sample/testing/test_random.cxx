@@ -64,7 +64,7 @@ TEST( test_sample_random )
     for( auto it = pop->get_town_list_cbegin(); it != pop->get_town_list_cend(); ++it )
     {
       sampsim::town *town = *it;
-      for( unsigned int rr = 0; rr < sampsim::utilities::rr_size; rr++ )
+      for( unsigned int rr = 0; rr < sampsim::utilities::rr.size(); rr++ )
         CHECK( 10 <= town->get_summary()->get_count( rr ) );
       number_of_towns++;
     }
@@ -75,7 +75,7 @@ TEST( test_sample_random )
   CHECK_EQUAL( number_of_samples, sample1->get_number_of_samples() );
 
   sampsim::summary *sum = sample1->get_population()->get_summary();
-  for( unsigned int rr = 0; rr < sampsim::utilities::rr_size; rr++ )
+  for( unsigned int rr = 0; rr < sampsim::utilities::rr.size(); rr++ )
     CHECK( ( sample1->get_number_of_towns() * sample1->get_size() ) <= sum->get_count( rr ) );
 
   // clean up

@@ -261,7 +261,7 @@ namespace sampsim
 
     summary* sum = this->get_summary();
 
-    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
     {
       stream << "total"
              << " RR" << utilities::rr[rr] << " count: "
@@ -457,10 +457,10 @@ namespace sampsim
     // put in the csv headers
     household_stream << "town_index,household_index,x,y,r,a,individuals,income,disease_risk,exposure_risk";
     
-    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ ) household_stream << ",rr" << utilities::rr[rr];
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ ) household_stream << ",rr" << utilities::rr[rr];
     household_stream << std::endl;
     individual_stream << "town_index,household_index,individual_index,sex,age,exposed";
-    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ ) individual_stream << ",rr" << utilities::rr[rr];
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ ) individual_stream << ",rr" << utilities::rr[rr];
     if( this->use_sample_weights ) individual_stream << ",weight";
     individual_stream << std::endl;
 

@@ -526,8 +526,8 @@ namespace sample
     std::ofstream stream( filename + ".txt", std::ofstream::app );
 
     sampsim::summary total_summary;
-    double mean_array[utilities::rr_size][9], stdev_array[utilities::rr_size][9], squared_sum_array[utilities::rr_size][9];
-    double wmean_array[utilities::rr_size][9], wstdev_array[utilities::rr_size][9], wsquared_sum_array[utilities::rr_size][9];
+    double mean_array[utilities::rr.size()][9], stdev_array[utilities::rr.size()][9], squared_sum_array[utilities::rr.size()][9];
+    double wmean_array[utilities::rr.size()][9], wstdev_array[utilities::rr.size()][9], wsquared_sum_array[utilities::rr.size()][9];
     std::vector< sampsim::summary* > summary_vector;
 
     summary_vector.reserve( this->sampled_population_list.size() );
@@ -543,7 +543,7 @@ namespace sample
     // determine standard deviations for all prevalences
     age_type a;
     sex_type s;
-    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
     {
       for( unsigned int index = 0; index < 9; index++ )
       {

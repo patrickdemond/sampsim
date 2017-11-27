@@ -19,7 +19,8 @@ namespace sampsim
   bool sampsim::utilities::quiet = false; 
   unsigned int sampsim::utilities::write_sample_number = 1;
   clock_t sampsim::utilities::start_time = clock();
-  double sampsim::utilities::rr[] = { 1.0, 1.5, 2.0, 3.0 };
-  const int sampsim::utilities::rr_size = sizeof( sampsim::utilities::rr ) /
-                                                   sizeof( sampsim::utilities::rr[0] );
+
+  // define how many diseases (and their relative-risk value) here
+  double rr_values[] = { 1.0, 1.5, 2.0, 3.0 };
+  std::vector< double > sampsim::utilities::rr( rr_values, rr_values + sizeof(rr_values)/sizeof(double) );
 }

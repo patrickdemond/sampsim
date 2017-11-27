@@ -29,8 +29,6 @@ namespace sampsim
   /**
    * @class summary
    * @author Patrick Emond <emondpd@mcmaster.ca>
-   * @brief TODO
-   * @details * TODO
    */
   class summary
   {
@@ -47,13 +45,12 @@ namespace sampsim
      */
     void reset()
     {
-      for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+      this->count.resize( utilities::rr.size() );
+      this->weighted_count.resize( utilities::rr.size() );
+      for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
       {
-        for( unsigned int i = 0; i < 8; i++ )
-        {
-          this->count[rr][i] = 0;
-          this->weighted_count[rr][i] = 0.0;
-        }
+        this->count[rr] = std::array< unsigned, 8 >{ 0, 0, 0, 0, 0, 0, 0, 0 };
+        this->weighted_count[rr] = std::array< double, 8 >{ 0, 0, 0, 0, 0, 0, 0, 0 };
       }
     }
 
@@ -71,42 +68,42 @@ namespace sampsim
       const sex_type sex = ANY_SEX,
       const state_type state = ANY_STATE ) const
     {
-      unsigned int count = 0;
+      unsigned int total = 0;
 
       if( ( ANY_AGE == age || ADULT == age ) &&
           ( ANY_SEX == sex || MALE == sex ) &&
           ( ANY_STATE == state || HEALTHY == state ) )
-        count += this->count[rr][adult_male_healthy];
+        total += this->count[rr][adult_male_healthy];
       if( ( ANY_AGE == age || ADULT == age ) &&
           ( ANY_SEX == sex || MALE == sex ) &&
           ( ANY_STATE == state || DISEASED == state ) )
-        count += this->count[rr][adult_male_diseased];
+        total += this->count[rr][adult_male_diseased];
       if( ( ANY_AGE == age || ADULT == age ) &&
           ( ANY_SEX == sex || FEMALE == sex ) &&
           ( ANY_STATE == state || HEALTHY == state ) )
-        count += this->count[rr][adult_female_healthy];
+        total += this->count[rr][adult_female_healthy];
       if( ( ANY_AGE == age || ADULT == age ) &&
           ( ANY_SEX == sex || FEMALE == sex ) &&
           ( ANY_STATE == state || DISEASED == state ) )
-        count += this->count[rr][adult_female_diseased];
+        total += this->count[rr][adult_female_diseased];
       if( ( ANY_AGE == age || CHILD == age ) &&
           ( ANY_SEX == sex || MALE == sex ) &&
           ( ANY_STATE == state || HEALTHY == state ) )
-        count += this->count[rr][child_male_healthy];
+        total += this->count[rr][child_male_healthy];
       if( ( ANY_AGE == age || CHILD == age ) &&
           ( ANY_SEX == sex || MALE == sex ) &&
           ( ANY_STATE == state || DISEASED == state ) )
-        count += this->count[rr][child_male_diseased];
+        total += this->count[rr][child_male_diseased];
       if( ( ANY_AGE == age || CHILD == age ) &&
           ( ANY_SEX == sex || FEMALE == sex ) &&
           ( ANY_STATE == state || HEALTHY == state ) )
-        count += this->count[rr][child_female_healthy];
+        total += this->count[rr][child_female_healthy];
       if( ( ANY_AGE == age || CHILD == age ) &&
           ( ANY_SEX == sex || FEMALE == sex ) &&
           ( ANY_STATE == state || DISEASED == state ) )
-        count += this->count[rr][child_female_diseased];
+        total += this->count[rr][child_female_diseased];
 
-      return count;
+      return total;
     };
 
     /**
@@ -118,42 +115,42 @@ namespace sampsim
       const sex_type sex = ANY_SEX,
       const state_type state = ANY_STATE ) const
     {
-      double weighted_count = 0;
+      double total = 0;
 
       if( ( ANY_AGE == age || ADULT == age ) &&
           ( ANY_SEX == sex || MALE == sex ) &&
           ( ANY_STATE == state || HEALTHY == state ) )
-        weighted_count += this->weighted_count[rr][adult_male_healthy];
+        total += this->weighted_count[rr][adult_male_healthy];
       if( ( ANY_AGE == age || ADULT == age ) &&
           ( ANY_SEX == sex || MALE == sex ) &&
           ( ANY_STATE == state || DISEASED == state ) )
-        weighted_count += this->weighted_count[rr][adult_male_diseased];
+        total += this->weighted_count[rr][adult_male_diseased];
       if( ( ANY_AGE == age || ADULT == age ) &&
           ( ANY_SEX == sex || FEMALE == sex ) &&
           ( ANY_STATE == state || HEALTHY == state ) )
-        weighted_count += this->weighted_count[rr][adult_female_healthy];
+        total += this->weighted_count[rr][adult_female_healthy];
       if( ( ANY_AGE == age || ADULT == age ) &&
           ( ANY_SEX == sex || FEMALE == sex ) &&
           ( ANY_STATE == state || DISEASED == state ) )
-        weighted_count += this->weighted_count[rr][adult_female_diseased];
+        total += this->weighted_count[rr][adult_female_diseased];
       if( ( ANY_AGE == age || CHILD == age ) &&
           ( ANY_SEX == sex || MALE == sex ) &&
           ( ANY_STATE == state || HEALTHY == state ) )
-        weighted_count += this->weighted_count[rr][child_male_healthy];
+        total += this->weighted_count[rr][child_male_healthy];
       if( ( ANY_AGE == age || CHILD == age ) &&
           ( ANY_SEX == sex || MALE == sex ) &&
           ( ANY_STATE == state || DISEASED == state ) )
-        weighted_count += this->weighted_count[rr][child_male_diseased];
+        total += this->weighted_count[rr][child_male_diseased];
       if( ( ANY_AGE == age || CHILD == age ) &&
           ( ANY_SEX == sex || FEMALE == sex ) &&
           ( ANY_STATE == state || HEALTHY == state ) )
-        weighted_count += this->weighted_count[rr][child_female_healthy];
+        total += this->weighted_count[rr][child_female_healthy];
       if( ( ANY_AGE == age || CHILD == age ) &&
           ( ANY_SEX == sex || FEMALE == sex ) &&
           ( ANY_STATE == state || DISEASED == state ) )
-        weighted_count += this->weighted_count[rr][child_female_diseased];
+        total += this->weighted_count[rr][child_female_diseased];
 
-      return weighted_count;
+      return total;
     };
 
     /**
@@ -197,12 +194,12 @@ namespace sampsim
     /**
      * Individual count values
      */
-    unsigned int count[4][8];
+    std::vector< std::array< unsigned, 8 > > count;
 
     /**
      * Individual weighted count values
      */
-    double weighted_count[4][8];
+    std::vector< std::array< double, 8 > > weighted_count;
   };
 }
 

@@ -43,7 +43,7 @@ TEST( test_population )
 
     cout << "Testing town size..." << endl;
     sum = town->get_summary();
-    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
     {
       CHECK( 0 != sum->get_count( rr, ANY_AGE, ANY_SEX ) );
       CHECK( 0 != sum->get_count( rr, ANY_AGE, MALE ) );
@@ -57,7 +57,7 @@ TEST( test_population )
     }
 
     cout << "Testing town prevalence..." << endl;
-    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
     {
       CHECK( 0 != sum->get_count( rr, ANY_AGE, ANY_SEX, DISEASED ) );
       CHECK( 0 != sum->get_count( rr, ANY_AGE, MALE, DISEASED ) );
@@ -75,7 +75,7 @@ TEST( test_population )
 
     cout << "Testing that town now has a count of zero..." << endl;
     sum = town->get_summary();
-    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
     {
       CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, ANY_SEX ) );
       CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, MALE ) );
@@ -89,7 +89,7 @@ TEST( test_population )
     }
 
     cout << "Testing that town prevalence now has a count of zero..." << endl;
-    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
     {
       CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, ANY_SEX, DISEASED ) );
       CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, MALE, DISEASED ) );
@@ -105,12 +105,12 @@ TEST( test_population )
     cout << "Testing that town with selected individual has non-zero count..." << endl;
     individual->select();
     sum = town->get_summary();
-    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ ) CHECK( 0 != sum->get_count( rr ) );
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ ) CHECK( 0 != sum->get_count( rr ) );
 
     cout << "Testing that town with unselected individual has a count of zero..." << endl;
     individual->unselect();
     sum = town->get_summary();
-    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
     {
       CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, ANY_SEX ) );
       CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, MALE ) );
@@ -133,7 +133,7 @@ TEST( test_population )
 
     cout << "Testing town size..." << endl;
     sum = town->get_summary();
-    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
     {
       CHECK( 0 != sum->get_count( rr, ANY_AGE, ANY_SEX ) );
       CHECK( 0 != sum->get_count( rr, ANY_AGE, MALE ) );
@@ -147,7 +147,7 @@ TEST( test_population )
     }
 
     cout << "Testing town prevalence..." << endl;
-    for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
     {
       CHECK( 0 != sum->get_count( rr, ANY_AGE, ANY_SEX, DISEASED ) );
       CHECK( 0 != sum->get_count( rr, ANY_AGE, MALE, DISEASED ) );

@@ -41,14 +41,14 @@ TEST( test_population )
   sampsim::summary *sum = population->get_summary();
 
   cout << "Testing population size..." << endl;
-  for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+  for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
   {
     CHECK( town_size_min * number_of_towns <= sum->get_count( rr ) );
     CHECK( town_size_max * number_of_towns >= sum->get_count( rr ) );
   }
 
   cout << "Testing population prevalence..." << endl;
-  for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+  for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
   {
     CHECK( sum->get_count( rr, ANY_AGE, ANY_SEX, DISEASED ) <= sum->get_count( rr, ANY_AGE, ANY_SEX ) );
     CHECK( 0 <= sum->get_count( rr, ANY_AGE, ANY_SEX, DISEASED ) );
@@ -85,7 +85,7 @@ TEST( test_population )
   sum = population->get_summary();
 
   cout << "Testing that population now has a count of zero..." << endl;
-  for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+  for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
   {
     CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, ANY_SEX ) );
     CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, MALE ) );
@@ -99,7 +99,7 @@ TEST( test_population )
   }
 
   cout << "Testing that population prevalence now has a count of zero..." << endl;
-  for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+  for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
   {
     CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, ANY_SEX, sampsim::DISEASED ) );
     CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, MALE, sampsim::DISEASED ) );
@@ -115,12 +115,12 @@ TEST( test_population )
   cout << "Testing that population with selected individual has non-zero count..." << endl;
   individual->select();
   sum = population->get_summary();
-  for( unsigned int rr = 0; rr < utilities::rr_size; rr++ ) CHECK( 0 != sum->get_count( rr ) );
+  for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ ) CHECK( 0 != sum->get_count( rr ) );
 
   cout << "Testing that population with unselected individual has a count of zero..." << endl;
   individual->unselect();
   sum = population->get_summary();
-  for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+  for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
   {
     CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, ANY_SEX ) );
     CHECK_EQUAL( 0, sum->get_count( rr, ANY_AGE, MALE ) );
@@ -139,7 +139,7 @@ TEST( test_population )
   sum = population->get_summary();
 
   cout << "Testing population size..." << endl;
-  for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+  for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
   {
     CHECK( 0 != sum->get_count( rr, ANY_AGE, ANY_SEX ) );
     CHECK( 0 != sum->get_count( rr, ANY_AGE, MALE ) );
@@ -153,7 +153,7 @@ TEST( test_population )
   }
 
   cout << "Testing population prevalence..." << endl;
-  for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+  for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
   {
     CHECK( 0 != sum->get_count( rr, ANY_AGE, ANY_SEX, sampsim::DISEASED ) );
     CHECK( 0 != sum->get_count( rr, ANY_AGE, MALE, sampsim::DISEASED ) );
@@ -204,7 +204,7 @@ TEST( test_population )
   CHECK_EQUAL( population->get_number_of_individuals(), population_read->get_number_of_individuals() );
   sum = population->get_summary();
   sampsim::summary *read_sum = population_read->get_summary();
-  for( unsigned int rr = 0; rr < utilities::rr_size; rr++ )
+  for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
   {
     CHECK_EQUAL( sum->get_count( rr, ANY_AGE, ANY_SEX, DISEASED ), read_sum->get_count( rr, ANY_AGE, ANY_SEX, DISEASED ) );
     CHECK_EQUAL( sum->get_count( rr, ANY_AGE, ANY_SEX, HEALTHY ), read_sum->get_count( rr, ANY_AGE, ANY_SEX, HEALTHY ) );
