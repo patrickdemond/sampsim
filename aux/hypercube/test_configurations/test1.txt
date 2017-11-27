@@ -45,6 +45,18 @@ sd_disease_b10:d
 sd_disease_b02:d
 sd_disease_b20:d
 sd_disease_b11:d
+mean_exposure_b00:d
+mean_exposure_b01:d
+mean_exposure_b10:d
+mean_exposure_b02:d
+mean_exposure_b20:d
+mean_exposure_b11:d
+sd_exposure_b00:d
+sd_exposure_b01:d
+sd_exposure_b10:d
+sd_exposure_b02:d
+sd_exposure_b20:d
+sd_exposure_b11:d
 dweight_population:r 0 1 0.2
 dweight_income:r 0 1 0.2
 dweight_risk:d

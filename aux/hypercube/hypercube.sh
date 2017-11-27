@@ -252,6 +252,66 @@ param_short+=("sd11")
 param_value+=("0")
 param_help+=("SD disease trend's XY coefficient base value")
 
+param_name+=("mean_exposure_b00")
+param_short+=("me00")
+param_value+=("0.5")
+param_help+=("Mean exposure trend's independent coefficient base value")
+
+param_name+=("mean_exposure_b01")
+param_short+=("me01")
+param_value+=("0")
+param_help+=("Mean exposure trend's X coefficient base value")
+
+param_name+=("mean_exposure_b10")
+param_short+=("me10")
+param_value+=("0")
+param_help+=("Mean exposure trend's Y coefficient base value")
+
+param_name+=("mean_exposure_b02")
+param_short+=("me02")
+param_value+=("0")
+param_help+=("Mean exposure trend's X^2 coefficient base value")
+
+param_name+=("mean_exposure_b20")
+param_short+=("me20")
+param_value+=("0")
+param_help+=("Mean exposure trend's Y^2 coefficient base value")
+
+param_name+=("mean_exposure_b11")
+param_short+=("me11")
+param_value+=("0")
+param_help+=("Mean exposure trend's XY coefficient base value")
+
+param_name+=("sd_exposure_b00")
+param_short+=("se00")
+param_value+=("0")
+param_help+=("SD exposure trend's independent coefficient base value")
+
+param_name+=("sd_exposure_b01")
+param_short+=("se01")
+param_value+=("0")
+param_help+=("SD exposure trend's X coefficient base value")
+
+param_name+=("sd_exposure_b10")
+param_short+=("se10")
+param_value+=("0")
+param_help+=("SD exposure trend's Y coefficient base value")
+
+param_name+=("sd_exposure_b02")
+param_short+=("se02")
+param_value+=("0")
+param_help+=("SD exposure trend's X^2 coefficient base value")
+
+param_name+=("sd_exposure_b20")
+param_short+=("se20")
+param_value+=("0")
+param_help+=("SD exposure trend's Y^2 coefficient base value")
+
+param_name+=("sd_exposure_b11")
+param_short+=("se11")
+param_value+=("0")
+param_help+=("SD exposure trend's XY coefficient base value")
+
 param_name+=("dweight_population")
 param_short+=("wpn")
 param_value+=("0.0")
