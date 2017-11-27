@@ -16,11 +16,6 @@
 #include <json/value.h>
 #include <json/writer.h>
 
-// TODO: remove once removing debug statements in get_sample_weight()
-#include "individual.h"
-#include "tile.h"
-#include "building.h"
-
 namespace sampsim
 {
 namespace sample
@@ -155,19 +150,6 @@ namespace sample
         total++;
       }
     }
-
-    this->debug(
-      "town: %d  pop: %d  tile: %d,%d  building: %f,%f  GPS squares: %d of %d",
-      individual->get_town()->get_index(),
-      individual->get_town()->get_number_of_individuals(),
-      individual->get_tile()->get_index().first,
-      individual->get_tile()->get_index().second,
-      individual->get_building()->get_position().x,
-      individual->get_building()->get_position().y,
-      selected,
-      total
-    );
-
     return gps::get_sample_weight( individual ) *
            static_cast< double >( total ) / static_cast< double >( selected );
   }
