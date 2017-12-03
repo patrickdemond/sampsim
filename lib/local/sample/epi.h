@@ -128,6 +128,7 @@ namespace sample
      * Algorithm which selects buildings based on the sampling method
      */
     virtual building* select_next_building( sampsim::building_tree& );
+    virtual void determine_initial_building_list( sampsim::building_tree&, building_list_type& ) = 0;
 
     /**
      * Extends parent method

@@ -79,9 +79,9 @@ namespace sample
 
   protected:
     /**
-     * Algorithm which selects buildings based on the sampling method
+     * Determine the initial list of buildings to choose from
      */
-    virtual building* select_next_building( sampsim::building_tree& );
+    virtual void determine_initial_building_list( sampsim::building_tree&, building_list_type& );
 
   private:
     /**

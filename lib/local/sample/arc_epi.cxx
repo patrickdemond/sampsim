@@ -28,97 +28,55 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  building* arc_epi::select_next_building( sampsim::building_tree &tree )
+  void arc_epi::determine_initial_building_list(
+    sampsim::building_tree &tree, building_list_type &initial_building_list )
   {
-    // make sure the arc angle has been set
-    if( 0 >= this->arc_angle )
-      throw std::runtime_error( "Tried to sample without first setting the arc angle parameter" );
+    building_list_type building_list = tree.get_building_list();
 
-    building* b;
-
-    // check to see if we have to move to the next sector and reset the current building if we do
-    double size_fraction = static_cast< double >( this->get_size() ) /
-                           static_cast< double >( this->get_number_of_sectors() );
-    if( this->get_current_town_size() > size_fraction * this->get_current_sector() )
+    // 2. get list of all buildings in the arc formed by a segment centered at the start angle which
+    //    has a width of arc_angle
+    int iteration = 0;
+    while( 0 == initial_building_list.size() && iteration < 1000 )
     {
-      this->current_building = NULL;
-    }
+      if( utilities::verbose )
+        utilities::output( "iteration #%d", iteration + 1 );
 
-    if( NULL == this->current_building )
-    {
-      building_list_type building_list = tree.get_building_list();
+      double a1 = safe_subtract( this->start_angle, this->arc_angle / 2.0 );
+      double a2 = this->start_angle + this->arc_angle / 2.0;
 
-      // 1. determine the start angle then get list of all buildings in the sector from the start
-      //    angle to the start angle + the input parameter "arc angle"
-      this->determine_next_start_angle();
-      building_list_type initial_building_list;
+      // it is possible that a1 < -PI, if so then we need to loop around to PI
+      // translate a1 into the 2nd quadrant (in positive radians)
+      while( -M_PI > a1 ) a1 += 2 * M_PI;
 
-      // 2. keep repeating step 2 until the list produced is not empty
-      int iteration = 0;
-      while( 0 == initial_building_list.size() && iteration < 1000 )
+      // it is possible that a2 > PI, if so then we need to loop around to -PI
+      // translate a2 into the 3rd quadrant (in negative radians)
+      while( M_PI < a2 ) a2 -= 2 * M_PI;
+
+      for( auto it = building_list.begin(); it != building_list.end(); ++it )
       {
-        if( utilities::verbose )
-          utilities::output( "iteration #%d", iteration + 1 );
+        building *building = (*it);
+        double a = (*it)->get_position().get_a();
 
-        double a1 = safe_subtract( this->start_angle, this->arc_angle / 2.0 );
-        double a2 = this->start_angle + this->arc_angle / 2.0;
-
-        // it is possible that a1 < -PI, if so then we need to loop around to PI
-        // translate a1 into the 2nd quadrant (in positive radians)
-        while( -M_PI > a1 ) a1 += 2 * M_PI;
-
-        // it is possible that a2 > PI, if so then we need to loop around to -PI
-        // translate a2 into the 3rd quadrant (in negative radians)
-        while( M_PI < a2 ) a2 -= 2 * M_PI;
-
-        for( auto it = building_list.begin(); it != building_list.end(); ++it )
+        if( a1 > a2 )
         {
-          building *building = (*it);
-          double a = (*it)->get_position().get_a();
-
-          if( a1 > a2 )
-          {
-            // the arc crosses over the -pi/pi boundary
-            if( ( a1 <= a && a <= M_PI ) || ( -M_PI <= a && a < a2 ) )
-              initial_building_list.push_back( *it );
-          }
-          else
-          {
-            if( a1 <= a && a < a2 ) initial_building_list.push_back( *it );
-          }
+          // the arc crosses over the -pi/pi boundary
+          if( ( a1 <= a && a <= M_PI ) || ( -M_PI <= a && a < a2 ) )
+            initial_building_list.push_back( *it );
         }
-
-        if( 0 == initial_building_list.size() && utilities::verbose ) 
-          utilities::output( "no buildings found in arc" );
-
-        iteration++;
-
-        // increase the angle in case we need another iteration
-        if( 0 == initial_building_list.size() && iteration < 1000 ) this->start_angle += this->arc_angle;
+        else
+        {
+          if( a1 <= a && a < a2 ) initial_building_list.push_back( *it );
+        }
       }
 
-      if( 0 == initial_building_list.size() )
-        throw std::runtime_error(
-          "Unable to find initial building after 1000 attempts.  You must either lower the sample size or increase the arc_angle." );
+      if( 0 == initial_building_list.size() && utilities::verbose ) 
+        utilities::output( "no buildings found in arc" );
 
-      // 3. select a random building from the list produced by step 2
-      this->first_building_index = utilities::random( 0, initial_building_list.size() - 1 );
-      auto initial_it = initial_building_list.begin();
-      std::advance( initial_it, this->first_building_index );
-      b = *initial_it;
-      if( utilities::verbose )
-        utilities::output(
-          "selecting building %d of %d in arc",
-          this->first_building_index + 1, 
-          initial_building_list.size() );
-    }
-    else
-    {
-      b = epi::select_next_building( tree );
-    }
+      iteration++;
 
-    this->current_building = b;
-    return b;
+      // increase the angle in case we need another iteration
+      if( 0 == initial_building_list.size() && iteration < 1000 ) this->start_angle += this->arc_angle;
+    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
