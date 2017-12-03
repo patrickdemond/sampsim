@@ -89,6 +89,16 @@ namespace sample
     unsigned int get_skip() const { return this->skip; }
 
     /**
+     * Sets whether to select households at the center and periphery (instead of randomly)
+     */
+    void set_periphery( const bool periphery );
+
+    /**
+     * Returns whether to select households at the center and periphery (instead of randomly)
+     */
+    bool get_periphery() const { return this->periphery; }
+
+    /**
      * Returns the angle used in the selection of the initial building
      */
     double get_start_angle() { return this->start_angle; }
@@ -128,6 +138,10 @@ namespace sample
      * Algorithm which selects buildings based on the sampling method
      */
     virtual building* select_next_building( sampsim::building_tree& );
+
+    /**
+     * Gets a list of all buildings in the current selection angle
+     */
     virtual void determine_initial_building_list( sampsim::building_tree&, building_list_type& ) = 0;
 
     /**
@@ -179,6 +193,13 @@ namespace sample
      * The number of households to skip when selecting the next household
      */
     unsigned int skip;
+
+    /**
+     * Whether to select households at the center and periphery (instead of randomly)
+     */
+    bool periphery;
+
+    building_list_type initial_building_list;
   };
 }
 

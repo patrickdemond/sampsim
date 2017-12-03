@@ -31,10 +31,10 @@ namespace sample
   void arc_epi::determine_initial_building_list(
     sampsim::building_tree &tree, building_list_type &initial_building_list )
   {
+    initial_building_list.clear();
     building_list_type building_list = tree.get_building_list();
 
-    // 2. get list of all buildings in the arc formed by a segment centered at the start angle which
-    //    has a width of arc_angle
+    // 2. keep repeating step 2 until the list produced is not empty
     int iteration = 0;
     while( 0 == initial_building_list.size() && iteration < 1000 )
     {

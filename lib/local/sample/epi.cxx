@@ -27,6 +27,7 @@ namespace sample
     this->number_of_sectors = 1;
     this->current_sector_index = -1;
     this->skip = 1;
+    this->periphery = false;
     this->start_angle_defined = false;
     this->start_angle = 0;
     this->first_building_index = 0;
@@ -39,6 +40,7 @@ namespace sample
     this->number_of_sectors = object->number_of_sectors;
     this->current_sector_index = object->current_sector_index;
     this->skip = object->skip;
+    this->periphery = object->periphery;
     this->start_angle_defined = object->start_angle_defined;
     this->start_angle = object->start_angle;
     this->first_building_index = object->first_building_index;
@@ -48,11 +50,11 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   building* epi::select_next_building( sampsim::building_tree &tree )
   {
-    building* b;
+    building* b = NULL;
 
     // check to see if we have to move to the next sector and reset the current building if we do
     double size_fraction = static_cast< double >( this->get_size() ) /
-                           static_cast< double >( this->get_number_of_sectors() );
+                           static_cast< double >( this->number_of_sectors );
     if( this->get_current_town_size() >= size_fraction * this->get_current_sector() )
     {
       this->current_building = NULL;
@@ -118,6 +120,7 @@ namespace sample
     this->start_angle = 0;
     this->first_building_index = 0;
     this->current_building = NULL;
+    this->initial_building_list.clear();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -142,7 +145,7 @@ namespace sample
       this->start_angle = utilities::random() * safe_subtract( angles.second, angles.first ) + angles.first;
     }
 
-    if( utilities::verbose )
+//    if( utilities::verbose )
       utilities::output(
         "Beginning sector %d of %d with a starting angle of %0.3f radians",
         this->get_current_sector(),
@@ -184,6 +187,13 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void epi::set_periphery( const bool periphery )
+  {
+    if( utilities::verbose ) utilities::output( "setting periphery to %s", periphery ? "true" : "false" );
+    this->periphery = periphery;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   double epi::get_sample_weight( const sampsim::individual* individual ) const
   {
     // Since towns are chosen using PPS, and there is a fixed number of people sampled per town, the
@@ -198,6 +208,7 @@ namespace sample
     sized_sample::from_json( json );
     this->number_of_sectors = json["number_of_sectors"].asUInt();
     this->skip = json["skip"].asUInt();
+    this->periphery = json["periphery"].asBool();
     this->start_angle = json["start_angle"].asDouble();
     this->first_building_index = json["first_building_index"].asUInt();
   }
@@ -208,6 +219,7 @@ namespace sample
     sized_sample::to_json( json );
     json["number_of_sectors"] = this->number_of_sectors;
     json["skip"] = this->skip;
+    json["periphery"] = this->periphery;
     json["start_angle"] = this->start_angle;
     json["first_building_index"] = this->first_building_index;
   }
@@ -219,6 +231,7 @@ namespace sample
     stream << sized_sample::get_csv_header();
     stream << "# number_of_sectors: " << this->number_of_sectors << std::endl;
     stream << "# skip: " << this->skip << std::endl;
+    stream << "# periphery: " << ( this->periphery ? "true" : "false" ) << std::endl;
     return stream.str();
   }
 }

@@ -31,6 +31,7 @@ namespace sample
   void strip_epi::determine_initial_building_list(
     sampsim::building_tree &tree, building_list_type &initial_building_list )
   {
+    initial_building_list.clear();
     building_list_type building_list = tree.get_building_list();
     coordinate centroid = ( *building_list.cbegin() )->get_town()->get_centroid();
 

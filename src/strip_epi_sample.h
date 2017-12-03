@@ -20,6 +20,8 @@ void setup_strip_epi_sample( sampsim::options &opts )
     "Divide towns into sectors, splitting the sample evently into each sector." );
   opts.add_option( "skip", "1",
     "How many of the nearest households to skip when selecting the next household." );
+  opts.add_flag( "periphery",
+    "Whether to select half of households at the centre and the other half on the periphery." );
   opts.add_option( "strip_width", "50", "Width of the strip used to sampling from the centre (in meters)" );
 }
 
@@ -27,5 +29,6 @@ void parse_strip_epi_sample( sampsim::options &opts, sampsim::sample::strip_epi 
 {
   sample->set_number_of_sectors( opts.get_option_as_int( "number_of_sectors" ) );
   sample->set_skip( opts.get_option_as_int( "skip" ) );
+  sample->set_periphery( opts.get_flag( "periphery" ) );
   sample->set_strip_width( opts.get_option_as_double( "strip_width" ) / 1000 );
 }
