@@ -6,6 +6,7 @@ SET( SAMPSIM_SAMPLE_LIB_SOURCE
   direction_epi.cxx
   epi.cxx
   gps.cxx
+  grid_epi.cxx
   random.cxx
   sized_sample.cxx
   square_gps.cxx

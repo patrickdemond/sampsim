@@ -45,6 +45,7 @@ SET( SAMPSIM_EXECUTABLES
   generate
   arc_epi_sample
   circle_gps_sample
+  grid_epi_sample
   random_sample
   summarize
   square_gps_sample
