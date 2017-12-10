@@ -258,61 +258,8 @@ namespace sampsim
   void population::write_summary( const std::string filename )
   {
     std::ofstream stream( filename + ".txt", std::ofstream::out );
-
     summary* sum = this->get_summary();
-
-    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
-    {
-      stream << "total"
-             << " RR" << utilities::rr[rr] << " count: "
-             << sum->get_count( rr, ANY_AGE, ANY_SEX, DISEASED )
-             << " diseased of " << sum->get_count( rr ) << " total "
-             << "(prevalence " << sum->get_count_fraction( rr ) << ")" << std::endl;
-
-      stream << sampsim::get_age_type_name( ADULT )
-             << " RR" << utilities::rr[rr] << " count: "
-             << sum->get_count( rr, ADULT, ANY_SEX, DISEASED )
-             << " diseased of " << sum->get_count( rr, ADULT ) << " total "
-             << "(prevalence " << sum->get_count_fraction( rr, ADULT ) << ")" << std::endl;
-      stream << sampsim::get_age_type_name( CHILD )
-             << " RR" << utilities::rr[rr] << " count: "
-             << sum->get_count( rr, CHILD, ANY_SEX, DISEASED )
-             << " diseased of " << sum->get_count( rr, CHILD ) << " total "
-             << "(prevalence " << sum->get_count_fraction( rr, CHILD ) << ")" << std::endl;
-
-      stream << sampsim::get_sex_type_name( MALE )
-             << " RR" << utilities::rr[rr] << " count: "
-             << sum->get_count( rr, ANY_AGE, MALE, DISEASED )
-             << " diseased of " << sum->get_count( rr, ANY_AGE, MALE ) << " total "
-             << "(prevalence " << sum->get_count_fraction( rr, ANY_AGE, MALE ) << ")" << std::endl;
-      stream << sampsim::get_sex_type_name( FEMALE )
-             << " RR" << utilities::rr[rr] << " count: "
-             << sum->get_count( rr, ANY_AGE, FEMALE, DISEASED )
-             << " diseased of " << sum->get_count( rr, ANY_AGE, FEMALE ) << " total "
-             << "(prevalence " << sum->get_count_fraction( rr, ANY_AGE, FEMALE ) << ")" << std::endl;
-
-      stream << sampsim::get_age_type_name( ADULT ) << " " << sampsim::get_sex_type_name( MALE )
-             << " RR" << utilities::rr[rr] << " count: "
-             << sum->get_count( rr, ADULT, MALE, DISEASED )
-             << " diseased of " << sum->get_count( rr, ADULT, MALE, ANY_STATE ) << " total "
-             << "(prevalence " << sum->get_count_fraction( rr, ADULT, MALE ) << ")" << std::endl;
-      stream << sampsim::get_age_type_name( ADULT ) << " " << sampsim::get_sex_type_name( FEMALE )
-             << " RR" << utilities::rr[rr] << " count: "
-             << sum->get_count( rr, ADULT, FEMALE, DISEASED )
-             << " diseased of " << sum->get_count( rr, ADULT, FEMALE, ANY_STATE ) << " total "
-             << "(prevalence " << sum->get_count_fraction( rr, ADULT, FEMALE ) << ")" << std::endl;
-      stream << sampsim::get_age_type_name( CHILD ) << " " << sampsim::get_sex_type_name( MALE )
-             << " RR" << utilities::rr[rr] << " count: "
-             << sum->get_count( rr, CHILD, MALE, DISEASED )
-             << " diseased of " << sum->get_count( rr, CHILD, MALE, ANY_STATE ) << " total "
-             << "(prevalence " << sum->get_count_fraction( rr, CHILD, MALE ) << ")" << std::endl;
-      stream << sampsim::get_age_type_name( CHILD ) << " " << sampsim::get_sex_type_name( FEMALE )
-             << " RR" << utilities::rr[rr] << " count: "
-             << sum->get_count( rr, CHILD, FEMALE, DISEASED )
-             << " diseased of " << sum->get_count( rr, CHILD, FEMALE, ANY_STATE ) << " total "
-             << "(prevalence " << sum->get_count_fraction( rr, CHILD, FEMALE ) << ")" << std::endl;
-    }
-
+    sum->write( stream );
     stream.close();
   }
 
