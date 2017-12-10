@@ -33,7 +33,7 @@ namespace sample
     this->initial_building_list.clear();
     building_list_type building_list = tree.get_building_list();
 
-    // 2. keep repeating step 2 until the list produced is not empty
+    // 2. get list of all buildings in the arc defined by the start angle and arc width
     int iteration = 0;
     while( 0 == this->initial_building_list.size() && iteration < 1000 )
     {
