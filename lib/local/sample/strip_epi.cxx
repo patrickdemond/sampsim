@@ -85,14 +85,14 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void strip_epi::from_json( const Json::Value &json )
   {
-    epi::from_json( json );
+    direction_epi::from_json( json );
     this->strip_width = json["strip_width"].asDouble();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void strip_epi::to_json( Json::Value &json ) const
   {
-    epi::to_json( json );
+    direction_epi::to_json( json );
     json["strip_width"] = this->strip_width;
   }
 
@@ -100,7 +100,7 @@ namespace sample
   std::string strip_epi::get_csv_header() const
   {
     std::stringstream stream;
-    stream << epi::get_csv_header();
+    stream << direction_epi::get_csv_header();
     stream << "# strip_width: " << this->strip_width << std::endl;
     return stream.str();
   }

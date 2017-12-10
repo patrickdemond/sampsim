@@ -81,14 +81,14 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void arc_epi::from_json( const Json::Value &json )
   {
-    epi::from_json( json );
+    direction_epi::from_json( json );
     this->arc_angle = json["arc_angle"].asDouble();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void arc_epi::to_json( Json::Value &json ) const
   {
-    epi::to_json( json );
+    direction_epi::to_json( json );
     json["arc_angle"] = this->arc_angle;
   }
 
@@ -96,7 +96,7 @@ namespace sample
   std::string arc_epi::get_csv_header() const
   {
     std::stringstream stream;
-    stream << epi::get_csv_header();
+    stream << direction_epi::get_csv_header();
     stream << "# arc_angle: " << this->arc_angle << std::endl;
     return stream.str();
   }

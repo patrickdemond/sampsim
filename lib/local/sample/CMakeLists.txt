@@ -3,6 +3,7 @@ SET( SAMPSIM_SAMPLE_LIB_NAME "${PROJECT_NAME}_sample" )
 SET( SAMPSIM_SAMPLE_LIB_SOURCE
   arc_epi.cxx
   circle_gps.cxx
+  direction_epi.cxx
   epi.cxx
   gps.cxx
   random.cxx
@@ -14,6 +15,7 @@ SET( SAMPSIM_SAMPLE_LIB_SOURCE
 
 # Define abstract classes in the following block
 SET_SOURCE_FILES_PROPERTIES(
+  direction_epi.cxx
   epi.cxx
   gps.cxx
   sized_sample.cxx

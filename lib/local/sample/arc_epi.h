@@ -9,7 +9,7 @@
 #ifndef __sampsim_sample_arc_epi_h
 #define __sampsim_sample_arc_epi_h
 
-#include "sample/epi.h"
+#include "sample/direction_epi.h"
 
 #include <list>
 
@@ -40,7 +40,7 @@ namespace sample
    * which buildings are considered to be inside the list of buildings defined by the initial
    * starting angle.
    */
-  class arc_epi : public epi
+  class arc_epi : public direction_epi
   {
   public:
     /**

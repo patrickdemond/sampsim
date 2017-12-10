@@ -9,7 +9,7 @@
 #ifndef __sampsim_sample_strip_epi_h
 #define __sampsim_sample_strip_epi_h
 
-#include "sample/epi.h"
+#include "sample/direction_epi.h"
 
 #include <list>
 
@@ -39,7 +39,7 @@ namespace sample
    * which buildings are considered to be inside the list of buildings defined by the initial
    * starting angle.
    */
-  class strip_epi : public epi
+  class strip_epi : public direction_epi
   {
   public:
     /**
