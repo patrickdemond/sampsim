@@ -28,15 +28,14 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void arc_epi::determine_initial_building_list(
-    sampsim::building_tree &tree, building_list_type &initial_building_list )
+  void arc_epi::determine_initial_building_list( sampsim::building_tree &tree )
   {
-    initial_building_list.clear();
+    this->initial_building_list.clear();
     building_list_type building_list = tree.get_building_list();
 
     // 2. keep repeating step 2 until the list produced is not empty
     int iteration = 0;
-    while( 0 == initial_building_list.size() && iteration < 1000 )
+    while( 0 == this->initial_building_list.size() && iteration < 1000 )
     {
       if( utilities::verbose )
         utilities::output( "iteration #%d", iteration + 1 );
@@ -61,21 +60,21 @@ namespace sample
         {
           // the arc crosses over the -pi/pi boundary
           if( ( a1 <= a && a <= M_PI ) || ( -M_PI <= a && a < a2 ) )
-            initial_building_list.push_back( *it );
+            this->initial_building_list.push_back( *it );
         }
         else
         {
-          if( a1 <= a && a < a2 ) initial_building_list.push_back( *it );
+          if( a1 <= a && a < a2 ) this->initial_building_list.push_back( *it );
         }
       }
 
-      if( 0 == initial_building_list.size() && utilities::verbose ) 
+      if( 0 == this->initial_building_list.size() && utilities::verbose ) 
         utilities::output( "no buildings found in arc" );
 
       iteration++;
 
       // increase the angle in case we need another iteration
-      if( 0 == initial_building_list.size() && iteration < 1000 ) this->start_angle += this->arc_angle;
+      if( 0 == this->initial_building_list.size() && iteration < 1000 ) this->start_angle += this->arc_angle;
     }
   }
 

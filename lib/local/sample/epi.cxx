@@ -10,6 +10,7 @@
 
 #include "building.h"
 #include "building_tree.h"
+#include "town.h"
 
 #include <cmath>
 #include <json/value.h>
@@ -32,6 +33,9 @@ namespace sample
     this->start_angle = 0;
     this->first_building_index = 0;
     this->current_building = NULL;
+    this->periphery_building_selected = false;
+    this->buildings_in_current_sector = 0;
+    this->initial_building_list.clear();
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -58,54 +62,102 @@ namespace sample
     if( this->get_current_town_size() >= size_fraction * this->get_current_sector() )
     {
       this->current_building = NULL;
+      this->buildings_in_current_sector = 0;
     }
 
-    if( NULL == this->current_building )
+    if( this->periphery &&
+        !this->periphery_building_selected &&
+        // whether we've selected half of the sample required for this sector
+        2 * this->number_of_sectors * this->buildings_in_current_sector >= this->get_size() )
     {
-      building_list_type initial_building_list;
-
-      // 1. determine the start angle
-      this->determine_next_start_angle();
-
-      // 2. get list of all buildings in the area determined by the sub-algorithm in the chosen direction
-      this->determine_initial_building_list( tree, initial_building_list );
-      if( 0 == initial_building_list.size() )
-        throw std::runtime_error(
-          "Unable to find initial building after 1000 attempts.  You must either lower the sample size or increase the initial selection area." );
-
-      // 3. select a random building from the list produced by step 2
-      this->first_building_index = utilities::random( 0, initial_building_list.size() - 1 );
-      auto initial_it = initial_building_list.begin();
-      std::advance( initial_it, this->first_building_index );
-      b = *initial_it;
+      // get the furthest building from the center of the town
+      b = *std::max_element(
+        this->initial_building_list.cbegin(),
+        this->initial_building_list.cend(),
+        []( building* b1, building* b2 ) -> bool {
+          return b1->get_town()->get_centroid().distance( b1->get_position() ) <
+                 b2->get_town()->get_centroid().distance( b2->get_position() );
+        }
+      );
+      this->periphery_building_selected = true;
       if( utilities::verbose )
         utilities::output(
-          "selecting building %d of %d in arc",
-          this->first_building_index + 1,  
-          initial_building_list.size() );
-    }   
+          "selected furthest building from center of town out of %d buildings in arc",
+          this->initial_building_list.size() );
+    }
     else
-    {   
-      // 5. find the nearest building (distance measured in a straight path (as the crow flies))
-
-      // we do this step "skip" times, then select the last in the set
-      coordinate position = this->current_building->get_position();
-
-      // first make sure we have enough buildings left
-      if( tree.get_building_list().size() <= this->skip )
-        throw std::runtime_error(
-          "Ran out of buildings to sample.  You must either lower the sample size or increase the lowest town population." );
-
-      for( int i = 0; i < this->skip; i++ )
+    {
+      if( NULL == this->current_building )
       {
-        // find the nearest building, make note of its position and remove it if it isn't the
-        // last building in the loop
-        b = tree.find_nearest( position );
-        position = b->get_position();
-        if( i < ( this->skip - 1 ) ) tree.remove( b );
+        // 1. determine the start angle
+        this->determine_next_start_angle();
+
+        // 2. get list of all buildings in the area determined by the sub-algorithm in the chosen direction
+        this->determine_initial_building_list( tree );
+        if( 0 == this->initial_building_list.size() )
+          throw std::runtime_error(
+            "Unable to find initial building after 1000 attempts.  You must either lower the sample size or increase the initial selection area." );
+
+        // 3. select a building from the list produced by step 2
+        if( this->periphery )
+        {
+          // get the closest building to the center of the town
+          b = *std::min_element(
+            this->initial_building_list.cbegin(),
+            this->initial_building_list.cend(),
+            []( building* b1, building* b2 ) -> bool {
+              return b1->get_town()->get_centroid().distance( b1->get_position() ) <
+                     b2->get_town()->get_centroid().distance( b2->get_position() );
+            }
+          );
+          this->periphery_building_selected = false;
+          if( utilities::verbose )
+            utilities::output(
+              "selected closest building to center of town out of %d buildings in arc",
+              this->initial_building_list.size() );
+        }
+        else
+        {
+          this->first_building_index = utilities::random( 0, this->initial_building_list.size() - 1 );
+          auto initial_it = this->initial_building_list.begin();
+          std::advance( initial_it, this->first_building_index );
+          b = *initial_it;
+          if( utilities::verbose )
+            utilities::output(
+              "selected building %d of %d in arc",
+              this->first_building_index + 1,  
+              this->initial_building_list.size() );
+        }
+      }   
+      else
+      {   
+        // 5. find the nearest building (distance measured in a straight path (as the crow flies))
+
+        // we do this step "skip" times, then select the last in the set
+        coordinate position = this->current_building->get_position();
+
+        // first make sure we have enough buildings left
+        if( tree.get_building_list().size() <= this->skip )
+          throw std::runtime_error(
+            "Ran out of buildings to sample.  You must either lower the sample size or increase the lowest town population." );
+
+        for( int i = 0; i < this->skip; i++ )
+        {
+          // find the nearest building, make note of its position and remove it if it isn't the
+          // last building in the loop
+          b = tree.find_nearest( position );
+          position = b->get_position();
+          if( i < ( this->skip - 1 ) ) tree.remove( b );
+          if( utilities::verbose )
+          {
+            if( i == this->skip-1 ) utilities::output( "closest building %d: selected", i+1 );
+            else utilities::output( "closest building %d: skipping", i+1 );
+          }
+        }
       }
     }
 
+    this->buildings_in_current_sector++;
     this->current_building = b;
     return b;
   }
@@ -119,6 +171,8 @@ namespace sample
     this->start_angle_defined = false;
     this->start_angle = 0;
     this->first_building_index = 0;
+    this->periphery_building_selected = false;
+    this->buildings_in_current_sector = 0;
     this->current_building = NULL;
     this->initial_building_list.clear();
   }

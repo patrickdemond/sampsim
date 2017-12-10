@@ -142,7 +142,7 @@ namespace sample
     /**
      * Gets a list of all buildings in the current selection angle
      */
-    virtual void determine_initial_building_list( sampsim::building_tree&, building_list_type& ) = 0;
+    virtual void determine_initial_building_list( sampsim::building_tree& ) = 0;
 
     /**
      * Extends parent method
@@ -171,9 +171,20 @@ namespace sample
     int first_building_index;
 
     /**
+     * Whether or not the periphery (furthest building from the center) has been selected
+     * Note: this is only used when periphery mode is activated
+     */
+    bool periphery_building_selected;
+
+    /**
      * A reference to the currently selected building
      */
     building *current_building;
+
+    /**
+     * The list of all buildings in the area selected by the start angle
+     */
+    building_list_type initial_building_list;
 
   private:
     /**
@@ -199,7 +210,10 @@ namespace sample
      */
     bool periphery;
 
-    building_list_type initial_building_list;
+    /**
+     * Keeps track of how many buildings have been selected in the current sector
+     */
+    unsigned int buildings_in_current_sector;
   };
 }
 

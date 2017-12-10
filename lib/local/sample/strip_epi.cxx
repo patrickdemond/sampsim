@@ -28,10 +28,9 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void strip_epi::determine_initial_building_list(
-    sampsim::building_tree &tree, building_list_type &initial_building_list )
+  void strip_epi::determine_initial_building_list( sampsim::building_tree &tree )
   {
-    initial_building_list.clear();
+    this->initial_building_list.clear();
     building_list_type building_list = tree.get_building_list();
     coordinate centroid = ( *building_list.cbegin() )->get_town()->get_centroid();
 
@@ -68,11 +67,11 @@ namespace sample
           double rotated_x = safe_subtract( p.x, centroid.x ) * cos_min_angle -
                              safe_subtract( p.y, centroid.y ) * sin_min_angle +
                              centroid.x;
-          if( centroid.x <= rotated_x ) initial_building_list.push_back( *it );
+          if( centroid.x <= rotated_x ) this->initial_building_list.push_back( *it );
         }
       }
 
-      if( 0 == initial_building_list.size() && utilities::verbose )
+      if( 0 == this->initial_building_list.size() && utilities::verbose )
         utilities::output( "no buildings found in strip" );
 
       iteration++;
@@ -80,7 +79,7 @@ namespace sample
       // increase the angle in case we need another iteration
       this->start_angle += 2*M_PI/1000;
     }
-    while( 0 == initial_building_list.size() && iteration < 1000 );
+    while( 0 == this->initial_building_list.size() && iteration < 1000 );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

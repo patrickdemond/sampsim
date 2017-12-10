@@ -81,7 +81,7 @@ namespace sample
     /**
      * Determine the initial list of buildings to choose from
      */
-    virtual void determine_initial_building_list( sampsim::building_tree&, building_list_type& );
+    virtual void determine_initial_building_list( sampsim::building_tree& );
 
   private:
     /**

@@ -118,12 +118,19 @@ namespace sampsim
     virtual void define() = 0;
 
     /**
-     * TODO: document
+     * Called to make sure that the summary has been built
+     * 
+     * Since building the summary for a population is expensive this method is used to make sure that
+     * it only gets called when the summary hasn't already been built or when it has expired due to
+     * a change in population.
      */
     virtual void assert_summary() = 0;
 
     /**
-     * TODO: document
+     * Rebuilds the summary for the model object
+     * 
+     * Note, this method should not be called directly.  Call assert_summary() instead and it will
+     * call this method but only if the summary hasn't already been built or has expired.
      */
     virtual void rebuild_summary() = 0;
 

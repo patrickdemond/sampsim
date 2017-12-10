@@ -581,67 +581,72 @@ namespace sample
         }
       }
 
-      std::string postfix = " RR";
-      postfix += utilities::rr[rr];
-      postfix += " count: ";
-
-      stream << "sampled total" << postfix << total_summary.get_count( rr, ANY_AGE, ANY_SEX, DISEASED )
+      stream << "sampled total RR" << utilities::rr[rr] << " count: "
+             << total_summary.get_count( rr, ANY_AGE, ANY_SEX, DISEASED )
              << " diseased of " << total_summary.get_count( rr, ANY_AGE, ANY_SEX )
              << " total (prevalence " << mean_array[rr][0] << " (" << stdev_array[rr][0] << "))";
       if( this->use_sample_weights )
         stream << " (weighted prevalence " << wmean_array[rr][0] << " (" << wstdev_array[rr][0] << "))";
       stream << std::endl;
 
-      stream << "sampled adult" << postfix << total_summary.get_count( rr, ADULT, ANY_SEX, DISEASED )
+      stream << "sampled adult RR" << utilities::rr[rr] << " count: "
+             << total_summary.get_count( rr, ADULT, ANY_SEX, DISEASED )
              << " diseased of " << total_summary.get_count( rr, ADULT, ANY_SEX )
              << " total (prevalence " << mean_array[rr][3] << " (" << stdev_array[rr][3] << "))";
       if( this->use_sample_weights )
         stream << " (weighted prevalence " << wmean_array[rr][3] << " (" << wstdev_array[rr][3] << "))";
       stream << std::endl;
 
-      stream << "sampled child" << postfix << total_summary.get_count( rr, CHILD, ANY_SEX, DISEASED )
+      stream << "sampled child RR" << utilities::rr[rr] << " count: "
+             << total_summary.get_count( rr, CHILD, ANY_SEX, DISEASED )
              << " diseased of " << total_summary.get_count( rr, CHILD, ANY_SEX )
              << " total (prevalence " << mean_array[rr][6] << " (" << stdev_array[rr][6] << "))";
       if( this->use_sample_weights )
         stream << " (weighted prevalence " << wmean_array[rr][6] << " (" << wstdev_array[rr][6] << "))";
       stream << std::endl;
 
-      stream << "sampled male" << postfix << total_summary.get_count( rr, ANY_AGE, MALE, DISEASED )
+      stream << "sampled male RR" << utilities::rr[rr] << " count: "
+             << total_summary.get_count( rr, ANY_AGE, MALE, DISEASED )
              << " diseased of " << total_summary.get_count( rr, ANY_AGE, MALE )
              << " total (prevalence " << mean_array[rr][1] << " (" << stdev_array[rr][1] << "))";
       if( this->use_sample_weights )
         stream << " (weighted prevalence " << wmean_array[rr][1] << " (" << wstdev_array[rr][1] << "))";
       stream << std::endl;
 
-      stream << "sampled female" << postfix << total_summary.get_count( rr, ANY_AGE, FEMALE, DISEASED )
+      stream << "sampled female RR" << utilities::rr[rr] << " count: "
+             << total_summary.get_count( rr, ANY_AGE, FEMALE, DISEASED )
              << " diseased of " << total_summary.get_count( rr, ANY_AGE, FEMALE )
              << " total (prevalence " << mean_array[rr][2] << " (" << stdev_array[rr][2] << "))";
       if( this->use_sample_weights )
         stream << " (weighted prevalence " << wmean_array[rr][2] << " (" << wstdev_array[rr][2] << "))";
       stream << std::endl;
 
-      stream << "sampled male adult" << postfix << total_summary.get_count( rr, ADULT, MALE, DISEASED )
+      stream << "sampled male adult RR" << utilities::rr[rr] << " count: "
+             << total_summary.get_count( rr, ADULT, MALE, DISEASED )
              << " diseased of " << total_summary.get_count( rr, ADULT, MALE )
              << " total (prevalence " << mean_array[rr][4] << " (" << stdev_array[rr][4] << "))";
       if( this->use_sample_weights )
         stream << " (weighted prevalence " << wmean_array[rr][4] << " (" << wstdev_array[rr][4] << "))";
       stream << std::endl;
 
-      stream << "sampled female adult" << postfix << total_summary.get_count( rr, ADULT, FEMALE, DISEASED )
+      stream << "sampled female adult RR" << utilities::rr[rr] << " count: "
+             << total_summary.get_count( rr, ADULT, FEMALE, DISEASED )
              << " diseased of " << total_summary.get_count( rr, ADULT, FEMALE )
              << " total (prevalence " << mean_array[rr][5] << " (" << stdev_array[rr][5] << "))";
       if( this->use_sample_weights )
         stream << " (weighted prevalence " << wmean_array[rr][5] << " (" << wstdev_array[rr][5] << "))";
       stream << std::endl;
 
-      stream << "sampled male child" << postfix << total_summary.get_count( rr, CHILD, MALE, DISEASED )
+      stream << "sampled male child RR" << utilities::rr[rr] << " count: "
+             << total_summary.get_count( rr, CHILD, MALE, DISEASED )
              << " diseased of " << total_summary.get_count( rr, CHILD, MALE )
              << " total (prevalence " << mean_array[rr][7] << " (" << stdev_array[rr][7] << "))";
       if( this->use_sample_weights )
         stream << " (weighted prevalence " << wmean_array[rr][7] << " (" << wstdev_array[rr][7] << "))";
       stream << std::endl;
 
-      stream << "sampled female child" << postfix << total_summary.get_count( rr, CHILD, FEMALE, DISEASED )
+      stream << "sampled female child RR" << utilities::rr[rr] << " count: "
+             << total_summary.get_count( rr, CHILD, FEMALE, DISEASED )
              << " diseased of " << total_summary.get_count( rr, CHILD, FEMALE )
              << " total (prevalence " << mean_array[rr][8] << " (" << stdev_array[rr][8] << "))";
       if( this->use_sample_weights )
