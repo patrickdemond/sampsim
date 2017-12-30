@@ -658,25 +658,25 @@ for index in ${!param_name[*]}; do
       upper=${values[2]}
       step=${values[3]}
       if [[ ! $lower =~ $number_pattern ]]; then
-        echo "${RED}ERROR (in config file): 'lower' must be a number${NORMAL}"
+        echo "${RED}ERROR ($name): 'lower' must be a number${NORMAL}"
         exit 2
       fi
 
       # get the upper value in the range
       if [[ ! $upper =~ $number_pattern ]]; then
-        echo "${RED}ERROR (in config file): 'upper' must be a number${NORMAL}"
+        echo "${RED}ERROR ($name): 'upper' must be a number${NORMAL}"
         exit 3
       elif [ $( echo "$lower == $upper" | bc ) -eq 1 ]; then
-        echo "${RED}ERROR (in config file): 'upper' cannot be the same value as 'lower'${NORMAL}"
+        echo "${RED}ERROR ($name): 'upper' cannot be the same value as 'lower'${NORMAL}"
         exit 4
       fi
 
       # get the step value of the range
       if [[ ! $step =~ $non_zero_number_pattern ]]; then
-        echo "${RED}ERROR (in config file): 'step' must be a non-zero number${NORMAL}"
+        echo "${RED}ERROR ($name): 'step' must be a non-zero number${NORMAL}"
         exit 5
       elif [ $( echo "($lower < $upper && $step > 0) || ($lower > $upper && $step < 0)" | bc ) -eq 0 ]; then
-        echo "${RED}ERROR (in config file): 'step' is in the wrong direction${NORMAL}"
+        echo "${RED}ERROR ($name): 'step' is in the wrong direction${NORMAL}"
         exit 6
       fi
 
@@ -692,7 +692,7 @@ for index in ${!param_name[*]}; do
     elif [ "${values[0]}" = "a" ]; then
       array=("${values[@]:1}") # remove the "a" from the values array
       if [ ${#array[@]} -eq 0 ]; then
-        echo "${RED}ERROR (in config file): The array cannot be empty${NORMAL}"
+        echo "${RED}ERROR ($name): The array cannot be empty${NORMAL}"
         exit 7
       else
         # validate all inputs as numbers
@@ -700,15 +700,16 @@ for index in ${!param_name[*]}; do
           if [[ $name =~ ^(mean|sd)_ ]]; then
             # mean/sd input (comma-separated numbers only)
             if [[ ! ${array[$idx]} =~ $number_with_comma_pattern ]]; then
-              echo "${RED}ERROR (in config file): Array can only contain comma-separated numbers${NORMAL}"
+              echo "${RED}ERROR ($name): Array can only contain comma-separated numbers${NORMAL}"
               exit 8
             fi
-          else
-            # normal input (numbers only)
-            if [[ ! ${array[$idx]} =~ $number_pattern ]]; then
-              echo "${RED}ERROR (in config file): Array can only contain numbers${NORMAL}"
-              exit 9
-            fi
+# Removing the following block since pocket_kernel_type values are strings, not numbers
+#          else
+#            # normal input (numbers only)
+#            if [[ ! ${array[$idx]} =~ $number_pattern ]]; then
+#              echo "${RED}ERROR ($name): Array can only contain numbers${NORMAL}"
+#              exit 9
+#            fi
           fi
         done
       fi
@@ -718,7 +719,7 @@ for index in ${!param_name[*]}; do
     elif [ "${values[0]}" = "f" ]; then
       skip=1
     else
-      echo "${RED}ERROR (in config file): value must start with d, c, r, a or f${NORMAL}"
+      echo "${RED}ERROR ($name): value must start with d, c, r, a or f${NORMAL}"
       exit 10
     fi
   else
