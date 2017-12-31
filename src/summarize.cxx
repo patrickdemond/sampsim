@@ -14,6 +14,7 @@
 #include "population.h"
 #include "sample/arc_epi.h"
 #include "sample/circle_gps.h"
+#include "sample/grid_epi.h"
 #include "sample/random.h"
 #include "sample/square_gps.h"
 #include "sample/strip_epi.h"
@@ -85,6 +86,13 @@ int main( const int argc, const char** argv )
           sample->write_summary( base_name );
           sampsim::utilities::safe_delete( sample );
         }
+        else if( "grid_epi" == type )
+        {
+          sampsim::sample::grid_epi *sample = new sampsim::sample::grid_epi;
+          sample->read( input_filename );
+          sample->write_summary( base_name );
+          sampsim::utilities::safe_delete( sample );
+        }
         else if( "random" == type )
         {
           sampsim::sample::random *sample = new sampsim::sample::random;
@@ -110,7 +118,7 @@ int main( const int argc, const char** argv )
         {
           std::stringstream stream;
           stream << "Unknown file type \"" << type << "\", must be one of "
-                 << "\"population\", \"arc_epi\", \"circle_gps\", \"random\", \"sqaure_gps\" or \"strip_epi\"";
+                 << "\"population\", \"arc_epi\", \"circle_gps\", \"grid_epi\", \"random\", \"sqaure_gps\" or \"strip_epi\"";
           throw std::runtime_error( stream.str() );
         }
       }
