@@ -6,7 +6,7 @@
 # Paths to executables is assuming the build is parallel to source directory but
 # with source/ replaced with build/
 build_dir="../../.."
-summarize=$( which $build_dir/summarize )
+population=$( which $build_dir/population )
 
 stop=false
 
@@ -16,7 +16,7 @@ for sample_file in $( ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f |
     type=`echo $sample_file | sed -e "s#links/[0-9]\+/\([a-z_]\+\)_sample/.*#\1#"`
     echo "Adding job: building missing summary file for $sample_file"
     batch_file=${index}.sh
-    printf "#!/bin/bash\n#SBATCH --time=00:10:00\n#SBATCH --mem=32G\n $summarize -q --type $type $sample_file\n" > $batch_file
+    printf "#!/bin/bash\n#SBATCH --time=00:10:00\n#SBATCH --mem=32G\n $population -q -s --type $type $sample_file\n" > $batch_file
     sbatch $batch_file
     stop=true
   fi
