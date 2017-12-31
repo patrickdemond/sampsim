@@ -232,7 +232,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::write( const std::string filename, const bool flat_file ) const
   {
-    utilities::output( "writing population to %s.%s", filename.c_str(), flat_file ? "*.csv" : "json" );
+    utilities::output( "writing population to %s.%s.tar.gz", filename.c_str(), flat_file ? "flat" : "json" );
 
     if( flat_file )
     {
