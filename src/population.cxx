@@ -1,13 +1,13 @@
 /*=========================================================================
 
   Program:  sampsim
-  Module:   summarize.cxx
+  Module:   population.cxx
   Language: C++
 
 =========================================================================*/
 //
 // .SECTION Description
-// An executable which summarizes population and sample files
+// An executable which processes populations in various ways
 //
 
 #include "options.h"
@@ -32,6 +32,8 @@ int main( const int argc, const char** argv )
   opts.add_input( "input_file" );
   opts.add_option(
     't', "type", "population", "Identifies the input file's data type (population, arc_epi, circle_gps, etc)" );
+  opts.add_flag( 'f', "flat_file", "Whether to output data in two CSV \"flat\" files" );
+  opts.add_flag( 's', "summary_file", "Whether to output summary data of the population" );
   opts.add_flag( 'q', "quiet", "Do not generate any output" );
 
   try
@@ -49,6 +51,8 @@ int main( const int argc, const char** argv )
       {
         std::string input_filename = opts.get_input( "input_file" );
         std::string type = opts.get_option( "type" );
+        bool flat_file = opts.get_flag( "flat_file" );
+        bool summary_file = opts.get_flag( "summary_file" );
         sampsim::utilities::quiet = opts.get_flag( "quiet" );
 
         // determine what to do with the input file based on its extention(s)
@@ -69,49 +73,56 @@ int main( const int argc, const char** argv )
         {
           sampsim::population *pop = new sampsim::population;
           pop->read( input_filename );
-          pop->write_summary( base_name );
+          if( flat_file ) pop->write( base_name, true );
+          if( summary_file ) pop->write_summary( base_name );
           sampsim::utilities::safe_delete( pop );
         }
         else if( "arc_epi" == type )
         {
           sampsim::sample::arc_epi *sample = new sampsim::sample::arc_epi;
           sample->read( input_filename );
-          sample->write_summary( base_name );
+          if( flat_file ) sample->write( base_name, true );
+          if( summary_file ) sample->write_summary( base_name );
           sampsim::utilities::safe_delete( sample );
         }
         else if( "circle_gps" == type )
         {
           sampsim::sample::circle_gps *sample = new sampsim::sample::circle_gps;
           sample->read( input_filename );
-          sample->write_summary( base_name );
+          if( flat_file ) sample->write( base_name, true );
+          if( summary_file ) sample->write_summary( base_name );
           sampsim::utilities::safe_delete( sample );
         }
         else if( "grid_epi" == type )
         {
           sampsim::sample::grid_epi *sample = new sampsim::sample::grid_epi;
           sample->read( input_filename );
-          sample->write_summary( base_name );
+          if( flat_file ) sample->write( base_name, true );
+          if( summary_file ) sample->write_summary( base_name );
           sampsim::utilities::safe_delete( sample );
         }
         else if( "random" == type )
         {
           sampsim::sample::random *sample = new sampsim::sample::random;
           sample->read( input_filename );
-          sample->write_summary( base_name );
+          if( flat_file ) sample->write( base_name, true );
+          if( summary_file ) sample->write_summary( base_name );
           sampsim::utilities::safe_delete( sample );
         }
         else if( "square_gps" == type )
         {
           sampsim::sample::square_gps *sample = new sampsim::sample::square_gps;
           sample->read( input_filename );
-          sample->write_summary( base_name );
+          if( flat_file ) sample->write( base_name, true );
+          if( summary_file ) sample->write_summary( base_name );
           sampsim::utilities::safe_delete( sample );
         }
         else if( "strip_epi" == type )
         {
           sampsim::sample::strip_epi *sample = new sampsim::sample::strip_epi;
           sample->read( input_filename );
-          sample->write_summary( base_name );
+          if( flat_file ) sample->write( base_name, true );
+          if( summary_file ) sample->write_summary( base_name );
           sampsim::utilities::safe_delete( sample );
         }
         else
