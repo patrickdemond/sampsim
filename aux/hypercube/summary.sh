@@ -48,15 +48,14 @@ for summary in $( ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f | gre
   echo -n $sampler,
 
   # print the population's true mean
-  grep "^child count:" $summary | sed -e "s#.*(prevalence \(.*\))#\1#" | tr '\n' ','
+  grep "^population,child," $summary | cut -d ',' -f6 | tr '\n' ','
 
-  for prevalence in "prevalence" "weighted prevalence"; do
+  # the 6th and 7th args are mean and stdev for unweighted, the 8th and 9th args are mean and stdev for weighted
+  for cut in "6 7" "8 9"; do
     for size in "07" "30"; do
       sum=${summary/07/$size}
       if [ -e $sum ]; then
-        grep "^sampled child count:" $sum |
-          sed -e "s#.*($prevalence \([^ ]\+\) (\([^)]\+\))).*#\1,\2#" |
-          tr '\n' ','
+        grep "^sample,child," $sum | cut -d ',' -f $cut | tr '\n' ','
       else
         echo -n 'na,na,'
       fi
