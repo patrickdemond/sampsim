@@ -524,6 +524,7 @@ namespace sample
     this->population->write_summary( filename );
 
     std::ofstream stream( filename + ".txt", std::ofstream::app );
+    stream << std::endl;
 
     // get summaries of all populations and add them up as we go
     std::vector< sampsim::summary* > summary_list;

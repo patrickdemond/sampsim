@@ -406,7 +406,7 @@ namespace sampsim
     
     for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ ) household_stream << ",rr" << utilities::rr[rr];
     household_stream << std::endl;
-    individual_stream << "town_index,household_index,individual_index,sex,age,exposed";
+    individual_stream << "town_index,household_index,individual_index,age,sex,exposed";
     for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ ) individual_stream << ",rr" << utilities::rr[rr];
     if( this->use_sample_weights ) individual_stream << ",weight";
     individual_stream << std::endl;

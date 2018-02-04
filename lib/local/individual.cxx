@@ -139,22 +139,10 @@ namespace sampsim
 
     if( !this->get_population()->get_sample_mode() || this->is_selected() )
     {
+      int index;
       for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
       {
-        int index = ADULT == this->get_age()
-              ? ( MALE == this->get_sex()
-                ? ( HEALTHY == this->state_list[rr] ?
-                    summary::adult_male_healthy : summary::adult_male_diseased )
-                : ( HEALTHY == this->state_list[rr] ?
-                    summary::adult_female_healthy : summary::adult_female_diseased )
-              ) : (
-                  MALE == this->get_sex()
-                ? ( HEALTHY == this->state_list[rr] ?
-                    summary::child_male_healthy : summary::child_male_diseased )
-                : ( HEALTHY == this->state_list[rr] ?
-                    summary::child_female_healthy : summary::child_female_diseased )
-              );
-
+        index = summary::get_count_index( this->get_age(), this->get_sex(), this->state_list[rr], this->exposure );
         this->sum.count[rr][index]++;
         if( this->get_population()->get_use_sample_weights() )
           this->sum.weighted_count[rr][index] += this->sample_weight;
