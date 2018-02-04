@@ -257,7 +257,7 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void population::write_summary( const std::string filename )
   {
-    std::ofstream stream( filename + ".txt", std::ofstream::out );
+    std::ofstream stream( filename + ".csv", std::ofstream::out );
     summary* sum = this->get_summary();
     sum->write( stream );
     stream.close();
