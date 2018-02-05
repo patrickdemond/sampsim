@@ -1,2 +1,14 @@
-hypercube: sub-sample of all possible configurations (evenly distributed)
-Implement Roberts sampling (see http://www.rescue.org/sites/default/files/resource-file/IRC_SUR_MOR_DRC_2000.pdf)
+Calculate pooled relative risk
+
+For each sample, s
+PRR = sum_s( a_s ( c_s + d_s ) / n_s )
+      ------------------------------
+      sum_s( c_s ( a_s + b_s ) / n_s )
+
+For         | Disease  total
+    Exposure|  Y   N  |
+    --------+---------+-----
+        Y   |  a   b  | a+b
+        N   |  c   d  | c+d
+    --------+---------+-----
+      total | a+c b+d |  n
