@@ -420,6 +420,31 @@ namespace sampsim
            rr_wpooled_numerator_sum_array[utilities::rr.size()][9],
            rr_wpooled_denominator_sum_array[utilities::rr.size()][9];
 
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
+    {
+      for( unsigned int index = 0; index < 9; index++ )
+      {
+        mean_array[rr][index] = 0;
+        stdev_array[rr][index] = 0;
+        squared_sum_array[rr][index] = 0;
+        wmean_array[rr][index] = 0;
+        wstdev_array[rr][index] = 0;
+        wsquared_sum_array[rr][index] = 0;
+        rr_mean_array[rr][index] = 0;
+        rr_stdev_array[rr][index] = 0;
+        rr_squared_sum_array[rr][index] = 0;
+        rr_pooled_array[rr][index] = 0;
+        rr_pooled_numerator_sum_array[rr][index] = 0;
+        rr_pooled_denominator_sum_array[rr][index] = 0;
+        rr_wmean_array[rr][index] = 0;
+        rr_wstdev_array[rr][index] = 0;
+        rr_wsquared_sum_array[rr][index] = 0;
+        rr_wpooled_array[rr][index] = 0;
+        rr_wpooled_numerator_sum_array[rr][index] = 0;
+        rr_wpooled_denominator_sum_array[rr][index] = 0;
+      }
+    }
+
     // add up all summaries in the list and store in total_summary
     for( auto summary_it = summary_list.begin(); summary_it != summary_list.end(); ++summary_it )
       total_summary.add( *summary_it );
