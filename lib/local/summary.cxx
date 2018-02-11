@@ -228,6 +228,32 @@ namespace sampsim
   }
   
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  double summary::get_pooled_risk_numerator(
+    const unsigned int rr,
+    const age_type age,
+    const sex_type sex ) const
+  {
+    double a = this->get_count( rr, age, sex, DISEASED, EXPOSED ),
+           b = this->get_count( rr, age, sex, HEALTHY, EXPOSED ),
+           c = this->get_count( rr, age, sex, DISEASED, NOT_EXPOSED ),
+           d = this->get_count( rr, age, sex, HEALTHY, NOT_EXPOSED );
+    return a * (c+d) / this->get_count( rr );
+  }
+  
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  double summary::get_pooled_risk_denominator(
+    const unsigned int rr,
+    const age_type age,
+    const sex_type sex ) const
+  {
+    double a = this->get_count( rr, age, sex, DISEASED, EXPOSED ),
+           b = this->get_count( rr, age, sex, HEALTHY, EXPOSED ),
+           c = this->get_count( rr, age, sex, DISEASED, NOT_EXPOSED ),
+           d = this->get_count( rr, age, sex, HEALTHY, NOT_EXPOSED );
+    return c * (a+b) / this->get_count( rr );
+  }
+  
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   double summary::get_count_fraction(
     const unsigned int rr,
     const age_type age,
@@ -248,6 +274,32 @@ namespace sampsim
            c = this->get_weighted_count( rr, age, sex, DISEASED, NOT_EXPOSED ),
            d = this->get_weighted_count( rr, age, sex, HEALTHY, NOT_EXPOSED );
     return ( a / (a+b) ) / ( c / (c+d) );
+  }
+  
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  double summary::get_weighted_pooled_risk_numerator(
+    const unsigned int rr,
+    const age_type age,
+    const sex_type sex ) const
+  {
+    double a = this->get_weighted_count( rr, age, sex, DISEASED, EXPOSED ),
+           b = this->get_weighted_count( rr, age, sex, HEALTHY, EXPOSED ),
+           c = this->get_weighted_count( rr, age, sex, DISEASED, NOT_EXPOSED ),
+           d = this->get_weighted_count( rr, age, sex, HEALTHY, NOT_EXPOSED );
+    return a * (c+d) / this->get_weighted_count( rr );
+  }
+  
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  double summary::get_weighted_pooled_risk_denominator(
+    const unsigned int rr,
+    const age_type age,
+    const sex_type sex ) const
+  {
+    double a = this->get_weighted_count( rr, age, sex, DISEASED, EXPOSED ),
+           b = this->get_weighted_count( rr, age, sex, HEALTHY, EXPOSED ),
+           c = this->get_weighted_count( rr, age, sex, DISEASED, NOT_EXPOSED ),
+           d = this->get_weighted_count( rr, age, sex, HEALTHY, NOT_EXPOSED );
+    return c * (a+b) / this->get_weighted_count( rr );
   }
   
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -344,8 +396,8 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void summary::write( std::vector< summary* > summary_list, bool weighted, std::ostream &stream )
   {
-    stream << "type,group,individual_rr,diseased,total,rr,rr_stdev,prevalence,stdev";
-    if( weighted ) stream << ",wrr,wrr_stdev,wprevalence,wstdev";
+    stream << "type,group,individual_rr,diseased,total,rr,rr_stdev,rr_pooled,prevalence,stdev";
+    if( weighted ) stream << ",wrr,wrr_stdev,wrr_pooled,wprevalence,wstdev";
     stream << std::endl;
 
     sampsim::summary total_summary;
@@ -358,15 +410,21 @@ namespace sampsim
            rr_mean_array[utilities::rr.size()][9],
            rr_stdev_array[utilities::rr.size()][9],
            rr_squared_sum_array[utilities::rr.size()][9],
+           rr_pooled_array[utilities::rr.size()][9],
+           rr_pooled_numerator_sum_array[utilities::rr.size()][9],
+           rr_pooled_denominator_sum_array[utilities::rr.size()][9],
            rr_wmean_array[utilities::rr.size()][9],
            rr_wstdev_array[utilities::rr.size()][9],
-           rr_wsquared_sum_array[utilities::rr.size()][9];
+           rr_wsquared_sum_array[utilities::rr.size()][9],
+           rr_wpooled_array[utilities::rr.size()][9],
+           rr_wpooled_numerator_sum_array[utilities::rr.size()][9],
+           rr_wpooled_denominator_sum_array[utilities::rr.size()][9];
 
     // add up all summaries in the list and store in total_summary
     for( auto summary_it = summary_list.begin(); summary_it != summary_list.end(); ++summary_it )
       total_summary.add( *summary_it );
 
-    // determine standard deviations for all prevalences
+    // determine mean and standard deviation of values and relative risks for all prevalences
     age_type a;
     sex_type s;
     for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
@@ -397,20 +455,28 @@ namespace sampsim
           squared_sum_array[rr][index] += diff*diff;
           diff = sum->get_relative_risk( rr, a, s ) - rr_mean_array[rr][index];
           rr_squared_sum_array[rr][index] += diff*diff;
+          rr_pooled_numerator_sum_array[rr][index] += sum->get_pooled_risk_numerator( rr, a, s );
+          rr_pooled_denominator_sum_array[rr][index] += sum->get_pooled_risk_denominator( rr, a, s );
           if( weighted )
           {
             diff = sum->get_weighted_count_fraction( rr, a, s ) - wmean_array[rr][index];
             wsquared_sum_array[rr][index] += diff*diff;
             diff = sum->get_relative_risk( rr, a, s ) - rr_wmean_array[rr][index];
             rr_wsquared_sum_array[rr][index] += diff*diff;
+            rr_wpooled_numerator_sum_array[rr][index] += sum->get_weighted_pooled_risk_numerator( rr, a, s );
+            rr_wpooled_denominator_sum_array[rr][index] += sum->get_weighted_pooled_risk_denominator( rr, a, s );
           }
         }
+
         stdev_array[rr][index] = sqrt(
           squared_sum_array[rr][index] / static_cast<double>( summary_list.size() - 1 )
         );
         rr_stdev_array[rr][index] = sqrt(
           rr_squared_sum_array[rr][index] / static_cast<double>( summary_list.size() - 1 )
         );
+        rr_pooled_array[rr][index] =
+          rr_pooled_numerator_sum_array[rr][index] / rr_pooled_denominator_sum_array[rr][index];
+
         if( weighted )
         {
           wstdev_array[rr][index] = sqrt(
@@ -419,88 +485,99 @@ namespace sampsim
           rr_wstdev_array[rr][index] = sqrt(
             rr_wsquared_sum_array[rr][index] / static_cast<double>( summary_list.size() - 1 )
           );
+          rr_wpooled_array[rr][index] =
+            rr_wpooled_numerator_sum_array[rr][index] / rr_wpooled_denominator_sum_array[rr][index];
         }
       }
 
       stream << "sample,total," << utilities::rr[rr]
              << "," << total_summary.get_count( rr, ANY_AGE, ANY_SEX, DISEASED )
              << "," << total_summary.get_count( rr, ANY_AGE, ANY_SEX )
-             << "," << rr_mean_array[rr][0] << "," << rr_stdev_array[rr][0]
+             << "," << rr_mean_array[rr][0] << "," << rr_stdev_array[rr][0] << "," << rr_pooled_array[rr][0]
              << "," << mean_array[rr][0] << "," << stdev_array[rr][0];
-      if( weighted ) stream << "," << rr_wmean_array[rr][0] << "," << rr_wstdev_array[rr][0]
-                            << "," << wmean_array[rr][0] << "," << wstdev_array[rr][0];
+      if( weighted )
+        stream << "," << rr_wmean_array[rr][0] << "," << rr_wstdev_array[rr][0] << "," << rr_wpooled_array[rr][0]
+               << "," << wmean_array[rr][0] << "," << wstdev_array[rr][0];
       stream << std::endl;
 
       stream << "sample,adult," << utilities::rr[rr]
              << "," << total_summary.get_count( rr, ADULT, ANY_SEX, DISEASED )
              << "," << total_summary.get_count( rr, ADULT, ANY_SEX )
-             << "," << rr_mean_array[rr][3] << "," << rr_stdev_array[rr][3]
+             << "," << rr_mean_array[rr][3] << "," << rr_stdev_array[rr][3] << "," << rr_pooled_array[rr][3]
              << "," << mean_array[rr][3] << "," << stdev_array[rr][3];
-      if( weighted ) stream << "," << rr_wmean_array[rr][3] << "," << rr_wstdev_array[rr][3]
-                            << "," << wmean_array[rr][3] << "," << wstdev_array[rr][3];
+      if( weighted )
+        stream << "," << rr_wmean_array[rr][3] << "," << rr_wstdev_array[rr][3] << "," << rr_wpooled_array[rr][3]
+               << "," << wmean_array[rr][3] << "," << wstdev_array[rr][3];
       stream << std::endl;
 
       stream << "sample,child," << utilities::rr[rr]
              << "," << total_summary.get_count( rr, CHILD, ANY_SEX, DISEASED )
              << "," << total_summary.get_count( rr, CHILD, ANY_SEX )
-             << "," << rr_mean_array[rr][6] << "," << rr_stdev_array[rr][6]
+             << "," << rr_mean_array[rr][6] << "," << rr_stdev_array[rr][6] << "," << rr_pooled_array[rr][6]
              << "," << mean_array[rr][6] << "," << stdev_array[rr][6];
-      if( weighted ) stream << "," << rr_wmean_array[rr][6] << "," << rr_wstdev_array[rr][6]
-                            << "," << wmean_array[rr][6] << "," << wstdev_array[rr][6];
+      if( weighted )
+        stream << "," << rr_wmean_array[rr][6] << "," << rr_wstdev_array[rr][6] << "," << rr_wpooled_array[rr][6]
+               << "," << wmean_array[rr][6] << "," << wstdev_array[rr][6];
       stream << std::endl;
 
       stream << "sample,male," << utilities::rr[rr]
              << "," << total_summary.get_count( rr, ANY_AGE, MALE, DISEASED )
              << "," << total_summary.get_count( rr, ANY_AGE, MALE )
-             << "," << rr_mean_array[rr][1] << "," << rr_stdev_array[rr][1]
+             << "," << rr_mean_array[rr][1] << "," << rr_stdev_array[rr][1] << "," << rr_pooled_array[rr][1]
              << "," << mean_array[rr][1] << "," << stdev_array[rr][1];
-      if( weighted ) stream << "," << rr_wmean_array[rr][1] << "," << rr_wstdev_array[rr][1]
-                            << "," << wmean_array[rr][1] << "," << wstdev_array[rr][1];
+      if( weighted )
+        stream << "," << rr_wmean_array[rr][1] << "," << rr_wstdev_array[rr][1] << "," << rr_wpooled_array[rr][1]
+               << "," << wmean_array[rr][1] << "," << wstdev_array[rr][1];
       stream << std::endl;
 
       stream << "sample,female," << utilities::rr[rr]
              << "," << total_summary.get_count( rr, ANY_AGE, FEMALE, DISEASED )
              << "," << total_summary.get_count( rr, ANY_AGE, FEMALE )
-             << "," << rr_mean_array[rr][2] << "," << rr_stdev_array[rr][2]
+             << "," << rr_mean_array[rr][2] << "," << rr_stdev_array[rr][2] << "," << rr_pooled_array[rr][2]
              << "," << mean_array[rr][2] << "," << stdev_array[rr][2];
-      if( weighted ) stream << "," << rr_wmean_array[rr][2] << "," << rr_wstdev_array[rr][2]
-                            << "," << wmean_array[rr][2] << "," << wstdev_array[rr][2];
+      if( weighted )
+        stream << "," << rr_wmean_array[rr][2] << "," << rr_wstdev_array[rr][2] << "," << rr_wpooled_array[rr][2]
+               << "," << wmean_array[rr][2] << "," << wstdev_array[rr][2];
       stream << std::endl;
 
       stream << "sample,male adult," << utilities::rr[rr]
              << "," << total_summary.get_count( rr, ADULT, MALE, DISEASED )
              << "," << total_summary.get_count( rr, ADULT, MALE )
-             << "," << rr_mean_array[rr][4] << "," << rr_stdev_array[rr][4]
+             << "," << rr_mean_array[rr][4] << "," << rr_stdev_array[rr][4] << "," << rr_pooled_array[rr][4]
              << "," << mean_array[rr][4] << "," << stdev_array[rr][4];
-      if( weighted ) stream << "," << rr_wmean_array[rr][4] << "," << rr_wstdev_array[rr][4]
-                            << "," << wmean_array[rr][4] << "," << wstdev_array[rr][4];
+      if( weighted )
+        stream << "," << rr_wmean_array[rr][4] << "," << rr_wstdev_array[rr][4] << "," << rr_wpooled_array[rr][4]
+               << "," << wmean_array[rr][4] << "," << wstdev_array[rr][4];
       stream << std::endl;
 
       stream << "sample,female adult," << utilities::rr[rr]
              << "," << total_summary.get_count( rr, ADULT, FEMALE, DISEASED )
              << "," << total_summary.get_count( rr, ADULT, FEMALE )
-             << "," << rr_mean_array[rr][5] << "," << rr_stdev_array[rr][5]
+             << "," << rr_mean_array[rr][5] << "," << rr_stdev_array[rr][5] << "," << rr_pooled_array[rr][5]
              << "," << mean_array[rr][5] << "," << stdev_array[rr][5];
-      if( weighted ) stream << "," << rr_wmean_array[rr][5] << "," << rr_wstdev_array[rr][5]
-                            << "," << wmean_array[rr][5] << "," << wstdev_array[rr][5];
+      if( weighted )
+        stream << "," << rr_wmean_array[rr][5] << "," << rr_wstdev_array[rr][5] << "," << rr_wpooled_array[rr][5]
+               << "," << wmean_array[rr][5] << "," << wstdev_array[rr][5];
       stream << std::endl;
 
       stream << "sample,male child," << utilities::rr[rr]
              << "," << total_summary.get_count( rr, CHILD, MALE, DISEASED )
              << "," << total_summary.get_count( rr, CHILD, MALE )
-             << "," << rr_mean_array[rr][7] << "," << rr_stdev_array[rr][7]
+             << "," << rr_mean_array[rr][7] << "," << rr_stdev_array[rr][7] << "," << rr_pooled_array[rr][7]
              << "," << mean_array[rr][7] << "," << stdev_array[rr][7];
-      if( weighted ) stream << "," << rr_wmean_array[rr][7] << "," << rr_wstdev_array[rr][7]
-                            << "," << wmean_array[rr][7] << "," << wstdev_array[rr][7];
+      if( weighted )
+        stream << "," << rr_wmean_array[rr][7] << "," << rr_wstdev_array[rr][7] << "," << rr_wpooled_array[rr][7]
+               << "," << wmean_array[rr][7] << "," << wstdev_array[rr][7];
       stream << std::endl;
 
       stream << "sample,female child," << utilities::rr[rr]
              << "," << total_summary.get_count( rr, CHILD, FEMALE, DISEASED )
              << "," << total_summary.get_count( rr, CHILD, FEMALE )
-             << "," << rr_mean_array[rr][8] << "," << rr_stdev_array[rr][8]
+             << "," << rr_mean_array[rr][8] << "," << rr_stdev_array[rr][8] << "," << rr_pooled_array[rr][8]
              << "," << mean_array[rr][8] << "," << stdev_array[rr][8];
-      if( weighted ) stream << "," << rr_wmean_array[rr][8] << "," << rr_wstdev_array[rr][8]
-                            << "," << wmean_array[rr][8] << "," << wstdev_array[rr][8];
+      if( weighted )
+        stream << "," << rr_wmean_array[rr][8] << "," << rr_wstdev_array[rr][8] << "," << rr_wpooled_array[rr][8]
+               << "," << wmean_array[rr][8] << "," << wstdev_array[rr][8];
       stream << std::endl;
     }
   }

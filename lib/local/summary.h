@@ -94,6 +94,22 @@ namespace sampsim
       const sex_type sex = ANY_SEX ) const;
 
     /**
+     * Method for getting Cochran-Mantel-Haenszel pooled relative risk numerator
+     */
+    double get_pooled_risk_numerator(
+      const unsigned int rr,
+      const age_type age = ANY_AGE,
+      const sex_type sex = ANY_SEX ) const;
+
+    /**
+     * Method for getting Cochran-Mantel-Haenszel pooled relative risk denominator
+     */
+    double get_pooled_risk_denominator(
+      const unsigned int rr,
+      const age_type age = ANY_AGE,
+      const sex_type sex = ANY_SEX ) const;
+
+    /**
      * Method for getting count fraction data
      */
     double get_count_fraction(
@@ -105,6 +121,22 @@ namespace sampsim
      * Method for getting weighted relative risk data
      */
     double get_weighted_relative_risk(
+      const unsigned int rr,
+      const age_type age = ANY_AGE,
+      const sex_type sex = ANY_SEX ) const;
+
+    /**
+     * Method for getting weighted Cochran-Mantel-Haenszel pooled relative risk numerator
+     */
+    double get_weighted_pooled_risk_numerator(
+      const unsigned int rr,
+      const age_type age = ANY_AGE,
+      const sex_type sex = ANY_SEX ) const;
+
+    /**
+     * Method for getting weighted Cochran-Mantel-Haenszel pooled relative risk denominator
+     */
+    double get_weighted_pooled_risk_denominator(
       const unsigned int rr,
       const age_type age = ANY_AGE,
       const sex_type sex = ANY_SEX ) const;
