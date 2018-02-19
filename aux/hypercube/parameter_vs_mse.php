@@ -149,33 +149,61 @@ foreach( $data_file_list as $pop => $sampler_list )
   }
 }
 
-// print plot data
+// print plot data and create plots
+if( file_exists( 'plots' ) ) exec( 'rm -rf plots' );
+mkdir( 'plots' );
 foreach( $vals['param'] as $param )
 {
+  $categorical = 1 === preg_match( '/[^0-9.]/', $param_values[$param][0] );
+  if( $categorical )
+  {
+    $categories = array_unique( array_values( $param_values[$param] ) );
+    sort( $categories );
+    $xtics = '';
+    foreach( $categories as $index => $category )
+      $xtics .= sprintf( '%s"%s" %d', 0 < $index ? ',' : '', $category, $index );
+    $category_plot = sprintf( 'set xrange [-1:%d]; set xtics(%s); ', count( $categories ), $xtics );
+    if( 8 < count( $categories ) ) $category_plot .= 'set xtics rotate; ';
+  }
+  $dir = sprintf( 'plots/%s', $param );
+  if( !file_exists( $dir ) ) mkdir( $dir );
   foreach( $vals['size'] as $size )
   {
     foreach( $vals['rr'] as $rr )
     {
-      // print title
-      printf( "%s (ss=%d,rr=%0.1f)\n", $param, $size, $rr );
+      $filename = sprintf( '%s/%0.1f-%d', $dir, $rr, $size );
 
-      // print heading
-      print 'param';
-      foreach( $vals['sampler'] as $sampler ) print ','.$sampler;
-      print "\n";
+      // heading
+      $data = 'Param';
+      foreach( $vals['sampler'] as $sampler ) $data .= ','.ucwords( str_replace( '_', ' ', $sampler ) );
+      $data .= "\n";
 
       // print data
       foreach( $vals['pop'] as $pop )
       {
-        print '"'.$param_values[$param][$pop].'"';
-        foreach( $vals['sampler'] as $sampler )
-        {
-          print ','.$mse_values[$sampler][$size][$rr][$pop];
-        }
-        print "\n";
+        $data .= $categorical
+               ? array_search( $param_values[$param][$pop], $categories )
+               : $param_values[$param][$pop];
+        foreach( $vals['sampler'] as $sampler ) $data .= ','.$mse_values[$sampler][$size][$rr][$pop];
+        $data .= "\n";
       }
 
-      print "\n";
+      file_put_contents( $filename.'.csv', $data );
+      $plot = sprintf(
+        'set title "%s" font "sans, 18"; '.
+        'set datafile separator ","; '.
+        'set terminal png size 1400,1000; '.
+        '%s'.
+        'set output "%s.png"; '.
+        'plot "%s.csv" using 1:2 title columnheader(2), '.
+             '"%s.csv" using 1:3 title columnheader(3), '.
+             '"%s.csv" using 1:4 title columnheader(4), '.
+             '"%s.csv" using 1:5 title columnheader(5);',
+        sprintf( '%s (ss=%d,rr=%0.1f)', ucwords( str_replace( '_', ' ', $param ) ), $size, $rr ),
+        $categorical ? $category_plot : '',
+        $filename, $filename, $filename, $filename, $filename
+      );
+      exec( sprintf( "gnuplot -e '%s'", $plot ) );
     }
   }
 }
