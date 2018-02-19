@@ -1,8 +1,8 @@
 #!/usr/bin/php
-# 
-# PHP script used to create parameter vs mse plots for all sampler, size and rr values
-# 
 <?php
+/**
+ * Script used to create parameter vs mse plots for all sampler, size and rr values
+ */ 
 
 // get a list of all conf and csv files
 $command = 'ls links/ | sort -n | sed -e "s#.*#find links/&/ -type f | grep -v \'sample/n\' | sort#" | /bin/bash';
@@ -26,29 +26,50 @@ foreach( $output as $file )
   {
     $matches = array();
     preg_match( '#links/([0-9]+)/#', $file, $matches );
-    $index = intval( $matches[1] );
-    $vals['pop'][] = $index;
-    $conf_file_list[$index] = file_get_contents( $file );
+    $pop = intval( $matches[1] );
+    $vals['pop'][] = $pop;
+    $conf_file_list[$pop] = file_get_contents( $file );
   }
   else if( false !== strpos( $file, '.csv' ) )
   {
     $matches = array();
     preg_match( '#links/([0-9]+)/([a-z_]+)/r(s[0-9]\.)?([0-9]+)\.csv#', $file, $matches );
-    $index = intval( $matches[1] );
+    $pop = intval( $matches[1] );
     $sampler = str_replace( '_sample', '', $matches[2] );
     if( 0 < strlen( $matches[3] ) ) $sampler = sprintf( '%s-%s', $sampler, substr( $matches[3], 0, -1 ) );
     if( !in_array( $sampler, $vals['sampler'] ) ) $vals['sampler'][] = $sampler;
     $size = intval( $matches[4] );
     if( !in_array( $size, $vals['size'] ) ) $vals['size'][] = $size;
     
-    if( !array_key_exists( $index, $data_file_list ) )
-      $data_file_list[$index] = array();
-    if( !array_key_exists( $sampler, $data_file_list[$index] ) )
-      $data_file_list[$index][$sampler] = array();
-    if( !array_key_exists( $size, $data_file_list[$index][$sampler] ) )
-      $data_file_list[$index][$sampler][$size] = array();
+    if( !array_key_exists( $pop, $data_file_list ) )
+      $data_file_list[$pop] = array();
+    if( !array_key_exists( $sampler, $data_file_list[$pop] ) )
+      $data_file_list[$pop][$sampler] = array();
+    if( !array_key_exists( $size, $data_file_list[$pop][$sampler] ) )
+      $data_file_list[$pop][$sampler][$size] = array();
 
-    $data_file_list[$index][$sampler][$size] = file_get_contents( $file );
+    $data_file_list[$pop][$sampler][$size] = file_get_contents( $file );
+  }
+}
+
+// get all rr values from the data files
+foreach( $data_file_list as $pop => $sampler_list )
+{
+  foreach( $sampler_list as $sampler => $size_list )
+  {
+    foreach( $size_list as $size => $data_file )
+    {
+      foreach( explode( "\n", $data_file ) as $line )
+      {
+        if( 'population,child,' == substr( $line, 0, 17 ) )
+        {
+          $matches = array();
+          preg_match( '#population,child,([0-9.]+),.*,([0-9.]+)$#', $line, $matches );
+          $rr = strval( $matches[1] );
+          if( !in_array( $rr, $vals['rr'] ) ) $vals['rr'][] = $rr;
+        }
+      }
+    }
   }
 }
 
@@ -84,11 +105,15 @@ foreach( $vals['sampler'] as $sampler )
   foreach( $vals['size'] as $size )
   {
     $mse_values[$sampler][$size] = array();
-    foreach( $vals['rr'] as $rr ) $mse_values[$sampler][$size][$rr] = array();
+    foreach( $vals['rr'] as $rr )
+    {
+      $mse_values[$sampler][$size][$rr] = array();
+      foreach( $vals['pop'] as $pop ) $mse_values[$sampler][$size][$rr][$pop] = '';
+    }
   }
 }
 
-foreach( $data_file_list as $index => $sampler_list )
+foreach( $data_file_list as $pop => $sampler_list )
 {
   foreach( $sampler_list as $sampler => $size_list )
   {
@@ -118,38 +143,34 @@ foreach( $data_file_list as $index => $sampler_list )
       }
 
       foreach( $truemean_list as $rr => $truemean )
-        $mse_values[$sampler][$size][$rr][] = 
+        $mse_values[$sampler][$size][$rr][$pop] = 
           ($truemean - $mean_list[$rr])*($truemean - $mean_list[$rr]) + $stdev_list[$rr]*$stdev_list[$rr];
     }
   }
 }
 
 // print plot data
-foreach( $vals['param'] as $param_index => $param_name )
+foreach( $vals['param'] as $param )
 {
-  foreach( $vals['size'] as $size_index => $size_name )
+  foreach( $vals['size'] as $size )
   {
-    foreach( $vals['rr'] as $rr_index => $rr_name )
+    foreach( $vals['rr'] as $rr )
     {
       // print title
-      printf( "%s (ss=%d,rr=%0.1f)\n", $param_name, $size_name, $rr_name );
+      printf( "%s (ss=%d,rr=%0.1f)\n", $param, $size, $rr );
+
       // print heading
       print 'param';
       foreach( $vals['sampler'] as $sampler ) print ','.$sampler;
       print "\n";
 
       // print data
-      foreach( $vals['pop'] as $pop_index => $pop_name )
+      foreach( $vals['pop'] as $pop )
       {
-        print $param_values[$param_name][$pop_index];
+        print '"'.$param_values[$param][$pop].'"';
         foreach( $vals['sampler'] as $sampler )
         {
-          print ',';
-          print in_array( $sampler, $mse_values ) &&
-                in_array( $size_name, $mse_values[$sampler] ) &&
-                in_array( $rr_name, $mse_values[$sampler][$size_name] )
-              ? $mse_values[$sampler][$size_name][$rr_name]
-              : '';
+          print ','.$mse_values[$sampler][$size][$rr][$pop];
         }
         print "\n";
       }
