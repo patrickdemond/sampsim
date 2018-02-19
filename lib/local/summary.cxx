@@ -450,6 +450,8 @@ namespace sampsim
       total_summary.add( *summary_it );
 
     // determine mean and standard deviation of values and relative risks for all prevalences
+    double diff, val;
+    unsigned int count, wcount;
     age_type a;
     sex_type s;
     for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
@@ -464,30 +466,71 @@ namespace sampsim
         else if( 1 == index % 3 ) s = MALE;
         else if( 2 == index % 3 ) s = FEMALE;
 
-        double diff;
-        rr_mean_array[rr][index] = total_summary.get_relative_risk( rr, a, s );
+        // determine the mean prevalence
         mean_array[rr][index] = total_summary.get_count_fraction( rr, a, s );
-        if( weighted )
-        {
-          rr_wmean_array[rr][index] = total_summary.get_weighted_relative_risk( rr, a, s );
-          wmean_array[rr][index] = total_summary.get_weighted_count_fraction( rr, a, s );
-        }
+        if( weighted ) wmean_array[rr][index] = total_summary.get_weighted_count_fraction( rr, a, s );
 
+        // determin the mean relative risk
+        count = 0;
+        wcount = 0;
         for( auto summary_it = summary_list.cbegin(); summary_it != summary_list.cend(); ++summary_it )
         {
           summary *sum = *summary_it;
+
+          val = sum->get_relative_risk( rr, a, s );
+          if( !std::isinf( val ) )
+          {
+            count++;
+            rr_mean_array[rr][index] += val;
+          }
+
+          if( weighted )
+          {
+            val = sum->get_weighted_relative_risk( rr, a, s );
+            if( !std::isinf( val ) )
+            {
+              wcount++;
+              rr_wmean_array[rr][index] += val;
+            }
+          }
+        }
+        rr_mean_array[rr][index] /= count;
+        if( weighted ) rr_wmean_array[rr][index] /= wcount;
+
+        // determine the stdev prevalence and relative risk
+        count = 0;
+        wcount = 0;
+        for( auto summary_it = summary_list.cbegin(); summary_it != summary_list.cend(); ++summary_it )
+        {
+          summary *sum = *summary_it;
+
           diff = sum->get_count_fraction( rr, a, s ) - mean_array[rr][index];
           squared_sum_array[rr][index] += diff*diff;
-          diff = sum->get_relative_risk( rr, a, s ) - rr_mean_array[rr][index];
-          rr_squared_sum_array[rr][index] += diff*diff;
+
+          val = sum->get_relative_risk( rr, a, s );
+          if( !std::isinf( val ) ) // don't include infinite rrs
+          {
+            count++;
+            diff = val - rr_mean_array[rr][index];
+            rr_squared_sum_array[rr][index] += diff*diff;
+          }
+
           rr_pooled_numerator_sum_array[rr][index] += sum->get_pooled_risk_numerator( rr, a, s );
           rr_pooled_denominator_sum_array[rr][index] += sum->get_pooled_risk_denominator( rr, a, s );
+
           if( weighted )
           {
             diff = sum->get_weighted_count_fraction( rr, a, s ) - wmean_array[rr][index];
             wsquared_sum_array[rr][index] += diff*diff;
-            diff = sum->get_relative_risk( rr, a, s ) - rr_wmean_array[rr][index];
-            rr_wsquared_sum_array[rr][index] += diff*diff;
+
+            val = sum->get_weighted_relative_risk( rr, a, s );
+            if( !std::isinf( val ) ) // don't include infinite rrs
+            {
+              wcount++;
+              diff = val - rr_wmean_array[rr][index];
+              rr_wsquared_sum_array[rr][index] += diff*diff;
+            }
+            
             rr_wpooled_numerator_sum_array[rr][index] += sum->get_weighted_pooled_risk_numerator( rr, a, s );
             rr_wpooled_denominator_sum_array[rr][index] += sum->get_weighted_pooled_risk_denominator( rr, a, s );
           }
@@ -496,9 +539,7 @@ namespace sampsim
         stdev_array[rr][index] = sqrt(
           squared_sum_array[rr][index] / static_cast<double>( summary_list.size() - 1 )
         );
-        rr_stdev_array[rr][index] = sqrt(
-          rr_squared_sum_array[rr][index] / static_cast<double>( summary_list.size() - 1 )
-        );
+        rr_stdev_array[rr][index] = sqrt( rr_squared_sum_array[rr][index] / count );
         rr_pooled_array[rr][index] =
           rr_pooled_numerator_sum_array[rr][index] / rr_pooled_denominator_sum_array[rr][index];
 
@@ -507,9 +548,7 @@ namespace sampsim
           wstdev_array[rr][index] = sqrt(
             wsquared_sum_array[rr][index] / static_cast<double>( summary_list.size() - 1 )
           );
-          rr_wstdev_array[rr][index] = sqrt(
-            rr_wsquared_sum_array[rr][index] / static_cast<double>( summary_list.size() - 1 )
-          );
+          rr_wstdev_array[rr][index] = sqrt( rr_wsquared_sum_array[rr][index] / wcount );
           rr_wpooled_array[rr][index] =
             rr_wpooled_numerator_sum_array[rr][index] / rr_wpooled_denominator_sum_array[rr][index];
         }
