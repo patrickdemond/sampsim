@@ -114,6 +114,8 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void sample::generate()
   {
+    individual_list_type selected_individual_list;
+
     utilities::output( "generating %s sample", this->get_type().c_str() );
 
     // check to make sure the age and sex restrictions are valid
@@ -208,7 +210,6 @@ namespace sample
         else this->reset_for_next_sample( false );
 
         // create a list of all sampled individuals so that we can weight them after selection is done
-        individual_list_type selected_individual_list;
 
         // create a building-tree from a list of all buildings in the town
         building_list_type building_list;
@@ -290,18 +291,6 @@ namespace sample
           }
           tree.remove( b );
         }
-
-        if( this->use_sample_weights )
-        {
-          // now determine the sample weight for all selected individuals
-          for( auto individual_it = selected_individual_list.begin();
-               individual_it != selected_individual_list.end();
-               ++individual_it )
-          {
-            individual *i = *individual_it;
-            i->set_sample_weight( this->get_sample_weight( i ) );
-          }
-        }
       }
 
       sampsim::population* sampled_population = new sampsim::population;
@@ -326,6 +315,21 @@ namespace sample
           household_count );
       }
     }
+
+    if( this->use_sample_weights )
+    {
+      utilities::output( "Calculating sample weights" );
+
+      // now determine the sample weight for all selected individuals
+      for( auto individual_it = selected_individual_list.begin();
+           individual_it != selected_individual_list.end();
+           ++individual_it )
+      {
+        individual *i = *individual_it;
+        i->set_sample_weight( this->get_sample_weight( i ) );
+      }
+    }
+
     this->population->set_sample_mode( false );
   }
 
