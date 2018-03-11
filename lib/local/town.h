@@ -58,9 +58,7 @@ namespace sampsim
      */
     town(
       population *parent,
-      const unsigned int index,
-      const unsigned int start_household_index = 0,
-      const unsigned int start_individual_index = 0
+      const unsigned int index
     );
 
     /**
@@ -294,16 +292,6 @@ namespace sampsim
      * The town's 0-based index within its parent population
      */
     unsigned int index;
-
-    /**
-     * The current household index (incremented with every household added)
-     */
-    unsigned int current_household_index;
-
-    /**
-     * The current individual index (incremented with every individual added)
-     */
-    unsigned int current_individual_index;
 
     /**
      * The number of tiles to create in the longitudinal (X) direction

@@ -28,16 +28,10 @@
 namespace sampsim
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  town::town(
-    population *parent,
-    const unsigned int index,
-    const unsigned int start_household_index,
-    const unsigned int start_individual_index )
+  town::town( population *parent, const unsigned int index )
   {
     this->parent = parent;
     this->index = index;
-    this->current_household_index = start_household_index;
-    this->current_individual_index = start_individual_index;
     this->number_of_tiles_x = 0;
     this->number_of_tiles_y = 0;
     this->has_river = false;
