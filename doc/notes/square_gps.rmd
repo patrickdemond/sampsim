@@ -75,5 +75,5 @@ $$
 Making the weight for individual $ij\overset{\scriptscriptstyle\square}{k}l$ equal to:
 
 $$
-w_{i\overset{\scriptscriptstyle\square}{j}kl} = \frac{n_{i\overset{\scriptscriptstyle\square}{j}}n_{kl}NA_t}{n_in_cA_c}
+w_{i\overset{\scriptscriptstyle\square}{j}kl} = \frac{n_{i\overset{\scriptscriptstyle\square}{j}}n_{kl}NS}{n_i n_s}
 $$
