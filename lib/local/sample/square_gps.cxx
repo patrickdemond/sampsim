@@ -229,7 +229,7 @@ namespace sample
     json["square_width_y"] = this->square_width_y;
 
     json["selected_squares"] = Json::Value( Json::arrayValue );
-    json["selected_sqaures"].resize( total_selected );
+    json["selected_squares"].resize( total_selected );
     unsigned int index = 0;
     unsigned int x = 0;
     for( auto itx = this->selected_squares.cbegin(); itx != this->selected_squares.cend(); ++itx )
