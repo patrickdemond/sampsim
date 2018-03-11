@@ -26,7 +26,7 @@ namespace sampsim
   household::household( building *parent )
   {
     this->parent = parent;
-    this->index = this->get_population()->get_next_household_index();
+    this->index = this->get_population()->add_household( this );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -130,11 +130,12 @@ namespace sampsim
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   void household::from_json( const Json::Value &json )
   {
+    population *pop = this->get_population();
     this->index = json["index"].asUInt();
     this->income = json["income"].asDouble();
     this->disease_risk = json["disease_risk"].asDouble();
     this->exposure_risk = json["exposure_risk"].asDouble();
-    this->get_population()->assert_household_index( this->index );
+    pop->add_household( this, this->index );
 
     this->individual_list.reserve( json["individual_list"].size() );
     for( unsigned int c = 0; c < json["individual_list"].size(); c++ )
@@ -250,6 +251,7 @@ namespace sampsim
     this->disease_risk = object->disease_risk;
     this->exposure_risk = object->exposure_risk;
     this->selected = object->selected;
+    this->get_population()->add_household( this, this->index );
 
     // delete all individuals
     std::for_each( this->individual_list.begin(), this->individual_list.end(), utilities::safe_delete_type() );

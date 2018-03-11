@@ -23,6 +23,8 @@ namespace Json{ class Value; }
 
 namespace sampsim
 {
+  class household;
+  class individual;
   class town;
   class trend;
 
@@ -64,6 +66,10 @@ namespace sampsim
     void to_json( Json::Value& ) const;
     void to_csv( std::ostream&, std::ostream& ) const;
     unsigned int get_number_of_individuals() const { return this->number_of_individuals; }
+    household* get_household_by_index( const unsigned int index ) const
+    { return this->household_map.at( index ); }
+    individual* get_individual_by_index( const unsigned int index ) const
+    { return this->individual_map.at( index ); }
     void assert_summary();
     void rebuild_summary();
     void expire_summary() { this->expired = true; }
@@ -155,30 +161,50 @@ namespace sampsim
     void set_sample_mode( const bool sample_mode );
 
     /**
-     * Returns the next household index (while internally incrementing the current index)
+     * Stores a reference to the household and returns the household's index
+     * 
+     * This should only be used when creating a new household, not when reading them from an existing
+     * population.
      */
-    unsigned int get_next_household_index() { return this->current_household_index++; }
-
-    /**
-     * Makes sure that the index is included in the current household index (used when loading populations)
-     */
-    void assert_household_index( const unsigned int index )
+    unsigned int add_household( household *h, int predefined_index = -1 )
     {
-      if( index >= this->current_household_index ) this->current_household_index = index + 1;
+      unsigned int index = 0 > predefined_index
+                         ? this->current_household_index++
+                         : (unsigned int) predefined_index;
+      this->household_map[index] = h;
+      return index;
     }
 
     /**
-     * Returns the next individual index (while internally incrementing the current index)
+     * Removes a household from the household map
+     * 
+     * Note: this should only be used by the tile's create method when removing a building after it has
+     * been created because the population density has been met (see tile::create)
      */
-    unsigned int get_next_individual_index() { return this->current_individual_index++; }
+    void remove_household( unsigned int index ) { this->household_map.erase( index ); }
 
     /**
-     * Makes sure that the index is included in the current individual index (used when loading populations)
+     * Stores a reference to the individual and returns the individual's index
+     * 
+     * This should only be used when creating a new individual, not when reading them from an existing
+     * population.
      */
-    void assert_individual_index( const unsigned int index )
+    unsigned int add_individual( individual *i, int predefined_index = -1 )
     {
-      if( index >= this->current_individual_index ) this->current_individual_index = index + 1;
+      unsigned int index = 0 > predefined_index
+                         ? this->current_individual_index++
+                         : (unsigned int) predefined_index;
+      this->individual_map[index] = i;
+      return index;
     }
+
+    /**
+     * Removes a individual from the individual map
+     * 
+     * Note: this should only be used by the tile's create method when removing a building after it has
+     * been created because the population density has been met (see tile::create)
+     */
+    void remove_individual( unsigned int index ) { this->individual_map.erase( index ); }
 
     /**
      * Sets the random generator's seed
@@ -621,6 +647,19 @@ namespace sampsim
      * for managing the memory needed for all of its child towns.
      */
     town_list_type town_list;
+
+    /**
+     * A reference map to all households in the population.  The population is NOT responsible
+     * for managing the memory needed for these references (this is done by their buidings)
+     */
+    household_map_type household_map;
+
+    /**
+     * A reference map to all individuals in the population.  The population is NOT responsible
+     * for managing the memory needed for these references (this is done by their household)
+     */
+  public:
+    individual_map_type individual_map;
 
     /**
      * The number of individuals in the population.

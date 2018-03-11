@@ -9,6 +9,8 @@
 #include "tile.h"
 
 #include "building.h"
+#include "household.h"
+#include "individual.h"
 #include "population.h"
 #include "summary.h"
 #include "town.h"
@@ -74,6 +76,18 @@ namespace sampsim
       // and this is the last building to be added
       if( !stop_after && current_density >= this->population_density )
       {
+        // remove all households and individuals from the population's reference maps
+        for( auto h_it = b->get_household_list_cbegin(); h_it != b->get_household_list_cend(); ++h_it )
+        {
+          household *h = *h_it;
+          this->get_population()->remove_household( h->get_index() );
+          for( auto i_it = h->get_individual_list_cbegin(); i_it != h->get_individual_list_cend(); ++i_it )
+          {
+            individual *i = *i_it;
+            this->get_population()->remove_individual( i->get_index() );
+          }
+        }
+
         utilities::safe_delete( b );
       }
       else

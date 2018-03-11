@@ -20,7 +20,7 @@ namespace sampsim
   individual::individual( household *parent )
   {
     this->parent = parent;
-    this->index = this->get_population()->get_next_individual_index();
+    this->index = this->get_population()->add_individual( this );
     this->age = UNKNOWN_AGE_TYPE;
     this->sex = UNKNOWN_SEX_TYPE;
     for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ ) this->state_list.push_back( UNKNOWN_STATE_TYPE );
@@ -46,6 +46,7 @@ namespace sampsim
     for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ ) this->state_list.push_back( i->state_list[rr] );
     this->exposure = i->exposure;
     this->sample_weight = i->sample_weight;
+    this->get_population()->add_individual( this, this->index );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -96,7 +97,7 @@ namespace sampsim
       this->state_list[rr] = 1 == json["disease"][rr].asUInt() ? DISEASED : HEALTHY;
     this->exposure = 1 == json["exposed"].asUInt() ? EXPOSED : NOT_EXPOSED;
     this->sample_weight = pop->get_use_sample_weights() ? json["sample_weight"].asDouble() : 1.0;
-    pop->assert_individual_index( this->index );
+    pop->add_individual( this, this->index );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

@@ -316,21 +316,40 @@ namespace sample
       }
     }
 
+    this->population->set_sample_mode( false );
+
     if( this->use_sample_weights )
     {
       utilities::output( "Calculating sample weights" );
 
-      // now determine the sample weight for all selected individuals
-      for( auto individual_it = selected_individual_list.begin();
-           individual_it != selected_individual_list.end();
-           ++individual_it )
+      for( auto p_it = this->sampled_population_list.cbegin();
+                p_it != this->sampled_population_list.cend();
+                ++p_it )
       {
-        individual *i = *individual_it;
-        i->set_sample_weight( this->get_sample_weight( i ) );
+        sampsim::population *p = *p_it;
+        for( auto t_it = p->get_town_list_cbegin(); t_it != p->get_town_list_cend(); ++t_it )
+        {
+          town *t = *t_it;
+          for( auto s_it = t->get_tile_list_cbegin(); s_it != t->get_tile_list_cend(); ++s_it )
+          {
+            tile *s = s_it->second;
+            for( auto b_it = s->get_building_list_cbegin(); b_it != s->get_building_list_cend(); ++b_it )
+            {
+              building *b = *b_it;
+              for( auto h_it = b->get_household_list_cbegin(); h_it != b->get_household_list_cend(); ++h_it )
+              {
+                household *h = *h_it;
+                for( auto i_it = h->get_individual_list_cbegin(); i_it != h->get_individual_list_cend(); ++i_it )
+                {
+                  individual *i = *i_it;
+                  i->set_sample_weight( this->get_sample_weight( i ) );
+                }
+              }
+            }
+          }
+        }
       }
     }
-
-    this->population->set_sample_mode( false );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -349,7 +368,11 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   double sample::get_sample_weight( const sampsim::individual* individual ) const
   {
-    unsigned int pop_count = individual->get_population()->get_summary()->get_count( 0, this->age, this->sex );
+    std::cout << individual->get_index() << std::endl;
+    sampsim::individual *p_individual =
+      this->population->get_individual_by_index( individual->get_index() );
+
+    unsigned int pop_count = p_individual->get_population()->get_summary()->get_count( 0, this->age, this->sex );
 
     if( 0 == pop_count )
     {
@@ -357,7 +380,7 @@ namespace sample
     }
     else
     {
-      unsigned int town_count = individual->get_town()->get_summary()->get_count( 0, this->age, this->sex );
+      unsigned int town_count = p_individual->get_town()->get_summary()->get_count( 0, this->age, this->sex );
 
       return
         // return the ratio of the number of individuals in the individual's population to town
@@ -366,7 +389,7 @@ namespace sample
         // when choosing one individual per household include ratio of household size to (one) individual
         this->one_per_household ?
           static_cast< double >(
-            individual->get_household()->get_summary()->get_count( 0, this->age, this->sex )
+            p_individual->get_household()->get_summary()->get_count( 0, this->age, this->sex )
           ) : 1.0;
     }
   }

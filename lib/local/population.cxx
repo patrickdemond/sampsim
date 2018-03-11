@@ -71,6 +71,9 @@ namespace sampsim
     std::for_each( this->town_list.begin(), this->town_list.end(), utilities::safe_delete_type() );
     this->town_list.clear();
 
+    // delete all individuals (references only)
+    this->individual_map.clear();
+
     // delete all trends
     utilities::safe_delete( this->mean_income );
     utilities::safe_delete( this->sd_income );
@@ -97,6 +100,7 @@ namespace sampsim
     this->current_individual_index = 0;
     std::for_each( this->town_list.begin(), this->town_list.end(), utilities::safe_delete_type() );
     this->town_list.clear();
+    this->individual_map.clear();
     this->set_sample_mode( false );
 
     // create a distribution to determine town size

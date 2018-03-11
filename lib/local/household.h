@@ -149,7 +149,7 @@ namespace sampsim
     /**
      * Returns this household's index
      */
-    unsigned int get_index() { return this->index; }
+    unsigned int get_index() const { return this->index; }
 
   protected:
     void create();

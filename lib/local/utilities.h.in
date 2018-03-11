@@ -67,7 +67,11 @@ namespace sampsim
   class household;
   class individual;
 
+  /**
+   * @typedef file_list_type
+   */
   typedef std::map< std::string, std::string > file_list_type;
+
   /**
    * @typedef population_list_type
    */
@@ -94,9 +98,19 @@ namespace sampsim
   typedef std::vector< household* > household_list_type;
 
   /**
+   * @typedef household_list_type
+   */
+  typedef std::map< unsigned int, household* > household_map_type;
+
+  /**
    * @typedef individual_list_type
    */
   typedef std::vector< individual* > individual_list_type;
+
+  /**
+   * @typedef individual_map_type
+   */
+  typedef std::map< unsigned int, individual* > individual_map_type;
 
   /**
    * @typedef coordinate_list_type
