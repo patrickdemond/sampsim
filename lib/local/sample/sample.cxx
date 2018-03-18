@@ -368,7 +368,6 @@ namespace sample
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   double sample::get_sample_weight( const sampsim::individual* individual ) const
   {
-    std::cout << individual->get_index() << std::endl;
     sampsim::individual *p_individual =
       this->population->get_individual_by_index( individual->get_index() );
 
