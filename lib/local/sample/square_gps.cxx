@@ -151,7 +151,7 @@ namespace sample
       }
     }
     return gps::get_sample_weight( individual ) *
-           static_cast< double >( total ) / static_cast< double >( selected );
+           ( static_cast< double >( total ) / static_cast< double >( selected ) );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

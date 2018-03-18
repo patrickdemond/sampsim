@@ -76,7 +76,8 @@ namespace sample
     std::for_each(
       this->sampled_population_list.begin(),
       this->sampled_population_list.end(),
-      utilities::safe_delete_type() );
+      utilities::safe_delete_type()
+    );
     this->sampled_population_list.clear();
     this->sampled_population_list.reserve( this->number_of_samples );
 
@@ -370,7 +371,6 @@ namespace sample
   {
     sampsim::individual *p_individual =
       this->population->get_individual_by_index( individual->get_index() );
-
     unsigned int pop_count = p_individual->get_population()->get_summary()->get_count( 0, this->age, this->sex );
 
     if( 0 == pop_count )
@@ -380,16 +380,14 @@ namespace sample
     else
     {
       unsigned int town_count = p_individual->get_town()->get_summary()->get_count( 0, this->age, this->sex );
+      unsigned int household_count =
+        p_individual->get_household()->get_summary()->get_count( 0, this->age, this->sex );
 
-      return
-        // return the ratio of the number of individuals in the individual's population to town
-        static_cast< double >( pop_count ) / static_cast< double >( town_count )
-        *
-        // when choosing one individual per household include ratio of household size to (one) individual
-        this->one_per_household ?
-          static_cast< double >(
-            p_individual->get_household()->get_summary()->get_count( 0, this->age, this->sex )
-          ) : 1.0;
+      // when choosing one individual per household include ratio of household size to (one) individual
+      double household_ratio = this->one_per_household ? static_cast< double >( household_count ) : 1.0;
+
+      // return the ratio of the number of individuals in the individual's population to town
+      return static_cast< double >( pop_count ) / static_cast< double >( town_count ) * household_ratio;
     }
   }
 
