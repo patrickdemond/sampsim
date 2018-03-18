@@ -20,7 +20,6 @@ namespace sampsim
   individual::individual( household *parent )
   {
     this->parent = parent;
-    this->index = this->get_population()->add_individual( this );
     this->age = UNKNOWN_AGE_TYPE;
     this->sex = UNKNOWN_SEX_TYPE;
     for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ ) this->state_list.push_back( UNKNOWN_STATE_TYPE );
@@ -55,6 +54,7 @@ namespace sampsim
     // make sure the individual has a parent
     if( NULL == this->parent ) throw std::runtime_error( "Tried to create an orphaned individual" );
 
+    this->index = this->get_population()->add_individual( this );
     this->get_population()->expire_summary();
   }
 

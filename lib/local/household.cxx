@@ -26,7 +26,6 @@ namespace sampsim
   household::household( building *parent )
   {
     this->parent = parent;
-    this->index = this->get_population()->add_household( this );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -64,6 +63,8 @@ namespace sampsim
     // make sure the household has a parent
     if( NULL == this->parent ) throw std::runtime_error( "Tried to create an orphaned household" );
 
+    this->index = this->get_population()->add_household( this );
+
     // We'll use 1 + distribution so that there are no empty households
     int size = this->get_town()->get_population_distribution()->generate_value() + 1;
     this->individual_list.reserve( size );
@@ -80,6 +81,7 @@ namespace sampsim
     for( int c = 1; c < size; c++ )
     {
       individual *i = new individual( this );
+      i->create();
 
       if( 1 == c )
       { // the first must be an adult of opposite sex of the first
