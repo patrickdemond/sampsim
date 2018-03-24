@@ -10,6 +10,7 @@
 
 #include "building_tree.h"
 #include "individual.h"
+#include "population.h"
 #include "town.h"
 
 #include <json/value.h>
@@ -90,12 +91,13 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  double circle_gps::get_sample_weight( const sampsim::individual* individual ) const
+  double circle_gps::get_post_sample_weight_factor() const
   {
     // multiply by area_of_town / ( area_of_circle * number_of_circles )
-    double area_of_town = individual->get_town()->get_area();
+    town *t = *( this->population->get_town_list_cbegin() );
+    double area_of_town = t->get_area(); // assuming that all towns have the same physical size
     double area_of_circles = M_PI * this->radius * this->radius * this->number_of_circles;
-    return gps::get_sample_weight( individual ) * area_of_town / area_of_circles;
+    return gps::get_post_sample_weight_factor() * area_of_town / area_of_circles;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

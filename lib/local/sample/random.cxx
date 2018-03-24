@@ -28,7 +28,7 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  double random::get_sample_weight( const sampsim::individual* individual ) const
+  double random::get_immediate_sample_weight( const sampsim::individual* individual ) const
   {
     // Since towns are chosen using PPS, and there is a fixed number of people sampled per town, the
     // samples are "self-weighted" (ie: the probability of any person being chosen is the same for

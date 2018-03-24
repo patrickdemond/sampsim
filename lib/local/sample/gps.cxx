@@ -13,9 +13,10 @@ namespace sampsim
 namespace sample
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  double gps::get_sample_weight( const sampsim::individual* individual ) const
+  double gps::get_immediate_sample_weight( const sampsim::individual* individual ) const
   {
-    return sized_sample::get_sample_weight( individual ) * static_cast< double >( this->number_of_buildings );
+    return sized_sample::get_immediate_sample_weight( individual ) *
+           static_cast< double >( this->number_of_buildings );
   }
 }
 }

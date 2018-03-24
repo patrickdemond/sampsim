@@ -138,7 +138,7 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  double square_gps::get_sample_weight( const sampsim::individual* individual ) const
+  double square_gps::get_post_sample_weight_factor() const
   {
     // multiply by total_squares / selected_squares
     unsigned int total = 0, selected = 0;
@@ -150,8 +150,8 @@ namespace sample
         total++;
       }
     }
-    return gps::get_sample_weight( individual ) *
-           ( static_cast< double >( total ) / static_cast< double >( selected ) );
+
+    return gps::get_post_sample_weight_factor() * ( total / static_cast< double >( selected ) );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

@@ -75,6 +75,7 @@ namespace sampsim
     void select() { this->select( 1.0 ); }
     void select( const double sample_weight );
     void unselect();
+    double get_sample_weight() const { return this->sample_weight; }
     void set_sample_weight( const double sample_weight ) { this->sample_weight = sample_weight; }
 
     /**

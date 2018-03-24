@@ -91,9 +91,9 @@ namespace sample
     virtual building* select_next_building( building_tree& );
 
     /**
-     * Determines an individual's sample weight
+     * Determines the post-sample weighting factor
      */
-    virtual double get_sample_weight( const sampsim::individual* ) const;
+    virtual double get_post_sample_weight_factor() const;
 
     /**
      * Determines the x and y width of the squares to use based on a town's dimensions

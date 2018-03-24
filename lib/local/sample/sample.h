@@ -303,7 +303,16 @@ namespace sample
      * includes determining the probability of selecting the town the individual belongs to as compared
      * to the total population size.  Additional factors must be implemented by child classes.
      */
-    virtual double get_sample_weight( const sampsim::individual* ) const;
+    virtual double get_immediate_sample_weight( const sampsim::individual* ) const;
+
+    /**
+     * Determines the post-sample weighting factor
+     * 
+     * Some aspects of sample weight do not need to be calculated on an individual-by-individual basis.
+     * Those factors should be calculated in this method instead of get_immediate_sample_weight() to save
+     * on processing time.
+     */
+    virtual double get_post_sample_weight_factor() const;
 
     /**
      * The population to sample from
@@ -416,6 +425,11 @@ namespace sample
      * A reference to the first building selected by the sampler
      */
     building *first_building;
+
+    /**
+     * The fraction of the currently selected town's population to the total population (used for sample weights)
+     */
+    double current_town_individual_fraction;
   };
 }
 

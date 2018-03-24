@@ -46,7 +46,7 @@ namespace sample
     /**
      * Determines an individual's sample weight
      */
-    virtual double get_sample_weight( const sampsim::individual* ) const;
+    virtual double get_immediate_sample_weight( const sampsim::individual* ) const;
 
   public:
     unsigned int number_of_buildings;
