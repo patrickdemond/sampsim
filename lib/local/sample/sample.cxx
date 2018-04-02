@@ -355,16 +355,15 @@ namespace sample
   double sample::get_immediate_sample_weight( const sampsim::individual* individual ) const
   {
     // when choosing one individual per household include ratio of household size to (one) individual
-    return (
-      this->one_per_household ?
-        static_cast< double >( individual->get_household()->get_summary()->get_count( 0, this->age, this->sex ) ) :
-        1.0 );
+    return ( this->one_per_household ?
+      static_cast< double >( individual->get_household()->get_summary()->get_count( 0, this->age, this->sex ) ) :
+      1.0 );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   double sample::get_post_sample_weight_factor() const
   {
-    return 1.0;
+    return 1.0 / this->current_town_individual_fraction;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
