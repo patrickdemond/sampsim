@@ -4,6 +4,7 @@ SET( SAMPSIM_SAMPLE_LIB_SOURCE
   arc_epi.cxx
   circle_gps.cxx
   direction_epi.cxx
+  enumeration.cxx
   epi.cxx
   gps.cxx
   grid_epi.cxx
