@@ -12,10 +12,6 @@
 #include "building.h"
 #include "utilities.h"
 
-#include <stdexcept>
-
-namespace Json { class Value; }
-
 /**
  * @addtogroup sampsim
  * @{
