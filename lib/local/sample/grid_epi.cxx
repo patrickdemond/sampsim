@@ -28,14 +28,14 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  building* grid_epi::select_next_building( sampsim::building_tree &tree )
+  building* grid_epi::select_next_building( building_list_type &building_list )
   {
     building* b = NULL;
 
     if( NULL == this->current_building )
     {
       // 2. get list of all buildings in the area determined by the sub-algorithm in the chosen direction
-      this->determine_initial_building_list( tree );
+      this->determine_initial_building_list( building_list );
       if( 0 == this->initial_building_list.size() )
         throw std::runtime_error(
           "Unable to find initial building after 1000 attempts.  You must either lower the sample size or increase the initial selection area." );
@@ -45,6 +45,7 @@ namespace sample
       auto initial_it = this->initial_building_list.begin();
       std::advance( initial_it, this->first_building_index );
       b = *initial_it;
+      this->tree->remove( b );
       if( utilities::verbose )
         utilities::output(
           "selected building %d of %d in arc",
@@ -53,7 +54,8 @@ namespace sample
     }
     else
     {
-      b = epi::select_next_building( tree );
+      // let the parent class select the next building (it is automatically removed from the tree)
+      b = epi::select_next_building( building_list );
     }
 
     this->current_building = b;
@@ -61,14 +63,13 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void grid_epi::determine_initial_building_list( sampsim::building_tree &tree )
+  void grid_epi::determine_initial_building_list( building_list_type &building_list )
   {
     // make sure the number of squares is set and greater than 0
     if( 0 >= this->number_of_squares )
       throw std::runtime_error( "Tried to sample without first setting the number of squares" );
 
     this->initial_building_list.clear();
-    building_list_type building_list = tree.get_building_list();
     sampsim::town *town = ( *building_list.cbegin() )->get_town();
 
     // if we don't yet know the width of squares then this is the first iteration so we need to

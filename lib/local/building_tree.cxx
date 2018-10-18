@@ -19,6 +19,12 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  building_tree::building_tree( building_linked_list_type building_list )
+  {
+    this->root_node = building_tree::build( building_list );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   building_tree::building_tree( const building_tree& tree )
   {
     this->root_node = new node;
@@ -134,6 +140,47 @@ namespace sampsim
 
       current_node->left = building_tree::build( left_building_list, current_node );
       current_node->right = building_tree::build( right_building_list, current_node );
+    }
+
+    return current_node;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  building_tree::node* building_tree::build(
+    building_linked_list_type building_linked_list, node* parent_node )
+  {
+    // only create a new node if we don't have an empty list
+    int size = building_linked_list.size();
+    node* current_node = 0 == size ? NULL : new node( parent_node );
+
+    // one building in the list means we've reached the end
+    if( 1 == size ) current_node->building = building_linked_list.front();
+    else if( 1 < size )
+    {
+      const building_linked_list_type::iterator begin = building_linked_list.begin();
+      const building_linked_list_type::iterator end = building_linked_list.end();
+
+      building_linked_list.sort( 0 == current_node->depth % 2 ? building::sort_by_x : building::sort_by_y );
+      int median_index = floor( static_cast< double >( size ) / 2.0 );
+      auto building_it = building_linked_list.begin();
+      std::advance( building_it, median_index );
+      current_node->building = ( *building_it );
+
+      int left_size = median_index;
+      int right_size = size - left_size - 1;
+
+      building_linked_list_type left_building_linked_list( left_size );
+      building_it = end;
+      std::advance( building_it, -right_size - 1 );
+      std::copy( begin, building_it, left_building_linked_list.begin() );
+
+      building_linked_list_type right_building_linked_list( right_size );
+      building_it = end;
+      std::advance( building_it, -right_size );
+      std::copy( building_it, end, right_building_linked_list.begin() );
+
+      current_node->left = building_tree::build( left_building_linked_list, current_node );
+      current_node->right = building_tree::build( right_building_linked_list, current_node );
     }
 
     return current_node;

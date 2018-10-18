@@ -9,7 +9,6 @@
 #include "direction_epi.h"
 
 #include "building.h"
-#include "building_tree.h"
 #include "town.h"
 
 #include <cmath>
@@ -45,7 +44,7 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  building* direction_epi::select_next_building( sampsim::building_tree &tree )
+  building* direction_epi::select_next_building( building_list_type &building_list )
   {
     building* b = NULL;
 
@@ -72,6 +71,7 @@ namespace sample
                  b2->get_town()->get_centroid().distance( b2->get_position() );
         }
       );
+      this->tree->remove( b );
       this->periphery_building_selected = true;
       if( utilities::verbose )
         utilities::output(
@@ -86,7 +86,7 @@ namespace sample
         this->determine_next_start_angle();
 
         // 2. get list of all buildings in the area determined by the sub-algorithm in the chosen direction
-        this->determine_initial_building_list( tree );
+        this->determine_initial_building_list( building_list );
         if( 0 == this->initial_building_list.size() )
           throw std::runtime_error(
             "Unable to find initial building after 1000 attempts.  You must either lower the sample size or increase the initial selection area." );
@@ -121,15 +121,18 @@ namespace sample
               this->first_building_index + 1,
               this->initial_building_list.size() );
         }
+        this->tree->remove( b );
       }
       else
       {
-        b = epi::select_next_building( tree );
+        // let the parent class select the next building (it is automatically removed from the tree)
+        b = epi::select_next_building( building_list );
       }
     }
 
     this->buildings_in_current_sector++;
     this->current_building = b;
+
     return b;
   }
 

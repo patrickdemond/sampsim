@@ -34,8 +34,8 @@ TEST( test_sample_enumeration )
   create_test_population( population, 250, 250, 2500 );
 
   stringstream temp_population_filename;
-  unsigned int enumeration1 = sampsim::utilities::enumeration( 1000000, 9999999 );
-  temp_population_filename << "/tmp/sampsim" << enumeration1;
+  unsigned int random1 = sampsim::utilities::random( 1000000, 9999999 );
+  temp_population_filename << "/tmp/sampsim" << random1;
   population->write( temp_population_filename.str(), false );
    
   cout << "Testing reading population from memory..." << endl;
@@ -81,7 +81,7 @@ TEST( test_sample_enumeration )
 
   // clean up
   stringstream command;
-  command << "rm " << "/tmp/sampsim" << enumeration1 << "*";
+  command << "rm " << "/tmp/sampsim" << random1 << "*";
   sampsim::utilities::exec( command.str() );
   sampsim::utilities::safe_delete( population );
   sampsim::utilities::safe_delete( sample1 );

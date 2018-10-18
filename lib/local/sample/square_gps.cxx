@@ -8,8 +8,7 @@
 
 #include "square_gps.h"
 
-#include "building_tree.h"
-
+#include "building.h"
 #include "population.h"
 #include "town.h"
 
@@ -43,13 +42,12 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  building* square_gps::select_next_building( sampsim::building_tree& tree )
+  building* square_gps::select_next_building( building_list_type& building_list )
   {
     // make sure the number of squares is set and greater than 0
     if( 0 >= this->number_of_squares )
       throw std::runtime_error( "Tried to sample without first setting the number of squares" );
 
-    building_list_type building_list = tree.get_building_list();
     building_list_type square_building_list;
     sampsim::town *town = ( *building_list.cbegin() )->get_town();
     coordinate centroid = town->get_centroid();
@@ -133,7 +131,6 @@ namespace sample
         index + 1,
         this->number_of_buildings );
 
-    // remove the building from the tree so it doesn't get selected twice
     return *selected_it;
   }
 

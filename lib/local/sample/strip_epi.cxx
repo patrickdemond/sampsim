@@ -9,7 +9,6 @@
 #include "strip_epi.h"
 
 #include "building.h"
-#include "building_tree.h"
 #include "town.h"
 
 #include <json/value.h>
@@ -28,10 +27,9 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void strip_epi::determine_initial_building_list( sampsim::building_tree &tree )
+  void strip_epi::determine_initial_building_list( building_list_type &building_list )
   {
     this->initial_building_list.clear();
-    building_list_type building_list = tree.get_building_list();
     coordinate centroid = ( *building_list.cbegin() )->get_town()->get_centroid();
 
     // 2. get list of all buildings in rectangle formed by drawing a line from the centre of the town

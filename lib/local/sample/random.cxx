@@ -8,8 +8,6 @@
 
 #include "random.h"
 
-#include "building_tree.h"
-
 namespace sampsim
 {
 namespace sample
@@ -18,12 +16,11 @@ namespace sample
   void random::copy( const random* object ) {} // nothing to do
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  building* random::select_next_building( sampsim::building_tree& tree )
+  building* random::select_next_building( building_list_type& building_list )
   {
     // simple: pick a random building
-    building_list_type list = tree.get_building_list();
-    auto building_it = list.begin();
-    std::advance( building_it, utilities::random( 0, list.size() - 1 ) );
+    auto building_it = building_list.begin();
+    std::advance( building_it, utilities::random( 0, building_list.size() - 1 ) );
     return *building_it;
   }
 

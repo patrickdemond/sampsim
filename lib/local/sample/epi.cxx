@@ -9,7 +9,6 @@
 #include "epi.h"
 
 #include "building.h"
-#include "building_tree.h"
 #include "town.h"
 
 #include <cmath>
@@ -29,6 +28,13 @@ namespace sample
     this->first_building_index = 0;
     this->current_building = NULL;
     this->initial_building_list.clear();
+    this->tree = NULL;
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  epi::~epi()
+  {
+    utilities::safe_delete( this->tree );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
@@ -37,10 +43,20 @@ namespace sample
     this->skip = object->skip;
     this->first_building_index = object->first_building_index;
     this->current_building = object->current_building;
+    this->tree = NULL;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  building* epi::select_next_building( sampsim::building_tree &tree )
+  void epi::create_building_list( sampsim::town *town, building_list_type &building_list )
+  {
+    sized_sample::create_building_list( town, building_list );
+
+    // create the tree from the newly created building list
+    this->tree = new sampsim::building_tree( building_list );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  building* epi::select_next_building( building_list_type &building_list )
   {
     building* b = NULL;
 
@@ -52,7 +68,7 @@ namespace sample
       coordinate position = this->current_building->get_position();
 
       // first make sure we have enough buildings left
-      if( tree.get_building_list().size() <= this->skip )
+      if( building_list.size() <= this->skip )
         throw std::runtime_error(
           "Ran out of buildings to sample.  You must either lower the sample size or increase the lowest town population." );
 
@@ -60,9 +76,9 @@ namespace sample
       {
         // find the nearest building, make note of its position and remove it if it isn't the
         // last building in the loop
-        b = tree.find_nearest( position );
+        b = this->tree->find_nearest( position );
+        this->tree->remove( b );
         position = b->get_position();
-        if( i < ( this->skip - 1 ) ) tree.remove( b );
         if( utilities::verbose )
         {
           if( i == this->skip-1 ) utilities::output( "closest building %d: selected", i+1 );

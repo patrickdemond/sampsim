@@ -80,12 +80,12 @@ namespace sample
     /**
      * Algorithm which selects buildings based on the sampling method
      */
-    virtual building* select_next_building( sampsim::building_tree& );
+    virtual building* select_next_building( building_list_type& );
 
     /**
      * Determine the initial list of buildings to choose from
      */
-    virtual void determine_initial_building_list( sampsim::building_tree& );
+    virtual void determine_initial_building_list( building_list_type& );
 
     /**
      * Determines the x and y width of the squares to use based on a town's dimensions

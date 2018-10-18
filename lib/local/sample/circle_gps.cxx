@@ -8,7 +8,7 @@
 
 #include "circle_gps.h"
 
-#include "building_tree.h"
+#include "building.h"
 #include "individual.h"
 #include "population.h"
 #include "town.h"
@@ -34,15 +34,15 @@ namespace sample
   };
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  building* circle_gps::select_next_building( sampsim::building_tree& tree )
+  building* circle_gps::select_next_building( building_list_type& building_list )
   {
     // make sure the sampling radius is set and greater than 0
     if( 0 >= this->radius )
       throw std::runtime_error( "Tried to sample without first setting the sampling radius" );
 
-    building_list_type building_list = tree.get_building_list();
     building_list_type circle_building_list;
-    coordinate centroid = ( *building_list.cbegin() )->get_town()->get_centroid();
+    town *t = ( *building_list.cbegin() )->get_town();
+    coordinate centroid = t->get_centroid();
 
     // keep selecting a random point until there is at least one building found in the resulting circle
     while( 0 == circle_building_list.size() && this->number_of_circles < 100000 )
@@ -52,7 +52,7 @@ namespace sample
       if( utilities::verbose )
         utilities::output(
           "town %d, iteration #%d: searching circle at %0.3f, %0.3f with radius %0.3f",
-          building_list[0]->get_town()->get_index(),
+          t->get_index(),
           this->number_of_circles + 1,
           p.x, p.y,
           this->radius );
@@ -86,7 +86,6 @@ namespace sample
         index + 1,
         this->number_of_buildings );
 
-    // remove the building from the tree so it doesn't get selected twice
     return *selected_it;
   }
 

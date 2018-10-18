@@ -9,7 +9,6 @@
 #include "arc_epi.h"
 
 #include "building.h"
-#include "building_tree.h"
 
 #include <cmath>
 #include <json/value.h>
@@ -28,10 +27,9 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  void arc_epi::determine_initial_building_list( sampsim::building_tree &tree )
+  void arc_epi::determine_initial_building_list( building_list_type &building_list )
   {
     this->initial_building_list.clear();
-    building_list_type building_list = tree.get_building_list();
 
     // 2. get list of all buildings in the arc defined by the start angle and arc width
     int iteration = 0;

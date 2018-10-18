@@ -37,6 +37,7 @@
 #include <fcntl.h>
 #include <iomanip>
 #include <iostream>
+#include <list>
 #include <map>
 #include <random>
 #include <sstream>
@@ -91,6 +92,11 @@ namespace sampsim
    * @typedef building_list_type
    */
   typedef std::vector< building* > building_list_type;
+
+  /**
+   * @typedef building_linked_list_type
+   */
+  typedef std::list< building* > building_linked_list_type;
 
   /**
    * @typedef household_list_type

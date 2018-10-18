@@ -11,7 +11,6 @@
 #include "archive.h"
 #include "archive_entry.h"
 #include "building.h"
-#include "building_tree.h"
 #include "household.h"
 #include "individual.h"
 #include "population.h"
@@ -210,22 +209,8 @@ namespace sample
         if( first ) first = false;
         else this->reset_for_next_sample( false );
 
-        // create a building-tree from a list of all buildings in the town
         building_list_type building_list;
-        for( auto tile_it = town->get_tile_list_cbegin();
-             tile_it != town->get_tile_list_cend();
-             ++tile_it )
-        {
-          for( auto building_it = tile_it->second->get_building_list_cbegin();
-               building_it != tile_it->second->get_building_list_cend();
-               ++building_it )
-          {
-            building_list.push_back( *building_it );
-          }
-        }
-
-        // store the building list in a tree
-        sampsim::building_tree tree( building_list );
+        this->create_building_list( town, building_list );
 
         if( utilities::verbose )
           utilities::output( "selecting from a list of %d buildings", building_list.size() );
@@ -237,18 +222,18 @@ namespace sample
         building* last_building = NULL;
         while( !this->is_sample_complete() )
         {
-          if( tree.is_empty() )
+          if( building_list.empty() )
           {
             std::cout << "WARNING: unable to fulfill the sample's ending condition" << std::endl;
             break;
           }
 
-          building* b = this->select_next_building( tree );
+          building* b = this->select_next_building( building_list );
           if( b == last_building )
           {
-            utilities::output( "there are %d buildings left in the tree", tree.get_building_list().size() );
+            utilities::output( "there are %d buildings left in the list", building_list.size() );
             std::cout << "WARNING: unable to fulfill the sample's ending condition ("
-                      << tree.get_building_list().size()
+                      << building_list.size()
                       << " buildings left)" << std::endl;
             break;
           }
@@ -294,7 +279,8 @@ namespace sample
             }
           }
 
-          tree.remove( b );
+          //building_list.remove( b );
+          building_list.erase( std::remove( building_list.begin(), building_list.end(), b ), building_list.end() );
         }
 
         // apply post-sample weighting factor to all selected individuals
@@ -336,6 +322,23 @@ namespace sample
       }
     }
     this->population->set_sample_mode( false );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void sample::create_building_list( sampsim::town *town, building_list_type &building_list )
+  {
+    // create a linked list all buildings in the town
+    for( auto tile_it = town->get_tile_list_cbegin();
+         tile_it != town->get_tile_list_cend();
+         ++tile_it )
+    {
+      for( auto building_it = tile_it->second->get_building_list_cbegin();
+           building_it != tile_it->second->get_building_list_cend();
+           ++building_it )
+      {
+        building_list.push_back( *building_it );
+      }
+    }
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

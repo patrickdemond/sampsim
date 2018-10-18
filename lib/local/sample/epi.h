@@ -11,6 +11,8 @@
 
 #include "sample/sized_sample.h"
 
+#include "building_tree.h"
+
 #include <float.h>
 #include <list>
 
@@ -48,6 +50,11 @@ namespace sample
      */
     epi();
 
+    /**
+     * Destructor
+     */
+    ~epi();
+
     // defining pure abstract methods
     void copy( const base_object* o ) { this->copy( static_cast<const epi*>( o ) ); }
     void copy( const epi* );
@@ -78,14 +85,19 @@ namespace sample
 
   protected:
     /**
+     * TODO: document
+     */
+    virtual void create_building_list( sampsim::town*, building_list_type &building_list );
+
+    /**
      * Algorithm which selects buildings based on the sampling method
      */
-    virtual building* select_next_building( sampsim::building_tree& );
+    virtual building* select_next_building( building_list_type& );
 
     /**
      * Gets a list of all buildings to choose the initial building from
      */
-    virtual void determine_initial_building_list( sampsim::building_tree& ) = 0;
+    virtual void determine_initial_building_list( building_list_type& ) = 0;
 
     /**
      * Extends parent method
@@ -106,6 +118,11 @@ namespace sample
      * The list of all buildings the first building was selected from
      */
     building_list_type initial_building_list;
+
+    /**
+     * TODO: document
+     */
+    sampsim::building_tree *tree;
 
   private:
     /**

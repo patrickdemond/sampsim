@@ -26,7 +26,6 @@ namespace Json{ class Value; }
 namespace sampsim
 {
 class individual;
-class building_tree;
 class population;
 
 /**
@@ -281,7 +280,12 @@ namespace sample
      * This pure virtual method must be defined by all child classes.  It allows each sampling method
      * to define how buildings are selected (in sequence).
      */
-    virtual building* select_next_building( sampsim::building_tree& ) = 0;
+    virtual building* select_next_building( building_list_type& ) = 0;
+
+    /**
+     * TODO: document
+     */
+    virtual void create_building_list( sampsim::town*, building_list_type& );
 
     /**
      * Called before each sample is taken
