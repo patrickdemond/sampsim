@@ -94,11 +94,6 @@ namespace sampsim
   typedef std::vector< building* > building_list_type;
 
   /**
-   * @typedef building_linked_list_type
-   */
-  typedef std::list< building* > building_linked_list_type;
-
-  /**
    * @typedef household_list_type
    */
   typedef std::vector< household* > household_list_type;

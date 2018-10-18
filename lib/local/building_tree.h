@@ -131,11 +131,6 @@ namespace sampsim
 
     /**
      * Constructor
-     */
-    building_tree( building_linked_list_type );
-
-    /**
-     * Constructor
      * 
      * Copies an existing building_tree
      */
@@ -182,11 +177,6 @@ namespace sampsim
      * A recursive function used to create a 2d-tree of buildings
      */
     static node* build( building_list_type, node* parent_node = NULL );
-
-    /**
-     * A recursive function used to create a 2d-tree of buildings
-     */
-    static node* build( building_linked_list_type, node* parent_node = NULL );
 
     /**
      * A recursive function that deletes the node an all of its children.
