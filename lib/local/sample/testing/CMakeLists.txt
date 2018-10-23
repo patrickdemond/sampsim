@@ -7,7 +7,7 @@ INCLUDE_DIRECTORIES(
 
 FOREACH( HEADER ${HEADER_FILENAMES} )
   STRING( REGEX REPLACE "(.*/)|(\\.h)" "" CLASS_NAME ${HEADER} )
-  SET( TEST_NAME test_${CLASS_NAME} )
+  SET( TEST_NAME test_sample_${CLASS_NAME} )
   IF( NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.cxx )
     MESSAGE( "Warning: did not find any unit testing for sample::${CLASS_NAME} class" )
   ELSE()
