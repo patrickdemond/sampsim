@@ -10,7 +10,6 @@
 
 #include "building.h"
 
-#include <sstream>
 #include <stdexcept>
 
 namespace sampsim
@@ -51,8 +50,6 @@ namespace sampsim
       }
       else
       {
-        std::cout << e1.first << " to " << e1.second << std::endl;
-        std::cout << e2.first << " to " << e2.second << std::endl;
         std::stringstream stream;
         stream << "ERROR: found out-of-bounds building " << c
                << " while trying to split enumeration with extent "
