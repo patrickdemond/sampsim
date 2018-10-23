@@ -44,8 +44,7 @@ TEST( test_building )
     {
       sampsim::tile *tile = tile_it->second;
       std::pair< sampsim::coordinate, sampsim::coordinate > extent = tile->get_extent();
-      cout << "Tile extent is (" << extent.first.x << ", " << extent.first.y << "; "
-                                 << extent.second.x << ", " << extent.second.y << ")" << endl;
+      cout << "Tile extent is " << extent.first << " to " << extent.second << endl;
       for( auto building_it = tile->get_building_list_begin();
            building_it != tile->get_building_list_end();
            ++building_it )
@@ -55,7 +54,7 @@ TEST( test_building )
         sampsim::individual *individual = *household->get_individual_list_begin();
         sampsim::coordinate position = building->get_position();
 
-        cout << "Testing position of building at (" << position.x << ", " << position.y << ")..." << endl;
+        cout << "Testing position of building at " << position << "..." << endl;
         CHECK( position.x >= extent.first.x );
         CHECK( position.x < extent.second.x );
         CHECK( position.y >= extent.first.y );

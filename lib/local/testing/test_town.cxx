@@ -128,8 +128,7 @@ TEST( test_population )
 
     cout << "Testing town centroids..." << endl;
     sampsim::coordinate centroid = town->get_centroid();
-    CHECK_EQUAL( 5, centroid.x );
-    CHECK_EQUAL( 5, centroid.y );
+    CHECK_EQUAL( coordinate( 5, 5 ), centroid );
 
     cout << "Testing town size..." << endl;
     sum = town->get_summary();

@@ -1,13 +1,13 @@
 /*=========================================================================
 
   Program:  sampsim
-  Module:   test_building_enumeration.cxx
+  Module:   test_building_catalogue.cxx
   Language: C++
 
 =========================================================================*/
 //
 // .SECTION Description
-// Unit tests for the building_enumeration class
+// Unit tests for the building_catalogue class
 //
 
 #include "UnitTest++.h"
@@ -16,7 +16,7 @@
 #include "common.h"
 #include "household.h"
 #include "individual.h"
-#include "building_enumeration.h"
+#include "building_catalogue.h"
 #include "population.h"
 #include "tile.h"
 #include "town.h"
@@ -26,17 +26,21 @@ using namespace std;
 
 int main( const int argc, const char** argv ) { return UnitTest::RunAllTests(); }
 
-TEST( test_building_enumeration )
+TEST( test_building_catalogue )
 {
   // create a population
   sampsim::population *population = new sampsim::population;
   create_test_population( population );
 
-  building_list_type building_list;
+  unsigned int count = 1;
   for( auto town_it = population->get_town_list_begin();
        town_it != population->get_town_list_end();
        ++town_it )
   {
+    cout << "Testing town #" << count++ << endl;
+
+    // create a list of all buildings in the town
+    building_list_type building_list;
     sampsim::town *town = *town_it;
     for( auto tile_it = town->get_tile_list_begin();
          tile_it != town->get_tile_list_end();
@@ -49,26 +53,14 @@ TEST( test_building_enumeration )
         tile->get_building_list_end() );
 
     }
-  }
 
-  sampsim::building *b;
-  //sampsim::building_enumeration building_enumeration = sampsim::building_enumeration( building_list );
+    // create a building catalogue using the building list
+    sampsim::building_catalogue *be = new building_catalogue( building_list, 100 );
 
-  sampsim::coordinate test_coords[] =
-  {
-    sampsim::coordinate( 7.5, 0.0 ),
-    sampsim::coordinate( 0.0, 7.5 ),
-    sampsim::coordinate( 2.5, 0.0 ),
-    sampsim::coordinate( 0.0, 2.5 ),
-    sampsim::coordinate( 8.0, 8.0 ),
-    sampsim::coordinate( 2.0, 8.0 ),
-    sampsim::coordinate( 2.0, 2.0 ),
-    sampsim::coordinate( 8.0, 2.0 ),
-    sampsim::coordinate( 5.0, 5.0 ),
-  };
+    // TODO: keep writing test
+    CHECK( false );
 
-  for( int i = 0; i < 9; i++ )
-  {
+    sampsim::utilities::safe_delete( be );
   }
 
   // clean up

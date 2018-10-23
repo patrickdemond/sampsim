@@ -67,6 +67,7 @@ namespace sampsim
   class building;
   class household;
   class individual;
+  class enumeration;
 
   /**
    * @typedef file_list_type
@@ -114,9 +115,24 @@ namespace sampsim
   typedef std::map< unsigned int, individual* > individual_map_type;
 
   /**
+   * @typedef enumeration_list_type
+   */
+  typedef std::vector< enumeration* > enumeration_list_type;
+
+  /**
+   * @typedef enumeration_list_type
+   */
+  typedef std::pair< enumeration*, enumeration* > enumeration_pair_type;
+
+  /**
    * @typedef coordinate_list_type
    */
   typedef std::vector< coordinate > coordinate_list_type;
+
+  /**
+   * @typedef extent_type
+   */
+  typedef std::pair< coordinate, coordinate > extent_type;
 
   /**
    * @enum age_type

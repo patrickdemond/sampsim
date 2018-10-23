@@ -11,6 +11,8 @@
 
 #include "base_object.h"
 
+#include <iostream>
+
 namespace Json{ class Value; }
 
 /**
@@ -115,6 +117,15 @@ namespace sampsim
      * Divides an existing coordinate by a scalar value.  For example: (x, y) = (x0/a, y0/a)
      */
     coordinate& operator /= ( const double a ) { this->x /= a; this->y /= a; return (*this); }
+
+    /**
+     * Stream operator
+     */
+    friend std::ostream& operator << ( std::ostream& os, const coordinate &c )
+    {
+      os << '(' << c.x << ',' << c.y << ')';
+      return os;
+    }
 
     /**
      * Returns the scalar distance to another coordinate

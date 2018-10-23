@@ -47,7 +47,7 @@ namespace sampsim
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  bool line::line_inside_bounds( std::pair< coordinate, coordinate > extent )
+  bool line::line_inside_bounds( extent_type extent )
   {
     double tan_angle = tan( this->angle );
     double b = safe_subtract( this->intercept.y, this->intercept.x * tan_angle );

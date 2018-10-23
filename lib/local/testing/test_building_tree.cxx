@@ -72,9 +72,9 @@ TEST( test_building_tree )
     // find the nearest building
     b = tree.find_nearest( test_coords[i] );
     double distance = b->get_position().distance( test_coords[i] );
-    cout << "Nearest point to (" << test_coords[i].x << ", " << test_coords[i].y << ") "
-         << "is " << b << " (" << b->get_position().x << ", " << b->get_position().y << ") "
-         << "which is " << ( distance * 1000 ) << " meters away" << endl;
+    cout << "Nearest point to " << test_coords[i]
+         << " is " << b << " " << b->get_position()
+         << " which is " << ( distance * 1000 ) << " meters away" << endl;
 
     // now check by looping through all buildings whether this is correct
     for( auto building_it = building_list.begin(); building_it != building_list.end(); ++building_it )
@@ -83,9 +83,8 @@ TEST( test_building_tree )
       if( btemp != b )
       {
         double test = btemp->get_position().distance( test_coords[i] );
-        cout << "Testing " << btemp
-             << " (" << btemp->get_position().x << ", " << btemp->get_position().y << ") "
-             << "which is " << ( test * 1000 ) << " meters away" << endl;
+        cout << "Testing " << btemp << " " << btemp->get_position()
+             << " which is " << ( test * 1000 ) << " meters away" << endl;
         CHECK( ( *building_it )->get_position().distance( test_coords[i] ) >= distance );
       }
     }
@@ -93,7 +92,7 @@ TEST( test_building_tree )
 
     // now remove that building
     sampsim::coordinate bcoord = b->get_position();
-    cout << "Removing building at (" << bcoord.x << ", " << bcoord.y << ")" << endl;
+    cout << "Removing building at " << bcoord << endl;
 
     tree.remove( b );
     for( auto building_it = building_list.begin(); building_it != building_list.end(); ++building_it )
@@ -114,9 +113,8 @@ TEST( test_building_tree )
     else
     {
       distance = b->get_position().distance( bcoord );
-      cout << "Nearest point to removed building is " << b << " ("
-           << b->get_position().x << ", " << b->get_position().y << ") "
-           << "which is " << ( distance * 1000 ) << " meters away" << endl;
+      cout << "Nearest point to removed building is " << b << " "
+           << b->get_position() << " which is " << ( distance * 1000 ) << " meters away" << endl;
 
       // check by looping through all buildings whether this is correct
       for( auto building_it = building_list.begin(); building_it != building_list.end(); ++building_it )
@@ -126,8 +124,8 @@ TEST( test_building_tree )
         {
           double test = btemp->get_position().distance( bcoord );
           cout << "Testing " << btemp
-               << " (" << btemp->get_position().x << ", " << btemp->get_position().y << ") "
-               << "which is " << ( test * 1000 ) << " meters away" << endl;
+               << " " << btemp->get_position()
+               << " which is " << ( test * 1000 ) << " meters away" << endl;
           CHECK( ( *building_it )->get_position().distance( bcoord ) >= distance );
         }
       }

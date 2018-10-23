@@ -203,7 +203,7 @@ namespace sampsim
     coordinate upper( this->index.first + 1, this->index.second + 1 );
     upper *= width;
 
-    this->extent = std::pair< coordinate, coordinate >( lower, upper );
+    this->extent = extent_type( lower, upper );
     this->centroid = ( lower + upper ) / 2;
   }
 

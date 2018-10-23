@@ -197,7 +197,7 @@ namespace sampsim
      * 
      * These coordinates are determined by the index passed to the constructor.
      */
-    std::pair< coordinate, coordinate > get_extent() const { return this->extent; }
+    extent_type get_extent() const { return this->extent; }
 
     /**
      * Returns the surface area of the tile
@@ -290,7 +290,7 @@ namespace sampsim
     /**
      * A coordinate pair of the tile's lower and upper bounds
      */
-    std::pair< coordinate, coordinate > extent;
+    extent_type extent;
 
     /**
      * A coordinate of the centre of the tile

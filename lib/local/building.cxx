@@ -59,7 +59,7 @@ namespace sampsim
 
     // determine the building's position
     town* town = this->get_town();
-    std::pair< coordinate, coordinate > extent = this->get_tile()->get_extent();
+    extent_type extent = this->get_tile()->get_extent();
     this->position.x = utilities::random() * safe_subtract( extent.second.x, extent.first.x ) + extent.first.x;
     this->position.y = utilities::random() * safe_subtract( extent.second.y, extent.first.y ) + extent.first.y;
     this->position.set_centroid( town->get_centroid() );

@@ -19,10 +19,11 @@ CONFIGURE_FILE( utilities.h.in
 SET( SAMPSIM_LIB_SOURCE
   base_object.cxx
   building.cxx
-  building_enumeration.cxx
+  building_catalogue.cxx
   building_tree.cxx
   coordinate.cxx
   distribution.cxx
+  enumeration.cxx
   household.cxx
   individual.cxx
   line.cxx

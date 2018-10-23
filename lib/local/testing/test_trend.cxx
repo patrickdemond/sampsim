@@ -37,7 +37,7 @@ TEST( test_trend )
   {
     sampsim::coordinate c( 100 * ( sampsim::utilities::random() - 0.5 ),
                            100 * ( sampsim::utilities::random() - 0.5 ) );
-    cout << "Testing trend value at (" << c.x << ", " << c.y << ")..." << endl;
+    cout << "Testing trend value at " << c << "..." << endl;
     double value = t1.get_b00() +
                    t1.get_b01() * c.x +
                    t1.get_b10() * c.y +

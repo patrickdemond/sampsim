@@ -81,7 +81,7 @@ namespace sampsim
     /**
      * Determines whether the line crosses through an extent
      */
-    bool line_inside_bounds( std::pair< coordinate, coordinate > extent );
+    bool line_inside_bounds( extent_type extent );
 
     /**
      * Determines whether the coordinate is inside a strip formed by two lines
