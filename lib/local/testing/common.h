@@ -28,7 +28,9 @@ inline void create_test_population(
   sampsim::population *population,
   int number_of_towns = 8,
   int town_size_min = 5000,
-  int town_size_max = 100000 )
+  int town_size_max = 100000,
+  double popdens_mx = 0,
+  double popdens_my = 0 )
 {
   sampsim::utilities::verbose = false;
   stringstream stream;
@@ -43,6 +45,7 @@ inline void create_test_population(
   population->set_number_of_tiles_x( 10 );
   population->set_number_of_tiles_y( 10 );
   population->set_number_of_disease_pockets( 3 );
+  population->set_population_density_slope( popdens_mx, popdens_my );
   population->generate();
 }
 
