@@ -11,11 +11,6 @@
 
 #include "sample/sized_sample.h"
 
-#include "building_tree.h"
-
-#include <float.h>
-#include <list>
-
 namespace Json{ class Value; }
 
 /**
@@ -25,6 +20,7 @@ namespace Json{ class Value; }
 
 namespace sampsim
 {
+  class building_tree;
 
 /**
  * @addtogroup sample

@@ -51,7 +51,7 @@ TEST( test_sample_enumeration )
   sample1->set_number_of_towns( 30 );
   sample1->set_size( 30 );
   sample1->set_age( sampsim::get_age_type( "child" ) );
-  sample1->set_target_size( 50 );
+  sample1->set_threshold( 100 );
   sample1->generate();
 
   // count towns, individuals in the population

@@ -9,6 +9,7 @@
 #include "direction_epi.h"
 
 #include "building.h"
+#include "building_tree.h"
 #include "town.h"
 
 #include <cmath>

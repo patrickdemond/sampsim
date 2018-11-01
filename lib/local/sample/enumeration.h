@@ -22,6 +22,7 @@ namespace Json{ class Value; }
 
 namespace sampsim
 {
+  class building_catalogue;
 
 /**
  * @addtogroup sample
@@ -41,6 +42,16 @@ namespace sample
   class enumeration : public sized_sample
   {
   public:
+    /**
+     * Constructor
+     */
+    enumeration();
+
+    /**
+     * Destructor
+     */
+    ~enumeration();
+
     // defining pure abstract methods
     std::string get_name() const { return "enumeration"; }
     void copy( const base_object* o ) { this->copy( static_cast<const enumeration*>( o ) ); }
@@ -59,14 +70,14 @@ namespace sample
     virtual double get_immediate_sample_weight( const sampsim::individual* ) const;
 
     /**
-     * Sets the target enumeration size (number of individuals)
+     * Sets the number of buildings an single enumeration must stay below
      */
-    void set_target_size( double angle ) { this->target_size = angle; }
+    void set_threshold( double angle ) { this->threshold = angle; }
 
     /**
-     * Returns the target enumeration size (number of individuals)
+     * Returns the number of buildings an single enumeration must stay below
      */
-    double get_target_size() { return this->target_size; }
+    double get_threshold() { return this->threshold; }
 
     /**
      * Returns the header for generated CSV files
@@ -77,15 +88,25 @@ namespace sample
 
   protected:
     /**
+     * TODO: document
+     */
+    virtual void create_building_list( sampsim::town*, building_list_type &building_list );
+
+    /**
      * Algorithm which selects buildings based on the sampling method
      */
     virtual building* select_next_building( building_list_type& );
 
   private:
     /**
-     * The target number of individuals in each enumeration
+     * The building catalogue
      */
-    unsigned int target_size;
+    sampsim::building_catalogue *catalogue;
+
+    /**
+     * The number of buildings an single enumeration must stay below
+     */
+    unsigned int threshold;
   };
 }
 
