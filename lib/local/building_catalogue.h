@@ -88,6 +88,11 @@ namespace sampsim
     enumeration_list_type::const_iterator get_enumeration_list_cend() const
     { return this->enumeration_list.cend(); }
 
+    /**
+     * The total number of enumerations in the catalogue
+     */
+    unsigned int get_number_of_enumerations() const { return this->enumeration_list.size(); }
+
   private:
     /**
      * A recursive function used to create a list of enumerations

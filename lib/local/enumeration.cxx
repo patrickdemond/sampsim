@@ -15,7 +15,7 @@
 namespace sampsim
 {
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
-  enumeration_pair_type enumeration::split()
+  enumeration_pair_type enumeration::split( bool test )
   {
     // determine the dimensions of the new enumerations
     extent_type e1 = extent_type(

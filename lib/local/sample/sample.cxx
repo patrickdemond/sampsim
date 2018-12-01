@@ -279,8 +279,9 @@ namespace sample
             }
           }
 
-          //building_list.remove( b );
-          building_list.erase( std::remove( building_list.begin(), building_list.end(), b ), building_list.end() );
+          auto it = std::find( building_list.begin(), building_list.end(), b );
+          if( it == building_list.end() ) std::cout << "ERROR: Can't find " << b << " in sample's building list" << std::endl;
+          else building_list.erase( it );
         }
 
         // apply post-sample weighting factor to all selected individuals

@@ -29,7 +29,7 @@ inline void create_test_population(
   int town_size_min = 5000,
   int town_size_max = 100000 )
 {
-  sampsim::utilities::verbose = true;
+  sampsim::utilities::verbose = false;
   stringstream stream;
   stream << time( NULL );
   population->set_seed( stream.str() );

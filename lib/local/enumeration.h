@@ -67,13 +67,15 @@ namespace sampsim
      * Warning: the returned pair of enumerations will have new memory allocated to them so it is up
      * to the caller of this method to manage that memory
      */
-    enumeration_pair_type split();
+    enumeration_pair_type split( bool test = false );
 
     /**
      * Returns the number of buildings in the enumeration
      */
     unsigned int get_number_of_buildings() const
-    { return this->building_list.size(); }
+    {
+      return this->building_list.size();
+    }
 
     /** 
      * Iterator access to child buildings
@@ -106,6 +108,24 @@ namespace sampsim
      */
     building_list_type::const_iterator get_building_list_cend() const
     { return this->building_list.cend(); }
+
+    /**
+     * Removes a building from the enumeration
+     */
+    void remove_building( const building* b )
+    {
+      auto it = std::find( this->building_list.begin(), this->building_list.end(), b );
+      if( it == this->building_list.end() ) std::cout << "ERROR: Can't find " << b << " in enumeration's building list" << std::endl;
+      else this->remove_building( it );
+    }
+
+    /**
+     * Removes a building from the enumeration (based on a building_list iterator)
+     */
+    void remove_building( const building_list_type::iterator building_it )
+    {
+      this->building_list.erase( building_it );
+    }
 
   private:
     /**

@@ -31,7 +31,7 @@ TEST( test_sample_enumeration )
 {
   // create a population
   sampsim::population *population = new sampsim::population;
-  create_test_population( population, 250, 250, 2500 );
+  create_test_population( population, 250, 250, 25000 );
 
   stringstream temp_population_filename;
   unsigned int random1 = sampsim::utilities::random( 1000000, 9999999 );
@@ -41,11 +41,6 @@ TEST( test_sample_enumeration )
   cout << "Testing reading population from memory..." << endl;
   sampsim::sample::enumeration *sample1 = new sampsim::sample::enumeration;
   CHECK( sample1->set_population( population ) );
-
-  cout << "Testing reading population from disk..." << endl;
-  temp_population_filename << ".json.tar.gz";
-  sampsim::sample::enumeration *sample2 = new sampsim::sample::enumeration;
-  CHECK( sample2->set_population( temp_population_filename.str() ) );
 
   sample1->set_number_of_samples( 100 );
   sample1->set_number_of_towns( 30 );
@@ -65,11 +60,12 @@ TEST( test_sample_enumeration )
     for( auto it = pop->get_town_list_cbegin(); it != pop->get_town_list_cend(); ++it )
     {
       sampsim::town *town = *it;
-      for( unsigned int rr = 0; rr < sampsim::utilities::rr.size(); rr++ )
-        CHECK( 10 <= town->get_summary()->get_count( rr ) );
+      for( unsigned int rr = 0; rr < sampsim::utilities::rr.size(); rr++ ) CHECK( 10 <= town->get_summary()->get_count( rr ) );
       number_of_towns++;
     }
-    CHECK_EQUAL( number_of_towns, sample1->get_number_of_towns() );
+
+    // some towns are selected twice, so there may be less than the total, but never more
+    CHECK( number_of_towns <= sample1->get_number_of_towns() );
     number_of_samples++;
   }
 
@@ -85,5 +81,4 @@ TEST( test_sample_enumeration )
   sampsim::utilities::exec( command.str() );
   sampsim::utilities::safe_delete( population );
   sampsim::utilities::safe_delete( sample1 );
-  sampsim::utilities::safe_delete( sample2 );
 }

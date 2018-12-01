@@ -23,6 +23,7 @@ namespace Json{ class Value; }
 namespace sampsim
 {
   class building_catalogue;
+  class enumeration;
 
 /**
  * @addtogroup sample
@@ -72,12 +73,12 @@ namespace sample
     /**
      * Sets the number of buildings an single enumeration must stay below
      */
-    void set_threshold( double angle ) { this->threshold = angle; }
+    void set_threshold( unsigned int threshold ) { this->threshold = threshold; }
 
     /**
      * Returns the number of buildings an single enumeration must stay below
      */
-    double get_threshold() { return this->threshold; }
+    unsigned int get_threshold() { return this->threshold; }
 
     /**
      * Returns the header for generated CSV files
@@ -87,6 +88,8 @@ namespace sample
     virtual std::string get_csv_header() const;
 
   protected:
+    virtual void reset_for_next_sample( const bool full = true );
+
     /**
      * TODO: document
      */
@@ -102,6 +105,11 @@ namespace sample
      * The building catalogue
      */
     sampsim::building_catalogue *catalogue;
+
+    /**
+     * The enumeration which has been selected to sample buildings from
+     */
+    sampsim::enumeration *active_enumeration;
 
     /**
      * The number of buildings an single enumeration must stay below
