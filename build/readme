@@ -17,6 +17,12 @@ the source and build it yourself.  Also, many linux distros have it build into t
 managers.  I recommend trying this option first since it's the quickest and easiest to do.
 
 
+LibArchive
+----------
+You will need the libarchive development libraries.  You can install them using your distro's
+package manager (try package libarchive-dev)
+
+
 JSON CPP (jsoncpp.sourceforge.net)
 ----------------------------------
 You will need the jsoncpp development libraries.  You can download these from the sourceforge
