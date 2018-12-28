@@ -16,8 +16,8 @@
 
 void setup_strip_epi_sample( sampsim::options &opts )
 {
-  opts.add_option( "number_of_sectors", "1",
-    "Divide towns into sectors, splitting the sample evently into each sector." );
+  opts.add_option( "use_quadrants", "false",
+    "Divide towns into quadrants, splitting the sample evently into each quadrant." );
   opts.add_option( "skip", "1",
     "How many of the nearest households to skip when selecting the next household." );
   opts.add_flag( "periphery",
@@ -27,7 +27,7 @@ void setup_strip_epi_sample( sampsim::options &opts )
 
 void parse_strip_epi_sample( sampsim::options &opts, sampsim::sample::strip_epi *sample )
 {
-  sample->set_number_of_sectors( opts.get_option_as_int( "number_of_sectors" ) );
+  sample->set_use_quadrants( opts.get_flag( "use_quadrants" ) );
   sample->set_skip( opts.get_option_as_int( "skip" ) );
   sample->set_periphery( opts.get_flag( "periphery" ) );
   sample->set_strip_width( opts.get_option_as_double( "strip_width" ) / 1000 );

@@ -54,27 +54,29 @@ namespace sample
     virtual void to_json( Json::Value& ) const;
 
     /**
-     * Sets the number of sectors to divide the town into.
+     * Sets whether to use quadrants.
      * 
-     * When sampling a town it is possible to divide the town into N evenly sized sectors such that
-     * one sample will be taken in each sector containing 1/N the total sample size.
+     * When sampling a town it is possible to divide the town into quadrants such that
+     * one sample will be taken in each quadrant containing 1/4 the total sample size.
      */
-    void set_number_of_sectors( const unsigned int number_of_sectors );
+    void set_use_quadrants( const bool use_quadrants );
 
     /**
-     * Returns the number of sectors to divide the town into.
+     * Returns whether the town is split into quadrants.
      */
-    unsigned int get_number_of_sectors() const { return this->number_of_sectors; }
+    bool get_use_quadrants() const { return this->use_quadrants; }
 
     /**
-     * Returns the current sector being processed
+     * Returns the current quadrant being processed
      */
-    int get_current_sector() const { return this->current_sector_index + 1; }
-
-    /**
-     * Returns the lower and upper bounds of the current sector
-     */
-    std::pair< double, double > get_next_sector_range();
+    std::string get_current_quadrant() const
+    {
+      if( 0 == this->current_quadrant_index ) return "I";
+      else if( 1 == this->current_quadrant_index ) return "II";
+      else if( 2 == this->current_quadrant_index ) return "III";
+      else if( 3 == this->current_quadrant_index ) return "IV";
+      else return "?";
+    }
 
     /**
      * Sets whether to select households at the center and periphery (instead of randomly)
@@ -94,9 +96,7 @@ namespace sample
     /**
      * Sets the angle used in the selection of the initial building
      * 
-     * Note, if using multiple sectors then the angle selected for each sector will be the initial
-     * set angle rotated by the angle of a sector.  This will result in a uniform distribution of
-     * angles situated at the same sub-angle in each sector.
+     * Note, each quadrant will get a distinct start angle.
      */
     void set_start_angle( double start_angle )
     {
@@ -128,9 +128,21 @@ namespace sample
     virtual void reset_for_next_sample( const bool full = true );
 
     /**
-     * Is called when needing to select the next angle belonging to the next sector
+     * Is called when needing to select the next angle belonging to the next quadrant
      */
     virtual void determine_next_start_angle();
+
+    /**
+     * Get the centroid of the selection angle (centre of town, or centre of current quadrant)
+     */
+    coordinate get_angle_centroid();
+
+    /**
+     * Determine whether a building is in the current quadrant
+     * 
+     * Note that if quadrants are not being used this will always return true
+     */
+    bool in_current_quadrant( const sampsim::building *b ) const;
 
     /**
      * Whether the start angle has been defined
@@ -150,27 +162,37 @@ namespace sample
 
   private:
     /**
-     * The total number of sectors to divide the town into for sampling.
+     * Whether to divide towns up into quadrants.
      * 
-     * When sampling a town it is possible to divide the town into N evenly sized sectors such that
-     * one sample will be taken in each sector containing 1/N the total sample size.
+     * When sampling a town it is possible to divide the town into quadrants such that
+     * one sample will be taken in each quadrant containing 1/4 the total sample size.
      */
-    unsigned int number_of_sectors;
+    bool use_quadrants;
 
     /**
-     * The current sector being sampled
+     * The current quadrant being sampled
      */
-    int current_sector_index;
+    int current_quadrant_index;
+
+    /**
+     * Keeps track of how many quadrants we've sampled
+     */
+    unsigned int completed_quadrants;
 
     /**
      * Whether to select households at the center and periphery (instead of randomly)
+     * 
+     * Note that this is ignored when the town is split into quadrants.
      */
     bool periphery;
 
     /**
-     * Keeps track of how many buildings have been selected in the current sector
+     * Keeps track of how many buildings have been selected in the current quadrant
+     * 
+     * If quadrants aren't being used then this will containt the total number of selected
+     * buildings in the town.
      */
-    unsigned int buildings_in_current_sector;
+    unsigned int buildings_in_current_quadrant;
   };
 }
 

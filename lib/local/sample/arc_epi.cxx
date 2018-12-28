@@ -31,6 +31,8 @@ namespace sample
   {
     this->initial_building_list.clear();
 
+    coordinate c = this->get_angle_centroid();
+
     // 2. get list of all buildings in the arc defined by the start angle and arc width
     int iteration = 0;
     while( 0 == this->initial_building_list.size() && iteration < 1000 )
@@ -52,17 +54,25 @@ namespace sample
       for( auto it = building_list.begin(); it != building_list.end(); ++it )
       {
         building *building = (*it);
-        double a = (*it)->get_position().get_a();
 
-        if( a1 > a2 )
+        // ignore any building not in the current quadrant (when not using quadrants this will always be true)
+        if( this->in_current_quadrant( building ) )
         {
-          // the arc crosses over the -pi/pi boundary
-          if( ( a1 <= a && a <= M_PI ) || ( -M_PI <= a && a < a2 ) )
-            this->initial_building_list.push_back( *it );
-        }
-        else
-        {
-          if( a1 <= a && a < a2 ) this->initial_building_list.push_back( *it );
+          // get the building's angle based on the current angle's centroid
+          coordinate p = (*it)->get_position();
+          p.set_centroid( c );
+          double a = (*it)->get_position().get_a();
+
+          if( a1 > a2 )
+          {
+            // the arc crosses over the -pi/pi boundary
+            if( ( a1 <= a && a <= M_PI ) || ( -M_PI <= a && a < a2 ) )
+              this->initial_building_list.push_back( *it );
+          }
+          else
+          {
+            if( a1 <= a && a < a2 ) this->initial_building_list.push_back( *it );
+          }
         }
       }
 

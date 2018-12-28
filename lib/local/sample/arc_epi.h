@@ -34,7 +34,7 @@ namespace sample
   /**
    * @class arc_epi
    * @author Patrick Emond <emondpd@mcmaster.ca>
-   * @brief EPI method which picks the initial building using a sector
+   * @brief EPI method which picks the initial building
    * @details
    * A contrete implementation of the sample class.  This EPI method uses an arc to determine
    * which buildings are considered to be inside the list of buildings defined by the initial
