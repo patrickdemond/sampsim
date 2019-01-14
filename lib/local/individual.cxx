@@ -11,6 +11,7 @@
 #include "household.h"
 #include "population.h"
 #include "summary.h"
+#include "town.h"
 
 #include <json/value.h>
 
@@ -157,6 +158,11 @@ namespace sampsim
     this->sample_weight = sample_weight;
     this->selected = true;
     this->parent->select();
+
+    sampsim::town *town = this->get_town();
+    town->number_of_selected_individuals++;
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
+      if( this->is_disease( rr ) ) town->number_of_selected_diseased_individuals[rr]++;
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

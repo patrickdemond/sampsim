@@ -407,7 +407,7 @@ namespace sampsim
 
     // put in the csv headers
     household_stream << "town_index,household_index,x,y,r,a,individuals,income,disease_risk,exposure_risk";
-    
+
     for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ ) household_stream << ",rr" << utilities::rr[rr];
     household_stream << std::endl;
     individual_stream << "town_index,household_index,individual_index,age,sex,exposed";
@@ -417,6 +417,35 @@ namespace sampsim
 
     for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it )
       ( *it )->to_csv( household_stream, individual_stream );
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  std::pair< unsigned int, unsigned int > population::get_variance( unsigned int index ) const
+  {
+    // calculate the proportion and variance
+    // "m" represents the number of selected individuals and "y" the number of selected diseased individuals
+    unsigned int n, y, m, sum_y = 0, sum_m = 0, sum_y_y = 0, sum_y_m = 0, sum_m_m = 0, proportion, variance;
+    n = this->get_number_of_towns();
+
+    for( auto it = this->get_town_list_cbegin(); it != this->get_town_list_cend(); ++it )
+    {
+      sampsim::town *town = *it;
+      m = town->get_number_of_selected_individuals();
+      y = town->get_number_of_selected_diseased_individuals( index );
+      sum_y += y;
+      sum_y_y += y*y;
+      sum_m += m;
+      sum_y_m += y*m;
+      sum_m_m += m*m;
+    }
+
+    unsigned int mean_selected_per_town = sum_m / n;
+
+    proportion = sum_y / sum_m;
+    variance = ( sum_y_y - 2 *proportion*sum_y_m + proportion*proportion*sum_m_m ) /
+               ( n*(n-1)*mean_selected_per_town );
+
+    return std::pair< unsigned int, unsigned int >( proportion, variance );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

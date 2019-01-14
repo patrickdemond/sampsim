@@ -132,6 +132,11 @@ namespace sample
     void write_summary( const std::string filename ) const;
 
     /**
+     * Writes proportion and variance of the sample to disk
+     */
+    void write_variance( const std::string filename ) const;
+
+    /**
      * Returns the name of the sampling method
      */
     virtual std::string get_type() const = 0;

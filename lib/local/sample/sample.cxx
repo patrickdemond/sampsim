@@ -539,6 +539,28 @@ namespace sample
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void sample::write_variance( const std::string filename ) const
+  {
+    std::stringstream name_stream;
+    std::pair< unsigned int, unsigned int > variance;
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
+    {
+      name_stream.str( "" );
+      name_stream << filename << utilities::rr[rr] << ".variance.csv";
+      std::ofstream stream( name_stream.str(), std::ofstream::app );
+
+      // calculate the proportion and variance for all populations
+      for( auto it = this->sampled_population_list.cbegin(); it != this->sampled_population_list.cend(); ++it )
+      {
+        variance = (*it)->get_variance( rr );
+        stream << variance.first << "," << variance.second << std::endl;
+      }
+
+      stream.close();
+    }
+  }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
   bool sample::set_population( const std::string filename )
   {
     this->delete_population();

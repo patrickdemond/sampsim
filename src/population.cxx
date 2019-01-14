@@ -14,6 +14,7 @@
 #include "population.h"
 #include "sample/arc_epi.h"
 #include "sample/circle_gps.h"
+#include "sample/enumeration.h"
 #include "sample/grid_epi.h"
 #include "sample/random.h"
 #include "sample/square_gps.h"
@@ -34,6 +35,7 @@ int main( const int argc, const char** argv )
     't', "type", "population", "Identifies the input file's data type (population, arc_epi, circle_gps, etc)" );
   opts.add_flag( 'f', "flat_file", "Whether to output data in two CSV \"flat\" files" );
   opts.add_flag( 's', "summary_file", "Whether to output summary data of the population" );
+  opts.add_flag( 'a', "variance_file", "Whether to output variance data of a sample" );
   opts.add_flag( 'q', "quiet", "Do not generate any output" );
 
   try
@@ -53,6 +55,7 @@ int main( const int argc, const char** argv )
         std::string type = opts.get_option( "type" );
         bool flat_file = opts.get_flag( "flat_file" );
         bool summary_file = opts.get_flag( "summary_file" );
+        bool variance_file = opts.get_flag( "variance_file" );
         sampsim::utilities::quiet = opts.get_flag( "quiet" );
 
         // determine what to do with the input file based on its extention(s)
@@ -83,6 +86,7 @@ int main( const int argc, const char** argv )
           sample->read( input_filename );
           if( flat_file ) sample->write( base_name, true );
           if( summary_file ) sample->write_summary( base_name );
+          if( variance_file ) sample->write_variance( base_name );
           sampsim::utilities::safe_delete( sample );
         }
         else if( "circle_gps" == type )
@@ -91,6 +95,16 @@ int main( const int argc, const char** argv )
           sample->read( input_filename );
           if( flat_file ) sample->write( base_name, true );
           if( summary_file ) sample->write_summary( base_name );
+          if( variance_file ) sample->write_variance( base_name );
+          sampsim::utilities::safe_delete( sample );
+        }
+        else if( "enumeration" == type )
+        {
+          sampsim::sample::enumeration *sample = new sampsim::sample::enumeration;
+          sample->read( input_filename );
+          if( flat_file ) sample->write( base_name, true );
+          if( summary_file ) sample->write_summary( base_name );
+          if( variance_file ) sample->write_variance( base_name );
           sampsim::utilities::safe_delete( sample );
         }
         else if( "grid_epi" == type )
@@ -99,6 +113,7 @@ int main( const int argc, const char** argv )
           sample->read( input_filename );
           if( flat_file ) sample->write( base_name, true );
           if( summary_file ) sample->write_summary( base_name );
+          if( variance_file ) sample->write_variance( base_name );
           sampsim::utilities::safe_delete( sample );
         }
         else if( "random" == type )
@@ -107,6 +122,7 @@ int main( const int argc, const char** argv )
           sample->read( input_filename );
           if( flat_file ) sample->write( base_name, true );
           if( summary_file ) sample->write_summary( base_name );
+          if( variance_file ) sample->write_variance( base_name );
           sampsim::utilities::safe_delete( sample );
         }
         else if( "square_gps" == type )
@@ -115,6 +131,7 @@ int main( const int argc, const char** argv )
           sample->read( input_filename );
           if( flat_file ) sample->write( base_name, true );
           if( summary_file ) sample->write_summary( base_name );
+          if( variance_file ) sample->write_variance( base_name );
           sampsim::utilities::safe_delete( sample );
         }
         else if( "strip_epi" == type )
@@ -123,6 +140,7 @@ int main( const int argc, const char** argv )
           sample->read( input_filename );
           if( flat_file ) sample->write( base_name, true );
           if( summary_file ) sample->write_summary( base_name );
+          if( variance_file ) sample->write_variance( base_name );
           sampsim::utilities::safe_delete( sample );
         }
         else

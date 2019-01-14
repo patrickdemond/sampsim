@@ -48,6 +48,7 @@ namespace sampsim
    */
   class town : public model_object
   {
+    friend class individual;
     friend class population;
 
   public:
@@ -278,6 +279,18 @@ namespace sampsim
      */
     double get_area() const;
 
+    /**
+     * Returns the number of selected individuals (a cached value)
+     */
+    unsigned int get_number_of_selected_individuals() const
+    { return this->number_of_selected_individuals; }
+
+    /**
+     * Returns the number of selected diseased individuals (a cached value)
+     */
+    unsigned int get_number_of_selected_diseased_individuals( unsigned int index ) const
+    { return this->number_of_selected_diseased_individuals[index]; }
+
   protected:
     void create();
     void define();
@@ -387,6 +400,16 @@ namespace sampsim
      * The number of individuals in this town.
      */
     unsigned int number_of_individuals;
+
+    /**
+     * A cache of the number of selected individuals
+     */
+    unsigned int number_of_selected_individuals;
+
+    /**
+     * A cache of the number of selected individuals who are diseased
+     */
+    std::vector<unsigned int> number_of_selected_diseased_individuals;
   };
 }
 

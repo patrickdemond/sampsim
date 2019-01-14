@@ -45,6 +45,9 @@ namespace sampsim
     this->sd_exposure = new trend;
     this->population_density = new trend;
     this->number_of_individuals = 0;
+    this->number_of_selected_individuals = 0;
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
+      this->number_of_selected_diseased_individuals.push_back( 0 );
   }
 
   //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-

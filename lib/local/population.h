@@ -476,6 +476,13 @@ namespace sampsim
      */
     void set_disease( trend *mean, trend *sd );
 
+    /**
+     * Gets the proportion and variance for this population
+     * 
+     * Note that this is only valid when individuals have been selected
+     */
+    std::pair< unsigned int, unsigned int > get_variance( unsigned int index ) const;
+
   protected:
     void create();
     void define();
