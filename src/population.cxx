@@ -85,8 +85,11 @@ int main( const int argc, const char** argv )
           sampsim::sample::arc_epi *sample = new sampsim::sample::arc_epi;
           sample->read( input_filename );
           if( flat_file ) sample->write( base_name, true );
-          if( summary_file ) sample->write_summary( base_name );
-          if( variance_file ) sample->write_variance( base_name );
+          if( summary_file )
+          {
+            sample->write_summary( base_name );
+            sample->write_variance( base_name );
+          }
           sampsim::utilities::safe_delete( sample );
         }
         else if( "circle_gps" == type )
@@ -94,7 +97,11 @@ int main( const int argc, const char** argv )
           sampsim::sample::circle_gps *sample = new sampsim::sample::circle_gps;
           sample->read( input_filename );
           if( flat_file ) sample->write( base_name, true );
-          if( summary_file ) sample->write_summary( base_name );
+          if( summary_file )
+          {
+            sample->write_summary( base_name );
+            sample->write_variance( base_name );
+          }
           if( variance_file ) sample->write_variance( base_name );
           sampsim::utilities::safe_delete( sample );
         }
@@ -103,7 +110,11 @@ int main( const int argc, const char** argv )
           sampsim::sample::enumeration *sample = new sampsim::sample::enumeration;
           sample->read( input_filename );
           if( flat_file ) sample->write( base_name, true );
-          if( summary_file ) sample->write_summary( base_name );
+          if( summary_file )
+          {
+            sample->write_summary( base_name );
+            sample->write_variance( base_name );
+          }
           if( variance_file ) sample->write_variance( base_name );
           sampsim::utilities::safe_delete( sample );
         }
@@ -112,7 +123,11 @@ int main( const int argc, const char** argv )
           sampsim::sample::grid_epi *sample = new sampsim::sample::grid_epi;
           sample->read( input_filename );
           if( flat_file ) sample->write( base_name, true );
-          if( summary_file ) sample->write_summary( base_name );
+          if( summary_file )
+          {
+            sample->write_summary( base_name );
+            sample->write_variance( base_name );
+          }
           if( variance_file ) sample->write_variance( base_name );
           sampsim::utilities::safe_delete( sample );
         }
@@ -121,7 +136,11 @@ int main( const int argc, const char** argv )
           sampsim::sample::random *sample = new sampsim::sample::random;
           sample->read( input_filename );
           if( flat_file ) sample->write( base_name, true );
-          if( summary_file ) sample->write_summary( base_name );
+          if( summary_file )
+          {
+            sample->write_summary( base_name );
+            sample->write_variance( base_name );
+          }
           if( variance_file ) sample->write_variance( base_name );
           sampsim::utilities::safe_delete( sample );
         }
@@ -130,7 +149,11 @@ int main( const int argc, const char** argv )
           sampsim::sample::square_gps *sample = new sampsim::sample::square_gps;
           sample->read( input_filename );
           if( flat_file ) sample->write( base_name, true );
-          if( summary_file ) sample->write_summary( base_name );
+          if( summary_file )
+          {
+            sample->write_summary( base_name );
+            sample->write_variance( base_name );
+          }
           if( variance_file ) sample->write_variance( base_name );
           sampsim::utilities::safe_delete( sample );
         }
@@ -139,7 +162,11 @@ int main( const int argc, const char** argv )
           sampsim::sample::strip_epi *sample = new sampsim::sample::strip_epi;
           sample->read( input_filename );
           if( flat_file ) sample->write( base_name, true );
-          if( summary_file ) sample->write_summary( base_name );
+          if( summary_file )
+          {
+            sample->write_summary( base_name );
+            sample->write_variance( base_name );
+          }
           if( variance_file ) sample->write_variance( base_name );
           sampsim::utilities::safe_delete( sample );
         }

@@ -197,7 +197,11 @@ void process_sample( sampsim::options &opts, sampsim::sample::sized_sample *samp
       if( !flat_only && !summary_only ) sample->write( output_filename, false );
 
       // create a summary file if requested
-      if( summary ) sample->write_summary( output_filename );
+      if( summary )
+      {
+        sample->write_summary( output_filename );
+        sample->write_variance( output_filename );
+      }
 
       // create a flat file if a flat file or plot was requested
       if( !summary_only && ( flat || plot ) ) sample->write( output_filename, true );
