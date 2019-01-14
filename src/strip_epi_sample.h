@@ -16,7 +16,7 @@
 
 void setup_strip_epi_sample( sampsim::options &opts )
 {
-  opts.add_option( "use_quadrants", "false",
+  opts.add_flag( "use_quadrants",
     "Divide towns into quadrants, splitting the sample evently into each quadrant." );
   opts.add_option( "skip", "1",
     "How many of the nearest households to skip when selecting the next household." );
