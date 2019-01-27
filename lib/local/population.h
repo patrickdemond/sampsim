@@ -481,7 +481,7 @@ namespace sampsim
      * 
      * Note that this is only valid when individuals have been selected
      */
-    std::pair< unsigned int, unsigned int > get_variance( unsigned int index ) const;
+    std::pair< double, double > get_variance( unsigned int index ) const;
 
   protected:
     void create();

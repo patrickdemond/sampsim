@@ -548,6 +548,9 @@ namespace sampsim
     this->mean_exposure->copy( object->mean_exposure );
     this->sd_exposure->copy( object->sd_exposure );
     this->population_density->copy( object->population_density );
+    this->number_of_selected_individuals = object->number_of_selected_individuals;
+    for( unsigned int rr = 0; rr < utilities::rr.size(); rr++ )
+      this->number_of_selected_diseased_individuals[rr] = object->number_of_selected_diseased_individuals[rr];
 
     // delete all tiles
     for( auto it = this->tile_list.begin(); it != this->tile_list.end(); ++it )
