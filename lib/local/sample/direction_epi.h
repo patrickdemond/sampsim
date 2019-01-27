@@ -154,12 +154,6 @@ namespace sample
      */
     double start_angle;
 
-    /**
-     * Whether or not the periphery (furthest building from the center) has been selected
-     * Note: this is only used when periphery mode is activated
-     */
-    bool periphery_building_selected;
-
   private:
     /**
      * Whether to divide towns up into quadrants.
@@ -185,6 +179,13 @@ namespace sample
      * Note that this is ignored when the town is split into quadrants.
      */
     bool periphery;
+
+    /**
+     * Whether or not the first periphery (furthest building from the center) has been selected
+     * 
+     * Note: this is only used when periphery mode is activated
+     */
+    bool first_periphery_building_selected;
 
     /**
      * Keeps track of how many buildings have been selected in the current quadrant

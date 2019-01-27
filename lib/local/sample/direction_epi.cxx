@@ -31,8 +31,8 @@ namespace sample
     this->current_quadrant_index = -1;
     this->completed_quadrants = 0;
     this->periphery = false;
+    this->first_periphery_building_selected = false;
     this->start_angle = 0;
-    this->periphery_building_selected = false;
     this->buildings_in_current_quadrant = 0;
   }
 
@@ -43,6 +43,7 @@ namespace sample
     this->current_quadrant_index = object->current_quadrant_index;
     this->completed_quadrants = object->completed_quadrants;
     this->periphery = object->periphery;
+    this->first_periphery_building_selected = object->first_periphery_building_selected;
     this->start_angle = object->start_angle;
   }
 
@@ -50,6 +51,7 @@ namespace sample
   building* direction_epi::select_next_building( building_list_type &building_list )
   {
     building* b = NULL;
+    bool first_half = this->get_current_town_size() < this->get_size() / 2;
 
     if( this->use_quadrants )
     {
@@ -62,39 +64,24 @@ namespace sample
       }
     }
 
-    if( !this->use_quadrants && this->periphery && !this->periphery_building_selected )
+    // reset the current building when transitioning to the second half of the periphery building list
+    if( this->periphery && !first_half && !this->first_periphery_building_selected ) this->current_building = NULL;
+
+    if( NULL == this->current_building )
     {
-      // get the furthest building from the center of the town
-      b = *std::max_element(
-        this->initial_building_list.cbegin(),
-        this->initial_building_list.cend(),
-        []( building* b1, building* b2 ) -> bool {
-          return b1->get_town()->get_centroid().distance( b1->get_position() ) <
-                 b2->get_town()->get_centroid().distance( b2->get_position() );
-        }
-      );
-      this->tree->remove( b );
-      this->periphery_building_selected = true;
-      if( utilities::verbose )
-        utilities::output(
-          "selected furthest building from center of town out of %d buildings in arc",
-          this->initial_building_list.size() );
-    }
-    else
-    {
-      if( NULL == this->current_building )
+      // 1. determine the start angle (and quadrant)
+      this->determine_next_start_angle();
+
+      // 2. get list of all buildings in the area determined by the sub-algorithm in the chosen direction
+      this->determine_initial_building_list( building_list );
+      if( 0 == this->initial_building_list.size() )
+        throw std::runtime_error(
+          "Unable to find initial building after 1000 attempts.  You must either lower the sample size or increase the initial selection area." );
+
+      // 3. select a building from the list produced by step 2
+      if( this->periphery )
       {
-        // 1. determine the start angle (and quadrant)
-        this->determine_next_start_angle();
-
-        // 2. get list of all buildings in the area determined by the sub-algorithm in the chosen direction
-        this->determine_initial_building_list( building_list );
-        if( 0 == this->initial_building_list.size() )
-          throw std::runtime_error(
-            "Unable to find initial building after 1000 attempts.  You must either lower the sample size or increase the initial selection area." );
-
-        // 3. select a building from the list produced by step 2
-        if( this->periphery )
+        if( first_half )
         {
           // get the closest building to the center of the town
           b = *std::min_element(
@@ -105,31 +92,46 @@ namespace sample
                      b2->get_town()->get_centroid().distance( b2->get_position() );
             }
           );
-          this->periphery_building_selected = false;
-          if( utilities::verbose )
-            utilities::output(
-              "selected closest building to center of town out of %d buildings in arc",
-              this->initial_building_list.size() );
         }
         else
         {
-          this->first_building_index = utilities::random( 0, this->initial_building_list.size() - 1 );
-          auto initial_it = this->initial_building_list.begin();
-          std::advance( initial_it, this->first_building_index );
-          b = *initial_it;
-          if( utilities::verbose )
-            utilities::output(
-              "selected building %d of %d in arc",
-              this->first_building_index + 1,
-              this->initial_building_list.size() );
+          // get the furthest building from the center of the town
+          b = *std::max_element(
+            this->initial_building_list.cbegin(),
+            this->initial_building_list.cend(),
+            []( building* b1, building* b2 ) -> bool {
+              return b1->get_town()->get_centroid().distance( b1->get_position() ) <
+                     b2->get_town()->get_centroid().distance( b2->get_position() );
+            }
+          );
+
+          if( false == this->first_periphery_building_selected ) this->first_periphery_building_selected = true;
         }
-        this->tree->remove( b );
+
+        if( utilities::verbose )
+          utilities::output(
+            "selected %s building to center of town out of %d buildings",
+            first_half ? "closest" : "furthest",
+            this->initial_building_list.size() );
       }
       else
       {
-        // let the parent class select the next building (it is automatically removed from the tree)
-        b = epi::select_next_building( building_list );
+        this->first_building_index = utilities::random( 0, this->initial_building_list.size() - 1 );
+        auto initial_it = this->initial_building_list.begin();
+        std::advance( initial_it, this->first_building_index );
+        b = *initial_it;
+        if( utilities::verbose )
+          utilities::output(
+            "selected building %d of %d in arc",
+            this->first_building_index + 1,
+            this->initial_building_list.size() );
       }
+      this->tree->remove( b );
+    }
+    else
+    {
+      // let the parent class select the next building (it is automatically removed from the tree)
+      b = epi::select_next_building( building_list );
     }
 
     this->buildings_in_current_quadrant++;
@@ -146,7 +148,7 @@ namespace sample
     this->current_quadrant_index = -1;
     this->completed_quadrants = 0;
     this->start_angle = 0;
-    this->periphery_building_selected = false;
+    this->first_periphery_building_selected = false;
     this->buildings_in_current_quadrant = 0;
   }
 
