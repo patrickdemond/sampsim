@@ -78,6 +78,10 @@ namespace sample
         // find the nearest building, make note of its position and remove it if it isn't the
         // last building in the loop
         b = this->tree->find_nearest( position );
+        if( NULL == b )
+          throw std::runtime_error(
+            "Ran out of buildings to sample.  You must either lower the sample size or increase the lowest town population." );
+
         this->tree->remove( b );
         position = b->get_position();
         if( utilities::verbose )
