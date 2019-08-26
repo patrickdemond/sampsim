@@ -192,134 +192,141 @@ namespace sample
     // run selection from the first to the last sample index
     for( unsigned int iteration = this->first_sample_index; iteration <= this->last_sample_index; iteration++ )
     {
-      if( this->first_sample_index < iteration ) this->reset_for_next_sample();
-
-      bool first = true;
-      int household_count = 0;
-
-      // sample each town in the sampled town list
-      int s_index = iteration - this->first_sample_index;
-      for( auto it = sampled_town_index_list[s_index].cbegin();
-           it != sampled_town_index_list[s_index].cend();
-           ++it )
+      try
       {
-        sampsim::town *town = town_lookup[*it].second;
-        this->current_town_individual_fraction = 0 == total_individuals ? 0.0 :
-          town_count_list[town->get_index()] / static_cast< double >( total_individuals );
-        if( first ) first = false;
-        else this->reset_for_next_sample( false );
+        if( this->first_sample_index < iteration ) this->reset_for_next_sample();
 
-        building_list_type building_list;
-        this->create_building_list( town, building_list );
+        bool first = true;
+        int household_count = 0;
 
-        if( utilities::verbose )
-          utilities::output( "selecting from a list of %d buildings", building_list.size() );
-
-        // create a list of all sampled individuals so that we can weight them after selection is done
-        individual_list_type selected_individual_list;
-
-        // keep selecting buildings until the ending condition has been met
-        building* last_building = NULL;
-        while( !this->is_sample_complete() )
+        // sample each town in the sampled town list
+        int s_index = iteration - this->first_sample_index;
+        for( auto it = sampled_town_index_list[s_index].cbegin();
+             it != sampled_town_index_list[s_index].cend();
+             ++it )
         {
-          if( building_list.empty() )
+          sampsim::town *town = town_lookup[*it].second;
+          this->current_town_individual_fraction = 0 == total_individuals ? 0.0 :
+            town_count_list[town->get_index()] / static_cast< double >( total_individuals );
+          if( first ) first = false;
+          else this->reset_for_next_sample( false );
+
+          building_list_type building_list;
+          this->create_building_list( town, building_list );
+
+          if( utilities::verbose )
+            utilities::output( "selecting from a list of %d buildings", building_list.size() );
+
+          // create a list of all sampled individuals so that we can weight them after selection is done
+          individual_list_type selected_individual_list;
+
+          // keep selecting buildings until the ending condition has been met
+          building* last_building = NULL;
+          while( !this->is_sample_complete() )
           {
-            std::cout << "WARNING: unable to fulfill the sample's ending condition" << std::endl;
-            break;
-          }
-
-          building* b = this->select_next_building( building_list );
-          if( b == last_building )
-          {
-            utilities::output( "there are %d buildings left in the list", building_list.size() );
-            std::cout << "WARNING: unable to fulfill the sample's ending condition ("
-                      << building_list.size()
-                      << " buildings left)" << std::endl;
-            break;
-          }
-          last_building = b;
-
-          // set the first building
-          if( NULL == this->first_building ) this->first_building = b;
-
-          // select households within the building (this is step 4 of the algorithm)
-          for( auto household_it = b->get_household_list_begin();
-               household_it != b->get_household_list_end();
-               ++household_it )
-          {
-            int count = 0;
-            household *h = *household_it;
-
-            // select individuals within the household
-            for( auto individual_it = h->get_individual_list_begin();
-                 individual_it != h->get_individual_list_end();
-                 ++individual_it )
+            if( building_list.empty() )
             {
-              individual *i = *individual_it;
-              if( ( ANY_AGE == this->get_age() || this->get_age() == i->get_age() ) &&
-                  ( ANY_SEX == this->get_sex() || this->get_sex() == i->get_sex() ) )
-              {
-                if( this->use_sample_weights ) selected_individual_list.push_back( i );
-                i->select();
-                if( this->use_sample_weights ) i->set_sample_weight( this->get_immediate_sample_weight( i ) );
+              std::cout << "WARNING: unable to fulfill the sample's ending condition" << std::endl;
+              break;
+            }
 
-                count++;
-                if( this->get_one_per_household() ) break;
+            building* b = this->select_next_building( building_list );
+            if( b == last_building )
+            {
+              utilities::output( "there are %d buildings left in the list", building_list.size() );
+              std::cout << "WARNING: unable to fulfill the sample's ending condition ("
+                        << building_list.size()
+                        << " buildings left)" << std::endl;
+              break;
+            }
+            last_building = b;
+
+            // set the first building
+            if( NULL == this->first_building ) this->first_building = b;
+
+            // select households within the building (this is step 4 of the algorithm)
+            for( auto household_it = b->get_household_list_begin();
+                 household_it != b->get_household_list_end();
+                 ++household_it )
+            {
+              int count = 0;
+              household *h = *household_it;
+
+              // select individuals within the household
+              for( auto individual_it = h->get_individual_list_begin();
+                   individual_it != h->get_individual_list_end();
+                   ++individual_it )
+              {
+                individual *i = *individual_it;
+                if( ( ANY_AGE == this->get_age() || this->get_age() == i->get_age() ) &&
+                    ( ANY_SEX == this->get_sex() || this->get_sex() == i->get_sex() ) )
+                {
+                  if( this->use_sample_weights ) selected_individual_list.push_back( i );
+                  i->select();
+                  if( this->use_sample_weights ) i->set_sample_weight( this->get_immediate_sample_weight( i ) );
+
+                  count++;
+                  if( this->get_one_per_household() ) break;
+                }
+              }
+
+              if( count )
+              {
+                this->current_size += count;
+                this->current_town_size += count;
+                household_count++;
+
+                // only select another household if we haven't reached our ending condition
+                if( this->is_sample_complete() ) break;
               }
             }
 
-            if( count )
-            {
-              this->current_size += count;
-              this->current_town_size += count;
-              household_count++;
+            auto it = std::find( building_list.begin(), building_list.end(), b );
+            if( it == building_list.end() ) std::cout << "ERROR: Can't find " << b << " in sample's building list" << std::endl;
+            else building_list.erase( it );
+          }
 
-              // only select another household if we haven't reached our ending condition
-              if( this->is_sample_complete() ) break;
+          // apply post-sample weighting factor to all selected individuals
+          if( this->use_sample_weights )
+          {
+            double factor = this->get_post_sample_weight_factor();
+
+            // now determine the sample weight for all selected individuals
+            for( auto individual_it = selected_individual_list.begin();
+                 individual_it != selected_individual_list.end();
+                 ++individual_it )
+            {
+              individual *i = *individual_it;
+              i->set_sample_weight( i->get_sample_weight() * factor );
             }
           }
-
-          auto it = std::find( building_list.begin(), building_list.end(), b );
-          if( it == building_list.end() ) std::cout << "ERROR: Can't find " << b << " in sample's building list" << std::endl;
-          else building_list.erase( it );
         }
 
-        // apply post-sample weighting factor to all selected individuals
-        if( this->use_sample_weights )
+        sampsim::population* sampled_population = new sampsim::population;
+        sampled_population->copy( this->population ); // will only copy selected individuals
+        this->sampled_population_list.push_back( sampled_population );
+
+        if( 1 < this->number_of_towns )
         {
-          double factor = this->get_post_sample_weight_factor();
-
-          // now determine the sample weight for all selected individuals
-          for( auto individual_it = selected_individual_list.begin();
-               individual_it != selected_individual_list.end();
-               ++individual_it )
-          {
-            individual *i = *individual_it;
-            i->set_sample_weight( i->get_sample_weight() * factor );
-          }
+          utilities::output(
+            "finished generating %s sample #%d, %d households selected across %d towns",
+            this->get_type().c_str(),
+            iteration + 1,
+            household_count,
+            this->number_of_towns);
+        }
+        else
+        {
+          utilities::output(
+            "finished generating %s sample #%d, %d households selected",
+            this->get_type().c_str(),
+            iteration + 1,
+            household_count );
         }
       }
-
-      sampsim::population* sampled_population = new sampsim::population;
-      sampled_population->copy( this->population ); // will only copy selected individuals
-      this->sampled_population_list.push_back( sampled_population );
-
-      if( 1 < this->number_of_towns )
+      catch( std::runtime_error &e )
       {
-        utilities::output(
-          "finished generating %s sample #%d, %d households selected across %d towns",
-          this->get_type().c_str(),
-          iteration + 1,
-          household_count,
-          this->number_of_towns);
-      }
-      else
-      {
-        utilities::output(
-          "finished generating %s sample #%d, %d households selected",
-          this->get_type().c_str(),
-          iteration + 1,
-          household_count );
+        std::cout << "ERROR: " << e.what() << std::endl;
       }
     }
     this->population->set_sample_mode( false );
