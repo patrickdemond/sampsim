@@ -75,6 +75,7 @@ namespace sampsim
     void expire_summary() { this->expired = true; }
     void select();
     void unselect();
+    void select_all();
 
     /**
      * Iterator access to child towns

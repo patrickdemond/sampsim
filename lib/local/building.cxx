@@ -238,4 +238,10 @@ namespace sampsim
       }
     }
   }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void building::select_all()
+  {
+    for( auto it = this->household_list.cbegin(); it != this->household_list.cend(); ++it ) (*it)->select_all();
+  }
 }

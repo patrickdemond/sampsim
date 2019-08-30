@@ -441,6 +441,7 @@ namespace sample
             {
               sampsim::population* sampled_population = new sampsim::population;
               sampled_population->from_json( sampled_population_root );
+              sampled_population->select_all();
               this->sampled_population_list[index] = sampled_population;
             }
           }

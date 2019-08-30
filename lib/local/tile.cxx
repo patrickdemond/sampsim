@@ -304,4 +304,10 @@ namespace sampsim
     for( auto it = this->building_list.begin(); it != this->building_list.end(); ++it )
       (*it)->unselect();
   }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void tile::select_all()
+  {
+    for( auto it = this->building_list.cbegin(); it != this->building_list.cend(); ++it ) (*it)->select_all();
+  }
 }

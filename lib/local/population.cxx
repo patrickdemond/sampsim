@@ -724,4 +724,10 @@ namespace sampsim
     for( auto town_it = this->get_town_list_cbegin(); town_it != this->get_town_list_cend(); ++town_it )
       (*town_it)->unselect();
   }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void population::select_all()
+  {
+    for( auto it = this->town_list.cbegin(); it != this->town_list.cend(); ++it ) (*it)->select_all();
+  }
 }

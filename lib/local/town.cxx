@@ -565,4 +565,10 @@ namespace sampsim
       this->tile_list[it->first] = t;
     }
   }
+
+  //-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-+#+-
+  void town::select_all()
+  {
+    for( auto it = this->tile_list.cbegin(); it != this->tile_list.cend(); ++it ) it->second->select_all();
+  }
 }

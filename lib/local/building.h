@@ -78,6 +78,7 @@ namespace sampsim
     void rebuild_summary();
     void select();
     void unselect();
+    void select_all();
 
     /**
      * Iterator access to child households
