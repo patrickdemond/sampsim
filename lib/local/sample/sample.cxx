@@ -540,7 +540,7 @@ namespace sample
     // get summaries of all populations and add them up as we go
     std::vector< sampsim::summary* > summary_list;
     for( auto it = this->sampled_population_list.cbegin(); it != this->sampled_population_list.cend(); ++it )
-      summary_list.push_back( (*it)->get_summary() );
+      if( *it ) summary_list.push_back( (*it)->get_summary() );
     sampsim::summary::write( summary_list, this->use_sample_weights, stream );
 
     stream.close();
@@ -560,8 +560,11 @@ namespace sample
       // calculate the proportion and variance for all populations
       for( auto it = this->sampled_population_list.cbegin(); it != this->sampled_population_list.cend(); ++it )
       {
-        variance = (*it)->get_variance( rr );
-        stream << variance.first << "," << variance.second << std::endl;
+        if( *it )
+        {
+          variance = (*it)->get_variance( rr );
+          stream << variance.first << "," << variance.second << std::endl;
+        }
       }
 
       stream.close();
