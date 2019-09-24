@@ -1,0 +1,22 @@
+* BMB: re-make everything and make sure that README/instructions are clear
+    * it's OK to have "installer" and "user" be different people
+* BMB: re-run basic examples (these are more focused on visualizing raw output)
+    * make sure everything still works and polish/clarify instructions etc.
+* does the code (yet) have an option to output true (incidence, total N) for a city realization and observed (incidence, total N) for a sample realization?
+* want to get the output in the format:
+* simulate a city = "generate"
+```
+{var1-N} generate# {samp_type,samp_par1-N} trueN trueinc sampN sampinc
+```
+spit out a file
+
+run# city# sample_N sample_I
+1 
+2
+3
+4
+5
+
+* single cluster, single set of parameters
+* 
+

@@ -14,9 +14,9 @@ we want to do (at least as a first pass) in simulating populations to be sampled
 
 * We will consider an `n_tile_x` $\times$ `n_tile_y` rectangular grid, with size `L_tile`. Thus the centroids of the tiles are at `((i+1/2)*L_tile,(j+1/2)*L_tile)` for `i,j` equal to `0..(n_tile-1)`. (It will probably be best to use realistic distance units.)  For our example, let's say `n_tile_x=n_tile_y`=10, `L_tile`=3.5 km (this gives us 1225 km^2, a little bigger than Hamilton)
 * We can vary characteristics spatially across tiles; if the variation is spatially structured, we will associate it with the centroids (*or other characteristic location*) of the tiles. Several reasonable ways to generate characteristics would be:
- * Simple random sampling (i.e. spatially uncorrelated; each tile gets an independent sample, e.g. Normal with specified mean and standard deviation)
- * Linear or quadratic trend surface (i.e. the value of centroid $\{x,y\}$ is $b_{00}+b_{01}x + b_{10}y + b_{20}x^2 + b_{02}y^2 + b_{11}xy$)
- * A specified Gaussian random field (perhaps overkill)
+    * Simple random sampling (i.e. spatially uncorrelated; each tile gets an independent sample, e.g. Normal with specified mean and standard deviation)
+    * Linear or quadratic trend surface (i.e. the value of centroid $\{x,y\}$ is $b_{00}+b_{01}x + b_{10}y + b_{20}x^2 + b_{02}y^2 + b_{11}xy$)
+    * A specified Gaussian random field (perhaps overkill)
 * for now, let's suppose that income has a linear trend and average population density is randomly distributed among tiles.  The units of income are more or less arbitrary: let's say we use `inc=0.75+x*1/(4*35)+y/(4*35)` so the income ranges from 0.75 at `{0,0}` to 1.25 at `{1,1}`. We want an average population density of 400/km^2 (again, using Hamilton as an example), so let's say the population density of a tile is chosen from `Normal(mean=400,sd=50)`.
 
 ## Within-tile spatial characteristics
@@ -47,6 +47,7 @@ Now we need to generate individuals within households.
 Now we assign disease status to individuals.  We are going to do this in a standard generalized-linear-model way: that is, we are going to construct a linear function of the various contributing factors (income, spatial disease effect, household disease effect, individual disease effect, age/adult vs. child).  In order to make this into a probability we then logistic-transform the linear disease score (called a *linear predictor* in statistical contexts), and choose a Bernoulli random variable based on this score.
 
 The most comprehensible way to do this will probably be to 
+
 * standardize all of the predictors (income, household latent variable, etc.) to have mean zero and standard deviation 1 (the latent variables are already scaled this way);
 * scale each variable by an "importance parameter" $\beta$ and add them together;
 * add an intercept to set the desired median prevalence.
@@ -56,7 +57,7 @@ For example, we might decide that income and household latent variable have equa
 Thus the general form of the disease incidence model is
 $$
 \begin{split}
-\eta & = \beta_0 + \sum_i (x_i/\bar{x}_i)/\sigma \\
-y_i & \sim \text{Bernoulli}(\text{logistic}(\eta))
+\eta & = \beta_0 + \sum_i \beta_i (x_i/\bar{x}_i)/\sigma \\
+y_i & \sim \text{Bernoulli}(\textrm{logistic}(\eta))
 \end{split}
 $$
