@@ -26,7 +26,7 @@ library(directlabels)
 source("final_fig_funs.R")
 load("article_final.rda")
 
-system("rm article_final_fig_*.pdf")
+## system("rm -f article_final_fig_*.pdf")
 
 ## Figure 1: RMSE vs sample size
 exclude_method <- c("EPI3","Grid")

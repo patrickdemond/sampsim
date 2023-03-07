@@ -1,12 +1,17 @@
+ca <- commandArgs(trailingOnly=TRUE)[-1]
+fn <- ca[1]
+ntab <- if (length(ca)<2) 8 else as.numeric(ca[2])
+## fn <- "Results4x50.xlsx"
+print(fn)
 library(tidyverse)
 source("final_fig_funs.R")
 
-new_MSE <- get_all_MSEtab(fn="run1and2REV.xlsx",
-                          n_table=8, debug=TRUE,
+new_MSE <- get_all_MSEtab(fn=fn,
+                          n_table=ntab, debug=TRUE,
                           sub_names=FALSE)
 
-new_MSE_r <- get_all_MSEtab(fn="run1and2REV.xlsx",
-                          n_table=8, debug=TRUE,
+new_MSE_r <- get_all_MSEtab(fn=fn,
+                          n_table=ntab, debug=TRUE,
                           sub_names=FALSE,
                           resamp_data=TRUE)
 
@@ -22,9 +27,9 @@ gg <- (map_dfr(c(TRUE,FALSE),
               function(resamp) {
                   map_dfr(setNames(RR_vec,RR_vec),
                           ~get_partabs(npops=53,
-                                       fn="run1and2REV.xlsx",
+                                       fn=fn,
                                        sub_names=FALSE,
-                                       n_table=8,
+                                       n_table=ntab,
                                        resamp_data=resamp,
                                        RR=.),
                           .id="RR")
