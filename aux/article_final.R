@@ -174,13 +174,14 @@ g1 <- (ggplot(plot_data,aes(n,mean,colour=method))
 fn <- "article_final_fig_1.pdf"
 with(plot_size,ggsave(plot=g1,filename=fn,width=width,height=height))
 
+## FIGURE 2
+
 exclude_methods <- c("EPI3","Grid")
 focal_RR <- 1.0
 focal_resamp <- FALSE
 mlevs <- setdiff(all_methods,exclude_methods)
-iwh_vec <- setNames(c("#c77533","#8a66d3","#86a83c","#c85998","#60a16c",
-                      "#897bbf","#c8615d","#49afcf"), mlevs)
-col_vec <- setNames(c("#000000",iwh_vec),mlevs)
+iwh_vec <- c("#c77533","#8a66d3","#86a83c","#c85998","#60a16c",
+                      "#897bbf","#c8615d","#49afcf")
 shape_vec <- setNames(c(3,  ## random
                         16:19, ## non-EPI
                         21:24), ## EPI

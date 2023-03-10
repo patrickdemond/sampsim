@@ -1,10 +1,10 @@
 ca <- commandArgs(trailingOnly=TRUE)[-1]
-fn <- ca[1]
-ntab <- if (length(ca)<2) 8 else as.numeric(ca[2])
-## fn <- "Results4x50.xlsx"
+fn <-   if (length(ca)<1) "Results4x50.xlsx" else ca[1]
+ntab <- if (length(ca)<2) 4 else as.numeric(ca[2])
+## use fn == run1and2REV.xlsx, ntab == 8 for old version
 print(fn)
 library(tidyverse)
-source("final_fig_funs.R")
+source("final_setup_funs.R")
 
 new_MSE <- get_all_MSEtab(fn=fn,
                           n_table=ntab, debug=TRUE,

@@ -8,7 +8,7 @@ figs: article_final.rda article_final_setup.R final_fig_funs.R
 
 ## arg 1: file name containing results (xlsx)
 ## arg 2: number of tables/simulation methods run
-article_final.rda: article_final_setup.R final_fig_funs.R
+article_final.rda: article_final_setup.R final_setup_funs.R
 	Rscript --vanilla article_final_setup.R --args $(SIMRESULTS) 4
 
 clean:
