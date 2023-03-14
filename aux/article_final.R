@@ -21,10 +21,16 @@
 
 ## from article_final_setup.R
 library(tidyverse)
+
 theme_set(theme_bw())
 library(directlabels)
 source("final_fig_funs.R")
+source("final_names.R")
+source("final_cols.R")
 load("article_final.rda")
+gg$method[gg$method == "NewEPI"] <- "SA"
+u <- unique(gg$method)
+levels(gg$method) <- u[order(!is_epi(u))]
 
 ## system("rm -f article_final_fig_*.pdf")
 
@@ -73,19 +79,19 @@ point_alpha <- 0.05
 legend_pos <- c(0.65,0.15)
 use_ribbons <- FALSE
 do_shape <- FALSE
-iwh_vec <- c("#c77533","#8a66d3","#86a83c","#c85998","#60a16c","#897bbf","#c8615d","#49afcf")
-col_vec <- c("#000000",iwh_vec)
-shape_vec <- c(3,  ## random
-               16:19, ## non-EPI
-               21:24) ## EPI
-mlevs <- c("Random","Square","Grid","Peri","Quad","OldEPI","NewEPI","EPI3","EPI5")
-names(col_vec) <- mlevs
-names(shape_vec) <- mlevs
 
-mlevs <- setdiff(mlevs,exclude_methods)
-col_vec <- col_vec[mlevs]
-shape_vec <- shape_vec[mlevs]
-lty_vec <- c("solid","11")[1+as.numeric(grepl("epi",mlevs,ignore.case=TRUE))]
+
+## shape_vec <- c(3,  ## random
+##                16:19, ## non-EPI
+##                21:24) ## EPI
+## mlevs <- c("Random","Square","Grid","Peri","Quad","OldEPI","NewEPI","EPI3","EPI5")
+## names(col_vec) <- mlevs
+## names(shape_vec) <- mlevs
+
+## mlevs <- setdiff(mlevs,exclude_methods)
+## col_vec <- col_vec[mlevs]
+## shape_vec <- shape_vec[mlevs]
+## lty_vec <- c("solid","11")[1+as.numeric(grepl("epi",mlevs,ignore.case=TRUE))]
 
 plot_list <- list()
 for (focal_n in unique(gg$n)) {
@@ -174,24 +180,35 @@ g1 <- (ggplot(plot_data,aes(n,mean,colour=method))
 fn <- "article_final_fig_1.pdf"
 with(plot_size,ggsave(plot=g1,filename=fn,width=width,height=height))
 
-## FIGURE 2
+## Figure 2
 
 exclude_methods <- c("EPI3","Grid")
 focal_RR <- 1.0
 focal_resamp <- FALSE
-mlevs <- setdiff(all_methods,exclude_methods)
-iwh_vec <- c("#c77533","#8a66d3","#86a83c","#c85998","#60a16c",
-                      "#897bbf","#c8615d","#49afcf")
-shape_vec <- setNames(c(3,  ## random
-                        16:19, ## non-EPI
-                        21:24), ## EPI
-                      mlevs)
+
+mlevs <- setdiff(unique(gg$method), exclude_methods)
+## kluge: epi methods first, random last
+m_ord <- order(as.numeric(!is_epi(mlevs))+100*(mlevs=="Random"))
+levels(gg$method) <- mlevs[m_ord]
+
+## set color order etc. **before** reordering
+lty_vec <- c("solid","11")[1+as.numeric(is_epi(mlevs))][m_ord]
+nonEPI <- !is_epi(mlevs)
+EPI <- is_epi(mlevs)
+## not used here ...
+shape_vec <- setNames(rep(NA_integer_, length(mlevs)), mlevs)[m_ord]
+shape_vec[shape_vec == "Random"] <- 3L
+shape_vec[nonEPI] <- 15 + seq(sum(nonEPI))
+shape_vec[EPI]  <- 20 + seq(sum(EPI)) ## filled
+shape_vec <- shape_vec[m_ord]
+col_vec <- setNames(col_vec0[seq_along(mlevs)], mlevs)[m_ord]
 
 plot_data <- (gg
     %>% filter(RR==focal_RR,resamp==focal_resamp)
     %>% filter(!method %in%  exclude_methods)
-    %>% mutate(method=factor(method,levels=mlevs)
-             , epi=grepl("EPI",method))
+    %>% mutate(method=factor(method,
+                             levels=mlevs[m_ord])
+             , epi=is_epi(method))
 )
 
 plot_data_long <- (plot_data
@@ -209,14 +226,20 @@ minval <- NA
 point_alpha <- 0.2
 use_ribbons <- FALSE
 
-gg1 <- (ggplot(plot_data_long, aes(true_mean, rmse,
+gg1 <- (ggplot(plot_data_long, aes(true_mean,
+                                   rmse,
                                    colour=method,
                                    label=method))
     + scale_x_log10()
     + scale_y_log10(limits=c(minval,NA), oob=scales::squish)
     + scale_colour_manual(values=col_vec,
-                          guide=guide_legend(reverse=TRUE)
+                          ## guide=guide_legend(reverse=TRUE),
+                          ## breaks = mlevs[order(!is_epi(mlevs))]
                           )
+    + scale_linetype_manual(values=lty_vec,
+                            ## guide=guide_legend(reverse=TRUE),
+                            ## breaks = mlevs[order(!is_epi(mlevs))]
+                            )
     + facet_grid(response~n,scale="free_y",
                  labeller =labeller(n=function(s) 
                      sprintf("n=%s per cluster",s),
@@ -235,16 +258,13 @@ gg1 <- (ggplot(plot_data_long, aes(true_mean, rmse,
                   aes(linetype=method),
                   method="loess",
                   formula=y~x)
-    + scale_linetype_manual(values=lty_vec,
-                            guide=guide_legend(reverse=TRUE)
-                            )
 )
 
 fn <- "article_final_fig_2.pdf"
 with(plot_size,ggsave(plot=gg1,filename=fn,width=width,height=height))
 
-zipname <- sprintf("article_final_figs_%s.zip",format(Sys.time(),"%Y%m%d"))
-system(sprintf("zip  %s article_final_fig_*.pdf", zipname))
+zipname <- sprintf("%s_final_figs_%s.zip",basename,format(Sys.time(),"%Y%m%d"))
+system(sprintf("zip  %s %s_final_fig_*.pdf", zipname, basename))
 if (interactive()) {
     cat("copying to ms\n")
     system(sprintf("scp %s ms.mcmaster.ca:~/public_html/misc/",zipname))

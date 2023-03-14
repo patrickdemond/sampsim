@@ -8,13 +8,12 @@ library(tidyr)
 library(dplyr)
 
 source("final_names.R")
+source("final_cols.R")
 
-## colours retrieved from I Want Hue
-iwh_vec <- c("#c77533","#8a66d3","#86a83c","#c85998","#60a16c",
-             "#897bbf","#c8615d","#49afcf")
-col_vec <- c("#000000", iwh_vec)
-    
+is_epi <- function(x) grepl("epi|sa", x, ignore.case = TRUE)
+
 load("article_final.rda")
+gg$method[gg$method == "NewEPI"] <- "SA"
 ## note 'gg' is in GLOBAL environment (ugh)
 mkfig <- function(focal_n=7,
                   focal_RR=1,
@@ -31,19 +30,19 @@ mkfig <- function(focal_n=7,
                   ) {
 
     mlevs <- setdiff(unique(gg$method), exclude_methods)
-    lty_vec <- c("solid","11")[1+as.numeric(grepl("epi",mlevs,ignore.case=TRUE))]
-    nonEPI <- !grepl("EPI", mlevs)
-    EPI <- grepl("EPI", mlevs)
+    lty_vec <- c("solid","11")[1+as.numeric(is_epi(mlevs))]
+    nonEPI <- !is_epi(mlevs)
+    EPI <- is_epi(mlevs)
     shape_vec <- setNames(rep(NA_integer_, length(mlevs)), mlevs)
     shape_vec[shape_vec == "Random"] <- 3L
-    shape_vec[!grepl("EPI", mlevs)] <- 15 + seq(sum(!grepl("EPI", mlevs)))  ## solid
-    shape_vec[grepl("EPI", mlevs)]  <- 20 + seq(sum(grepl("EPI", mlevs))) ## filled
+    shape_vec[!is_epi(mlevs)] <- 15 + seq(sum(!is_epi(mlevs)))  ## solid
+    shape_vec[is_epi(mlevs)]  <- 20 + seq(sum(is_epi(mlevs))) ## filled
     col_vec <- setNames(col_vec[seq_along(mlevs)], mlevs)
 
     size_name <- paste0("true\n", if (response=="prev") "mean\nprevalence" else "relative\nrisk")
     resamp_str <- if (focal_resamp) "resample" else "no_resample"
     fn <- sprintf("%s_final_fig_SUPP_2_n%d_%s_%s_RR%1.1f.pdf",
-                  basename,nval,resamp_str,response,focal_RR)
+                  basename, nval, resamp_str, response, focal_RR)
     cat(fn,"\n")
     ## should be: n (3) x RR (4) x resamp (2) x response (2)
     plot_data <- (gg
@@ -53,7 +52,7 @@ mkfig <- function(focal_n=7,
                     %>% filter(!method %in%  exclude_methods)
                     %>% mutate(rmse=sqrt(focal_mse)
                              , method=factor(method,levels=mlevs)
-                             , epi=grepl("EPI",method))
+                             , epi=is_epi(method))
                 )
                 plot_data_long <- (plot_data
                     %>% select(all_of(c("rmse","method","epi","true_val",x_vars)))

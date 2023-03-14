@@ -1,3 +1,4 @@
+basename <- "article"
 all_methods <- c("Random","Square","Grid","Peri","Quad","OldEPI","NewEPI","EPI3","EPI5", "SA", "EPI")
 
 newnames <- c(`strip_epi-s1`="OldEPI strip",
